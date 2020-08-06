@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="ce89e275-d6b5-40e1-8cc3-91687646dcaf" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ProjectId" id="1fOG3EjZTMoLBBr5XuQiYsxSkj6" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="com.intellij.ide.scratch.LRUPopupBuilder$1/New Scratch File" value="Python" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ce89e275-d6b5-40e1-8cc3-91687646dcaf" name="Default Changelist" comment="" />
+      <created>1596081524760</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1596081524760</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="593" y="359" key="com.intellij.ide.util.TipDialog" timestamp="1596118024194">
+      <screen x="0" y="23" width="1792" height="1097" />
+    </state>
+    <state x="593" y="359" key="com.intellij.ide.util.TipDialog/0.23.1792.1097@0.23.1792.1097" timestamp="1596118024194" />
+    <state x="668" y="110" width="837" height="825" key="find.popup" timestamp="1596607295030">
+      <screen x="0" y="23" width="1792" height="1097" />
+    </state>
+    <state x="668" y="110" width="837" height="825" key="find.popup/0.23.1792.1097@0.23.1792.1097" timestamp="1596607295030" />
+    <state x="757" y="244" width="670" height="676" key="search.everywhere.popup" timestamp="1596605746140">
+      <screen x="0" y="23" width="1792" height="1097" />
+    </state>
+    <state x="757" y="244" width="670" height="676" key="search.everywhere.popup/0.23.1792.1097@0.23.1792.1097" timestamp="1596605746140" />
+  </component>
+</project>
