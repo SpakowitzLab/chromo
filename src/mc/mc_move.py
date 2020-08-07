@@ -107,6 +107,7 @@ def crank_shaft_move(polymer, epigenmark, density, num_epigenmark, i_poly, mcmov
     if np.random.rand() < math.exp(-delta_energy):
         polymer[i_poly].r_poly[ind0:indf, :] = r_poly_trial
         polymer[i_poly].t3_poly[ind0:indf, :] = t3_poly_trial
+        density[delta_index_xyz, :] += delta_density
         mcmove[0].num_success += 1
 
 
