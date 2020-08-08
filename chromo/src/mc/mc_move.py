@@ -183,7 +183,7 @@ def combine_repeat(a, idx):
 
     :param a: 
     :return: a_combine, idx
-    """""
+    """
     #    a = np.array([[11, 2], [11, 3], [13, 4], [10, 10], [10, 1]])
     #    b = a[np.argsort(a[:, 0])]
     #    grps, idx = np.unique(b[:, 0], return_index=True)
@@ -198,3 +198,130 @@ def combine_repeat(a, idx):
     idx_combine = a_with_index[:, 0].astype(int)
 
     return a_combine, idx_combine
+
+
+def end_pivot_move(polymer, epigenmark, density, num_epigenmark, i_poly, mcmove, field):
+    """
+    Randomly rotate segment from one end of polymer chain.
+    
+    """
+    
+    # Generate a rotation angle
+    rot_angle = mcmove[1].amp_move * (np.random.rand() - 0.5)
+
+    # Determine the number of beads in the chain
+    num_beads = polymer[i_poly].num_beads
+
+    # Randomly select whether to rotate the left (side = 0) or right (side = 1) end of the chain
+    side = np.random.randint(0,2)
+
+    if side == 0:
+        # Select a random bead at the start (left side) of the chain and identify neighboring point
+        ind0 = np.random.randint(num_beads)                # Pick a random bead
+        r_ind0 = polymer[i_poly].r_poly[ind0, :]          # Isolate coordinates
+        ind1 = ind0 + 1                                   # Pick a neighboring bead
+        r_ind1 = polymer[i_poly].r_poly[ind1, :]          # Isolate coordinates
+
+    elif side == 1:
+        # Select a random bead on the right end of the chain and identify neighboring point
+        ind0 = np.random.randint(ind0 + 1, num_beads + 1) # Pick a random bead
+        r_ind0 = polymer[i_poly].r_poly[ind0, :]          # Isolate coordinates
+        ind1 = ind0 - 1                                   # Pick a neighboring bead
+        r_ind1 = polymer[i_poly].r_poly[ind1, :]          # Isolate coordinates
+
+    # Generate translation matrix such that neighboring point is translated to origin
+    translate_mat = np.zeros((4,4))
+    translate_mat[0, 0] = 1
+    translate_mat[1, 1] = 1
+    translate_mat[2, 2] = 1
+    translate_mat[3, 3] = 1
+    translate_mat[0, 3] = -r_ind1[0]
+    translate_mat[1, 3] = -r_ind1[1]
+    translate_mat[2, 3] = -r_ind1[2]
+
+    # Generate the inverse of the translation mat
+    inv_translation_mat = translation_mat
+    inv_translation_mat[0, 3] = -translation_mat[0, 3]
+    inv_translation_mat[1, 3] = -translation_mat[1, 3]
+    inv_translation_mat[2, 3] = -translation_mat[2, 3]
+
+    # Calculate the length of the projections to point ind0 on yz plane.
+    proj_len_yz = math.sqrt(r_ind0[2]**2 + r_ind0[1]**2)
+
+    # Generate rotation matrix such that origin to ind0 is rotated onto the xz plane
+    rot_mat_x = np.zeros((4,4))
+    rot_mat_x[0, 0] = 1
+    rot_mat_x[1, 1] = r_ind0[2] / proj_len_yz
+    rot_mat_x[1, 2] = -r_ind0[1] / proj_len_yz
+    rot_mat_x[2, 1] = r_ind0[1] / proj_len_yz
+    rot_mat_x[2, 2] = r_ind0[2] / proj_len_yz
+    rot_mat_x[3, 3] = 1
+
+    # Generate the inverse of the x rotation matrix
+    inv_rot_mat_x = rot_mat_x
+    inv_rot_mat_x[1, 2] = -rot_mat_x[1, 2]
+    inv_rot_mat_x[2, 1] = -rot_mat_x[2, 1]
+
+    # Generate rotation matrix around the y-axis such that the origin to ind0 is rotated onto the z-axis
+    rot_mat_y = np.zeros((4,4))
+    rot_mat_y[0, 0] = proj_len_yz
+    rot_mat_y[0, 2] = -r_ind0[0]
+    rot_mat_y[1, 1] = 1
+    rot_mat_y[2, 0] = r_ind0[0]
+    rot_mat_y[2, 2] = proj_len_yz
+    rot_mat_y[3, 3] = 1
+
+    # Generate the inverse of the y rotation matrix
+    inv_rot_mat_y = rot_mat_y
+    inv_rot_mat_y[0, 2] = -rot_mat_y[0, 2]
+    inv_rot_mat_y[2, 0] = -rot_mat_y[2, 0]
+
+    # Generate rotation matrix about the z-axis using the specified rotation angle.
+    rot_mat_z = np.zeros((4, 4))
+    rot_mat_z[0, 0] = math.cos(rot_angle)
+    rot_mat_z[0, 1] = -math.sin(rot_angle)
+    rot_mat_z[1, 0] = -rot_mat_z[0, 1]
+    rot_mat_z[1, 1] = rot_mat_z[0, 0]
+    rot_mat_z[2, 2] = 1
+    rot_mat_z[3, 3] = 1
+
+    # Generate full rotation matrix
+    rot_matrix = np.matmul(inv_translation_mat, \
+        np.matmul(inv_rot_mat_x, \
+            np.matmul(inv_rot_mat_y, \
+                np.matmul(rot_mat_z, \
+                    np.matmul(rot_mat_y, \
+                        np.matmul(rot_mat_x, translate_mat))))))
+
+    # Generate a matrix of points undergoing rotation
+    if side == 0:
+        points = np.ones((4, ind0 - 1))
+        for i in range(0,3):
+            for j in range(0, ind0 - 1):
+                points[i, j] = polymer[i_poly].r_poly[j, i]
+
+    # Generate trial positions
+    trial_points = np.matmul(rot_matrix, points)
+
+    # 
+
+
+
+
+
+
+def slide_move (polymer, ipoly, mcmove, field):
+    """
+    Random translation of a segment of beads
+
+    """
+    
+    pass
+
+
+
+
+
+
+
+
