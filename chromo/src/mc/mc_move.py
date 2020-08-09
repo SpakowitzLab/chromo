@@ -201,6 +201,150 @@ def combine_repeat(a, idx):
     return a_combine, idx_combine
 
 
+def select_bead_from_left(num_beads, all_beads, exclude_last_bead = True):
+    """
+    Randomly select a bead in the polymer chain with an exponentially decaying probability based on index distance from the first point.
+    
+    Parameters
+    ----------
+    num_beads:              int
+                            Number of beads in the polymer chain
+
+    all_beads:              np.array
+                            1D vector of all bead indices in the polymer.
+
+    exclude_last_bead:      Boolean (default: True)
+                            Set True to exclude the final bead from selection. This is done when rotating the LHS of the polymer.
+    
+    Returns
+    -------
+    ind0:                   int
+                            Index of a bead selected with exponentially decaying probability with increasing index distance from bead 1
+
+    """
+
+    if exclude_last_bead == True:
+        
+        # Calculate total of exponential values for normalization
+        norm_const = np.sum(np.exp(1 - all_beads[0:len(all_beads)-2]/(num_beads)))
+        # Generate a random number for bead selection
+        rand_val = random.uniform(0,1)
+        # Select a bead based on exponentially decaying probability with distance from the left side of the polymer
+        prob = 0
+        for i in range(0, len(all_beads) - 1):
+            prob += np.exp(1 - all_beads[i]/num_beads) / norm_const
+            if rand_val < prob:
+                ind0 = i + 1    ## Check that ind0 starts at 1
+                break
+
+    else:
+        
+        # Calculate total of exponential values for normalization
+        norm_const = np.sum(np.exp(1 - all_beads[0:len(all_beads)-1]/(num_beads)))
+        # Generate a random number for bead selection
+        rand_val = random.uniform(0,1)
+        # Select a bead based on exponentially decaying probability with distance from the left side of the polymer
+        prob. = 0
+        for i in range(0, len(all_beads)):
+            prob += np.exp(1 - all_beads[i]/num_beads) / norm_const
+            if rand_val < prob:
+                ind0 = i + 1    ## Check that ind0 starts at 1
+                break
+
+    return(ind0)
+
+
+def select_bead_from_right(num_beads, all_beads, exclude_first_bead = True):
+    """
+    Randomly select a bead in the polymer chain with an exponentially decaying probability based on index distance from the last point.
+    
+    Parameters
+    ----------
+    num_beads:              int
+                            Number of beads in the polymer chain
+
+    all_beads:              np.array
+                            1D vector of all bead indices in the polymer.
+
+    exclude_first_bead:     Boolean (default: True)
+                            Set True to exclude the first bead from selection. This is done when rotating the RHS of the polymer.
+    
+    Returns
+    -------
+    ind0:                   int
+                            Index of a bead selected with exponentially decaying probability with increasing index distance from final bead
+
+    """
+
+    if exclude_first_bead == True:
+
+        # Calculate total of exponential values for normalization
+        norm_const = np.sum(np.exp(1 - (num_beads - all_beads[1:len(all_beads)-1])/(num_beads)))
+        # Generate a random number for bead selection
+        rand_val = random.uniform(0,1)
+        # Select a bead based on exponentially decaying probability with distance from the right side of the polymer
+        prob = 0
+        for i in range(1, len(all_beads)):
+            prob += np.exp(1 - (num_beads - all_beads[i])/(num_beads)) / norm_const
+            if rand_val < prob:
+                ind0 = i + 1    ## Check that ind0 starts at 1
+                break
+
+    else:
+
+        # Calculate total of exponential values for normalization
+        norm_const = np.sum(np.exp(1 - (num_beads - all_beads[0:len(all_beads)-1])/(num_beads)))
+        # Generate a random number for bead selection
+        rand_val = random.uniform(0,1)
+        # Select a bead based on exponentially decaying probability with distance from the right side of the polymer
+        prob = 0
+        for i in range(0, len(all_beads)):
+            prob += np.exp(1 - (num_beads - all_beads[i])/(num_beads)) / norm_const
+            if rand_val < prob:
+                ind0 = i + 1    ## Check that ind0 starts at 1
+                break
+
+    return(ind0)
+
+
+def select_bead_around_index(num_beads, all_beads, ind0):
+    """
+    Randomly select a bead in the polymer chain with exponentially decaying probability based on index distance from another point.
+
+    Parameters
+    ----------
+    num_beads:              int
+                            Number of beads in the polymer chain
+
+    all_beads:              np.array
+                            1D vector of all bead indices in the polymer.
+
+    ind0:                   int
+                            Index of first point
+
+    Returns
+    -------
+
+    indf:                   int
+                            Index of new point selected based on distance from ind0
+
+	"""
+
+    # Calculate total of exponential values for normalization
+    norm_const = np.sum(np.exp(1 - abs(all_beads - ind0) / num_beads))
+    # Generate a random number for bead selection
+    rand_val = random.uniform(0,1)
+    # Select a bead based on exponentially decaying probability with distance from the first bead
+    prob = 0
+    for i in range(0, len(all_beads)):
+        prob += np.exp(1-abs(all_beads[i] - ind0) / num_beads) / norm_const
+        if rand_val < prob:
+            indf = i + 1    ## Check that indf starts at 1
+            break
+
+    return(indf)
+
+
 def arbitrary_axis_rotation(r_ind0, r_ind1, rot_angle):
     """
     Generate a transformation matrix for rotation of angle rot_angle about an arbitrary axis from points r_ind0 to r_ind1.
@@ -290,132 +434,6 @@ def arbitrary_axis_rotation(r_ind0, r_ind1, rot_angle):
     return(rot_matrix)
 
 
-def select_bead_from_left(num_beads, exclude_last_bead = True):
-    """
-    Randomly select a bead in the polymer chain with an exponentially decaying probability based on index distance from the first point.
-    
-    Parameters
-    ----------
-    num_beads:              int
-                            Number of beads in the polymer chain
-
-    exclude_last_bead:      Boolean (default: True)
-                            Set True to exclude the final bead from selection. This is done when rotating the LHS of the polymer.
-    
-    Returns
-    -------
-    ind0:                   int
-                            Index of a bead selected with exponentially decaying probability with increasing index distance from bead 1
-
-    """
-
-    if exclude_last_bead == True:
-
-        # List all beads
-        all_beads = np.arange(0, num_beads)
-        
-        # Calculate total of exponential values for normalization
-        norm_const = np.sum(np.exp(1 - all_beads[0:len(all_beads)-2]/(num_beads)))
-        
-        # Generate a random number for bead selection
-        rand_val = random.uniform(0,1)
-        
-        # Select a bead based on exponentially decaying probability with distance from the left side of the polymer
-        for i in range(0, len(all_beads) - 1):
-            prob = np.exp(1 - all_beads[i]/num_beads) / norm_const
-            if rand_val < prob:
-                ind0 = i + 1    ## Check that ind0 starts at 1
-                break
-
-        """ Alternatively, consider an iterative approach
-        
-        norm_const = np.sum(np.exp(1 - all_beads[0:len(all_beads)-2]/num_beads))
-        accept_point = False
-        while accept_point == False:
-            ind0 = np.random.randint(num_beads - 1)
-            if random.uniform(0,1) <= (math.exp(1 - ind0/num_beads) / norm_const):
-                accept_point = True 
-        """ 
-
-    else:
-
-        # List all beads
-        all_beads = np.arange(0, num_beads)
-        
-        # Calculate total of exponential values for normalization
-        norm_const = np.sum(np.exp(1 - all_beads[0:len(all_beads)-1]/(num_beads)))
-        
-        # Generate a random number for bead selection
-        rand_val = random.uniform(0,1)
-        
-        # Select a bead based on exponentially decaying probability with distance from the left side of the polymer
-        for i in range(0, len(all_beads)):
-            prob = np.exp(1 - all_beads[i]/num_beads) / norm_const
-            if rand_val < prob:
-                ind0 = i + 1    ## Check that ind0 starts at 1
-                break
-
-    return(ind0)
-
-
-def select_bead_from_right(num_beads, exclude_first_bead = True):
-    """
-    Randomly select a bead in the polymer chain with an exponentially decaying probability based on index distance from the last point.
-    
-    Parameters
-    ----------
-    num_beads:              int
-                            Number of beads in the polymer chain
-
-    exclude_first_bead:     Boolean (default: True)
-                            Set True to exclude the first bead from selection. This is done when rotating the RHS of the polymer.
-    
-    Returns
-    -------
-    ind0:                   int
-                            Index of a bead selected with exponentially decaying probability with increasing index distance from final bead
-
-    """
-
-    if exclude_first_bead == True:
-
-        # List all beads
-        all_beads = np.arange(0, num_beads)
-
-        # Calculate total of exponential values for normalization
-        norm_const = np.sum(np.exp(1 - (num_beads - all_beads[1:len(all_beads)-1])/(num_beads)))
-
-        # Generate a random number for bead selection
-        rand_val = random.uniform(0,1)
-
-        # Select a bead based on exponentially decaying probability with distance from the right side of the polymer
-        for i in range(1, len(all_beads)):
-            prob = np.exp(1 - (num_beads - all_beads[i])/(num_beads))
-            if rand_val < prob:
-                ind0 = i + 1    ## Check that ind0 starts at 1
-                break
-
-    else:
-
-        # List all beads
-        all_beads = np.arange(0, num_beads)
-
-        # Calculate total of exponential values for normalization
-        norm_const = np.sum(np.exp(1 - (num_beads - all_beads[0:len(all_beads)-1])/(num_beads)))
-
-        # Generate a random number for bead selection
-        rand_val = random.uniform(0,1)
-
-        # Select a bead based on exponentially decaying probability with distance from the right side of the polymer
-        for i in range(0, len(all_beads)):
-            prob = np.exp(1 - (num_beads - all_beads[i])/(num_beads))
-            if rand_val < prob:
-                ind0 = i + 1    ## Check that ind0 starts at 1
-                break
-
-    return(ind0)
-
-
 def end_pivot_move(polymer, epigenmark, density, num_epigenmark, i_poly, mcmove, field):
     """
     Randomly rotate segment from one end of polymer chain.
@@ -425,25 +443,26 @@ def end_pivot_move(polymer, epigenmark, density, num_epigenmark, i_poly, mcmove,
     # Generate a rotation angle
     rot_angle = mcmove[1].amp_move * (np.random.rand() - 0.5)
 
-    # Determine the number of beads in the chain
+    # Determine the number of beads in the chain and assign each bead an index
     num_beads = polymer[i_poly].num_beads - 1
+    all_beads = np.arange(0, num_beads)
 
     # Randomly select whether to rotate the left (side = 0) or right (side = 1) end of the chain
     side = np.random.randint(0,2)
 
     # Select a random bead at the start (left side) of the chain and identify neighboring point.
     if side == 0:
-        ind0 = select_bead_from_left(num_beads)     # Randomly pick the first bead
-        r_ind0 = polymer[i_poly].r_poly[ind0, :]    # Isolate coordinates
-        ind1 = ind0 + 1                             # Identify the neighboring bead
-        r_ind1 = polymer[i_poly].r_poly[ind1, :]    # Isolate coordinates
+        ind0 = select_bead_from_left(num_beads, all_beads)      # Randomly pick the first bead
+        r_ind0 = polymer[i_poly].r_poly[ind0, :]                # Isolate coordinates
+        ind1 = ind0 + 1                                         # Identify the neighboring bead
+        r_ind1 = polymer[i_poly].r_poly[ind1, :]                # Isolate coordinates
 
     # Select a random bead on the right end of the chain and identify neighboring point
     elif side == 1:
-        ind0 = select_bead_from_right(num_beads)    # Randomly pick the first bead
-        r_ind0 = polymer[i_poly].r_poly[ind0, :]    # Isolate coordinates
-        ind1 = ind0 - 1                             # Identify the neighboring bead
-        r_ind1 = polymer[i_poly].r_poly[ind1, :]    # Isolate coordinates
+        ind0 = select_bead_from_right(num_beads, all_beads)     # Randomly pick the first bead
+        r_ind0 = polymer[i_poly].r_poly[ind0, :]                # Isolate coordinates
+        ind1 = ind0 - 1                                         # Identify the neighboring bead
+        r_ind1 = polymer[i_poly].r_poly[ind1, :]                # Isolate coordinates
 
     # Generate rotation matrix
     rot_matrix = arbitrary_axis_rotation(r_ind0, r_ind1, rot_angle)
@@ -451,20 +470,26 @@ def end_pivot_move(polymer, epigenmark, density, num_epigenmark, i_poly, mcmove,
     # Generate a matrix of points undergoing rotation
     if side == 0:
         # Consider first the case where the left side of the polymer undergoes the rotation
-        points = np.ones((4, ind0 - 1))
+        r_points = np.ones((4, ind0 - 1))
+        t3_points = np.ones((4, ind0 - 1))
         for i in range(0, 3):
             for j in range(0, ind0):
-                points[i, j] = polymer[i_poly].r_poly[j, i]
+                r_points[i, j] = polymer[i_poly].r_poly[j, i]
+                t3_points[i, j] = polymer[i_poly].t3_poly[j, i]
+
     
     elif side == 1:
         # Then consider that the right side of the polymer undergoes rotation
-        points np.ones((4, num_beads - ind0))
+        r_points np.ones((4, num_beads - ind0))
+        t3_points np.ones((4, num_beads - ind0))
         for i in range(0, 3):
             for j in range(0, num_beads - ind0):
-                points[i, j] = polymer[i_poly].r_poly[j + ind0 + 1, i]
+                r_points[i, j] = polymer[i_poly].r_poly[j + ind0 + 1, i]
+                t3_points[i, j] = polymer[i_poly].t3_poly[j + ind0 + 1, i]
 
     # Generate trial positions
-    trial_points = np.matmul(rot_matrix, points)
+    r_trial_points = np.matmul(rot_matrix, r_points)
+    t3_trial_points = np.matmul(rot_matrix, t3_points)
 
     # Calculate the change in energy
 
@@ -476,8 +501,6 @@ def end_pivot_move(polymer, epigenmark, density, num_epigenmark, i_poly, mcmove,
 def slide_move(polymer, epigenmark, density, num_epigenmark, i_poly, mcmove, field):
     """
     Random translation of a segment of beads
-
-    ## NEEDS ADJUSTMENT: CHANGE PRIBABILITY OF SELECTING INDF SO THAT IT IS EXPONENTIALLY DECAYING WITH INDEX DISTANCE FROM IND0.
 
     """
     
@@ -492,12 +515,13 @@ def slide_move(polymer, epigenmark, density, num_epigenmark, i_poly, mcmove, fie
     translation_y = math.sqrt(1 - translation_z**2) * math.sin(rand_angle)
     translation_x = math.sqrt(1 - translation_z**2) * math.cos(rand_angle)
 
-    # Determine the number of beads in the chain
+    # Determine the number of beads in the chain and assign each bead an index
     num_beads = polymer[i_poly].num_beads - 1
+    all_beads = np.arange(0, num_beads)
 
     # Select a random segment of beads
     ind0 = np.random.randint(num_beads + 1)
-    indf = np.random.randint(ind0, num_beads + 1)
+    indf = select_bead_around_index(num_beads, all_beads, ind0)
 
     # Generate a translation matrix
     translation_mat = np.zeros((4,4))
@@ -510,13 +534,13 @@ def slide_move(polymer, epigenmark, density, num_epigenmark, i_poly, mcmove, fie
     translation_mat[2, 3] = translation_z
 
     # Generate a matrix of points undergoing translation
-    points = no.ones((4, indf - ind0 + 1))
+    r_points = no.ones((4, indf - ind0 + 1))
     for i in range(0, 3):
         for j in range(0, indf - ind0 + 1):
-            points[i, j] = polymer[i_poly].r_poly[j + ind0, i]
+            r_points[i, j] = polymer[i_poly].r_poly[j + ind0, i]
 
     # Generate trial positions
-    trial_points = np.matmul(translation_mat, points)
+    r_trial_points = np.matmul(translation_mat, r_points)
 
     # Calculate the change in energy
 
@@ -527,11 +551,45 @@ def slide_move(polymer, epigenmark, density, num_epigenmark, i_poly, mcmove, fie
 
 def tangent_rotation_move(polymer, epigenmark, density, num_epigenmark, i_poly, mcmove, field):
     """
-    Random rotation of an internal set of tangent vectors
+    Randomly rotate the tangent vector of a bead in the chain.
 
     """
 
-    pass
+    # Generate a rotation angle
+    rot_angle = mcmove[3].amp_move * (np.random.rand() - 0.5)
 
+    # Determine the number of beads in the chain and assign each bead an index value
+    num_beads = polymer[i_poly].num_beads - 1
+    all_beads = np.arange(0, num_beads)
+
+    # Randomly select a bead in the polymer
+    ind0 = random.uniform(0, num_beads)
+
+    # Identify the coordinate and tangent of ind0
+    r_ind0 = polymer[i_poly].r_poly[ind0, :]
+    t3_ind0 = polymer[i_poly].t3_poly[ind0, :]
+
+    # Select an arbitrary rotation axis through the bead
+    phi = random.uniform(0, 2*math.pi)
+    theta = random.uniform(0, pi)
+    r = 1
+
+    # Generate a second point to create the 
+    del_x = r * math.sin(theta) * math.cos(phi)
+    del_y = r * math.sin(theta) * math.sin(phi)
+    del_z = r * math.cos(theta)
+    r_ind1 = r_ind0 + np.array(del_x, del_y, del_z)
+
+    # Generate rotation matrix around axis connecting ind0 and ind1
+    rot_matrix = arbitrary_axis_rotation(r_ind0, r_ind1, rot_angle)
+
+    # Rotate the tangent vector by the rotation matrix.
+    t3_ind0_trial = np.matmul(rot_matrix, t3_ind0)
+
+    # Calculate the change in energy
+
+    # Determine acceptance of trial based on Metropolis criterion
+
+    return
 
 
