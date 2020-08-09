@@ -3,6 +3,7 @@ Routines for generating Monte Carlo moves of varying types
 
 """
 
+import random
 import numpy as np
 import math as math
 from mc.calc_density import calc_density
@@ -45,6 +46,7 @@ def crank_shaft_move(polymer, epigenmark, density, num_epigenmark, i_poly, mcmov
     indf = ind0 + delta_ind
 
     # Generate the rotation matrix and vector around the vector between bead ind0 and indf
+    ## Why do you subtract 0.5?
     rot_angle = mcmove[0].amp_move * (np.random.rand() - 0.5)
 
     if ind0 == (indf + 1):
@@ -207,24 +209,24 @@ def end_pivot_move(polymer, epigenmark, density, num_epigenmark, i_poly, mcmove,
     """
     
     # Generate a rotation angle
-    rot_angle = mcmove[1].amp_move * (np.random.rand() - 0.5)
+    rot_angle = mcmove[1].amp_move * (np.random.rand())
 
     # Determine the number of beads in the chain
-    num_beads = polymer[i_poly].num_beads
+    num_beads = polymer[i_poly].num_beads - 1
 
     # Randomly select whether to rotate the left (side = 0) or right (side = 1) end of the chain
     side = np.random.randint(0,2)
 
     if side == 0:
         # Select a random bead at the start (left side) of the chain and identify neighboring point
-        ind0 = np.random.randint(num_beads)                # Pick a random bead
+        ind0 = np.random.randint(num_beads)               # Pick a random bead
         r_ind0 = polymer[i_poly].r_poly[ind0, :]          # Isolate coordinates
         ind1 = ind0 + 1                                   # Pick a neighboring bead
         r_ind1 = polymer[i_poly].r_poly[ind1, :]          # Isolate coordinates
 
     elif side == 1:
         # Select a random bead on the right end of the chain and identify neighboring point
-        ind0 = np.random.randint(ind0 + 1, num_beads + 1) # Pick a random bead
+        ind0 = np.random.randint(1, num_beads + 1)        # Pick a random bead
         r_ind0 = polymer[i_poly].r_poly[ind0, :]          # Isolate coordinates
         ind1 = ind0 - 1                                   # Pick a neighboring bead
         r_ind1 = polymer[i_poly].r_poly[ind1, :]          # Isolate coordinates
@@ -294,34 +296,77 @@ def end_pivot_move(polymer, epigenmark, density, num_epigenmark, i_poly, mcmove,
                         np.matmul(rot_mat_x, translate_mat))))))
 
     # Generate a matrix of points undergoing rotation
+    # Consider first the case where the left side of the polymer undergoes the rotation
     if side == 0:
         points = np.ones((4, ind0 - 1))
-        for i in range(0,3):
-            for j in range(0, ind0 - 1):
+        for i in range(0, 3):
+            for j in range(0, ind0):
                 points[i, j] = polymer[i_poly].r_poly[j, i]
+    
+    # Then consider that the right side of the polymer undergoes rotation
+    elif side == 1:
+        points np.ones((4, num_beads - ind0))
+        for i in range(0, 3):
+            for j in range(0, num_beads - ind0):
+                points[i, j] = polymer[i_poly].r_poly[j + ind0 + 1, i]
 
     # Generate trial positions
     trial_points = np.matmul(rot_matrix, points)
 
-    # 
+    # Calculate the change in energy
+
+    # Determine acceptance of trial based on Metropolis criterion
+
+    return
 
 
-
-
-
-
-def slide_move (polymer, ipoly, mcmove, field):
+def slide_move (polymer, epigenmark, density, num_epigenmark, i_poly, mcmove, field):
     """
     Random translation of a segment of beads
 
     """
     
-    pass
+    # Generate a random translation amplitude
+    translation_amp = mcmove[2].amp_move * (np.random.rand())
 
+    # Randomly partition the translation move into x, y, z components
+    rand_z = random.uniform(0,1)
+    rand_angle = random.uniform(0, 2*math.pi)
 
+    translation_z = translation_amp * rand_z
+    translation_y = math.sqrt(1 - translation_z**2) * math.sin(rand_angle)
+    translation_x = math.sqrt(1 - translation_z**2) * math.cos(rand_angle)
 
+    # Determine the number of beads in the chain
+    num_beads = polymer[i_poly].num_beads - 1
 
+    # Select a random segment of beads
+    ind0 = np.random.randint(num_beads + 1)
+    indf = np.random.randint(ind0, num_beads + 1)
 
+    # Generate a translation matrix
+    translation_mat = np.zeros((4,4))
+    translation_mat[0, 0] = 1
+    translation_mat[1, 1] = 1
+    translation_mat[2, 2] = 1
+    translation_mat[3, 3] = 1
+    translation_mat[0, 3] = translation_x
+    translation_mat[1, 3] = translation_y
+    translation_mat[2, 3] = translation_z
 
+    # Generate a matrix of points undergoing translation
+    points = no.ones((4, indf - ind0 + 1))
+    for i in range(0, 3):
+        for j in range(0, indf - ind0 + 1):
+            points[i, j] = polymer[i_poly].r_poly[j + ind0, i]
+
+    # Generate trial positions
+    trial_points = np.matmul(translation_mat, points)
+
+    # Calculate the change in energy
+
+    # Determine acceptance of trial based on Metropolis criterion
+
+    return
 
 
