@@ -1,6 +1,5 @@
 """
 Monte Carlo simulations of a discrete wormlike chain.
-
 """
 from pathlib import Path
 

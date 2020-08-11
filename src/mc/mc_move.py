@@ -1,6 +1,5 @@
 """
 Routines for generating Monte Carlo moves of varying types
-
 """
 
 import random
