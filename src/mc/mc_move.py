@@ -3,7 +3,6 @@ Routines for generating Monte Carlo moves of varying types
 
 Also routines for recalculating the energy after a move.
 """
-
 import numpy as np
 import math as math
 from mc.calc_density import calc_density
