@@ -1,6 +1,7 @@
 """
 Routines for generating Monte Carlo moves of varying types
 
+Also routines for recalculating the energy after a move.
 """
 
 import numpy as np
