@@ -4,10 +4,10 @@ Monte Carlo simulations of a discrete wormlike chain.
 from pathlib import Path
 
 import numpy as np
-from util.Epigenmark import Epigenmark
-from util.Polymer import Polymer
-from util.MCmove import MCmove
-from util.Field import Field
+from Epigenmark import Epigenmark
+from Polymer import Polymer
+from MCmove import MCmove
+from Field import Field
 import os.path
 from mc.mc_sim import mc_sim
 
