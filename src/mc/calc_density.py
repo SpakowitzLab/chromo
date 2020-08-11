@@ -7,6 +7,7 @@ import numpy as np
 
 
 def calc_density(r_poly, epigen_bind, num_epigenmark, ind0, indf, field):
+    """Calculate the mass-density of a subset of polymer beads."""
 
     # Find the (0,0,0) bins for the beads and the associated weights
     x_poly_box = (r_poly[:, 0] - 0.5 * field.delta_x
