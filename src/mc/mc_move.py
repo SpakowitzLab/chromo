@@ -1,8 +1,6 @@
 """
 Routines for generating Monte Carlo moves of varying types
-
 """
-
 import numpy as np
 import math as math
 from mc.calc_density import calc_density
