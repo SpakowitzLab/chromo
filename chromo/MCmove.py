@@ -2,7 +2,6 @@
 MCmove class
 
 Creates a Monte Carlo move object that contains parameters for the particular move
-
 """
 
 import numpy as np
