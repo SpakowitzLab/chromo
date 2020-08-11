@@ -593,3 +593,67 @@ def tangent_rotation_move(polymer, epigenmark, density, num_epigenmark, i_poly, 
     return
 
 
+def change_binding_state(polymer, epigenmark, epigen_mark_ID, density, num_epigenmark, i_poly, mcmove, field):
+    """
+    Randomly bind/unbind epigenetic proteins from regions of the chomatin
+
+    Parameters
+    ----------
+
+    epigen_mark_ID:     int
+                        Index value of the epigenetic mark being randomly changed
+                        This function is designed to change each epigenetic mark one at a time
+
+    """
+
+    # Determine the number of beads in the chain and assign each bead an index value
+    num_beads = polymer[i_poly].num_beads - 1
+    all_beads = np.arange(0, num_beads)
+
+    # Select a random segment of beads
+    ind0 = np.random.randint(num_beads + 1)
+    indf = select_bead_around_index(num_beads, all_beads, ind0)
+
+    # Initialize a trial epigenetic sequence for the polymer
+    trial_seq = polymer[i_poly].sequence
+
+    # Generate a random value to determine how to affect the epigenetic states
+    rand_val = random.uniform(0,1)
+
+    # If the random value is less than 0.5, change the epigenetic state of both nucleosome tails.
+    if rand_val <= 0.5:
+        for ind in range(ind0, indf + 1):
+            current_state = polymer[i_poly].sequence[ind, epigen_mark_ID]
+            if current_state == 0:
+                trial_seq[ind, epigen_mark_ID] = 2
+            elif current_state == 2:
+                trial_seq[ind, epigen_mark_ID] = 0
+
+    # If the random value is in interval (0.5, 0.75], change the epigenetic state of one histone tail; add proteins where one tail is initially bound
+    elif rand_val <= 0.75 and rand_val > 0.5:
+        for ind in range(ind0, indf + 1):
+            current_state = polymer[i_poly].sequence[ind, epigen_mark_ID]
+            if current_state == 0:
+                trial_seq[ind, epigen_mark_ID] = 1
+            elif current_state == 2:
+                trial_seq[ind, epigen_mark_ID] = 1
+            elif current_state == 1:
+                trial_seq[ind, epigen_mark_ID] = 2
+
+    # If the random value is in interval (0.75, 1], change the epigenetic state of one histone tail; remove proteins where one tail is initially bound
+    elif rand_val > 0.75
+        for ind in range(ind0, indf + 1):
+            current_state = polymer[i_poly].sequence[ind, epigen_mark_ID]
+            if current_state == 0:
+                trial_seq[ind, epigen_mark_ID] = 1
+            elif current_state == 2:
+                trial_seq[ind, epigen_mark_ID] = 1
+            elif current_state == 1:
+                trial_seq[ind, epigen_mark_ID] = 0
+
+    # Calculate the change in energy
+
+    # Determine acceptance of trial based on Metropolis criterion
+
+    return
+
