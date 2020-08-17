@@ -6,8 +6,8 @@ Creates a polymer with a defined length and discretization
 """
 
 import numpy as np
-from util.init_cond import init_cond
-from util.find_parameters import find_parameters
+from chromo.util.init_cond import init_cond
+from chromo.util.find_parameters import find_parameters
 import os.path
 
 

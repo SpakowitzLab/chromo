@@ -1,11 +1,14 @@
 
-from chromo.mc.mc_moves import *
+from chromo.mc.mc_move import *
+import inputs.chromo_for_testing_mc_moves
+from chromo.mc.mc_sim import *
 
 import numpy as np
 
 def test_end_pivot_move():
 	
-	MCmove_obj = MCmove(1)	# Define a single MC move
-	Epigenmark_obj = Epigenmark(1, "input/epigen_prop")
-	Polymer_obj = Polymer(Epigenmark_obj, 1, 4, 8, ??? # Clarification needed on what attributes represent
+	# Generate objects
+	inputs.chromo_for_testing_mc_moves.main()
+
+	assert True
 

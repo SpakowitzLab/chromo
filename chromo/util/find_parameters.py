@@ -7,7 +7,7 @@ def find_parameters(length_bead):
     sim_type = "sswlc"
     lp_dna = 53     # Persistence length of DNA in nm
     length_dim = length_bead * 0.34 / lp_dna        # Non-dimensionalized length per bead
-    param_values = np.loadtxt("util/dssWLCparams")    # Load the parameter table from file
+    param_values = np.loadtxt("chromo/util/dssWLCparams")    # Load the parameter table from file
 
     # Determine the parameter values using linear interpolation of the parameter table
     eps_bend = np.interp(length_dim, param_values[:, 0], param_values[:, 1]) / length_dim
