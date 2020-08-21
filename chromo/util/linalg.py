@@ -5,7 +5,6 @@ import random
 import math as math
 
 import numpy as np
-from scipy.spatial.transform import Rotation as R
 
 
 def arbitrary_axis_rotation(r_ind0, r_ind1, rot_angle):
