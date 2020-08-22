@@ -7,6 +7,7 @@ from util.bead_selection import *
 from util.linalg import *
 from .calc_density import calc_density
 
+
 def mc_move(polymers, epigenmarks, density, num_epigenmark, num_polymers, mcmove, field):
     mc_move_type = mcmove.id
     # MC move type 0: Crank-shaft move
@@ -18,12 +19,11 @@ def mc_move(polymers, epigenmarks, density, num_epigenmark, num_polymers, mcmove
 
     # MC move type 1: End pivot move
     elif mc_move_type == 1:
-        window_size = mcmove[mc_move_type].amp_bead
-        for i_move in range(mcmove[mc_move_type].num_per_cycle):
-            for i_poly in range(num_polymers):
-                end_pivot_move(polymer, epigenmark, density,
-                                 num_epigenmark, i_poly, mcmove, field, window_size)
-                mcmove[mc_move_type].num_attempt += 1
+        window_size = mcmove.amp_bead
+        for i_move in range(mcmove.num_per_cycle):
+            for poly in polymers:
+                end_pivot_move(poly, epigenmark, density, mcmove, field, window_size)
+                mcmove.num_attempt += 1
 
     # MC move type 2: Slide move
     elif mc_move_type == 2:
@@ -202,4 +202,105 @@ def combine_repeat(a, idx):
     idx_combine = a_with_index[:, 0].astype(int)
 
     return a_combine, idx_combine
+
+
+def assess_energy_change(polymer, epigenmark, density, num_epigenmark, i_poly, ind0, indf, field, r_poly_trial, t3_poly_trial):
+    """
+    Assess energy change and acceptance of MC move
+    """
+   
+    density_poly, index_xyz = calc_density(polymer[i_poly].r_poly[ind0:indf, :], polymer[i_poly].epigen_bind,
+                                           num_epigenmark, ind0, indf, field)
+    density_poly_trial, index_xyz_trial = calc_density(r_poly_trial, polymer[i_poly].epigen_bind,
+                                                       num_epigenmark, ind0, indf, field)
+    delta_density_poly_total = np.concatenate((density_poly_trial, -density_poly))
+    delta_index_xyz_total = np.concatenate((index_xyz_trial, index_xyz)).astype(int)
+    delta_density, delta_index_xyz = combine_repeat(delta_density_poly_total, delta_index_xyz_total)
+
+    delta_energy_epigen = 0
+    for i_epigen in range(num_epigenmark):
+        delta_energy_epigen += 0.5 * epigenmark[i_epigen].int_energy * np.sum(
+            (delta_density[:, i_epigen + 1] + density[delta_index_xyz, i_epigen + 1]) ** 2
+            - density[delta_index_xyz, i_epigen + 1] ** 2)
+
+    delta_energy_poly = calc_delta_energy_poly(r_poly_trial, t3_poly_trial, polymer, i_poly, ind0, indf)
+    delta_energy = delta_energy_poly + delta_energy_epigen
+
+    return delta_index_xyz, delta_density, delta_energy
+
+
+def assess_move_acceptance(polymer, i_poly, ind0, indf, density, mcmove, r_poly_trial, t3_poly_trial, delta_index_xyz, delta_density, delta_energy):
+    """
+    Determine move acceptance based on Metropolis criterion
+    """
+    if delta_energy < 0:    # Favorable move
+        prob = 1 
+    else:                   # Unfavorable move
+        try:
+            prob = math.exp(-delta_energy) 
+        except OverflowError:
+            prob = 0 
+    if np.random.rand() < prob:
+        polymer[i_poly].r_poly[ind0:indf, :] = r_poly_trial
+        polymer[i_poly].t3_poly[ind0:indf, :] = t3_poly_trial
+        density[delta_index_xyz, :] += delta_density
+        mcmove[1].num_success += 1
+
+    return
+
+
+def end_pivot_move(polymer, epigenmark, density, mcmove, field, window_size):
+    """
+    Randomly rotate segment from one end of the polymer. 
+
+    Parameters
+    ----------
+    polymer : Polymer
+        Object containing polymer properties
+    epigenmark : epigenmark object
+        Object contianing epigenetic mark properties
+    density : float
+        Mass density of the polymer
+    mcmove : mcmove object
+        Object describing characteristics of the MC move (e.g. amplitude)
+    field : Field
+        Object describing properties of the energy field
+    window_size : int
+        Maximum number of nucleosomes to roate in any one MC move
+    """
+    
+
+    rot_angle = mcmove.amp_move * (np.random.rand() - 0.5)
+    num_beads = polymer.num_beads
+    select_window = num_beads - 1
+    all_beads = np.arange(0, num_beads, 1)
+
+    if np.random.randint(0, 2) == 0:    # rotate LHS of polymer
+        ind0 = 0
+        pivot_point = indf = select_bead_from_left(select_window, num_beads)
+        base_point = pivot_point + 1
+    else:                               # rotate RHS of polymer
+        pivot_point = ind0 = select_bead_from_right(select_window, num_beads)
+        indf = num_beads-1
+        base_point = pivot_point - 1
+    
+    r_points = np.ones((4, indf-ind0+1)
+    r_point[0:3, :] = polymer.r[ind0:indf+1, :].T
+    t3_points = np.ones((4, indf-ind0+1))
+    t3_points[0:3, :] = polymer.t_3[ind0:indf+1, :].T
+    
+    r_pivot_point = polymer.r[pivot_point, :]
+    r_base_point = polymer.r[base_point, :]
+    
+    rot_matrix = arbitrary_axis_rotation(r_pivot_point, r_base_point, rot_angle)
+    r_poly_trial = np.matmul(rot_matrix, r_points)      # generate trial coordinates
+    r_poly_trial = r_poly_trial[0:3,:].T
+    t3_poly_trial = np.matmul(rot_matrix, t3_points)    # generate trial tangents
+    t3_poly_trial = t3_poly_trial[0:3,:].T
+            
+    # assess move by Metropolis Criterion
+    delta_index_xyz, delta_density, delta_energy = assess_energy_change(polymer, epigenmark, density, ind0, indf+1, field, r_poly_trial, t3_poly_trial)
+    assess_move_acceptance(polymer, ind0, indf+1, density, mcmove, r_poly_trial, t3_poly_trial, delta_index_xyz, delta_density, delta_energy)
+
+    return
 

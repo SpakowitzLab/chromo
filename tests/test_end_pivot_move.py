@@ -23,7 +23,6 @@ def test_end_pivot_move():
     # Epigenetic marks
     epigenmark = []
     
-    
 	# Generate objects
 	inputs.chromo_for_testing_mc_moves.main()
 
