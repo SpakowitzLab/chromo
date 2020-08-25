@@ -6,7 +6,8 @@ from chromo.mc.mc_sim import *
 import numpy as np
 
 def test_end_pivot_move():
-
+    
+    # Simulation Inputs
     num_polymers = 1
     length_bead = 55
     num_epigenmark = 2
@@ -18,6 +19,10 @@ def test_end_pivot_move():
     num_bins_z = 3
     num_save_mc = 10
     num_mc_steps = 1000
+
+    # Epigenetic marks
+    epigenmark = []
+    
     
 	# Generate objects
 	inputs.chromo_for_testing_mc_moves.main()
