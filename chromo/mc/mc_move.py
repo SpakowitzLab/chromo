@@ -3,7 +3,7 @@ Routines for generating Monte Carlo moves of varying types
 """
 import numpy as np
 import math as math
-from mc.calc_density import calc_density
+from .calc_density import calc_density
 
 
 def mc_move(polymer, epigenmark, density, num_epigenmark, num_polymers, mcmove, mc_move_type, field):

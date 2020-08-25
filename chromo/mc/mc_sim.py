@@ -5,8 +5,8 @@ Routines for performing Monte Carlo simulations.
 """
 
 import numpy as np
-from mc.calc_density import calc_density
-from mc.mc_move import mc_move
+from .calc_density import calc_density
+from .mc_move import mc_move
 
 
 def mc_sim(polymer, epigenmark, num_epigenmark, num_polymers, num_mc_steps, mcmove, num_mc_move_types, field):
