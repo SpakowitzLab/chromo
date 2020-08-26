@@ -23,7 +23,7 @@ def capped_exponential(cap=np.inf):
     """
     r = np.random.exponential(cap).astype(int)
     while r > cap:
-        r = round(np.random.exponential(cap))
+        r = np.random.exponential(cap).astype(int)
     return r
 
 def select_bead_from_left(window, N_beads, exclude_last_bead=True):
