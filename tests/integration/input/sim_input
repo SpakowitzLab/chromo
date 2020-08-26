@@ -1,4 +1,4 @@
-1		        # Number of polymers (chromosomes) in simulation (num_polymers)
+4		        # Number of polymers (chromosomes) in simulation (num_polymers)
 55			# Linker length between single nucleosomes (in base pairs)
 2			# Number of epigenetic marks (num_epigenmark)
 3			# Length of the box in the x-direction in nm (length_box_x)

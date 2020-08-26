@@ -1,9 +1,10 @@
 """Tests that simply check if a simulation runs at all."""
 import chromo.mc as mc
-from chromo.Polymer import Polymer
+from chromo.Polymer import Polymer, Epigenmark
 from chromo.Field import Field
 
 import numpy as np
+import pandas as pd
 
 from pathlib import Path
 integration_dir = Path(__file__).parent.absolute()
@@ -15,6 +16,9 @@ def andy_mc():
 
     Should be replaced with a cleaner version that doesn't rely on reading
     input files, except for optionally.
+
+    More importantly, should rewrite so that there's not a bunch of "num_"
+    stuff that's redundant/maybe buggy.
     """
     # Initialize the simulation by reading parameters from file (located in the
     # input directory)
@@ -33,34 +37,43 @@ def andy_mc():
     num_mc_steps = np.genfromtxt(input_file, comments='#', dtype=int)[10]
     # from_file = np.genfromtxt(input_file, comments='#', dtype=bool)[11]
     output_dir = np.genfromtxt(input_file, comments='#', dtype=str)[12]
-    beads_per_polymer = np.genfromtxt(input_file, comments='#', dtype=str)[13]
+    num_beads = np.genfromtxt(input_file, comments='#', dtype=int)[13]
     num_mc_move_types = 1
 
     # Create the epigenetic marks from the Epigenmark class if "epigen_prop"
     # files exist
     epigenmarks = []
-    prop_file = input_dir / Path("epigen_prop")
-    if not prop_file.exists():
-        raise OSError(f"Property file does not exist for epigenetic marks")
-    for epigenmark_count in range(1, num_epigenmark + 1):
-        epigenmarks.append(Epigenmark(epigenmark_count, input_dir))
+    epi_files = list(input_dir.glob("epigen_prop*"))
+    if len(epi_files) != num_epigenmark:
+        raise ValueError("There should be one epigen_prop file per mark!")
+    for epi_file in epi_files:
+        epi_info = pd.read_csv(epi_file, comment='#',
+                               delim_whitespace=True).iloc[:, 0]
+        epigenmarks.append(Epigenmark(epi_info.name, *epi_info.values))
 
-    # Create the chromosomal polymers from the Polymer class
-    # 1. Define the sequence of epigenetic marks if "sequence" files exist for
-    #    all epigenetic marks
-    # 2. Initialize the conformations from file (if from_file == True) or from
-    #    random initiatlization
-
+    seq_files = list(input_dir.glob("seq*"))
+    if len(seq_files) != num_epigenmark:
+        raise ValueError("There should be one seq file per mark!")
+    states = np.zeros((num_beads, num_epigenmark))
+    for i, seq_file in enumerate(seq_files):
+        states[:, i] = np.genfromtxt(seq_file, comments='#', dtype=int)
     # Create the polymers from the Polymer class if "chromo_prop" files exist
     polymers = []
-    for chromo_count in range(num_polymers):
-        polymers.append(Polymer.straight_line_in_x(beads_per_polymer,
-                                                   length_bead))
+    bead_counts = pd.read_csv(input_dir / Path('chromo_prop'),
+                              delim_whitespace=True)
+    if len(bead_counts) != num_polymers:
+        raise ValueError("There should be one chrom_prop entry per polymer!")
+    for _, (name, bead_count) in bead_counts.iterrows():
+        if bead_count != num_beads:
+            raise ValueError("There are two redundant ways to specify "
+                             "num_beads, and you gave two different values.")
+        polymers.append(Polymer.straight_line_in_x(
+                name, epigenmarks, states, bead_count, length_bead))
 
     # Setup the Monte Carlo class to define the properties of the simulation
     mc_moves = np.arange(num_mc_move_types)
     field = Field(length_box_x, num_bins_x, length_box_y, num_bins_y,
                   length_box_z, num_bins_z)
 
-    return mc.polymer_in_field(polymers, epigenmarks, field, mc_moves,
-                               num_mc_steps, num_save_mc, output_dir)
+    return mc.polymer_in_field(polymers, epigenmarks, field, num_mc_steps,
+                               num_save_mc, mc_moves, output_dir)
