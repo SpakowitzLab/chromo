@@ -21,12 +21,12 @@ def capped_exponential(cap=np.inf):
     r : int
         Exponentially sampled random integer less than capped value
     """
-    r = round(np.random.exponential(cap))
+    r = np.random.exponential(cap).astype(int)
     while r > cap:
         r = round(np.random.exponential(cap))
     return r
 
-def select_bead_from_left(window, N_beads, exclude_last_bead = True):
+def select_bead_from_left(window, N_beads, exclude_last_bead=True):
     """
     Randomly select index exponentially decaying from left.
 
@@ -102,4 +102,3 @@ def select_bead_from_point(window, N_beads, ind0):
         return select_bead_from_right(window_side, window_side, exclude_first_bead = False)
     else:               # RHS
         return select_bead_from_left(window_side, window_side, exclude_last_bead = False) + ind0
-
