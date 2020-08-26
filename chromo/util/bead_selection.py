@@ -8,22 +8,25 @@ import sys
 import numpy as np
 
 
-def capped_exponential(cap=np.inf):
+def capped_exponential(window, cap=np.inf):
     """
     Select exponentially distributed integer below some capped value.
 
     Parameters
     ----------
+    window : int
+        Mean of the exponential distribution being sampled
     cap : int
-        Maximum value of exponentially sampled integer
+        Maximum value of exponentially sampled integer 
     Returns
     -------
     r : int
         Exponentially sampled random integer less than capped value
     """
-    r = np.random.exponential(cap).astype(int)
+    
+    r = np.random.geometric(1/window)
     while r > cap:
-        r = np.random.exponential(cap).astype(int)
+        r = np.random.geometric(1/window)
     return r
 
 def select_bead_from_left(window, N_beads, exclude_last_bead=True):
@@ -48,7 +51,7 @@ def select_bead_from_left(window, N_beads, exclude_last_bead=True):
     if window > N_beads:
         raise ValueError("Bead selection window size must be less than polymer length")
     
-    return capped_exponential(window)
+    return capped_exponential(window, N_beads)
 
 
 def select_bead_from_right(window, N_beads, exclude_first_bead = True):

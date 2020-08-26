@@ -121,7 +121,7 @@ def test_select_bead_from_left():
     num_beads = 10000
     selections, select_densities, select_bin_edges = batch_bead_selection(num_beads)
     x, y, AD_stat = compare_with_expected_selections(num_beads, select_densities, select_bin_edges)
-    #plot_distribution_of_bead_selections(selections, select_bin_edges, x, y, "Index Selection from Left", "tests/outputs/Exponential_Sampling_from_Left.PNG")
+    # plot_distribution_of_bead_selections(selections, select_bin_edges, x, y, "Index Selection from Left", "tests/Exponential_Sampling_from_Left.PNG")
     assert AD_stat < 200    # Trial runs turn up an AD-test statistic close to 175. 
     assert y[0] > y[-1]     # For selection from left, first bead has higher probability than last bead
 
@@ -133,7 +133,7 @@ def test_select_bead_from_right():
     num_beads = 10000
     selections, select_densities, select_bin_edges = batch_bead_selection(num_beads, select_from_left = False)
     x, y, AD_stat = compare_with_expected_selections(num_beads, select_densities, select_bin_edges, select_from_left = False)
-    #plot_distribution_of_bead_selections(selections, select_bin_edges, x, y, "Index Selection from Right", "tests/outputs/Exponential_Sampling_from_Right.PNG")
+    # plot_distribution_of_bead_selections(selections, select_bin_edges, x, y, "Index Selection from Right", "tests/Exponential_Sampling_from_Right.PNG")
     assert AD_stat < 200    # Trial runs turn up an AD-test statistic close to 175. 
     assert y[0] < y[-1]     # For selection from right, first bead has lower probability than last bead
     
@@ -152,6 +152,6 @@ def test_select_bead_from_point():
     y = expon.pdf(abs(ind0-x), 0, window) / (2 * (expon.cdf(ind0, 0, window) - expon.cdf(0, 0, window)))
     y_discrete, _ = np.histogram(y, bins = select_bin_edges)
     AD_stat, _, _ = anderson_ksamp([select_densities, y_discrete])
-    #plot_distribution_of_bead_selections(selections, select_bin_edges, x, y, "Index Selection from Center", "tests/outputs/Exponential_Sampling_from_Center.PNG")
+    # plot_distribution_of_bead_selections(selections, select_bin_edges, x, y, "Index Selection from Center", "tests/Exponential_Sampling_from_Center.PNG")
     assert AD_stat < 200    # Trial runs turn up an AD-test statistic close to 175. 
 
