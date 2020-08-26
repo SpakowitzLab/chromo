@@ -6,10 +6,11 @@ Creates a polymer with a defined length and discretization.
 from pathlib import Path
 from enum import Enum
 import dataclasses
+import io
 
 import numpy as np
 import pandas as pd
-from .util.find_parameters import find_parameters
+from .util import dss_params
 
 
 @dataclasses.dataclass
@@ -107,7 +108,7 @@ class Polymer:
         self.length_per_bead = length_per_bead
         # Load the polymer parameters for the conformational energy
         self.sim_type, self.eps_bend, self.eps_par, self.eps_perp, \
-            self.gamma, self.eta = find_parameters(length_per_bead)
+            self.gamma, self.eta = self._find_parameters(length_per_bead)
 
     @classmethod
     def from_files(cls, *, r=None, t_3=None, t_2=None, marks=None, states=None,
@@ -126,41 +127,64 @@ class Polymer:
         return cls(r, t_3, t_2, marks, states, lengths)
 
     @classmethod
-    def straight_line_in_x(cls, num_beads, length_per_bead):
+    def straight_line_in_x(cls, name, marks, states, num_beads,
+                           length_per_bead):
         r = np.zeros((num_beads, 3))
         r[:, 0] = length_per_bead * np.arange(num_beads)
         t_3 = np.zeros((num_beads, 3))
         t_3[:, 0] = 1
         t_2 = np.zeros((num_beads, 3))
         t_2[:, 1] = 1
-        marks = None
-        states = None
-        return cls(r, t_3, t_2, marks, states, length_per_bead)
+        return cls(name, r, t_3, t_2, marks, states, length_per_bead)
 
-    def write_r(self, prefix, **kwargs):
-        r_file = Path(str(prefix) + self.name + '_r.csv')
-        np.savetxt(r_file, self.r, delimiter=',', **kwargs)
+    def write_marks(self, marks_file, **kwargs):
+        self.epigenmarks.to_csv(marks_file, **kwargs)
 
-    def write_t2(self, prefix, **kwargs):
-        t2_file = Path(str(prefix) + self.name + '_t2.csv')
-        np.savetxt(t2_file, self.t2, delimiter=',', **kwargs)
+    def __repr__(self):
+        s = io.Bytes()
+        self.write_repr(s)
+        return s.decode()
 
-    def write_t3(self, prefix, **kwargs):
-        t3_file = Path(str(prefix) + self.name + '_t3.csv')
-        np.savetxt(t3_file, self.t3, delimiter=',', **kwargs)
+    def write_repr(self, path):
+        np.savez(path, r=self.r, t_2=self.t_2, t_3=self.t_3,
+                 states=self.states, marks=self.epigenmarks.values,
+                 length_per_bead=self.length_per_bead)
 
-    def write_states(self, prefix, **kwargs):
-        states_file = Path(str(prefix) + self.name + '_states.csv')
-        np.savetxt(states_file, self.states, delimiter=',', **kwargs)
-
-    def write_marks(self, prefix, **kwargs):
-        marks_file = Path(str(prefix) + self.name + '_marks.csv')
-        self.epigenmarks.to_csv(marks_file)
+    @classmethod
+    def from_repr(cls, path):
+        npz = np.load(path)
+        mark_info_arr = npz['marks']
+        marks = [Epigenmark(*info) for info in mark_info_arr]
+        return cls(r=npz['r'], t_3=npz['t_3'], t_2=npz['t_2'],
+                   states=npz['states'], marks=marks,
+                   length_per_bead=npz['length_per_bead'])
 
     @property
     def num_marks(self):
         return len(self.epigenmarks)
 
+    @property
+    def num_beads(self):
+        return self.r.shape[0]
+
     def __str__(self):
         return f"Polymer<{self.name}, nbeads={self.num_beads}, " \
                f"nmarks={self.num_marks}>"
+
+    @staticmethod
+    def _find_parameters(length_bead):
+        """Determine the parameters for the elastic forces based on ssWLC with twist."""
+        sim_type = "sswlc"
+        lp_dna = 53     # Persistence length of DNA in nm
+        length_dim = length_bead * 0.34 / lp_dna        # Non-dimensionalized length per bead
+
+        # Determine the parameter values using linear interpolation of the parameter table
+        eps_bend = np.interp(length_dim, dss_params[:, 0], dss_params[:, 1]) / length_dim
+        gamma = np.interp(length_dim, dss_params[:, 0], dss_params[:, 2]) * length_dim * lp_dna
+        eps_par = np.interp(length_dim, dss_params[:, 0], dss_params[:, 3]) / (length_dim * lp_dna**2)
+        eps_perp = np.interp(length_dim, dss_params[:, 0], dss_params[:, 4]) / (length_dim * lp_dna**2)
+        eta = np.interp(length_dim, dss_params[:, 0], dss_params[:, 5]) / lp_dna
+
+        return sim_type, eps_bend, eps_par, eps_perp, gamma, eta
+
+
