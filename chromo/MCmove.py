@@ -1,17 +1,18 @@
 """
 MCmove class
 
-Creates a Monte Carlo move object that contains parameters for the particular move
+Creates a Monte Carlo move object that contains parameters for the particular
+move.
 """
 
 import numpy as np
 
 
 class MCmove:
-    type = "Simulation conditions for the MC moves"
 
     def __init__(self, mcmove_count):
         self.name = "MC move type " + str(mcmove_count)
+        self.id = mcmove_count
         self.mcmove_on = True
         self.amp_move = 2 * np.pi
         self.num_per_cycle = 1
@@ -24,3 +25,4 @@ class MCmove:
         return f"{self.name} is a Monte Carlo move"
 
 
+num_moves_defined = 1
