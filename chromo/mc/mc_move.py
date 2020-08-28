@@ -3,6 +3,7 @@ Routines for generating Monte Carlo moves of varying types
 """
 import numpy as np
 import math as math
+
 from chromo.util.bead_selection import *
 from chromo.util.linalg import *
 from .calc_density import calc_density
