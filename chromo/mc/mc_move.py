@@ -348,12 +348,9 @@ def slide_move(polymer, epigenmark, density, num_epigenmark, i_poly, mcmove, fie
     select_window = np.amin(np.array([num_beads-ind0, ind0, window_size]))
     indf = select_bead_from_point(select_window, num_beads, ind0)
 
-    translation_mat = np.identity(4)
-    translation_mat[0, 3] = translation_x
-    translation_mat[1, 3] = translation_y
-    translation_mat[2, 3] = translation_z
- 
-    r_points = np.ones((4, indf-ind0+1)
+    translation_mat = generate_translation_mat(translation_x, translation_y, translation_z)
+
+    r_points = np.ones((4, indf-ind0+1))
     r_points[0:3, :] = active_poly.r_poly[ind0:indf+1, :].T
     t3_poly = active_poly.t3_poly[ind0:indf+1, :]  
     r_poly_trial = translation_mat @ r_points
@@ -363,5 +360,5 @@ def slide_move(polymer, epigenmark, density, num_epigenmark, i_poly, mcmove, fie
     delta_index_xyz, delta_density, delta_energy = assess_energy_change(polymer, epigenmark, density, num_epigenmark, i_poly, ind0, indf+1, field, r_poly_trial, t3_poly)
     assess_move_acceptance(polymer, i_poly, ind0, indf+1, density, mcmove, r_poly_trial, t3_poly, delta_index_xyz, delta_density, delta_energy)
 
-   return
+    return
 
