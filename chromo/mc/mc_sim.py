@@ -1,42 +1,30 @@
-"""
-Routines for performing Monte Carlo simulations.
-
-
-"""
+"""Routines for performing Monte Carlo simulations."""
 
 import numpy as np
 from .calc_density import calc_density
 from .mc_move import mc_move
 
 
-def mc_sim(polymer, epigenmark, num_epigenmark, num_polymers, num_mc_steps, mcmove, num_mc_move_types, field):
-    """
-    Perform Monte Carlo simulation with the
-
-    :param polymer:
-    :param num_epigenmark:
-    :param num_polymers:
-    :param num_mc_steps:
-    :param mcmove:
-    :return:
-    """
-
+def mc_sim(polymers, epigenmarks, num_mc_steps, mcmoves, field):
+    """Perform Monte Carlo simulation."""
+    num_polymers = len(polymers)
+    num_epigenmark = len(epigenmarks)
     # Re-evaluate the densities
-
     density = np.zeros((field.num_bins_total, num_epigenmark + 1), 'd')
-    for i_poly in range(num_polymers):
-        density_poly, index_xyz = calc_density(polymer[i_poly].r_poly, polymer[i_poly].epigen_bind,
-                                      num_epigenmark, 0, polymer[i_poly].num_beads, field)
+    for poly in polymers:
+        density_poly, index_xyz = calc_density(
+                poly.r, poly.states, 0, poly.num_beads, field
+        )
         density[index_xyz, :] += density_poly
 
     # Perform Monte Carlo simulation for num_mc_steps steps
     mc_count = 0
     while mc_count < num_mc_steps:
-
-        for mc_move_type in range(num_mc_move_types):
-            if mcmove[mc_move_type].move_on:
-                for i_move_cycle in range(mcmove[mc_move_type].num_per_cycle):
-                    mc_move(polymer, epigenmark, density, num_epigenmark, num_polymers, mcmove, mc_move_type, field)
+        for mcmove in mcmoves:
+            if mcmove.move_on:
+                for i_move_cycle in range(mcmove.num_per_cycle):
+                    mc_move(polymers, epigenmarks, density, num_epigenmark,
+                            num_polymers, mcmove, field)
 
         mc_count += 1
 
