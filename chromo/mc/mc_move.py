@@ -204,32 +204,31 @@ def combine_repeat(a, idx):
     return a_combine, idx_combine
 
 
-def assess_energy_change(polymer, epigenmark, density, num_epigenmark, i_poly, ind0, indf, field, r_poly_trial, t3_poly_trial):
+def assess_energy_change(polymer, epigenmark, density, ind0, indf, field, r_poly_trial, t3_poly_trial):
     """
     Assess energy change and acceptance of MC move
     """
    
-    density_poly, index_xyz = calc_density(polymer[i_poly].r_poly[ind0:indf, :], polymer[i_poly].epigen_bind,
-                                           num_epigenmark, ind0, indf, field)
-    density_poly_trial, index_xyz_trial = calc_density(r_poly_trial, polymer[i_poly].epigen_bind,
-                                                       num_epigenmark, ind0, indf, field)
+    density_poly, index_xyz = calc_density(polymer.r[ind0:indf, :], polymer.epigen_bind,
+                                           ind0, indf, field)
+    density_poly_trial, index_xyz_trial = calc_density(r_poly_trial, polymer.epigen_bind,
+                                                       ind0, indf, field)
     delta_density_poly_total = np.concatenate((density_poly_trial, -density_poly))
     delta_index_xyz_total = np.concatenate((index_xyz_trial, index_xyz)).astype(int)
     delta_density, delta_index_xyz = combine_repeat(delta_density_poly_total, delta_index_xyz_total)
 
-    delta_energy_epigen = 0
-    for i_epigen in range(num_epigenmark):
-        delta_energy_epigen += 0.5 * epigenmark[i_epigen].int_energy * np.sum(
-            (delta_density[:, i_epigen + 1] + density[delta_index_xyz, i_epigen + 1]) ** 2
-            - density[delta_index_xyz, i_epigen + 1] ** 2)
+    for i, epi_info in enumerate(epigenmark):
+        delta_energy_epigen += 0.5 * epi_info.interaction_energy * np.sum(
+            (delta_density[:, i + 1] + density[delta_index_xyz, i + 1]) ** 2
+            - density[delta_index_xyz, i + 1] ** 2)
 
-    delta_energy_poly = calc_delta_energy_poly(r_poly_trial, t3_poly_trial, polymer, i_poly, ind0, indf)
+    delta_energy_poly = calc_delta_energy_poly(r_poly_trial, t3_poly_trial, polymer, ind0, indf)
     delta_energy = delta_energy_poly + delta_energy_epigen
 
     return delta_index_xyz, delta_density, delta_energy
 
 
-def assess_move_acceptance(polymer, i_poly, ind0, indf, density, mcmove, r_poly_trial, t3_poly_trial, delta_index_xyz, delta_density, delta_energy):
+def assess_move_acceptance(polymer, ind0, indf, density, mcmove, r_poly_trial, t3_poly_trial, delta_index_xyz, delta_density, delta_energy):
     """
     Determine move acceptance based on Metropolis criterion
     """
@@ -241,8 +240,8 @@ def assess_move_acceptance(polymer, i_poly, ind0, indf, density, mcmove, r_poly_
         except OverflowError:
             prob = 0 
     if np.random.rand() < prob:
-        polymer[i_poly].r_poly[ind0:indf, :] = r_poly_trial
-        polymer[i_poly].t3_poly[ind0:indf, :] = t3_poly_trial
+        polymer.r[ind0:indf, :] = r_poly_trial
+        polymer.t_3[ind0:indf, :] = t3_poly_trial
         density[delta_index_xyz, :] += delta_density
         mcmove[1].num_success += 1
 
@@ -269,7 +268,6 @@ def end_pivot_move(polymer, epigenmark, density, mcmove, field, window_size):
         Maximum number of nucleosomes to roate in any one MC move
     """
     
-
     rot_angle = mcmove.amp_move * (np.random.rand() - 0.5)
     num_beads = polymer.num_beads
     select_window = num_beads - 1
@@ -285,7 +283,7 @@ def end_pivot_move(polymer, epigenmark, density, mcmove, field, window_size):
         base_point = pivot_point - 1
     
     r_points = np.ones((4, indf-ind0+1)
-    r_point[0:3, :] = polymer.r[ind0:indf+1, :].T
+    r_points[0:3, :] = polymer.r[ind0:indf+1, :].T
     t3_points = np.ones((4, indf-ind0+1))
     t3_points[0:3, :] = polymer.t_3[ind0:indf+1, :].T
     
