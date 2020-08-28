@@ -106,8 +106,7 @@ def andy_mc_end_pivot():
     num_mc_steps = 1000
     output_dir = integration_dir / Path("/output/end_pivot")
     num_beads = 8
-    mc_move_ID = [1]
-    # num_mc_move_types = 1 
+    num_mc_move_types = 1
 
     # Create the epigenetic marks from the Epigenmark class if "epigen_prop"
     # files exist
@@ -140,7 +139,7 @@ def andy_mc_end_pivot():
                 name, epigenmarks, states, bead_count, length_bead))
 
     # Setup the Monte Carlo class to define the properties of the simulation
-    mc_moves = mc_move_ID
+    mc_moves = np.arange(num_mc_move_types)
     field = Field(length_box_x, num_bins_x, length_box_y, num_bins_y,
                   length_box_z, num_bins_z)
 
