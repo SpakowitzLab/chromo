@@ -3,8 +3,8 @@ Routines for generating Monte Carlo moves of varying types
 """
 import numpy as np
 import math as math
-from util.bead_selection import *
-from util.linalg import *
+from chromo.util.bead_selection import *
+from chromo.util.linalg import *
 from .calc_density import calc_density
 
 
@@ -22,7 +22,7 @@ def mc_move(polymers, epigenmarks, density, num_epigenmark, num_polymers, mcmove
         window_size = mcmove.amp_bead
         for i_move in range(mcmove.num_per_cycle):
             for poly in polymers:
-                end_pivot_move(poly, epigenmark, density, mcmove, field, window_size)
+                end_pivot_move(poly, epigenmarks, density, mcmove, field, window_size)
                 mcmove.num_attempt += 1
 
     # MC move type 2: Slide move
@@ -209,7 +209,7 @@ def assess_energy_change(polymer, epigenmark, density, ind0, indf, field, r_poly
     Assess energy change and acceptance of MC move
     """
    
-    density_poly, index_xyz = calc_density(polymer.r[ind0:indf, :], polymer.epigen_bind,
+    density_poly, index_xyz = calc_density(polymer.r[ind0:indf, :], polymer.epigenmarks,
                                            ind0, indf, field)
     density_poly_trial, index_xyz_trial = calc_density(r_poly_trial, polymer.epigen_bind,
                                                        ind0, indf, field)
@@ -274,15 +274,17 @@ def end_pivot_move(polymer, epigenmark, density, mcmove, field, window_size):
     all_beads = np.arange(0, num_beads, 1)
 
     if np.random.randint(0, 2) == 0:    # rotate LHS of polymer
+        print("LHS")
         ind0 = 0
         pivot_point = indf = select_bead_from_left(select_window, num_beads)
         base_point = pivot_point + 1
     else:                               # rotate RHS of polymer
+        print("RHS")
         pivot_point = ind0 = select_bead_from_right(select_window, num_beads)
         indf = num_beads-1
         base_point = pivot_point - 1
     
-    r_points = np.ones((4, indf-ind0+1)
+    r_points = np.ones((4, indf-ind0+1))
     r_points[0:3, :] = polymer.r[ind0:indf+1, :].T
     t3_points = np.ones((4, indf-ind0+1))
     t3_points[0:3, :] = polymer.t_3[ind0:indf+1, :].T
@@ -297,8 +299,9 @@ def end_pivot_move(polymer, epigenmark, density, mcmove, field, window_size):
     t3_poly_trial = t3_poly_trial[0:3,:].T
             
     # assess move by Metropolis Criterion
-    delta_index_xyz, delta_density, delta_energy = assess_energy_change(polymer, epigenmark, density, ind0, indf+1, field, r_poly_trial, t3_poly_trial)
-    assess_move_acceptance(polymer, ind0, indf+1, density, mcmove, r_poly_trial, t3_poly_trial, delta_index_xyz, delta_density, delta_energy)
+    delta_index_xyz, delta_density, delta_energy = assess_energy_change(polymer, epigenmark, density, ind0, indf, field, r_poly_trial, t3_poly_trial)
+    print("HERE")
+    assess_move_acceptance(polymer, ind0, indf, density, mcmove, r_poly_trial, t3_poly_trial, delta_index_xyz, delta_density, delta_energy)
 
     return
  
