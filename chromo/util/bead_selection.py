@@ -49,9 +49,9 @@ def select_bead_from_left(window, N_beads, exclude_last_bead=True):
     if exclude_last_bead == True:
         N_beads -= 1
     if window > N_beads:
-        raise ValueError("Bead selection window size must be less than polymer length")
+        raise ValueError("Bead selection window size must be less than greatest bead index")
     
-    return capped_exponential(window, N_beads)
+    return capped_exponential(window, N_beads) - 1
 
 
 def select_bead_from_right(window, N_beads, exclude_first_bead = True):

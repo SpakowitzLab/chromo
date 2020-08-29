@@ -104,7 +104,7 @@ def andy_mc_end_pivot():
     num_bins_z = 3
     num_save_mc = 2
     num_mc_steps = 1000
-    output_dir = integration_dir / Path("/output/end_pivot")
+    output_dir = "./output"
     num_beads = 8
     num_mc_move_types = 1
 
