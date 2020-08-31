@@ -12,14 +12,14 @@ from .calc_density import calc_density
 def mc_move(polymers, epigenmarks, density, num_epigenmark, num_polymers, mcmove, field):
     mc_move_type = mcmove.id
     # MC move type 0: Crank-shaft move
-    if mc_move_type == 1:
+    if mc_move_type == 0:
         for i_move in range(mcmove.num_per_cycle):
             for poly in polymers:
                 crank_shaft_move(poly, epigenmarks, density, mcmove, field)
                 mcmove.num_attempt += 1
 
     # MC move type 1: End pivot move
-    elif mc_move_type == 0:
+    elif mc_move_type == 1:
         for i_move in range(mcmove.num_per_cycle):
             for poly in polymers:
                 window_size = poly.num_beads - 1
@@ -277,18 +277,14 @@ def end_pivot_move(polymer, epigenmark, density, mcmove, field, window_size):
     all_beads = np.arange(0, num_beads, 1)
 
     if np.random.randint(0, 2) == 0:    # rotate LHS of polymer
-        # print("LHS")
         ind0 = 0
         pivot_point = indf = select_bead_from_left(select_window, num_beads)
         base_point = pivot_point + 1
     else:                               # rotate RHS of polymer
-        # print("RHS")
         pivot_point = ind0 = select_bead_from_right(select_window, num_beads)
         indf = num_beads-1
         base_point = pivot_point - 1
     
-    # print("Pivot Point: " + str(pivot_point))
-    # print("Base Point: " + str(base_point)) 
     r_points = np.ones((4, indf-ind0+1))
     r_points[0:3, :] = polymer.r[ind0:indf+1, :].T
     t3_points = np.ones((4, indf-ind0+1))
@@ -298,21 +294,12 @@ def end_pivot_move(polymer, epigenmark, density, mcmove, field, window_size):
     r_base_point = polymer.r[base_point, :]
     
     rot_matrix = arbitrary_axis_rotation(r_pivot_point, r_base_point, rot_angle)
-    # print("Rotation Matrix")
-    # print(rot_matrix)
-    # print("r_points")
-    # print(r_points)
     r_poly_trial = rot_matrix @ r_points                # generate trial coordinates
     r_poly_trial = r_poly_trial[0:3,:].T
     t3_poly_trial = rot_matrix @ t3_points                 # generate trial tangents
     t3_poly_trial = t3_poly_trial[0:3,:].T
-    # print("r_poly_trial")
-    # print(r_poly_trial)
-    # print("t3_poly_trial")
-    # print(t3_poly_trial)
-    # assess move by Metropolis Criterion
+    
     delta_index_xyz, delta_density, delta_energy = assess_energy_change(polymer, epigenmark, density, ind0, indf+1, field, r_poly_trial, t3_poly_trial)
-    # print("HERE")
     assess_move_acceptance(polymer, ind0, indf+1, density, mcmove, r_poly_trial, t3_poly_trial, delta_index_xyz, delta_density, delta_energy)
 
     return
