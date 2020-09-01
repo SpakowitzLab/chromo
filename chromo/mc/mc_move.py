@@ -28,7 +28,11 @@ def mc_move(polymers, epigenmarks, density, num_epigenmark, num_polymers, mcmove
 
     # MC move type 2: Slide move
     elif mc_move_type == 2:
-        pass
+        for i_move in range(mcmove.num_per_cycle):
+            for poly in polymers:
+                window_size = poly.num_beads - 1
+                slide_move(poly, epigenmarks, density, mcmove, field, window_size)
+                mcmove.num_attempt += 1
 
     # MC move type 3: Slide move
     elif mc_move_type == 3:
@@ -305,7 +309,7 @@ def end_pivot_move(polymer, epigenmark, density, mcmove, field, window_size):
     return
 
 
-def slide_move(polymer, epigenmark, density, num_epigenmark, i_poly, mcmove, field, window_size):
+def slide_move(polymer, epigenmark, density, mcmove, field, window_size):
     """
     Randomly translate a segment of the polymer.
 
@@ -317,10 +321,6 @@ def slide_move(polymer, epigenmark, density, num_epigenmark, i_poly, mcmove, fie
         Object contianing epigenetic mark properties
     density : float
         Mass density of the polymer
-    num_epigenmark : int
-        Number of epigenetic marks included in the simulation
-    i_poly : int
-        Index of individual polymer in polymer object
     mcmove : mcmove object
         Object describing characteristics of the MC move (e.g. amplitude)
     field : Field
@@ -329,11 +329,8 @@ def slide_move(polymer, epigenmark, density, num_epigenmark, i_poly, mcmove, fie
         Maximum number of nucleosomes to translate in any one MC move
     """
 
-    active_poly = polymer[i_poly]   # isolate affected by move
-    active_move = mcmove[2]         # isolate active move
-    
     # Set move amolitude
-    translation_amp = active_move.amp_move * (np.random.rand())
+    translation_amp = mcmove.amp_move * (np.random.rand())
 
     # Partition translation move into x, y, z components
     rand_z = np.random.rand()
@@ -343,7 +340,7 @@ def slide_move(polymer, epigenmark, density, num_epigenmark, i_poly, mcmove, fie
     translation_z = np.sqrt(1 - rand_z) * translation_amp * np.cos(rand_angle)
 
     # Sepect a segment of nucleosomes on which to apply the move
-    num_beads = active_poly.num_beads
+    num_beads = polymer.num_beads
     ind0 = np.random.randint(num_beads)
     select_window = np.amin(np.array([num_beads-ind0, ind0, window_size]))
     indf = select_bead_from_point(select_window, num_beads, ind0)
@@ -351,14 +348,14 @@ def slide_move(polymer, epigenmark, density, num_epigenmark, i_poly, mcmove, fie
     translation_mat = generate_translation_mat(translation_x, translation_y, translation_z)
 
     r_points = np.ones((4, indf-ind0+1))
-    r_points[0:3, :] = active_poly.r_poly[ind0:indf+1, :].T
-    t3_poly = active_poly.t3_poly[ind0:indf+1, :]  
+    r_points[0:3, :] = polymer.r_poly[ind0:indf+1, :].T
+    t3_poly = polymer.t3_poly[ind0:indf+1, :]  
     r_poly_trial = translation_mat @ r_points
     r_poly_trial = r_poly_trial.T
     
     # assess move by Metropolis Criterion
-    delta_index_xyz, delta_density, delta_energy = assess_energy_change(polymer, epigenmark, density, num_epigenmark, i_poly, ind0, indf+1, field, r_poly_trial, t3_poly)
-    assess_move_acceptance(polymer, i_poly, ind0, indf+1, density, mcmove, r_poly_trial, t3_poly, delta_index_xyz, delta_density, delta_energy)
+    delta_index_xyz, delta_density, delta_energy = assess_energy_change(polymer, epigenmark, density, ind0, indf+1, field, r_poly_trial, t3_poly_trial)
+    assess_move_acceptance(polymer, ind0, indf+1, density, mcmove, r_poly_trial, t3_poly, delta_index_xyz, delta_density, delta_energy)
 
     return
 
