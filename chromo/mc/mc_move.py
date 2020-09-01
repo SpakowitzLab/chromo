@@ -7,6 +7,7 @@ import math as math
 from chromo.util.bead_selection import *
 from chromo.util.linalg import *
 from .calc_density import calc_density
+from chromo.mc._end_pivot import *
 
 
 def mc_move(polymers, epigenmarks, density, num_epigenmark, num_polymers, mcmove, field):
@@ -273,34 +274,42 @@ def end_pivot_move(polymer, epigenmark, density, mcmove, field, window_size):
     
     rot_angle = mcmove.amp_move * (np.random.rand() - 0.5)
     num_beads = polymer.num_beads
-    select_window = window_size
-    all_beads = np.arange(0, num_beads, 1)
 
+    # Randomly select points
     if np.random.randint(0, 2) == 0:    # rotate LHS of polymer
         ind0 = 0
-        pivot_point = indf = select_bead_from_left(select_window, num_beads)
+        pivot_point = indf = select_bead_from_left(window_size, num_beads)
         base_point = pivot_point + 1
     else:                               # rotate RHS of polymer
-        pivot_point = ind0 = select_bead_from_right(select_window, num_beads)
+        pivot_point = ind0 = select_bead_from_right(window_size, num_beads)
         indf = num_beads-1
         base_point = pivot_point - 1
-    
+   
+    # Isolate homogeneous coordinates and orientation for move
     r_points = np.ones((4, indf-ind0+1))
-    r_points[0:3, :] = polymer.r[ind0:indf+1, :].T
-    t3_points = np.ones((4, indf-ind0+1))
-    t3_points[0:3, :] = polymer.t_3[ind0:indf+1, :].T
-    
     r_pivot_point = polymer.r[pivot_point, :]
     r_base_point = polymer.r[base_point, :]
+    t3_points = np.ones((4, indf-ind0+1))
+    t2_points = np.ones((4, indf-ind0+1))
+
+    # Reformat coordinates and orientation for matrix multiplication
+    r_points[0:3, :] = polymer.r[ind0:indf+1, :].T
+    t3_points[0:3, :] = polymer.t_3[ind0:indf+1, :].T
+    t2_points[0:3, :] = polymer.t_2[ind0:indf+1, :].T
     
-    rot_matrix = arbitrary_axis_rotation(r_pivot_point, r_base_point, rot_angle)
-    r_poly_trial = rot_matrix @ r_points                # generate trial coordinates
-    r_poly_trial = r_poly_trial[0:3,:].T
-    t3_poly_trial = rot_matrix @ t3_points                 # generate trial tangents
-    t3_poly_trial = t3_poly_trial[0:3,:].T
+    # Conduct the end-pivot move and output new homogeneous coordinates/orientations
+    r_trial, t3_trial, t2_trial = conduct_end_pivot(r_points, r_pivot, r_base, 
+        t3_points, t2_points, rot_angle)   
     
-    delta_index_xyz, delta_density, delta_energy = assess_energy_change(polymer, epigenmark, density, ind0, indf+1, field, r_poly_trial, t3_poly_trial)
-    assess_move_acceptance(polymer, ind0, indf+1, density, mcmove, r_poly_trial, t3_poly_trial, delta_index_xyz, delta_density, delta_energy)
+    # Reformat from homogeneous to cartesian coordinates
+    r_trial = r_trial[0:3, :].T
+    t3_trial = t3_trial[0:3, :].T
+    t2_trial = t2_trial[0:3, :].T
+    
+    delta_index_xyz, delta_density, delta_energy = assess_energy_change(polymer, 
+        epigenmark, density, ind0, indf+1, field, r_trial, t3_trial)
+    assess_move_acceptance(polymer, ind0, indf+1, density, mcmove, r_trial, 
+        t3_trial, delta_index_xyz, delta_density, delta_energy)
 
     return
  
