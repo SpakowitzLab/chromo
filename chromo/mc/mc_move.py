@@ -287,8 +287,8 @@ def end_pivot_move(polymer, epigenmark, density, mcmove, field, window_size):
    
     # Isolate homogeneous coordinates and orientation for move
     r_points = np.ones((4, indf-ind0+1))
-    r_pivot_point = polymer.r[pivot_point, :]
-    r_base_point = polymer.r[base_point, :]
+    r_pivot = polymer.r[pivot_point, :]
+    r_base = polymer.r[base_point, :]
     t3_points = np.ones((4, indf-ind0+1))
     t2_points = np.ones((4, indf-ind0+1))
 

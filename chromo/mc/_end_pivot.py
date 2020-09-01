@@ -7,7 +7,7 @@ Given a set of points and a rotation magnitude, conduct the end-pivot move.
 
 import numpy as np
 
-from chromo.mc.util.linalg import *
+from chromo.util.linalg import *
 
 def conduct_end_pivot(r_points, r_pivot, r_base, t3_points, t2_points, rot_angle):
     """
@@ -44,9 +44,5 @@ def conduct_end_pivot(r_points, r_pivot, r_base, t3_points, t2_points, rot_angle
     r_trial = rot_matrix @ r_points         # Generate trial coordinates
     t3_trial = rot_matrix @ t3_points       # Generate trial tangents
     t2_trial = rot_matrix @ t2_points       # Generate orthogonal trial tangents
-
-    r_trial = r_trial[0:3, :].T
-    t3_trial = t3_trial[0:3, :].T
-    t2_trial = t2_trial[0:3, :].T
 
     return r_trial, t3_trial, t2_trial
