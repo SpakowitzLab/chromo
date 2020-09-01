@@ -10,7 +10,7 @@ import io
 
 import numpy as np
 import pandas as pd
-from .util import dss_params
+from .util import dss_params, combine_repeat
 
 
 @dataclasses.dataclass
@@ -186,5 +186,58 @@ class Polymer:
         eta = np.interp(length_dim, dss_params[:, 0], dss_params[:, 5]) / lp_dna
 
         return sim_type, eps_bend, eps_par, eps_perp, gamma, eta
+
+    def compute_dE(self, ind0, indf, r_poly_trial, t3_poly_trial, t2_poly_trial,
+                   states_trial):
+        """
+        Compute change in energy of polymer state from proposed new state.
+        """
+        delta_energy_poly = 0
+        # Calculate contribution to polymer energy at the ind0 position
+        if ind0 != 0:
+            delta_r_trial = r_poly_trial[0, :] - self.r[ind0 - 1, :]
+            delta_r_par_trial = np.dot(delta_r_trial, self.t_3[ind0 - 1, :])
+            delta_r_perp_trial = delta_r_trial - delta_r_par_trial * self.t_3[ind0 - 1, :]
+
+            delta_r = self.r[ind0, :] - self.r[ind0 - 1, :]
+            delta_r_par = np.dot(delta_r, self.t_3[ind0 - 1, :])
+            delta_r_perp = delta_r - delta_r_par * self.t_3[ind0 - 1, :]
+
+            bend_vec_trial = (t3_poly_trial[0, :] - self.t_3[ind0 - 1, :]
+                            - self.eta * delta_r_perp_trial)
+            bend_vec = (self.t_3[ind0, :] - self.t_3[ind0 - 1, :]
+                            - self.eta * delta_r_perp)
+
+            delta_energy_poly += (0.5 * self.eps_bend * np.dot(bend_vec_trial, bend_vec_trial)
+                                + 0.5 * self.eps_par * (delta_r_par_trial - self.gamma) ** 2
+                                + 0.5 * self.eps_perp * np.dot(delta_r_perp_trial, delta_r_perp_trial))
+            delta_energy_poly -= (0.5 * self.eps_bend * np.dot(bend_vec, bend_vec)
+                                + 0.5 * self.eps_par * (delta_r_par - self.gamma) ** 2
+                                + 0.5 * self.eps_perp * np.dot(delta_r_perp, delta_r_perp))
+
+        # Calculate contribution to polymer energy at the indf position
+        if indf != self.num_beads:
+
+            delta_r_trial = self.r[indf, :] - r_poly_trial[indf - ind0 - 1, :]
+            delta_r_par_trial = np.dot(delta_r_trial, t3_poly_trial[indf - ind0 - 1, :])
+            delta_r_perp_trial = delta_r_trial - delta_r_par_trial * t3_poly_trial[indf - ind0 - 1, :]
+
+            delta_r = self.r[indf, :] - self.r[indf - 1, :]
+            delta_r_par = np.dot(delta_r, self.t_3[indf - 1, :])
+            delta_r_perp = delta_r - delta_r_par * self.t_3[indf - 1, :]
+
+            bend_vec_trial = (self.t_3[indf, :] - t3_poly_trial[indf - ind0 - 1, :]
+                            - self.eta * delta_r_perp_trial)
+            bend_vec = (self.t_3[indf, :] - self.t_3[indf - 1, :]
+                        - self.eta * delta_r_perp)
+
+            delta_energy_poly += (0.5 * self.eps_bend * np.dot(bend_vec_trial, bend_vec_trial)
+                                + 0.5 * self.eps_par * (delta_r_par_trial - self.gamma) ** 2
+                                + 0.5 * self.eps_perp * np.dot(delta_r_perp_trial, delta_r_perp_trial))
+            delta_energy_poly -= (0.5 * self.eps_bend * np.dot(bend_vec, bend_vec)
+                                + 0.5 * self.eps_par * (delta_r_par - self.gamma) ** 2
+                                + 0.5 * self.eps_perp * np.dot(delta_r_perp, delta_r_perp))
+
+        return delta_energy_poly
 
 
