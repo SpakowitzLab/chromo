@@ -1,7 +1,8 @@
 """
-Polymer class.
+Components that will make up our simulation.
 
-Creates a polymer with a defined length and discretization.
+Various types of polymers, solvents, and other simulation components should be
+defined here.
 """
 from pathlib import Path
 from enum import Enum
@@ -10,28 +11,18 @@ import io
 
 import numpy as np
 import pandas as pd
+
+from . import marks
 from .util import dss_params, combine_repeat
 
 
-@dataclasses.dataclass
-class Epigenmark:
-    """Information about the chemical properties of an epigenetic mark."""
-
-    name: str
-    bind_energy: float
-    interaction_energy: float
-    chemical_potential: float
-
-
-class State:
+class State(Enum):
     """Defines the epigenetic state of a given bead for a single mark."""
-
     pass
 
 
-class HP1_State(State, Enum):
+class HP1_State(State):
     """HP1 can be bound to none, either, or both nucleosome tails."""
-
     NONE = 0
     LBOUND = 1
     RBOUND = 2
@@ -44,7 +35,7 @@ def make_epi_collection(epigenmarks):
 
     Parameters
     ----------
-    epigenmarks : Sequence[Epigenmark]
+    epigenmarks : Sequence[Epigenmark] or Sequence[str]
         The epigenetic marks to be summarized.
 
     Returns
@@ -54,7 +45,11 @@ def make_epi_collection(epigenmarks):
     """
     df = pd.DataFrame(columns=['name', 'bind_energy', 'interaction_energy',
                                'chemical_potential'])
+    if type(epigenmarks) is str:
+        epigenmarks = [epigenmarks]  # allow the "one mark" case
     for mark in epigenmarks:
+        if type(mark) is str:
+            mark = marks.get_by_name(mark)
         df = df.append(dataclasses.asdict(mark), ignore_index=True)
     return df
 
@@ -77,7 +72,7 @@ class Polymer:
     objects.
     """
 
-    def __init__(self, name, r, t_3, t_2, epigenmarks, states,
+    def __init__(self, name, r, *, t_3, t_2, states, epigenmarks,
                  length_per_bead):
         """
         Parameters
@@ -90,12 +85,12 @@ class Polymer:
             The tangent vector to each bead in global coordinates.
         t_2 : (N, 3) array_like of float
             A material normal to each bead in global coordinates.
-        epigenmarks : (M, ) Sequence[Epigenmark]
-            Information about the chemical properties of each of the epigenetic
-            marks being tracked.
-        states : (N, M) array_like of State
+        states : (N, M) array_like of int
             State of each of the M epigenetic marks being tracked for each
             bead.
+        epigenmarks : (M, ) Sequence[Epigenmark] or Sequence[str]
+            Information about the chemical properties of each of the epigenetic
+            marks being tracked, or the name of the mark to be looked up.
         length_per_bead : float
             How many Kuhn lengths of polymer are simulated by each bead.
         """
@@ -127,8 +122,8 @@ class Polymer:
         return cls(r, t_3, t_2, marks, states, lengths)
 
     @classmethod
-    def straight_line_in_x(cls, name, marks, states, num_beads,
-                           length_per_bead):
+    def straight_line_in_x(cls, name, *, length_per_bead, marks=None,
+                           states=None):
         r = np.zeros((num_beads, 3))
         r[:, 0] = length_per_bead * np.arange(num_beads)
         t_3 = np.zeros((num_beads, 3))
@@ -147,8 +142,7 @@ class Polymer:
 
     def write_repr(self, path):
         np.savez(path, r=self.r, t_2=self.t_2, t_3=self.t_3,
-                 states=self.states, marks=self.epigenmarks.values,
-                 length_per_bead=self.length_per_bead)
+                 states=self.states, length_per_bead=self.length_per_bead)
 
     @classmethod
     def from_repr(cls, path):
