@@ -94,8 +94,10 @@ def make_reproducible(sim):
                                  "no default value can be found.")
             kwargs[output_dir_param_name] = outdir_param.default
         # get a new folder to save simulation into in a thread-safe way
-        outdir = kwargs[output_dir_param_name]
-        output_subfolder = get_unique_subfolder(Path(outdir)/sim_folder_prefix)
+        outdir = Path(kwargs[output_dir_param_name])
+        # make the requested base output folder first if it doesn't exist tho..
+        outdir.mkdir(parents=True, exist_ok=True)
+        output_subfolder = get_unique_subfolder(outdir / sim_folder_prefix)
         kwargs[output_dir_param_name] = output_subfolder
         # get the inputs that can be simply saved in our CSV file
         simple_params, hard_params = split_builtin_params(sim, *args, **kwargs)
@@ -111,7 +113,7 @@ def make_reproducible(sim):
         # the remaining parameters should implement `.to_file`/`.from_file`.
         to_file_params(hard_params, output_subfolder)
         sim_out = sim(*args, **kwargs)
-        with open(output_subfolder / Path('__completion_timestamp__')) as f:
+        with open(output_subfolder / Path('__completion_time__'), 'w') as f:
             f.write(str(pd.Timestamp.now()))
         return sim_out
     return wrapper
