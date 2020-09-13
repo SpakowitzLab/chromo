@@ -1,14 +1,15 @@
 """Monte Carlo simulations of a discrete wormlike chain."""
 from pathlib import Path
-
-import numpy as np
+import warnings
 
 from .mc_sim import mc_sim
 from .moves import all_moves
+from ..util.reproducibility import make_reproducible
 
 
-def polymer_in_field(polymers, epigenmarks, field, num_mc_steps, num_save_mc,
-                     mc_moves=None, output_dir='.'):
+@make_reproducible
+def polymer_in_field(polymers, marks, field, num_save_mc, num_saves,
+                     mc_moves=None, random_seed=0, output_dir='.'):
     """
     Monte Carlo simulation of a tssWLC in a field.
 
@@ -18,10 +19,10 @@ def polymer_in_field(polymers, epigenmarks, field, num_mc_steps, num_save_mc,
     Parameters
     ----------
     polymers : Sequence[Polymer]
-        The polymers to be simulated. Epigenetic marks, discretization, and
-        other parameters should be specified before input.
-    epigenmarks : Sequence[Epigenmark]
-        DEPRECATED. Should be integrated into the "Polymer" class.
+        The polymers to be simulated.
+    epigenmarks : `pd.DataFrame`
+        Output of `chromo.marks.make_mark_collection`. Summarizes the energetic
+        properties of each chemical modification.
     field : Field
         The discretization of space in which to simulate the polymers.
     num_save_mc : int
@@ -31,11 +32,12 @@ def polymer_in_field(polymers, epigenmarks, field, num_mc_steps, num_save_mc,
     output_dir : Optional[Path], default: '.'
         Directory in which to save the simulation output.
     """
+    warnings.warn("The random seed is currently ignored.", UserWarning)
     if mc_moves is None:
         mc_moves = all_moves
     # Perform Monte Carlo simulation for each save file
-    for mc_count in range(num_save_mc):
-        mc_sim(polymers, epigenmarks, num_mc_steps, mc_moves, field)
+    for mc_count in range(num_saves):
+        mc_sim(polymers, marks, num_save_mc, mc_moves, field)
         for poly in polymers:
-            poly.write_repr(output_dir / Path(f"{poly.name}-{mc_count}.npz"))
+            poly.to_csv(output_dir / Path(f"{poly.name}-{mc_count}.csv"))
         print("Save point " + str(mc_count) + " completed")

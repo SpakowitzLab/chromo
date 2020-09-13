@@ -23,7 +23,7 @@ def mc_step(adaptible_move, poly, epigenmarks, field):
     if np.random.rand() < np.exp(-dE):
         adaptible_move.accept()
         poly.r[ind0:indf, :] = r
-        poly.t_3[ind0:indf, :] = t3
-        poly.t_2[ind0:indf, :] = t2
+        poly.t3[ind0:indf, :] = t3
+        poly.t2[ind0:indf, :] = t2
         poly.states[ind0:indf, :] = states
     return

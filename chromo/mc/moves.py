@@ -95,7 +95,7 @@ def crank_shaft_move(polymer, amp_move, amp_bead):
     rot_angle = amp_move * (np.random.rand() - 0.5)
 
     if ind0 == (indf + 1):
-        delta_t3 = polymer.t_3[ind0, :]
+        delta_t3 = polymer.t3[ind0, :]
     else:
         delta_t3 = polymer.r[indf - 1, :] - polymer.r[ind0, :]
         delta_t3 /= np.linalg.norm(delta_t3)
@@ -129,7 +129,7 @@ def crank_shaft_move(polymer, amp_move, amp_bead):
     t3_poly_trial = np.zeros((indf - ind0, 3), 'd')
     for i_bead in range(ind0, indf):
         r_poly_trial[i_bead - ind0, :] = rot_vector + np.matmul(rot_matrix, polymer.r[i_bead, :])
-        t3_poly_trial[i_bead - ind0, :] = np.matmul(rot_matrix, polymer.t_3[i_bead, :])
+        t3_poly_trial[i_bead - ind0, :] = np.matmul(rot_matrix, polymer.t3[i_bead, :])
     return ind0, indf, r_poly_trial, t3_poly_trial, None, None
 
 all_moves = [MCAdapter(move) for move in [crank_shaft_move]]
