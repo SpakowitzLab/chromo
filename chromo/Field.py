@@ -126,6 +126,14 @@ class UniformDensityField(FieldBase):
                "npoly={n_poly}>"
 
     def _recompute_field(self, check_consistency=False):
+        """
+        Completely recompute the energy from scratch.
+
+        Re-running this not in __init__ and using *check_consistency* to verify
+        that the answer is not too far from the answer that has been built up
+        over monte carlo time is one of the best ways to test for consistency
+        of the code.
+        """
         new_density = self.density.copy()
         for i, poly in enumerate(self.polymers):
             density_poly, index_xyz = self._calc_density(
