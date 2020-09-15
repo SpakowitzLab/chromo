@@ -39,7 +39,6 @@ class MCAdapter:
     def __init__(self, move_func):
         self.name = move_func.__name__
         self.move_func = move_func
-        self.mcmove_on = True
         self.amp_move = 2 * np.pi
         self.num_per_cycle = 1
         self.amp_bead = 10

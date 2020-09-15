@@ -12,21 +12,6 @@ import pandas as pd
 from .util import dss_params
 
 
-class State(Enum):
-    """Defines the chemical state of a given bead for a single mark."""
-
-    pass
-
-
-class HP1_State(State):
-    """HP1 can be bound to none, either, or both nucleosome tails."""
-
-    NONE = 0
-    LBOUND = 1
-    RBOUND = 2
-    BOTH = 3
-
-
 class Polymer:
     """
     The positions and chemical state of a discrete polymer.
@@ -90,11 +75,7 @@ class Polymer:
                 raise ValueError("Each chemical state must be given a name.")
             if num_beads != len(self.r):
                 raise ValueError("Initial epigenetic state of wrong length.")
-        # first if makes sure len will work in second if
-        if not issubclass(type(bead_length), np.ndarray):
-            bead_length = np.atleast_1d(bead_length)
-        if len(bead_length) == 1:
-            bead_length = np.broadcast_to(bead_length, (self.num_beads, 1))
+        bead_length = np.broadcast_to(np.atleast_1d(bead_length), (self.num_beads, 1))
         self.bead_length = bead_length
         # Load the polymer parameters for the conformational energy
         # for now, the array-values of bead_length are ignored
@@ -126,9 +107,15 @@ class Polymer:
         the kwargs, to simplify unpacking the structure (and to make for easy
         accessing of the dataframe.
         """
+        # first get a listing of all the parts of the polymer that have to be
+        # saved. these are defined in the class's "_arrays" attribute
         arrays = {name: self.__dict__[name] for name in self._arrays
                   if self.__dict__[name] is not None}
+        # now separate them out into two types. first, the "vector" arrays are
+        # composed of multiple columns (like r) and so we will need to build a
+        # multi-index for putting them into our dataframe correctly
         vector_arrs = {}
+        # all other arrays can be added as a single column to the dataframe
         regular_arrs = {}
         for name, arr in arrays.items():
             if name in self._3d_arrays:
