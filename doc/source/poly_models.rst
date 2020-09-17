@@ -24,7 +24,7 @@ is the perpendicular component of the bond vector to the tangent vector.
 
 
 
-Polymer chain model: hearable, stretchable wormlike chain with twist
+Polymer chain model: shearable, stretchable wormlike chain with twist
 --------------------------------------------------------------------
 
 We consider a closed ring polymer, where the :math:`n_{b}` bead is the same as the zeroth bead.
