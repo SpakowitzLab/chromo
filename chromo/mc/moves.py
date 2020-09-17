@@ -7,6 +7,7 @@ move.
 
 import numpy as np
 
+
 class MCAdapter:
     """
     Track success rate and adjust parameters for a Monte Carlo move.
@@ -133,3 +134,4 @@ def crank_shaft_move(polymer, amp_move, amp_bead):
     return ind0, indf, r_poly_trial, t3_poly_trial, None, None
 
 all_moves = [MCAdapter(move) for move in [crank_shaft_move]]
+
