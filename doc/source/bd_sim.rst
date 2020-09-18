@@ -105,4 +105,3 @@ With this development, we now write the Langevin equations as
     \vec{t}_{2}^{(n)} \cdot \left(  \vec{\tau}_{E,3}^{(n)} + \vec{\tau}_{B,3}^{(n)} \right) -
     \vec{t}_{3}^{(n)} \cdot \left(  \vec{\tau}_{E,2}^{(n)} + \vec{\tau}_{B,2}^{(n)} \right)
     \right] \vec{t}_{2}^{(n)}
-

@@ -3,14 +3,68 @@
 Polymer Models
 ==============
 
-Polymer chain model: shearable, stretchable wormlike chain
+We introduce the polymer models that can be used in the chromo simulation.
+These models are designed to capture different physical effects.
+They are all based on a common representation of the
+chain as a discrete set of beads.
+However, each model uses a subset of the geometric variables in their
+calculation of energy, force, and torque, and the simulation automatically
+adjusts the underlying calculations based on the model.
+Here, we define the general chain representation that includes the most
+complete geometric variables for the chain, and each polymer model utilizes
+a subset of these variables (defined for each model below).
+Each model also has the option of creating a linear or ring polymer,
+which simply requires the model to add a bond between the first bead and the
+last bead of the chain.
+
+We consider a polymer with :math:`n_{b}` number of beads in a single chain.
+The polymer chain is represented by the
+bead positions
+:math:`\vec{r}^{(0)}, \vec{r}^{(1)}, \ldots, \vec{r}^{(n_{b}-1)}`
+and orientations
+:math:`\vec{t}_{i}^{(0)}, \vec{t}_{i}^{(1)}, \ldots, \vec{t}_{i}^{(n_{b}-1)}`
+where :math:`i = 1, 2, 3`.
+Since the orientation triad forms an orthonormal basis, the dynamics must maintain the following conditions:
+
+.. math::
+    \vec{t}_{i}^{(n)} \cdot \vec{t}_{j}^{(n)} = \delta_{ij}
+
+Each model represents a chain whose total length is :math:`L`, so
+the chain is discretized into segments of length
+:math:`\Delta = L/n_{b}`.
+
+
+Polymer chain model A: flexible Gaussian chain
+--------------------------------------------
+
+The flexible Gaussian chain captures the behavior of a flexible polymer chain that
+is representative of a Gaussian random walk in the absence of additional interactions.
+The chain is defined by the bead positions :math:`\vec{r}^{(n)}`, and the
+bead orientations are not utilized in this model.
+
+We define the polymer energy function
+
+.. math::
+    \beta E_{\mathrm{poly}} = \sum_{n=0}^{n_{b}-2}
+    \frac{3}{\Delta b} \left( \vec{r}^{(n+1)} - \vec{r}^{(n)} \right)^{2}
+
+where we define :math:`\beta = 1/(k_{B}T)`, and the Kuhn length
+:math:`b` defines the statistical segment length of the polymer chain.
+This energy definition is valid for a linear chain.
+However, the ring representation only requires the upper limit of the
+summation to be changed to :math:`n_{b} - 1`, and we note that
+the condition :math:`\vec{r}^{(n_{b})} = \vec{r}^{(0)}` connects the
+chain ends into a ring
+
+
+
+Polymer chain model B: shearable, stretchable wormlike chain
 ----------------------------------------------------------
 
-We consider a polymer with :math:`n_{b}` number of beads.
 We consider the shearable, stretchable wormlike chain potential, given by
 
 .. math::
-    \beta E_{\mathrm{elas}} = \sum_{n=0}^{n_{b}-2}
+    \beta E_{\mathrm{poly}} = \sum_{n=0}^{n_{b}-2}
     \left[
     \frac{\epsilon_{\mathrm{b}}}{2 \Delta} \left| \vec{t}_{3}^{(n+1)} - \vec{t}_{3}^{(n)} - \eta \Delta \vec{r}_{\perp}^{(n)} \right|^{2} +
     \frac{\epsilon_{\mathrm{\parallel}}}{2 \Delta} \left( \Delta \vec{r}^{(n)} \cdot \vec{t}_{3}^{(n)} - \Delta \gamma \right)^{2} +
@@ -24,14 +78,14 @@ is the perpendicular component of the bond vector to the tangent vector.
 
 
 
-Polymer chain model: shearable, stretchable wormlike chain with twist
+Polymer chain model C: shearable, stretchable wormlike chain with twist
 --------------------------------------------------------------------
 
 We consider a closed ring polymer, where the :math:`n_{b}` bead is the same as the zeroth bead.
 We consider the shearable, stretchable wormlike chain potential with twist, given by
 
 .. math::
-    \beta E_{\mathrm{elas}} = \sum_{n=0}^{n_{b}-1}
+    \beta E_{\mathrm{poly}} = \sum_{n=0}^{n_{b}-1}
     \left[
     \frac{\epsilon_{\mathrm{b}}}{2 \Delta} \left| \vec{t}_{3}^{(n+1)} - \vec{t}_{3}^{(n)} - \eta \Delta \vec{r}_{\perp}^{(n)} \right|^{2} +
     \frac{\epsilon_{\mathrm{\parallel}}}{2 \Delta} \left( \Delta \vec{r}^{(n)} \cdot \vec{t}_{3}^{(n)} - \Delta \gamma \right)^{2} +
@@ -55,8 +109,10 @@ Geometrically, this is defined by the relationship
     \vec{t}_{2}^{(n)} \cdot \vec{t}_{1}^{(n+1)} -
     \vec{t}_{1}^{(n)} \cdot \vec{t}_{2}^{(n+1)}
 
-where :math:`\omega^{(n)} = \Omega^{(n)} + 2 \pi m^{(n)}`, and :math:`m^{(n)}` gives the number of additional integer turns
-of twist within the :math:`n`th segment.
+where :math:`\omega^{(n)} = \Omega^{(n)} + 2 \pi m^{(n)}`,
+and :math:`m^{(n)}` gives the number of additional integer turns
+of twist within the
+nth segment.
 We write a differential change in :math:`\omega^{(n)}` as
 
 .. math::
@@ -158,14 +214,13 @@ With this development, we write the torque vectors as
 
 where
 
-
 .. math::
     \vec{\tau}_{b}^{(n)} =
     \frac{\epsilon_{b}}{\Delta} \left(
     \vec{t}_{3}^{(n+1)} - \vec{t}_{3}^{(n)} - \eta \Delta \vec{r}_{\perp}^{(n)}
     \right)
 
-The force on the :math:`n`th bead is given by
+The force on the nth bead is given by
 
 .. math::
     \vec{f}^{(n)} & = &
