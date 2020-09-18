@@ -29,10 +29,14 @@ Since the orientation triad forms an orthonormal basis, the dynamics must mainta
 .. math::
     \vec{t}_{i}^{(n)} \cdot \vec{t}_{j}^{(n)} = \delta_{ij}
 
-Each model represents a chain whose total length is :math:`L`, so
-the chain is discretized into segments of length
-:math:`\Delta = L/n_{b}`.
-
+Each model represents a chain whose total length is :math:`L`,
+For linear polymers, the chain is discretized into segments of length
+:math:`\Delta = L/(n_{b}-1)`. This implies that the end-to-end
+vector is given by :math:`\vec{R} = \vec{r}^{(n_{b}-1)} - \vec{r}^{(0)}`.
+For ring polymers, the chain is discretized into segments of length
+:math:`\Delta = L/n_{b}`, which includes the bond between the last
+bead at :math:`\vec{r}^{(n_{b} - 1)}` and the first bead at
+:math:`\vec{r}^{(0)}`.
 
 Polymer chain model A: flexible Gaussian chain
 --------------------------------------------
@@ -54,7 +58,11 @@ This energy definition is valid for a linear chain.
 However, the ring representation only requires the upper limit of the
 summation to be changed to :math:`n_{b} - 1`, and we note that
 the condition :math:`\vec{r}^{(n_{b})} = \vec{r}^{(0)}` connects the
-chain ends into a ring
+chain ends into a ring.
+In this model, the bead orientations :math:`\vec{t}_{i}^{(n)}` do not
+contribute to the energy and are not evolved in the simulation.
+
+
 
 
 

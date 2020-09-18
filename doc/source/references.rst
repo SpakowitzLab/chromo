@@ -26,6 +26,9 @@ References
 .. [Pike2009b]
     Pike, Darin Q., et al. "Theoretically informed coarse grain simulations of polymeric systems." The Journal of chemical physics 131.8 (2009): 084903.
 
+.. [Hinch1994]
+    Hinch, E. J. "Brownian motion with stiff bonds and rigid constraints." Journal of Fluid Mechanics 271 (1994): 219-234.
+
 .. Wormlike Chain references
 
 .. [Kratky1949]

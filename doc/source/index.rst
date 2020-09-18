@@ -10,11 +10,15 @@ Welcome to chromo's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   Code Overview and Structure <code_structure>
+
    Polymer Models <poly_models>
 
    Field Theoretic Treatment of Interactions <field>
 
-   Brownian Dynamics Simulation <bd_sim>
+   Monte Carlo Simulations <mc_sim>
+
+   Brownian Dynamics Simulations <bd_sim>
 
    References <references>
 
