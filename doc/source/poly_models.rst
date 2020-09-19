@@ -29,7 +29,7 @@ Since the orientation triad forms an orthonormal basis, the dynamics must mainta
 .. math::
     \vec{t}_{i}^{(n)} \cdot \vec{t}_{j}^{(n)} = \delta_{ij}
 
-Each model represents a chain whose total length is :math:`L`,
+Each model represents a chain whose total length is :math:`L`.
 For linear polymers, the chain is discretized into segments of length
 :math:`\Delta = L/(n_{b}-1)`. This implies that the end-to-end
 vector is given by :math:`\vec{R} = \vec{r}^{(n_{b}-1)} - \vec{r}^{(0)}`.
@@ -39,7 +39,7 @@ bead at :math:`\vec{r}^{(n_{b} - 1)}` and the first bead at
 :math:`\vec{r}^{(0)}`.
 
 Polymer chain model A: flexible Gaussian chain
---------------------------------------------
+----------------------------------------------
 
 The flexible Gaussian chain captures the behavior of a flexible polymer chain that
 is representative of a Gaussian random walk in the absence of additional interactions.
@@ -50,7 +50,7 @@ We define the polymer energy function
 
 .. math::
     \beta E_{\mathrm{poly}} = \sum_{n=0}^{n_{b}-2}
-    \frac{3}{\Delta b} \left( \vec{r}^{(n+1)} - \vec{r}^{(n)} \right)^{2}
+    \frac{3}{2 \Delta b} \left( \vec{r}^{(n+1)} - \vec{r}^{(n)} \right)^{2}
 
 where we define :math:`\beta = 1/(k_{B}T)`, and the Kuhn length
 :math:`b` defines the statistical segment length of the polymer chain.
@@ -62,12 +62,77 @@ chain ends into a ring.
 In this model, the bead orientations :math:`\vec{t}_{i}^{(n)}` do not
 contribute to the energy and are not evolved in the simulation.
 
+From the polymer energy, we determine the force on the nth bead
+is determined from :math:`\vec{f}^{(n)} = - \frac{\partial \beta E}{\partial \vec{r}^{(n)}}`,
+where we scale the force by the thermal energy :math:`k_{B}T`.
+This results in the force on the nth bead to be given as
 
+.. math::
+    \vec{f}^{(n)} = \frac{3}{\Delta b} \left( \vec{r}^{(n+1)}
+    - 2 \vec{r}^{(n)} + \vec{r}^{(n-1)} \right)
 
+for all beads within the interior of the chain.
+This expression also applies to the end beads :math:`n=0` and
+:math:`n=n_{b}-1` for a ring polymer, if we note that
+:math:`\vec{r}^{(-1)} = \vec{r}^{(n_{b}-1)}` and
+:math:`\vec{r}^{(n_{b})} = \vec{r}^{(0)}`.
 
+For the ends of a linear chain, the end-bead forces are given by
+
+.. math::
+    \vec{f}^{(0)} & = & \frac{3}{\Delta b} \left(
+    \vec{r}^{(1)}
+    - \vec{r}^{(0)}
+    \right) \\
+    \vec{f}^{(n_{b}-1)} & = & - \frac{3}{\Delta b} \left(
+    \vec{r}^{(n_{b}-1)}
+    - \vec{r}^{(n_{b}-2)}
+    \right)
+
+Initialization of the flexible Gaussian chain in the absence of additional interactions
+(e.g. excluded-volume interactions or confinement)
+is performed by selecting the bond vectors from a Gaussian distribution with
+a variance that is given by
+
+.. math::
+    \langle
+    \left(
+    \vec{r}^{(n+1)} - \vec{r}^{(n)}
+    \right)
+    \left(
+    \vec{r}^{(n'+1)} - \vec{r}^{(n')}
+    \right)
+    \rangle = \frac{\Delta b}{3} \delta_{nn'} \mathbf{I}
+
+which leads to a mean-square end-to-end distance
+
+.. math::
+    \langle
+    \vec{R}^{2}
+    \rangle =
+    \sum_{n=0}^{n_{b}-2}
+    \sum_{n'=0}^{n_{b}-2}
+    \langle
+    \left(
+    \vec{r}^{(n+1)} - \vec{r}^{(n)}
+    \right) \cdot
+    \left(
+    \vec{r}^{(n'+1)} - \vec{r}^{(n')}
+    \right)
+    \rangle
+    = \sum_{n=0}^{n_{b}-2}
+    \sum_{n'=0}^{n_{b}-2}
+    \Delta b \delta_{nn'}
+    = \Delta b (n_{b} - 1)
+    = L b
+
+which is consistent with the solution for a Gaussian random
+walk polymer with length :math:`L = N b`,
+where :math:`N` is the number of Kuhn lengths in the
+chain.
 
 Polymer chain model B: shearable, stretchable wormlike chain
-----------------------------------------------------------
+------------------------------------------------------------
 
 We consider the shearable, stretchable wormlike chain potential, given by
 
@@ -87,7 +152,7 @@ is the perpendicular component of the bond vector to the tangent vector.
 
 
 Polymer chain model C: shearable, stretchable wormlike chain with twist
---------------------------------------------------------------------
+-----------------------------------------------------------------------
 
 We consider a closed ring polymer, where the :math:`n_{b}` bead is the same as the zeroth bead.
 We consider the shearable, stretchable wormlike chain potential with twist, given by
