@@ -1,7 +1,7 @@
 """Tests that simply check if a simulation runs at all."""
 import chromo.mc as mc
 from chromo.Polymer import Polymer, Epigenmark
-from chromo.Field import Field
+from chromo.Field import UniformDensityField
 
 import numpy as np
 import pandas as pd
@@ -71,9 +71,8 @@ def andy_mc():
                 name, epigenmarks, states, bead_count, length_bead))
 
     # Setup the Monte Carlo class to define the properties of the simulation
-    mc_moves = np.arange(num_mc_move_types)
-    field = Field(length_box_x, num_bins_x, length_box_y, num_bins_y,
-                  length_box_z, num_bins_z)
+    field = UniformDensityField(polymers, length_box_x, num_bins_x, length_box_y,
+                                num_bins_y, length_box_z, num_bins_z)
 
     return mc.polymer_in_field(polymers, epigenmarks, field, num_mc_steps,
-                               num_save_mc, mc_moves, output_dir)
+                               num_save_mc, None, output_dir)

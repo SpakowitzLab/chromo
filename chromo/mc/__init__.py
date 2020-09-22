@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 
 from .mc_sim import mc_sim
-from ..MCmove import MCmove, num_moves_defined  # TODO fix this redundancy
+from .moves import all_moves
 
 
 def polymer_in_field(polymers, epigenmarks, field, num_mc_steps, num_save_mc,
@@ -32,12 +32,10 @@ def polymer_in_field(polymers, epigenmarks, field, num_mc_steps, num_save_mc,
         Directory in which to save the simulation output.
     """
     if mc_moves is None:
-        mc_moves = np.arange(num_moves_defined)
-    mc_moves = [MCmove(i) for i in mc_moves]
+        mc_moves = all_moves
     # Perform Monte Carlo simulation for each save file
     for mc_count in range(num_save_mc):
         mc_sim(polymers, epigenmarks, num_mc_steps, mc_moves, field)
-
         for poly in polymers:
             poly.write_repr(output_dir / Path(f"{poly.name}-{mc_count}.npz"))
         print("Save point " + str(mc_count) + " completed")
