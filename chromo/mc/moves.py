@@ -322,5 +322,130 @@ def slide_move(polymer, amp_move, amp_bead):
     return ind0, indf, r_trial, None, None, None
 
 
+def conduct_tangent_rotation(r_point, t3_point, t2_point, phi, theta, rot_angle):
+    """
+    Conduct the tangent rotation  move on set of beads with known (homogeneous) orientation vectors
+
+    Deterministic component of tangent rotation move.
+
+    Parameters
+    ----------
+    r_point : array_like (4,)
+        Homogeneous coordinates for bead undergoing rotation
+    t3_point : array_like (4,)
+        Homogeneous tangent vectors for bead undergoing rotation
+    t2_point : array_like (4,)
+        Homogeneous tangent, orthogonal to t3 tangent, for rotating bead
+    phi : float
+        Magnitude of counterclockwise rotation (in radians) from x-axis in the xy plane defining axis of rotation
+    theta : float
+        Magnitude of angle from the positive z-axis defining axis of rotation
+    rot_angle : float
+        Magnitude of rotation about which to rotate bead
+    
+    Returns
+    -------
+    t3_trial : array_like (4, N)
+        Homogeneous tangent vectors for beads following rotation
+    t2_trial : array_like (4, N)
+        Homogeneous tangent vectors, orthogonal to t3 tangents, following rotation
+
+    """
+    
+    # Generate an arbitrary unit axis about which to conduct rotation
+    r_ind0 = r_point
+    r = 1
+    del_x = r * np.sin(theta) * np.cos(phi)
+    del_y = r * np.sin(theta) * np.sin(phi)
+    del_z = r * np.cos(theta)
+    r_ind1 = r_ind0 + np.array([del_x, del_y, del_z, 0])
+
+    # Generate rotation matrix around axis connecting r_ind0 and r_ind1
+    rot_matrix = arbitrary_axis_rotation(r_ind0[0:3], r_ind1[0:3], rot_angle)
+    
+    # Rotate tangent vectors using the rotation matrix
+    t3_trial = rot_matrix @ t3_point
+    t2_trial = rot_matrix @ t2_point
+    
+    return t3_trial, t2_trial
+
+def one_bead_tangent_rotation_move(polymer, amp_move, num_beads):
+    """
+    Random bead rotation for a single bead.
+
+    Stochastic component of random tangent vector rotations.
+
+    Parameters
+    ----------
+    polymer : Polymer
+        Polymer object
+    amp_move : float
+        Fraction of 2 * pi maximum rotation to rotate bead (between 0-1)
+    num_beads : int
+        Number of beads in the polymer undergoing random bead rotations
+
+    """
+    
+    # Generate a random amplitude for the rotation
+    rot_angle = amp_move * np.random.uniform(0, 2 * np.pi)
+
+    # Randomly select a bead in the polymer
+    ind0 = np.random.randint(num_beads)
+    r_point = polymer.r[ind0, :]
+    t3_point = polymer.t3[ind0, :]
+    t2_point = polymer.t2[ind0, :]
+
+    # Select an arbitrary axis about which to conduct rotation
+    phi = np.random.uniform(0, 2 * np.pi)
+    theta = np.random.uniform(0, np.pi)
+
+    # Generate trial orientations for the beads undergoing rotation
+    t3_trial, t2_trial = conduct_tangent_rotation(r_point, t3_point, t2_point, phi, theta, rot_angle)
+
+    return ind0, None, None, t3_trial, t2_trial, None
+
+
+def tangent_rotation_move(polymer, amp_move, amp_bead):
+    """
+    Random bead rotation for a random selection of beads.
+
+    Calls *one_bead_tangent_rotation_move* for each randomly selected bead to undergo rotation.
+
+    Parameters
+    ----------
+    polymer : Polymer
+        Polymer object
+    amp_move : float
+        Fraction of maximum rotation space to rotate beads (between 0-1)
+        Scales spherical angles to a random value within a fraction of their maximum values
+    amp_bead : int
+        Number of beads to randomly rotate
+
+    """
+    
+    # Select some number of beads to undergo rotation
+    num_beads_to_move = np.random.uniform() * amp_beads
+
+    # Identify the number of beads in the polymer
+    num_beads = polymer.num_beads
+
+    # Initialize index vector pointing to rotated beads
+    adjusted_beads = []
+
+    # Initialize lists of trial orientations for rotated beads
+    all_t3_trial = []
+    all_t2_trial = []
+
+    # Loop through number of beads being moved, store the indices and trial orientations of each bead
+    for i in range(num_beads_to_move):
+        
+        ind0, _, _, t3_trial, t2_trial, _ = one_bead_tangent_rotation_move(polymer, amp_move, num_beads)
+        
+        adjusted_beads.append(ind0)
+        all_t3_trial.append(t3_trial)
+        all_t2_trial.append(t2_trial)
+
+    return adjusted_beads, all_t3_trial, all_t2_trial
+
 
 all_moves = [MCAdapter(move) for move in [crank_shaft_move]]
