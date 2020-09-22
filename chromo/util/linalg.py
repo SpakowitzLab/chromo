@@ -41,3 +41,36 @@ def arbitrary_axis_rotation(r0, r1, rot_angle):
     rot_mat[:3, :3] = Rotation.from_rotvec(rot_vec).as_matrix()
 
     return inv_translation_mat @ rot_mat @ translate_mat
+
+
+def generate_translation_mat(delta_x, delta_y, delta_z):
+    """
+    Generate translation matrix.
+    
+    Generate the homogeneous transformation matrix for a translation
+    of distance delta_x, delta_y, delta_z in the x, y, and z directions,
+    respectively.
+
+    Parameters
+    ----------
+    delta_x : float
+        Distance to translate in x-direction
+    delta_y : float
+        Distance to translate in y-direction
+    delta_z : float
+        Distance to translate in z-direction
+    
+    Returns
+    -------
+    translation_mat : (4, 4) array_like
+        Homogeneous translation matrix
+    """
+
+    translation_mat = np.identity(4)
+    translation_mat[0, 3] = delta_x
+    translation_mat[1, 3] = delta_y
+    translation_mat[2, 3] = delta_z
+
+    return translation_mat
+
+

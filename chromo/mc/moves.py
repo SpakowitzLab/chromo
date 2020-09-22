@@ -7,6 +7,11 @@ move.
 
 import numpy as np
 
+from chromo.util.bead_selection import *
+from chromo.util.linalg import *
+
+### ---------- Classes ----------###
+
 class MCAdapter:
     """
     Track success rate and adjust parameters for a Monte Carlo move.
@@ -83,8 +88,23 @@ class MCAdapter:
         self.num_success += 1
 
 
+### ---------- MC Move Functions ---------- ###
+
 def crank_shaft_move(polymer, amp_move, amp_bead):
-    """Rotate section of polymer around axis formed by two bounding beads."""
+    """
+    Rotate section of polymer around axis formed by two bounding beads.
+
+    Parameters
+    ----------
+    polymer : Polymer
+        Polymer object
+    amp_move : float
+        Maximum amplitude (rotation angle) of the end-pivot move
+    amp_bead : int
+        Maximum amplitude (number) of beads affected by the end-pivot move
+    
+    """
+
     # Select ind0 and indf for the crank-shaft move
     delta_ind = min(np.random.randint(2, amp_bead), polymer.num_beads)
     ind0 = np.random.randint(polymer.num_beads - delta_ind + 1)
@@ -130,5 +150,177 @@ def crank_shaft_move(polymer, amp_move, amp_bead):
         r_poly_trial[i_bead - ind0, :] = rot_vector + np.matmul(rot_matrix, polymer.r[i_bead, :])
         t3_poly_trial[i_bead - ind0, :] = np.matmul(rot_matrix, polymer.t3[i_bead, :])
     return ind0, indf, r_poly_trial, t3_poly_trial, None, None
+
+
+def conduct_end_pivot(r_points, r_pivot, r_base, t3_points, t2_points, rot_angle):
+    """
+    Rotation of fixed sub set of beads.
+
+    Deterministic component of end-pivot move.
+
+    Parameters
+    ----------
+    r_points : array_like (4, N)
+        Homogeneous coordinates for beads undergoing rotation
+    r_pivot : array_like (4,)
+        Homogeneous coordinates for beads about which the pivot occurs
+    r_base : array_like (4,)
+        Homogeneous coordinates for bead establishing axis of rotation
+    t3_points : array_like (4, N)
+        Homogeneous tangent vectors for beads undergoing rotation
+    t2_points : array_like (4, N)
+        Homogeneous tangent, orthogonal to t3 tangents, for rotating beads
+    rot_angle : float
+        Magnitude of counterclockwise rotation (in radians)
+
+    Returns
+    -------
+    r_trial : array_like (4, N)
+        Homogeneous coordinates of beads following rotation
+    t3_trial : array_like (4, N)
+        Homogeneous tangent vectors for beads following rotation
+    t2_trial : array_like (4, N)
+        Homogeneous tangent vectors, orthogonal to t3_trial, following rotation
+    
+    """
+
+    rot_matrix = arbitrary_axis_rotation(r_pivot, r_base, rot_angle)
+
+    r_trial = rot_matrix @ r_points     # Generate trial copordinates
+    t3_trial = rot_matrix @ t3_points   # Generate trial tangents
+    t2_trial = rot_matrix @ t2_points   # Generate orthogonal trial tangents
+
+    return r_trial, t3_trial, t2_trial
+
+
+def end_pivot_move(polymer, amp_move, amp_bead):
+    """
+    Randomly rotate segment from one end of the polymer.
+
+    Stochastic component of end-pivot move.
+
+    Parameters
+    ----------
+    polymer : Polymer
+        Polymer object
+    amp_move : float
+        Maximum amplitude (rotation angle) of the end-pivot move
+    amp_bead : int
+        Maximum amplitude (number) of beads affected by the end-pivot move
+
+    """
+
+    # Select a rotation angle based on the move amplitude
+    rot_angle = amp_move * (np.random.rand() - 0.5)
+
+    # isolate the number of beads in the polymer
+    num_beads = polymer.num_beads
+    
+    
+    # Randomly select beads
+    if np.random.randint(0, 2) == 0:    # rotate LHS of polymer
+        ind0 = 0
+        pivot_point = indf = select_bead_from_left(window_size, num_beads)
+        base_point = pivot_point + 1
+    else:                               # rotate RHS of polymer
+        pivot_point = ind0 = select_bead_from_right(window_size, num_beads)
+        indf = num_beads-1
+        base_point = pivot_point - 1
+
+    # Isolate homogeneous coordinates and orientation for move
+    r_points = np.ones((4, indf-ind0+1))
+    r_pivot = polymer.r[pivot_point, :]
+    r_base = polymer.r[base_point, :]
+    t3_points = np.ones((4, indf-ind0+1))
+    t2_points = np.ones((4, indf-ind0+1))
+
+    # Reformat coordinates and orientation for matrix multiplication
+    r_points[0:3, :] = polymer.r[ind0:indf+1, :].T
+    t3_points[0:3, :] = polymer.t3[ind0:indf+1, :].T
+    t2_points[0:3, :] = polymer.t2[ind0:indf+1, :].T
+
+    # Conduct the end-pivot move and output new homogeneous coordinates/orientations
+    r_trial, t3_trial, t2_trial = conduct_end_pivot(r_points, r_pivot, r_base, 
+        t3_points, t2_points, rot_angle)   
+    
+    # Reformat from homogeneous to cartesian coordinates
+    r_trial = r_trial[0:3, :].T
+    t3_trial = t3_trial[0:3, :].T
+    t2_trial = t2_trial[0:3, :].T
+
+    return ind0, indf, r_trial, t3_trial, t2_trial, None
+
+
+def conduct_slide_move(r_points, translation_x, translation_y, translation_z):
+    """
+    Conduct the slide move on set of beads with homogeneous coordinates stored in r_points.
+
+    Deterministic component of slide move.
+
+    Parameters
+    ----------
+    r_points : array_like (4, N)
+        Homogeneous coordinates for beads undergoing slide move
+    translation_x : float
+        Translation in the x-direction
+    translation_y : float
+        Translation in the y-direction
+    translation_z : float
+        Translation in the z-direction
+
+    Return
+    ------
+    r_trial : array_like (4, N)
+        Homogeneous coordinates of beads following slide move
+    
+    """
+
+    translation_mat = generate_translation_mat(translation_x, translation_y, translation_z)
+    r_trial = translation_mat @ r_points
+
+    return r_trial
+
+
+def slide_move(polymer, amp_move, amp_bead):
+    """
+    Randomly translate a segment of the polymer.
+
+    Parameters
+    ----------
+    polymer : Polymer
+        Polymer object
+    amp_move : float
+        Maximum amplitude (translation distance) of the slide move
+    amp_bead : int
+        Maximum amplitude (number) of beads affected by the slide move
+
+    """
+
+    # Set the translation distance based on slide amplitude
+    translation_amp = amp_move * (np.random.rand())
+
+    # Randomly partition translation move into x, y, z components
+    rand_z = np.random.rand()
+    rand_angle = np.random.rand() * 2 * np.pi
+    translation_z = translation_amp * rand_z
+    translation_y = np.sqrt(1 - rand_z**2) * translation_amp * np.sin(rand_angle)
+    translation_x = np.sqrt(1 - rand_z**2) * translation_amp * np.cos(rand_angle)
+
+    # Select a segment of nucleosomes on which to apply the move
+    num_beads = polymer.num_beads
+    ind0 = np.random.randint(num_beads)
+    select_window = np.amin(np.array([num_beads - ind0, ind0, amp_beads]))
+    indf = select_bead_from_point(select_window, num_beads, ind0)
+    
+    # Generate matrix of homogeneous coordinates for beads undergoing slide move
+    r_points = np.ones((4, indf-ind0 + 1))
+    r_points[0:3, :] = polymer.r[ind0:indf+1, :].T
+
+    # Generate trial coordinates
+    r_trial = conduct_slide_move(r_points, translation_x, translation_y, translation_z)
+
+    return ind0, indf, r_trial, None, None, None
+
+
 
 all_moves = [MCAdapter(move) for move in [crank_shaft_move]]
