@@ -1,126 +1,107 @@
 """
-Utility function for random bead selection
+Utility functions for random bead selection.
 """
 
 import random
+import sys
 
 import numpy as np
 
-def exponential_random_int(window):
-    """ 
-    Randomly select an exponentially distributed integer
-    Most likely to return values close to zero
+
+def capped_exponential(window, cap=np.inf):
+    """
+    Select exponentially distributed integer below some capped value.
 
     Parameters
     ----------
-    window:         int
-                    Bead window size for selection
-
+    window : int
+        Mean of the exponential distribution being sampled
+    cap : int
+        Maximum value of exponentially sampled integer 
     Returns
     -------
-    ind:            int
-                    Exponentially distributed integer from zero
+    r : int
+        Exponentially sampled random integer less than capped value
     """
     
-    accept_ind = False
-    while accept_ind == False:
-        unif_rand = random.uniform(0, 1)    # Generate random number of obtaining index
-        ind = int(-1.0 * np.log(-unif_rand + 1) * window)
-        ind = abs(ind)
-        if ind < window:
-            accept_ind = True
+    r = np.random.geometric(1/window)
+    while r > cap:
+        r = np.random.geometric(1/window)
+    return r
 
-    return(ind)
-
-
-def select_bead_from_left(window, all_beads, exclude_last_bead = True):
+def select_bead_from_left(window, N_beads, exclude_last_bead=True):
     """
-    Randomly select index exponentially decaying from left
+    Randomly select index exponentially decaying from left.
 
     Parameters
     ----------
-    window:                 int
-                            Bead window size for selection
-    all_beads:              np.array
-                            1D vector of all bead indices in the polymer.
-    exclude_last_bead:      Boolean (default: True)
-                            Set True to exclude the final bead from selection (when rotating LHS of polymer)
+    window : int
+        Bead window size for selection
+    N_beads : int
+        Number of beads in the polymer chain
+    exclude_last_bead : boolean
+        Set to True to exclude final bead from selection, such as when rotating LHS of polymer (default = True) 
+    Returns
+    -------
+    int
+        Index of a bead selected with exponentially decaying probability from first point
+    """
+    if exclude_last_bead == True:
+        N_beads -= 1
+    if window > N_beads:
+        raise ValueError("Bead selection window size must be less than polymer length")
     
-    Returns
-    -------
-    ind0:                   int
-                            Index of a bead selected with exponentially decaying probability from first point
+    return capped_exponential(window, N_beads)
+
+
+def select_bead_from_right(window, N_beads, exclude_first_bead = True):
     """
-
-    if exclude_last_bead is True:
-        is_last_bead = True
-        while is_last_bead == True:
-            ind0 = exponential_random_int(window)
-            if ind0 != all_beads[-1]:
-                is_last_bead = False
-    else:
-        ind0 = exponential_random_int(window)
-
-    return ind0
-
-
-def select_bead_from_right(window, all_beads, exclude_first_bead = True):
-    """
-    Randomly select index exponentially decaying from right
+    Randomly select index exponentially decaying from right.
 
     Parameters
     ----------
-    window:                 int
-                            Bead window size for selection
-    all_beads:              np.array
-                            1D vector of all bead indices in the polymer.
-    exclude_first_bead:     Boolean (default: True)
-                            Set True to exclude the first bead from selection (when rotating  RHS of polymer)
+    window : int
+        Bead window size for selection
+    N_beads : int
+        Number of beads in the polymer chain
+    exclude_first_bead : boolean
+        Set to True to exclude first bead from selection, such as when rotating RHS of polymer (default = True) 
     Returns
     -------
-    ind0:                   int
-                            Index of a bead selected with exponentially decaying probability from last point
+    int
+        Index of a bead selected with exponentially decaying probability from last point
     """
+   
+    dist_from_RHS = select_bead_from_left(window, N_beads, exclude_first_bead)
     
-    if exclude_first_bead is True:
-        is_first_bead = True
-        while is_first_bead == True:
-            ind0 = np.max(all_beads) - exponential_random_int(window)
-            if ind0 != all_beads[0]:
-                is_first_bead = False
-    else:
-        ind0 = np.max(all_beads) - exponential_random_int(window)
-
-    return ind0
+    return N_beads - dist_from_RHS - 1
 
 
-def select_bead_from_point(window, all_beads, ind0):
+def select_bead_from_point(window, N_beads, ind0):
     """
-    Randomly select index ewponentially decaying from point ind0
+    Randomly select index exponentially decaying from point ind0.
 
     Parameters
     ----------
-    window:     int
-                Bead window size for selection  
-    all_beads:  np.array
-                1D vector of all bead indices in the polymer.
-    ind0:       int
-                Index of first point
+    window : int
+        Bead window size for selection  
+    N_beads : int
+        Number of beads in the polymer chain
+    ind0 : int
+        Index of first point
     Returns
     -------
-    indf:       int
-                Index of new point selected based on distance from ind0
+    int
+        Index of new point selected based on distance from ind0
     """
+
+    if window > N_beads:
+        raise ValueError("Bead selection window size must be less than polymer length.")
 
     side = random.randint(0, 1)     # randomly select a side of the polymer to select from
-    window_side = round(window / 2)
+    window_side = round(window/2)
 
     if side == 0:       # LHS
-        all_beads = all_beads[0:window_side] 
-        indf = select_bead_from_right(window_side, all_beads, exclude_first_bead = False)
+        return select_bead_from_right(window_side, window_side, exclude_first_bead = False)
     else:               # RHS
-        all_beads = all_beads[0:window_side] 
-        indf = select_bead_from_left(window_side, all_beads, exclude_last_bead = False) + ind0
-
-    return(indf)
-
+        return select_bead_from_left(window_side, window_side, exclude_last_bead = False) + ind0

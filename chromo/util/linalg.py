@@ -1,73 +1,76 @@
-"""
-Utility functions for linear algebra calculations
-"""
-import random
-import math as math
-
+"""Utility functions for linear algebra calculations."""
 import numpy as np
+from scipy.spatial.transform import Rotation
 
 
-def arbitrary_axis_rotation(r_ind0, r_ind1, rot_angle):
+def arbitrary_axis_rotation(r0, r1, rot_angle):
     """
-    Generate a transformation matrix for counterclockwise rotation of angle rot_angle about an arbitrary axis from points r_ind0 to r_ind1.
+    Rotate about an axis defined by two points.
+
+    Generate a transformation matrix for counterclockwise (right handed
+    convention) rotation of angle *rot_angle* about an arbitrary axis from
+    points *r0* to *r1*.
 
     Parameters
     ----------
-    r_ind0:         (3, 1) np.array
-                    1D column vector of (x, y, z) coordinates for the first point forming the axis of rotation
-
-    r_ind1:         (3, 1) np.array
-                    1D column vector of (x, y, z) coordinates for the second point forming the axis of rotation
-
-    rot_angle:      float
-                    Magnitude of the angle of rotation about arbitrary axis
+    r0 : (3,) array_like
+        First point defining axis to rotate around.
+    r1 : (3,) array_like
+        Second point defining axis to rotate around.
+    rot_angle : float
+        Angle of rotation. Positive rotation is counterclockwise when the
+        vector `r1 - r0` is pointing directly out of the blackboard.
 
     Returns
     -------
-    rot_matrix:     (4, 4) np.array
-                    Homogeneous rotation matrix for rotation about arbitrary axis
-
+    rot_mat : (4, 4) array_like
+        Homogeneous rotation matrix.
     """
     translate_mat = np.array([
-		[1, 0, 0, -r_ind1[0]],
-		[0, 1, 0, -r_ind1[1]],
-		[0, 0, 1, -r_ind1[2]],
-		[0, 0, 0, 1]
-	])
-
-    inv_translation_mat = translate_mat
+        [1, 0, 0, -r0[0]],
+        [0, 1, 0, -r0[1]],
+        [0, 0, 1, -r0[2]],
+        [0, 0, 0, 1]
+    ])
+    inv_translation_mat = translate_mat.copy()
     inv_translation_mat[0:3, 3] *= -1
 
-    # Calculate the length of the projections to point ind0 on yz plane.
-    proj_len_yz = math.sqrt(r_ind0[1]**2 + r_ind0[2]**2)
-    # rotate the vector ind0 into the xz plane
-    if np.isclose(proj_len_yz, 0):
-        rot_mat_x = np.identity(4)
-    else:
-        rot_mat_x = np.identity(4)
-        rot_mat_x[1:3, 1:3] = np.array([
-            [r_ind0[2] / proj_len_yz, -r_ind0[1] / proj_len_yz],
-            [r_ind0[1] / proj_len_yz, r_ind0[2] / proj_len_yz]
-        ])
-    # rotating by the same angle in the opposite direction is the inverse
-    inv_rot_mat_x = rot_mat_x
-    inv_rot_mat_x[1, 2] = -rot_mat_x[1, 2]
-    inv_rot_mat_x[2, 1] = -rot_mat_x[2, 1]
-    # now rotate around the y-axis such that the ind0 vector becomes the z-axis
-    rot_mat_y = np.identity(4)
-    if not np.isclose(proj_len_yz, 0):
-        rot_mat_y[0, 0] = proj_len_yz
-        rot_mat_y[0, 2] = -r_ind0[0]
-        rot_mat_y[2, 0] = r_ind0[0]
-        rot_mat_y[2, 2] = proj_len_yz
-    inv_rot_mat_y = rot_mat_y
-    inv_rot_mat_y[0, 2] = -rot_mat_y[0, 2]
-    inv_rot_mat_y[2, 0] = -rot_mat_y[2, 0]
-    rot_mat_z = np.identity(4)  # now rotate about z
-    rot_mat_z[0:2, 0:2] = np.array([
-        [np.cos(rot_angle), -np.sin(rot_angle)], 
-        [np.sin(rot_angle), np.cos(rot_angle)]
-    ])
-    rot_matrix = inv_translation_mat @ inv_rot_mat_x @ inv_rot_mat_y \
-        @ rot_mat_z @ rot_mat_y @ rot_mat_x @ translate_mat
-    return rot_matrix
+    rot_axis = r1 - r0
+    rot_vec = rot_angle * rot_axis/np.linalg.norm(rot_axis)
+    rot_mat = np.identity(4)
+    rot_mat[:3, :3] = Rotation.from_rotvec(rot_vec).as_matrix()
+
+    return inv_translation_mat @ rot_mat @ translate_mat
+
+
+def generate_translation_mat(delta_x, delta_y, delta_z):
+    """
+    Generate translation matrix.
+    
+    Generate the homogeneous transformation matrix for a translation
+    of distance delta_x, delta_y, delta_z in the x, y, and z directions,
+    respectively.
+
+    Parameters
+    ----------
+    delta_x : float
+        Distance to translate in x-direction
+    delta_y : float
+        Distance to translate in y-direction
+    delta_z : float
+        Distance to translate in z-direction
+    
+    Returns
+    -------
+    translation_mat : (4, 4) array_like
+        Homogeneous translation matrix
+    """
+
+    translation_mat = np.identity(4)
+    translation_mat[0, 3] = delta_x
+    translation_mat[1, 3] = delta_y
+    translation_mat[2, 3] = delta_z
+
+    return translation_mat
+
+

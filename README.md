@@ -1,6 +1,6 @@
 # chromo
 
-Monte Carlo simulation of chromosomal DNA with field theoretic treatment of epigenetic marks
+Monte Carlo simulation of chromosomal DNA with field theoretic treatment of epigenetic marks.
 
 Features in this code package:
 1. Introduce epigenetic marks as instances within the "Epigenmark” class.  This allows us to arbitrarily introduce epigenetic marks within the code

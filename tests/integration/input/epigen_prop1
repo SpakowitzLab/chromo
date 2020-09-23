@@ -1,0 +1,4 @@
+H3K9			# Name of the epigenetic mark
+0.1		        # Binding affinity in units of kT (bind_energy)
+4.0		        # Interaction energy in units of kT (int_energy)
+0			    # Chemical potential of epigenetic mark
