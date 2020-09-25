@@ -2,7 +2,6 @@
 import numpy as np
 from scipy.spatial.transform import Rotation
 
-
 def arbitrary_axis_rotation(r0, r1, rot_angle):
     """
     Rotate about an axis defined by two points.

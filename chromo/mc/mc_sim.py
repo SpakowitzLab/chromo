@@ -15,6 +15,18 @@ def mc_sim(polymers, epigenmarks, num_mc_steps, mc_moves, field):
 def mc_step(adaptible_move, poly, epigenmarks, field):
     # get proposed state
     ind0, indf, r, t3, t2, states = adaptible_move.propose(poly)
+    proposed = {"ind0" : ind0, 
+                "indf" : indf, 
+                "r" : r, 
+                "t3" : t3, 
+                "t2" : t2, 
+                "states" : states}
+
+    # Fill in None values for energy calculation
+    for param in [r, t3, t2, states]:
+        if param is None:
+            param = getattr(poly, param)[ind0:indf, :]
+
     # compute change in energy
     dE = 0
     dE += poly.compute_dE(ind0, indf, r, t3, t2, states)
@@ -22,8 +34,11 @@ def mc_step(adaptible_move, poly, epigenmarks, field):
         dE += field.compute_dE(poly, ind0, indf, r, t3, t2, states)
     if np.random.rand() < np.exp(-dE):
         adaptible_move.accept()
-        poly.r[ind0:indf, :] = r
-        poly.t3[ind0:indf, :] = t3
-        poly.t2[ind0:indf, :] = t2
-        poly.states[ind0:indf, :] = states
+        
+        if proposed["r"] is not None : poly.r[ind0:indf, :] = proposed["r"]
+        if proposed["t3"] is not None : poly.t3[ind0:indf, :] = proposed["t3"]
+        if proposed["t2"] is not None : poly.t2[ind0:indf, :] = proposed["t2"]
+        if proposed["state"] is not None : poly.states[ind0:indf, :] = proposed["states"]
+        print("HERE I AM")
+        print(poly.states)
     return

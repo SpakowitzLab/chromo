@@ -20,6 +20,7 @@ def test_uniform_density_field_roundtrip():
     udf_round_trip = UniformDensityField.from_file(
         StringIO(udf.to_file(None)), [p], marks
     )
+
     assert udf == udf_round_trip
 
     # ensure the code errors if the wrong number of polymers or marks is passed

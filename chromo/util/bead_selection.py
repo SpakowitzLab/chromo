@@ -23,7 +23,7 @@ def capped_exponential(window, cap=np.inf):
     r : int
         Exponentially sampled random integer less than capped value
     """
-    
+    print(window)
     r = np.random.geometric(1/window)
     while r > cap:
         r = np.random.geometric(1/window)
@@ -102,6 +102,6 @@ def select_bead_from_point(window, N_beads, ind0):
     window_side = round(window/2)
 
     if side == 0:       # LHS
-        return select_bead_from_right(window_side, window_side, exclude_first_bead = False)
+        return select_bead_from_right(window_side, window_side, exclude_first_bead = False) + ind0
     else:               # RHS
         return select_bead_from_left(window_side, window_side, exclude_last_bead = False) + ind0
