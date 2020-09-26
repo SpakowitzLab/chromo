@@ -207,10 +207,30 @@ class Polymer:
 
         return eps_bend, eps_par, eps_perp, gamma, eta
 
+    def fill_in_None_Parameters(self, ind0, indf, r, t3, t2, states):
+        """ Substitute polymer parameters when attribute is None type."""
+        if r is None:
+            r = self.r[ind0:indf+1, :]
+        if t3 is None:
+            t3 = self.t3[ind0:indf+1, :]
+        if t2 is None:
+            t2 = self.t2[ind0:indf+1, :]
+        if states is None:
+            states = self.states[ind0:indf+1, :]
+        return r, t3, t2, states
+
     def compute_dE(self, ind0, indf, r_poly_trial, t3_poly_trial,
                    t2_poly_trial, states_trial):
         """Compute change in polymer energy moving to proposed new state."""
+        
+        # Fill in any None values
+        r_poly_trial, t3_poly_trial, t2_poly_trial, states_trial = \
+            self.fill_in_None_Parameters(ind0, indf, r_poly_trial, t3_poly_trial, 
+            t2_poly_trial, states_trial)
+        
+        # Initialize the change in energy
         delta_energy_poly = 0
+
         # Calculate contribution to polymer energy at the ind0 position
         if ind0 != 0:
             delta_r_trial = r_poly_trial[0, :] - self.r[ind0 - 1, :]

@@ -104,7 +104,7 @@ def crank_shaft_move(polymer, amp_move, amp_bead):
         Maximum amplitude (number) of beads affected by the end-pivot move
     
     """
-    print("CRANK-SHAFT MOVE")
+    ## print("CRANK-SHAFT MOVE")
 
     # Select ind0 and indf for the crank-shaft move
     delta_ind = min(np.random.randint(2, amp_bead), polymer.num_beads)
@@ -151,7 +151,7 @@ def crank_shaft_move(polymer, amp_move, amp_bead):
         r_poly_trial[i_bead - ind0, :] = rot_vector + np.matmul(rot_matrix, polymer.r[i_bead, :])
         t3_poly_trial[i_bead - ind0, :] = np.matmul(rot_matrix, polymer.t3[i_bead, :])
     
-    return ind0, indf, r_poly_trial, t3_poly_trial, [None], [None]
+    return ind0, indf, r_poly_trial, t3_poly_trial, None, None
 
 
 def conduct_end_pivot(r_points, r_pivot, r_base, t3_points, t2_points, rot_angle):
@@ -211,8 +211,7 @@ def end_pivot_move(polymer, amp_move, amp_bead):
         Maximum amplitude (number) of beads affected by the end-pivot move
 
     """
-
-    print("END-PIVOT MOVE")
+    ## print("END-PIVOT MOVE")
 
     # Select a rotation angle based on the move amplitude
     rot_angle = amp_move * (np.random.rand() - 0.5)
@@ -223,11 +222,11 @@ def end_pivot_move(polymer, amp_move, amp_bead):
     # Randomly select beads
     if np.random.randint(0, 2) == 0:    # rotate LHS of polymer
         ind0 = 0
-        pivot_point = indf = select_bead_from_left(amp_bead-1, num_beads)
+        pivot_point = indf = select_bead_from_left(amp_bead-1, num_beads) - 1
         base_point = pivot_point + 1
     else:                               # rotate RHS of polymer
         pivot_point = ind0 = select_bead_from_right(amp_bead-1, num_beads)
-        indf = num_beads-1
+        indf = num_beads - 1
         base_point = pivot_point - 1
 
     # Isolate homogeneous coordinates and orientation for move
@@ -250,7 +249,7 @@ def end_pivot_move(polymer, amp_move, amp_bead):
     r_trial = r_trial[0:3, :].T
     t3_trial = t3_trial[0:3, :].T
     t2_trial = t2_trial[0:3, :].T
-    return ind0, indf+1, r_trial, t3_trial, t2_trial, polymer.states[ind0:indf+1]
+    return ind0, indf+1, r_trial, t3_trial, t2_trial, None
 
 
 def conduct_slide_move(r_points, translation_x, translation_y, translation_z):
@@ -297,7 +296,7 @@ def slide_move(polymer, amp_move, amp_bead):
         Maximum amplitude (number) of beads affected by the slide move
 
     """
-    print("SLIDE MOVE")
+    ## print("SLIDE MOVE")
 
     # Set the translation distance based on slide amplitude
     translation_amp = amp_move * (np.random.rand())
@@ -310,26 +309,33 @@ def slide_move(polymer, amp_move, amp_bead):
     translation_x = np.sqrt(1 - rand_z**2) * translation_amp * np.cos(rand_angle)
 
     # Select a segment of nucleosomes on which to apply the move
+    # Pick a selection window that guarentees selection of beads on polymer
     num_beads = polymer.num_beads
     ind0 = np.random.randint(num_beads)
-    select_window = np.amin(np.array([num_beads - ind0, ind0, amp_bead]))
+    select_window = np.amin(np.array([num_beads - ind0, ind0+1, amp_bead]))
     indf = select_bead_from_point(select_window, num_beads, ind0)
 
     # Verify indices have integer variable types
     ind0 = int(ind0)
     indf = int(indf)
     
+    # Verify that ind0 and indf are ordered
+    if ind0 > indf:
+        temp = ind0
+        ind0 = indf
+        indf = temp
+
+    if ind0 == indf : indf += 1
+    
     # Generate matrix of homogeneous coordinates for beads undergoing slide move
-    print(ind0)
-    print(indf)
-    r_points = np.ones((4, indf-ind0 + 1))
-    r_points[0:3, :] = polymer.r[ind0:indf+1, :].T
+    r_points = np.ones((4, indf-ind0))
+    r_points[0:3, :] = polymer.r[ind0:indf, :].T
 
     # Generate trial coordinates
     r_trial = conduct_slide_move(r_points, translation_x, translation_y, translation_z)
     r_trial = r_trial[0:3, :].T
 
-    return ind0, indf, r_trial, polymer.t3[ind0:indf+1], polymer.t2[ind0:indf+1], polymer.states[ind0:indf+1]
+    return ind0, indf, r_trial, None, None, None
 
 
 def conduct_tangent_rotation(r_point, t3_point, t2_point, phi, theta, rot_angle):
@@ -432,9 +438,8 @@ def tangent_rotation_move(polymer, amp_move, amp_bead):
         Number of beads to randomly rotate
 
     """
+    ## print("TANGENT ROTATION MOVE")
 
-    print("TANGENT ROTATION MOVE")
-    
     # Select some number of beads to undergo rotation
     num_beads_to_move = np.random.uniform() * amp_beads
 

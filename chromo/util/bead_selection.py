@@ -23,7 +23,7 @@ def capped_exponential(window, cap=np.inf):
     r : int
         Exponentially sampled random integer less than capped value
     """
-    print(window)
+
     r = np.random.geometric(1/window)
     while r > cap:
         r = np.random.geometric(1/window)
@@ -73,8 +73,7 @@ def select_bead_from_right(window, N_beads, exclude_first_bead = True):
     """
    
     dist_from_RHS = select_bead_from_left(window, N_beads, exclude_first_bead)
-    
-    return N_beads - dist_from_RHS - 1
+    return N_beads - dist_from_RHS
 
 
 def select_bead_from_point(window, N_beads, ind0):
@@ -100,8 +99,11 @@ def select_bead_from_point(window, N_beads, ind0):
 
     side = random.randint(0, 1)     # randomly select a side of the polymer to select from
     window_side = round(window/2)
+    if window_side == 0 : return ind0   # Do not perform move if move window size is zero
 
     if side == 0:       # LHS
-        return select_bead_from_right(window_side, window_side, exclude_first_bead = False) + ind0
+        return select_bead_from_right(window_side, ind0, exclude_first_bead = False)
     else:               # RHS
-        return select_bead_from_left(window_side, window_side, exclude_last_bead = False) + ind0
+        return select_bead_from_left(window_side, N_beads - ind0, exclude_last_bead = False) + ind0
+
+

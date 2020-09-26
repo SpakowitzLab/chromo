@@ -259,15 +259,26 @@ class UniformDensityField(FieldBase):
         """
         new_density = self.density.copy()
         for i, poly in enumerate(self.polymers):
-            print("I AM HERE")
             density_poly, index_xyz = self._calc_density(
-                    poly.r, poly.states, 0, poly.num_beads)
+                    poly.r, poly.states, 0, poly.num_beads-1)
             new_density[index_xyz, :] += density_poly
         if check_consistency:
             if not np.all(np.isclose(new_density, self.density)):
                 raise RuntimeError(f"Recomputing energy of {self} from scratch"
                                    " produced inconsistent results. There is a"
                                    " bug in this code.")
+
+    def fill_in_None_Parameters(self, poly, ind0, indf, r, t3, t2,states):
+        """ Substitute polymer parameters when attribute is None type."""
+        if r is None:
+            r = poly.r[ind0:indf, :].copy()
+        if t3 is None:
+            t3 = poly.t3[ind0:indf, :].copy()
+        if t2 is None:
+            t2 = poly.t2[ind0:indf, :].copy()
+        if states is None:
+            states = poly.states.copy()
+        return r, t3, t2, states    
 
     def compute_dE(self, poly, ind0, indf, r, t3, t2, states):
         """
@@ -279,19 +290,11 @@ class UniformDensityField(FieldBase):
         # because they're needed to compute the energy at any point along the
         # polymer
 
-        print("poly.states")
-        print(poly.states)
-        if states is None:
-            states = poly.states
-        
-        poly.states = np.array(poly.states)
-        states = np.array(states)
-        print(states)
-        print(poly.states)
-        print("HERE")
+        # Fill in None type variables with polmer values
+        r, t3, t2, states = self.fill_in_None_Parameters(poly, ind0, indf, r, t3, t2, states)
 
         density_poly, index_xyz = self._calc_density(
-            poly.r[ind0:indf, :], poly.states, ind0, indf)
+            poly.r[ind0:indf, :], poly.states, ind0+1, indf)
         density_poly_trial, index_xyz_trial = self._calc_density(
             r, states, ind0, indf)
         delta_density_poly_total = np.concatenate((
@@ -314,8 +317,8 @@ class UniformDensityField(FieldBase):
 
     def _calc_density(self, r_poly, states, ind0, indf):
 
-        print(states)
-        num_marks = len(states[0])
+        states = np.atleast_2d(states)
+        num_marks = states.shape[1]
 
         # Find the (0,0,0) bins for the beads and the associated weights
         x_poly_box = (r_poly[:, 0] - 0.5 * self.dx - self.x_width * np.floor(
@@ -357,26 +360,13 @@ class UniformDensityField(FieldBase):
         index_xyz_total = np.concatenate((index_xyz_total, self.bin_index[index_x0y0z0, 6])).astype(int)
         index_xyz_total = np.concatenate((index_xyz_total, self.bin_index[index_x0y0z0, 7])).astype(int)
 
-        density_total = np.zeros((8 * (indf - ind0), num_marks + 1), 'd')
+        density_total = np.zeros((len(weight), num_marks + 1), 'd')
+
         density_total[:, 0] = weight
         for ind_mark in range(num_marks):
-            print("num_marks: " + str(num_marks))
             for ind_corner in range(8):
                 ind_corner0 = ind_corner * (indf - ind0)
                 ind_cornerf = ind_corner0 + indf - ind0
-                print("ind_corner: " + str(ind_corner))
-                print("DENSITY TOTAL")
-                print(density_total[ind_corner0:ind_cornerf, ind_mark + 1])
-                print("indf - ind0: " + str(indf - ind0))
-                print("ind_mark: " + str(ind_mark))
-                print("STATES")
-                print(states[ind0:indf, ind_mark])
-                print("ind0: " + str(ind0))
-                print("indf: " + str(indf))
-                print("why does states change so much???")
-                print(states[ind0:indf, :])
-                print(states[:, ind_mark])
-                print(states)
                 density_total[ind_corner0:ind_cornerf, ind_mark + 1] = \
                     weight[ind_corner0:ind_cornerf] \
                     * states[ind0:indf, ind_mark]
