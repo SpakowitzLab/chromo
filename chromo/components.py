@@ -261,7 +261,6 @@ class Polymer:
 
         # Calculate contribution to polymer energy at the indf position
         if indf != self.num_beads:
-
             delta_r_trial = self.r[indf, :] - r_poly_trial[indf - ind0 - 1, :]
             delta_r_par_trial = np.dot(delta_r_trial,
                                        t3_poly_trial[indf - ind0 - 1, :])

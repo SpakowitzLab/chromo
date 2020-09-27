@@ -385,7 +385,7 @@ def conduct_tangent_rotation(r_point, t3_point, t2_point, phi, theta, rot_angle)
     
     return t3_trial, t2_trial
 
-def one_bead_tangent_rotation_move(polymer, amp_move, num_beads):
+def one_bead_tangent_rotation_move(polymer, adjusted_beads, amp_move, num_beads):
     """
     Random bead rotation for a single bead.
 
@@ -395,6 +395,8 @@ def one_bead_tangent_rotation_move(polymer, amp_move, num_beads):
     ----------
     polymer : Polymer
         Polymer object
+    adjusted_beads : List[int]
+        List of beads affected by the tangent rotation move
     amp_move : float
         Fraction of 2 * pi maximum rotation to rotate bead (between 0-1)
     num_beads : int
@@ -405,11 +407,21 @@ def one_bead_tangent_rotation_move(polymer, amp_move, num_beads):
     # Generate a random amplitude for the rotation
     rot_angle = amp_move * np.random.uniform(0, 2 * np.pi)
 
+    # Initialize homogeneous coordinate and orientation vectors
+    r_point = np.ones(4)
+    t3_point = np.ones(4)
+    t2_point = np.ones(4)
+
     # Randomly select a bead in the polymer
-    ind0 = np.random.randint(num_beads)
-    r_point = polymer.r[ind0, :]
-    t3_point = polymer.t3[ind0, :]
-    t2_point = polymer.t2[ind0, :]
+    repeat = True
+    while repeat == True:
+        ind0 = np.random.randint(num_beads)
+        if ind0 not in adjusted_beads:
+            repeat = False
+
+    r_point[0:3] = polymer.r[ind0, :]
+    t3_point[0:3] = polymer.t3[ind0, :]
+    t2_point[0:3] = polymer.t2[ind0, :]
 
     # Select an arbitrary axis about which to conduct rotation
     phi = np.random.uniform(0, 2 * np.pi)
@@ -420,6 +432,43 @@ def one_bead_tangent_rotation_move(polymer, amp_move, num_beads):
 
     return ind0, polymer.num_beads, polymer.r, t3_trial, t2_trial, polymer.states[ind0, :]
 
+
+def fill_in_gaps(polymer, adjusted_beads, all_t3_trial, all_t2_trial):
+    """
+    Fill in missing orientations for bead indices between min and max adjusted_beads).
+
+    Parameters
+    ----------
+    polymer : Polymer
+        Polymer object being manipulated
+    adjusted_beads : array_like (M,)
+        List of beads that were altered by tangent_rotation_move
+    all_t3_trial : array_like (M,)
+        Trial t3 orientation vectors for beads adjusted by tangent_rotation_move
+    all_t2_trial : array_like (M,)
+        Trial t2 orientation vectors for beads adjusted by tangent_rotation_move
+
+    Returns
+    -------
+    full_t3_trial : array_like (N,)
+        Ordered trial or existing t3 orientations for beads between min and max adjusted_beads
+    full_t2_trial : array_like (N,)
+        Ordered trial or existing t2 orientations for beads between min and max adjusted_beads
+
+    """
+
+    min_adjusted_bead = min(adjusted_beads)
+    max_adjusted_bead = max(adjusted_beads)
+
+    full_t3_trial = all_t3_trial.copy()
+    full_t2_trial = all_t2_trial.copy()
+
+    for i in range(min_adjusted_bead, max_adjusted_bead+1):
+        if i not in adjusted_beads:
+            full_t3_trial = np.insert(full_t3_trial, i-min_adjusted_bead, polymer.t3[i], axis = 0)
+            full_t2_trial = np.insert(full_t2_trial, i-min_adjusted_bead, polymer.t2[i], axis = 0)
+
+    return full_t3_trial, full_t2_trial
 
 def tangent_rotation_move(polymer, amp_move, amp_bead):
     """
@@ -441,7 +490,8 @@ def tangent_rotation_move(polymer, amp_move, amp_bead):
     ## print("TANGENT ROTATION MOVE")
 
     # Select some number of beads to undergo rotation
-    num_beads_to_move = np.random.uniform() * amp_beads
+    num_beads_to_move = int(np.random.uniform() * amp_bead)
+    if num_beads_to_move == 0 : num_beads_to_move = 1   # Force at least one bead to move if the MC move is on
 
     # Identify the number of beads in the polymer
     num_beads = polymer.num_beads
@@ -456,13 +506,20 @@ def tangent_rotation_move(polymer, amp_move, amp_bead):
     # Loop through number of beads being moved, store the indices and trial orientations of each bead
     for i in range(num_beads_to_move):
         
-        ind0, _, _, t3_trial, t2_trial, _ = one_bead_tangent_rotation_move(polymer, amp_move, num_beads)
+        ind0, _, _, t3_trial, t2_trial, _ = one_bead_tangent_rotation_move(polymer, adjusted_beads, amp_move, num_beads)
         
         adjusted_beads.append(ind0)
         all_t3_trial.append(t3_trial)
         all_t2_trial.append(t2_trial)
 
-    return adjusted_beads, all_t3_trial, all_t2_trial
+    # Convert adjusted_beads, t2, and t3 trial vectors into numpy arrays
+    adjusted_beads = np.array(adjusted_beads)
+    all_t3_trial = np.atleast_2d(np.array(all_t3_trial))
+    all_t2_trial = np.atleast_2d(np.array(all_t2_trial))
 
+    # Fill in any gaps in the t3 and t2 arrays with values from the polymer
+    full_t3_trial, full_t2_trial = fill_in_gaps(polymer, adjusted_beads, all_t3_trial[:, 0:3], all_t2_trial[:, 0:3])
 
-all_moves = [MCAdapter(move) for move in [crank_shaft_move, end_pivot_move, slide_move]]
+    return min(adjusted_beads), max(adjusted_beads)+1, None, full_t3_trial, full_t2_trial, None
+
+all_moves = [MCAdapter(move) for move in [crank_shaft_move, end_pivot_move, slide_move, tangent_rotation_move]]
