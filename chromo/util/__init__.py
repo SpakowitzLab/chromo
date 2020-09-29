@@ -8,7 +8,7 @@ dss_params = np.loadtxt(_util_folder / Path("dssWLCparams"))
 
 def combine_repeat(a, idx):
     """
-    Combine the repeat entries in an array
+    Combine the repeat entries in an array.
 
     :param a:
     :return: a_combine, idx
