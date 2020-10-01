@@ -25,7 +25,7 @@ def mc_step(adaptible_move, poly, epigenmarks, field):
     dE = 0
     dE += poly.compute_dE(*proposal)
     if poly in field:
-        dE += field.compute_dE(*proposal)
+        dE += field.compute_dE(poly, *proposal)
 
     # accept move
     if np.random.rand() < np.exp(-dE):

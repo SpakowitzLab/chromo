@@ -59,10 +59,8 @@ class MCAdapter:
 
         Returns
         -------
-        ind0 : int
-            The first bead index to be moved.
-        indf : int
-            One past the last bead index to be moved.
+        inds : array_like (N,)
+            List of indices for N beads being moved
         r : (N, 3) array_like of float, optional
             The proposed new positions of the moved beads. Throughout this
             method, ``N = indf - ind0 + 1`` is the number of moved beads.
@@ -78,7 +76,7 @@ class MCAdapter:
         return self.move_func(polymer=polymer, amp_move=self.amp_move,
                               amp_bead=self.amp_bead)
 
-    _proposal_arg_names = ['ind', 'r', 't3', 't2', 'states']
+    _proposal_arg_names = ['inds', 'r', 't3', 't2', 'states', 'continuous_inds']
 
     @staticmethod
     def replace_none(poly, *proposal):
@@ -89,7 +87,7 @@ class MCAdapter:
         ----------
         poly : Polymer
             The Polymer object being modified by the move.
-        *proposal : ind, r, t3, t2, states
+        *proposal : inds, r, t3, t2, states, continuous_inds
             The proposed Monte Carlo move, where each of r, t3, t2, states are
             an ``Optional[np.ndarray]``.
 
@@ -100,29 +98,106 @@ class MCAdapter:
         """
         prop_names = MCAdapter._proposal_arg_names
         kwargs = {prop_names[i]: proposal[i] for i in range(len(prop_names))}
-        ind = kwargs.pop('ind')
+
+        # Remove inds and continuous_inds from proposal
+        inds = kwargs.pop('inds')
+        continuous_inds = kwargs.pop("continuous_inds")
+        prop_names = prop_names[1:len(prop_names)-1]
         actual_proposal = []
         for i, name in enumerate(prop_names):
-            prop = proposal[i]
+            prop = kwargs[name]
             if prop is not None:
                 actual_proposal.append(prop)
             else:
-                actual_proposal.append(poly.__dict__[name][ind])
+                prop = []
+                for ind in inds:
+                    prop.append(poly.__dict__[name][ind])
+                actual_proposal.append(prop)
+
         return actual_proposal
 
     def accept(self, poly, *proposal):
         """Update polymer with new state and update proposal stats."""
         # update all the elements of `poly` for which the proposed state
         # contains not "None"
-        ind = proposal[0]
-        r, t3, t2, states = MCAdapter.replace_none(poly, proposal)
+        inds = proposal[0]
+        r, t3, t2, states = MCAdapter.replace_none(poly, *proposal)
 
-        poly.r[ind] = r
-        poly.t3[ind] = t3
-        poly.t2[ind] = t2
-        poly.states[ind] = states
+        for i in range(len(inds)):
+            poly.r[inds[i]] = r[i]
+            poly.t3[inds[i]] = t3[i]
+            poly.t2[inds[i]] = t2[i]
+            poly.states[inds[i]] = states[i]
 
         self.num_success += 1
+
+
+def conduct_crank_shaft(polymer, ind0, indf, rot_angle):
+    """ 
+    Perform deterministic operation of crank_shaft move.
+
+    Parameters
+    ----------
+    polymer : Polymer
+        Polymer object
+    ind0 : int
+        Index of first bead undergoing crank-shaft move
+    indf : int
+        One past index of final bead undergoing crank-shaft move
+    rot_angle : float
+        Counter-clockwise rotation angle in radians
+    
+    Returns
+    -------
+    r_poly_trial : array_like (N, 3)
+        Array of coordinates for manipulated beads following move
+    t3_poly_trial : array_like (N, 3)
+        Array of t3 tangent vectors for manipulated beads following move
+
+    """
+    # Isolate the change in tangent vector orientation between initial and final coordinate
+    if ind0 == (indf + 1):
+        delta_t3 = polymer.t3[ind0, :]
+    else:
+        delta_t3 = polymer.r[indf - 1, :] - polymer.r[ind0, :]
+        delta_t3 /= np.linalg.norm(delta_t3)
+    
+    # Isolate the coordinate of the bead at the ind0 position
+    r_ind0 = polymer.r[ind0, :]
+    
+    # Initialize rotation matrix
+    rot_matrix = np.zeros((3, 3), 'd')
+
+    # Define the rotation matrix
+    rot_matrix[0, 0] = delta_t3[0]**2 + (delta_t3[1]**2 + delta_t3[2]**2) * np.cos(rot_angle)
+    rot_matrix[0, 1] = delta_t3[0]*delta_t3[1]*(1 - np.cos(rot_angle)) - delta_t3[2]*np.sin(rot_angle)
+    rot_matrix[0, 2] = delta_t3[0]*delta_t3[2]*(1 - np.cos(rot_angle)) + delta_t3[1]*np.sin(rot_angle)
+
+    rot_matrix[1, 0] = delta_t3[0]*delta_t3[1]*(1 - np.cos(rot_angle)) + delta_t3[2]*np.sin(rot_angle)
+    rot_matrix[1, 1] = delta_t3[1]**2 + (delta_t3[0]**2 + delta_t3[2]**2) * np.cos(rot_angle)
+    rot_matrix[1, 2] = delta_t3[1]*delta_t3[2]*(1 - np.cos(rot_angle)) - delta_t3[0]*np.sin(rot_angle)
+
+    rot_matrix[2, 0] = delta_t3[0]*delta_t3[2]*(1 - np.cos(rot_angle)) - delta_t3[1]*np.sin(rot_angle)
+    rot_matrix[2, 1] = delta_t3[1]*delta_t3[2]*(1 - np.cos(rot_angle)) + delta_t3[0]*np.sin(rot_angle)
+    rot_matrix[2, 2] = delta_t3[2]**2 + (delta_t3[0]**2 + delta_t3[1]**2) * np.cos(rot_angle)
+
+    # Specify the rotation vector
+    rot_vector = np.cross(r_ind0, delta_t3)*np.sin(rot_angle)
+    rot_vector[0] += (r_ind0[0]*(1 - delta_t3[0]**2)
+                      - delta_t3[0]*(r_ind0[1]*delta_t3[1] + r_ind0[2]*delta_t3[2]))*(1 - np.cos(rot_angle))
+    rot_vector[1] += (r_ind0[1] * (1 - delta_t3[1]**2)
+                      - delta_t3[1]*(r_ind0[0]*delta_t3[0] + r_ind0[2]*delta_t3[2]))*(1 - np.cos(rot_angle))
+    rot_vector[2] += (r_ind0[2]*(1 - delta_t3[2]**2)
+                      - delta_t3[2]*(r_ind0[0]*delta_t3[0] + r_ind0[1]*delta_t3[1]))*(1 - np.cos(rot_angle))
+
+    # Generate the trial positions and orientations
+    r_trial = np.zeros((indf - ind0, 3), 'd')
+    t3_trial = np.zeros((indf - ind0, 3), 'd')
+    for i_bead in range(ind0, indf):
+        r_trial[i_bead - ind0, :] = rot_vector + np.matmul(rot_matrix, polymer.r[i_bead, :])
+        t3_trial[i_bead - ind0, :] = np.matmul(rot_matrix, polymer.t3[i_bead, :])
+
+    return r_trial, t3_trial
 
 
 def crank_shaft(polymer, amp_move, amp_bead):
@@ -141,51 +216,18 @@ def crank_shaft(polymer, amp_move, amp_bead):
     """
     # Select ind0 and indf for the crank-shaft move
     delta_ind = min(np.random.randint(2, amp_bead), polymer.num_beads)
-    ind0 = np.random.randint(polymer.num_beads - delta_ind + 1)
+    ind0 = np.random.randint(polymer.num_beads - delta_ind)
     indf = ind0 + delta_ind
+    inds = np.arange(ind0, indf)
+    continuous_inds = True
 
-    # Generate the rotation matrix and vector around the vector between bead
-    # ind0 and indf
+    # Generate rotation matrix and vector around vector for beads ind0-indf
     rot_angle = amp_move * (np.random.rand() - 0.5)
 
-    if ind0 == (indf + 1):
-        delta_t3 = polymer.t3[ind0, :]
-    else:
-        delta_t3 = polymer.r[indf - 1, :] - polymer.r[ind0, :]
-        delta_t3 /= np.linalg.norm(delta_t3)
+    # Generate trial coordinates
+    r_trial, t3_trial = conduct_crank_shaft(polymer, ind0, indf, rot_angle)
 
-    r_ind0 = polymer.r[ind0, :]
-
-    rot_matrix = np.zeros((3, 3), 'd')
-
-    rot_matrix[0, 0] = delta_t3[0]**2 + (delta_t3[1]**2 + delta_t3[2]**2) * np.cos(rot_angle)
-    rot_matrix[0, 1] = delta_t3[0]*delta_t3[1]*(1 - np.cos(rot_angle)) - delta_t3[2]*np.sin(rot_angle)
-    rot_matrix[0, 2] = delta_t3[0]*delta_t3[2]*(1 - np.cos(rot_angle)) + delta_t3[1]*np.sin(rot_angle)
-
-    rot_matrix[1, 0] = delta_t3[0]*delta_t3[1]*(1 - np.cos(rot_angle)) + delta_t3[2]*np.sin(rot_angle)
-    rot_matrix[1, 1] = delta_t3[1]**2 + (delta_t3[0]**2 + delta_t3[2]**2) * np.cos(rot_angle)
-    rot_matrix[1, 2] = delta_t3[1]*delta_t3[2]*(1 - np.cos(rot_angle)) - delta_t3[0]*np.sin(rot_angle)
-
-    rot_matrix[2, 0] = delta_t3[0]*delta_t3[2]*(1 - np.cos(rot_angle)) - delta_t3[1]*np.sin(rot_angle)
-    rot_matrix[2, 1] = delta_t3[1]*delta_t3[2]*(1 - np.cos(rot_angle)) + delta_t3[0]*np.sin(rot_angle)
-    rot_matrix[2, 2] = delta_t3[2]**2 + (delta_t3[0]**2 + delta_t3[1]**2) * np.cos(rot_angle)
-
-    rot_vector = np.cross(r_ind0, delta_t3) * np.sin(rot_angle)
-    rot_vector[0] += (r_ind0[0] * (1 - delta_t3[0] ** 2)
-                      - delta_t3[0]*(r_ind0[1] * delta_t3[1] + r_ind0[2] * delta_t3[2])) * (1 - np.cos(rot_angle))
-    rot_vector[1] += (r_ind0[1] * (1 - delta_t3[1] ** 2)
-                      - delta_t3[1]*(r_ind0[0] * delta_t3[0] + r_ind0[2] * delta_t3[2])) * (1 - np.cos(rot_angle))
-    rot_vector[2] += (r_ind0[2] * (1 - delta_t3[2] ** 2)
-                      - delta_t3[2]*(r_ind0[0] * delta_t3[0] + r_ind0[1] * delta_t3[1])) * (1 - np.cos(rot_angle))
-
-    # Generate the trial positions and orientations
-    r_poly_trial = np.zeros((indf - ind0, 3), 'd')
-    t3_poly_trial = np.zeros((indf - ind0, 3), 'd')
-    for i_bead in range(ind0, indf):
-        r_poly_trial[i_bead - ind0, :] = rot_vector + np.matmul(rot_matrix, polymer.r[i_bead, :])
-        t3_poly_trial[i_bead - ind0, :] = np.matmul(rot_matrix, polymer.t3[i_bead, :])
-
-    return ind0, indf, r_poly_trial, t3_poly_trial, None, None
+    return inds, r_trial, t3_trial, None, None, continuous_inds
 
 
 def conduct_end_pivot(r_points, r_pivot, r_base, t3_points, t2_points,
@@ -254,26 +296,28 @@ def end_pivot(polymer, amp_move, amp_bead):
     # Randomly select beads
     if np.random.randint(0, 2) == 0:    # rotate LHS of polymer
         ind0 = 0
-        indf = beads.select_bead_from_left(amp_bead-1, num_beads) - 1
-        pivot_point = indf
-        base_point = pivot_point + 1
+        indf = beads.select_bead_from_left(amp_bead, num_beads)
+        pivot_point = indf - 2
+        base_point = indf - 1
     else:                               # rotate RHS of polymer
-        ind0 = beads.select_bead_from_right(amp_bead-1, num_beads)
+        ind0 = beads.select_bead_from_right(amp_bead, num_beads)
+        indf = num_beads
         pivot_point = ind0
-        indf = num_beads - 1
-        base_point = pivot_point - 1
+        base_point = ind0 - 1
+    inds = np.arange(ind0, indf)
+    continuous_inds = True
 
     # Isolate homogeneous coordinates and orientation for move
-    r_points = np.ones((4, indf-ind0+1))
+    r_points = np.ones((4, indf-ind0))
     r_pivot = polymer.r[pivot_point, :]
     r_base = polymer.r[base_point, :]
-    t3_points = np.ones((4, indf-ind0+1))
-    t2_points = np.ones((4, indf-ind0+1))
+    t3_points = np.ones((4, indf-ind0))
+    t2_points = np.ones((4, indf-ind0))
 
     # Reformat coordinates and orientation for matrix multiplication
-    r_points[0:3, :] = polymer.r[ind0:indf+1, :].T
-    t3_points[0:3, :] = polymer.t3[ind0:indf+1, :].T
-    t2_points[0:3, :] = polymer.t2[ind0:indf+1, :].T
+    r_points[0:3, :] = polymer.r[ind0:indf, :].T
+    t3_points[0:3, :] = polymer.t3[ind0:indf, :].T
+    t2_points[0:3, :] = polymer.t2[ind0:indf, :].T
 
     # Conduct the end-pivot move and output new homogeneous
     # coordinates/orientations
@@ -285,7 +329,8 @@ def end_pivot(polymer, amp_move, amp_bead):
     r_trial = r_trial[0:3, :].T
     t3_trial = t3_trial[0:3, :].T
     t2_trial = t2_trial[0:3, :].T
-    return ind0, indf+1, r_trial, t3_trial, t2_trial, None
+
+    return inds, r_trial, t3_trial, t2_trial, None, continuous_inds
 
 
 def conduct_slide(r_points, x, y, z):
@@ -343,27 +388,28 @@ def slide(polymer, amp_move, amp_bead):
     slide_z = translation_amp * rand_z
 
     # Select a segment of nucleosomes on which to apply the move
-    # Pick a selection window that guarentees selection of beads on polymer
     num_beads = polymer.num_beads
-    ind0 = np.random.randint(num_beads)
-    select_window = np.amin(np.array([num_beads - ind0, ind0+1, amp_bead]))
-    indf = beads.select_bead_from_point(select_window, num_beads, ind0)
+    bound_0 = np.random.randint(num_beads)
+    select_window = np.amin(np.array([num_beads - bound_0, bound_0+1, amp_bead]))
+    bound_1 = int(beads.select_bead_from_point(select_window, num_beads, bound_0))
 
-    # Verify indices have integer variable types
-    ind0 = int(ind0)
-    indf = int(indf)
+    # Use the bounds to select ordered start & end indices within polymer
+    if bound_1 > num_beads:
+    	ind0 = bound_0
+    	indf = num_beads
+    elif bound_1 < 0:
+    	ind0 = 0
+    	indf = bound_0 + 1
+    elif bound_0 == bound_1:
+    	ind0 = bound_0
+    	indf = ind0 + 1
+    else:
+    	ind0 = min(bound_0, bound_1)
+    	indf = max(bound_0, bound_1)
+    inds = np.arange(ind0, indf)
+    continuous_inds = True
 
-    # Verify that ind0 and indf are ordered
-    if ind0 > indf:
-        temp = ind0
-        ind0 = indf
-        indf = temp
-
-    if ind0 == indf:
-        indf += 1
-
-    # Generate matrix of homogeneous coordinates for beads undergoing slide
-    # move
+    # Generate matrix of homogeneous coordinates for sliding beads
     r_points = np.ones((4, indf-ind0))
     r_points[0:3, :] = polymer.r[ind0:indf, :].T
 
@@ -371,7 +417,7 @@ def slide(polymer, amp_move, amp_bead):
     r_trial = conduct_slide(r_points, slide_x, slide_y, slide_z)
     r_trial = r_trial[0:3, :].T
 
-    return ind0, indf, r_trial, None, None, None
+    return inds, r_trial, None, None, None, continuous_inds
 
 
 def conduct_tangent_rotation(r_point, t3_point, t2_point, phi, theta,
@@ -479,6 +525,8 @@ def fill_in_gaps(polymer, adjusted_beads, all_t3_trial, all_t2_trial):
     """
     Fill in missing orientations *adjusted_beads*.
 
+    Depreciated.
+
     Parameters
     ----------
     polymer : Polymer
@@ -544,31 +592,34 @@ def tangent_rotation(polymer, amp_move, amp_bead):
     num_beads = polymer.num_beads
 
     # Initialize index vector pointing to rotated beads
-    adjusted_beads = []
+    inds = []
     # Initialize lists of trial orientations for rotated beads
-    all_t3_trial = []
-    all_t2_trial = []
+    inds_t3_trial = []
+    inds_t2_trial = []
 
     # Loop through number of beads being moved, store the indices and trial
     # orientations of each bead
     for i in range(num_beads_to_move):
-        ind0, _, _, t3_trial, t2_trial, _ = one_bead_tangent_rotation(
-            polymer, adjusted_beads, amp_move, num_beads)
-        adjusted_beads.append(ind0)
-        all_t3_trial.append(t3_trial)
-        all_t2_trial.append(t2_trial)
+        ind, _, _, ind_t3_trial, ind_t2_trial, _ = one_bead_tangent_rotation(
+            polymer, inds, amp_move, num_beads)
+        inds.append(ind)
+        inds_t3_trial.append(ind_t3_trial)
+        inds_t2_trial.append(ind_t2_trial)
 
     # Convert adjusted_beads, t2, and t3 trial vectors into numpy arrays
-    adjusted_beads = np.array(adjusted_beads)
-    all_t3_trial = np.atleast_2d(np.array(all_t3_trial))
-    all_t2_trial = np.atleast_2d(np.array(all_t2_trial))
+    inds = np.array(inds)
+    inds_t3_trial = np.atleast_2d(np.array(inds_t3_trial))
+    inds_t2_trial = np.atleast_2d(np.array(inds_t2_trial))
+    t3_trial = inds_t3_trial[:, 0:3]
+    t2_trial = inds_t2_trial[:, 0:3]
+    continuous_inds = False
 
-    # Fill in any gaps in the t3 and t2 arrays with values from the polymer
-    full_t3_trial, full_t2_trial = fill_in_gaps(
-        polymer, adjusted_beads, all_t3_trial[:, 0:3], all_t2_trial[:, 0:3])
+    # Sort inds, t3_trial, t2_trial by inds
+    inds, t3_trial, t2_trial = zip(*sorted(zip(inds, t3_trial, t2_trial)))
+    t3_trial = np.vstack(t3_trial)
+    t2_trial = np.vstack(t2_trial)
 
-    return min(adjusted_beads), max(adjusted_beads)+1, None, full_t3_trial, \
-        full_t2_trial, None
+    return inds, None, t3_trial, t2_trial, None, continuous_inds
 
 
 all_moves = [
