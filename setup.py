@@ -25,6 +25,6 @@ if __name__ == "__main__":
                        "Topic :: Scientific/Engineering :: Chemistry",
                        "Topic :: Scientific/Engineering :: Physics",
                        ],
-          packages=find_packages(include=["chromo", "twlcsim.*"]),
-          install_requires=["numpy"],
+          packages=find_packages(include=["chromo"]),
+          install_requires=["numpy", "pandas"],
           )
