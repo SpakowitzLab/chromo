@@ -207,67 +207,200 @@ class Polymer:
 
         return eps_bend, eps_par, eps_perp, gamma, eta
 
-    def compute_dE(self, ind0, indf, r_poly_trial, t3_poly_trial,
-                   t2_poly_trial, states_trial):
-        """Compute change in polymer energy moving to proposed new state."""
+    def fill_in_None_Parameters(self, inds, r, t3, t2, states):
+        """ Substitute polymer parameters when attribute is None type."""
+        if r is None:
+            r = self.r[inds, :]
+        if t3 is None:
+            t3 = self.t3[inds, :]
+        if t2 is None:
+            t2 = self.t2[inds, :]
+        if states is None:
+            states = self.states[inds, :]
+        return r, t3, t2, states
+
+    def bead_pair_dE_poly(self, r_0, r_1, test_r_1, t3_0, t3_1, 
+        test_t3_1, t2_0, t2_1, test_t2_1):
+        """
+        Compute the change in polymer energy when moving a single bead pair.
+
+        Parameters
+        ----------
+        r_0 : array_like (3,)
+            Position vector of first bead in bend
+        r_1 : array_like (3,)
+            Position vector of second bead in bend
+        test_r_1 : array_like (3,)
+            Position vector of second bead in bend (TRIAL MOVE)
+        t3_0 : array_like (3,)
+            t3 tangent vector of first bead in bend
+        t3_1 : array_like (3,)
+            t3 tangent vector of second bead in bend
+        test_t3_1 : array_like (3,)
+            t3 tangent vector of second bead in bend (TRIAL MOVE)
+        t2_0 : array_like (3,)
+            t2 tangent vector of first bead in bend
+        t2_1 : array_like (3,)
+            t2 tangent vector of second bead in bend
+        test_t2_1 : array_like (3,)
+            t2 tangent vector of second bead in bend (TRIAL MOVE)
+
+        Returns
+        -------
+        delta_energy_poly : float
+            Change in polymer energy associated with the move of a single
+            bead pair.
+
+        """
+        # Calculate coordinate change between the trial and neighboring beads
+        delta_r_test = test_r_1 - r_0
+        delta_r_par_test = np.dot(delta_r_test, t3_0)
+        delta_r_perp_test = delta_r_test - delta_r_par_test * t3_0
+        
+        # Calculate coordinate change between the existing and neighboring beads
+        delta_r = r_1 - r_0
+        delta_r_par = np.dot(delta_r, t3_0)
+        delta_r_perp = delta_r - delta_r_par * t3_0
+        
+        # Isolate trial and existing bend vectors
+        bend_vec_test = test_t3_1 - t3_0 - self.eta * delta_r_perp_test
+        bend_vec = t3_1 - t3_0 - self.eta * delta_r_perp
+        
+        # Calculate change in polymer energy
+        delta_energy_poly = (
+                0.5 * self.eps_bend * np.dot(bend_vec_test, bend_vec_test)
+                + 0.5 * self.eps_par * (delta_r_par_test - self.gamma) ** 2
+                + 0.5 * self.eps_perp * np.dot(delta_r_perp_test,
+                                               delta_r_perp_test)
+                )
+        delta_energy_poly -= (
+                0.5 * self.eps_bend * np.dot(bend_vec, bend_vec)
+                + 0.5 * self.eps_par * (delta_r_par - self.gamma) ** 2
+                + 0.5 * self.eps_perp * np.dot(delta_r_perp, delta_r_perp)
+            )
+
+        return(delta_energy_poly)
+
+    def continuous_dE_poly(self, ind0, indf, r_trial, t3_trial, t2_trial):
+        """ 
+        Compute change in polymer energy for a continuous bead region.
+
+        Paramaters
+        ----------
+        ind0 : int
+            Index of the first bead in the continuous region
+        indf : int
+            One past the index of the last bead in the continuous region
+        r_trial : array_like (N, 3)
+            Array of coordinates for bead indices in range(ind0:indf)
+        t3_trial : array_like (N, 3)
+            Array of t3 tangents for bead indices in range(ind0:indf)
+        t2_trial : array_like (N, 3)
+            Array of t2 tangents for bead indices in range(ind0:indf)
+
+        Returns
+        -------
+        delta_energy_poly : float
+            Change in energy of polymer associated with trial move
+
+        """
+        # Initialize change in energy associated with the continuous region
         delta_energy_poly = 0
+
         # Calculate contribution to polymer energy at the ind0 position
         if ind0 != 0:
-            delta_r_trial = r_poly_trial[0, :] - self.r[ind0 - 1, :]
-            delta_r_par_trial = np.dot(delta_r_trial, self.t3[ind0 - 1, :])
-            delta_r_perp_trial = delta_r_trial \
-                - delta_r_par_trial * self.t3[ind0 - 1, :]
-
-            delta_r = self.r[ind0, :] - self.r[ind0 - 1, :]
-            delta_r_par = np.dot(delta_r, self.t3[ind0 - 1, :])
-            delta_r_perp = delta_r - delta_r_par * self.t3[ind0 - 1, :]
-
-            bend_vec_trial = (t3_poly_trial[0, :] - self.t3[ind0 - 1, :]
-                              - self.eta * delta_r_perp_trial)
-            bend_vec = (self.t3[ind0, :] - self.t3[ind0 - 1, :]
-                        - self.eta * delta_r_perp)
-
-            delta_energy_poly += (
-                0.5 * self.eps_bend * np.dot(bend_vec_trial, bend_vec_trial)
-                + 0.5 * self.eps_par * (delta_r_par_trial - self.gamma) ** 2
-                + 0.5 * self.eps_perp * np.dot(delta_r_perp_trial,
-                                               delta_r_perp_trial)
-            )
-            delta_energy_poly -= (
-                0.5 * self.eps_bend * np.dot(bend_vec, bend_vec)
-                + 0.5 * self.eps_par * (delta_r_par - self.gamma) ** 2
-                + 0.5 * self.eps_perp * np.dot(delta_r_perp, delta_r_perp)
-            )
+            # Isolate position and orientation vectors affected at ind0
+            r_0 = self.r[ind0 - 1, :]
+            r_1 = self.r[ind0, :]
+            test_r_1 = r_trial[0, :]
+            t3_0 = self.t3[ind0 - 1, :]
+            t3_1 = self.t3[ind0, :]
+            test_t3_1 = t3_trial[0, :]
+            t2_0 = self.t2[ind0 - 1, :]
+            t2_1 = self.t2[ind0, :]
+            test_t2_1 = t2_trial[0, :]
+            # Calculate the polymer energy contribution
+            delta_energy_poly += self.bead_pair_dE_poly(r_0, r_1, test_r_1, 
+                t3_0, t3_1, test_t3_1, t2_0, t2_1, test_t2_1)
 
         # Calculate contribution to polymer energy at the indf position
-        if indf != self.num_beads:
+        if indf != self.num_beads:  
+            # Isolate position and orientation vectors affected at indf
+            r_0 = self.r[indf, :]
+            r_1 = self.r[indf - 1, :]
+            test_r_1 = r_trial[indf - ind0 - 1, :]
+            t3_0 = self.t3[indf, :]
+            t3_1 = self.t3[indf - 1, :]
+            test_t3_1 = t3_trial[indf - ind0 - 1, :]
+            t2_0 = self.t2[indf, :]
+            t2_1 = self.t2[indf - 1, :]
+            test_t2_1 = t2_trial[indf - ind0 - 1, :]
+            # Calculate the polymer energy contribution
+            delta_energy_poly += self.bead_pair_dE_poly(r_0, r_1, test_r_1, 
+                t3_0, t3_1, test_t3_1, t2_0, t2_1, test_t2_1)
 
-            delta_r_trial = self.r[indf, :] - r_poly_trial[indf - ind0 - 1, :]
-            delta_r_par_trial = np.dot(delta_r_trial,
-                                       t3_poly_trial[indf - ind0 - 1, :])
-            delta_r_perp_trial = delta_r_trial \
-                - delta_r_par_trial * t3_poly_trial[indf - ind0 - 1, :]
+        return delta_energy_poly
 
-            delta_r = self.r[indf, :] - self.r[indf - 1, :]
-            delta_r_par = np.dot(delta_r, self.t3[indf - 1, :])
-            delta_r_perp = delta_r - delta_r_par * self.t3[indf - 1, :]
+    def compute_dE(self, inds, r_trial, t3_trial, t2_trial, states_trial, 
+        continuous_inds):
+        """
+        Compute the change in polymer energy for move to proposed state.
 
-            bend_vec_trial = (self.t3[indf, :]
-                              - t3_poly_trial[indf - ind0 - 1, :]
-                              - self.eta * delta_r_perp_trial)
-            bend_vec = (self.t3[indf, :] - self.t3[indf - 1, :]
-                        - self.eta * delta_r_perp)
+        Parameters
+        ----------
+        inds : array_like (N, 3)
+            Ordered indices of N beads involved in the move
+        r_trial : array_like (N, 3)
+            Array of position vectors for N beads involved in the move
+        t3_trial : array_like (N, 3)
+            Array of t3 tangent vectors for N beads involved in the move
+        t2_trial : array_like (N, 3)
+            Array of t2 tangent vectors for N beads involved in the move
+        states_trial : array_like (N, M)
+            Array of M bead states for N beads involved in the move
+        continuous_inds : bool
+            Flag indicating whether moves affects a continuous region or not
 
-            delta_energy_poly += (
-                0.5 * self.eps_bend * np.dot(bend_vec_trial, bend_vec_trial)
-                + 0.5 * self.eps_par * (delta_r_par_trial - self.gamma) ** 2
-                + 0.5 * self.eps_perp * np.dot(delta_r_perp_trial,
-                                               delta_r_perp_trial)
-            )
-            delta_energy_poly -= (
-                0.5 * self.eps_bend * np.dot(bend_vec, bend_vec)
-                + 0.5 * self.eps_par * (delta_r_par - self.gamma) ** 2
-                + 0.5 * self.eps_perp * np.dot(delta_r_perp, delta_r_perp)
-            )
+        Returns
+        -------
+        delta_energy_poly : float
+            Change in polymer energy assocaited with the trial move
+
+        """
+        # Fill in None values with existing polymer states
+        r_trial, t3_trial, t2_trial, states_trial = \
+            self.fill_in_None_Parameters(inds, r_trial, t3_trial, 
+            t2_trial, states_trial)
+
+        # Initialize change in polymer energy
+        delta_energy_poly = 0
+
+        # If the inds are continuous, trivially compute polymer energy change
+        if continuous_inds:
+            ind0 = min(inds)
+            indf = max(inds) + 1
+            delta_energy_poly += self.continuous_dE_poly(ind0, indf, 
+                r_trial, t3_trial, t2_trial)
+        # If the region is not continuous, parse the calculation into subregions
+        else:
+            continuous_subset = [inds[0]]
+            # Calculate energy for each range of continuous indices
+            for i in range(1, len(inds)):
+                if inds[i-1] - inds[i] == 1:
+                    continuous_subset.append(inds[i])
+                else:
+                    # Run the energy calculation for the continuous region
+                    ind0 = continuous_subset[0]
+                    indf = continuous_subset[-1]
+                    delta_energy_poly += self.continuous_dE_poly(ind0, indf, 
+                        r_trial, t3_trial, t2_trial)
+                    # Reinitialize continuous region
+                    continuous_subset = [inds[i]]
+
+            # Run the energy calculation on the last continuous region
+            ind0 = continuous_subset[0]
+            indf = continuous_subset[-1]
+            delta_energy_poly += self.continuous_dE_poly(ind0, indf, 
+                r_trial, t3_trial, t2_trial)
 
         return delta_energy_poly

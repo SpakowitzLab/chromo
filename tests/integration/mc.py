@@ -1,7 +1,8 @@
 """Tests that simply check if a simulation runs at all."""
 import chromo.mc as mc
-from chromo.Polymer import Polymer, Epigenmark
-from chromo.Field import UniformDensityField
+from chromo.components import *
+from chromo.marks import *
+from chromo.fields import *
 
 import numpy as np
 import pandas as pd

@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 
 from .util import combine_repeat
+from .mc.moves import MCAdapter
 
 
 class FieldBase:
@@ -38,7 +39,7 @@ class FieldBase:
         # No polymers interact with the base field object
         return self.polymers.__contains__(poly)
 
-    def compute_dE(self, poly, ind0, indf, r, t3, t2, states):
+    def compute_dE(self, poly, inds, r, t3, t2, states):
         """
         Compute the change in field energy due to a proposed move.
 
@@ -49,10 +50,8 @@ class FieldBase:
         ----------
         poly : `chromo.Polymer`
             The polymer which has been moved.
-        ind0 : int
-            The first bead index which was moved.
-        indf : int
-            The last bead index which was moved.
+        inds : array_like (N,)
+            Indices of beads being moved
         r : (N, 3) array_like of float, optional
             The proposed new positions of the moved beads. Throughout this
             function, ``N = indf - ind0 + 1`` is the number of moved beads.
@@ -69,6 +68,7 @@ class FieldBase:
         float
             The change in energy caused by the Polymer's movement in this
             field.
+
         """
         pass
 
@@ -140,6 +140,7 @@ class UniformDensityField(FieldBase):
             Width of the box containing the field in the z-direction.
         nz : int
             Number of bins in the z-direction.
+
         """
         self.polymers = polymers
         self.marks = marks
@@ -266,29 +267,33 @@ class UniformDensityField(FieldBase):
             if not np.all(np.isclose(new_density, self.density)):
                 raise RuntimeError(f"Recomputing energy of {self} from scratch"
                                    " produced inconsistent results. There is a"
-                                   " bug in this code.")
+                                   " bug in the code.")
 
-    def compute_dE(self, poly, ind0, indf, r, t3, t2, states):
+    def compute_dE(self, poly, *proposal):
         """
         Compute change in energy based on proposed new polymer location.
 
         Requires the polymer to be moved in order to compare to old state.
         """
-        # even if the move does not change the states, we cannot ignore them
-        # because they're needed to compute the energy at any point along the
-        # polymer
-        if states is None:
-            states = poly.states
+        # for now, do not actually use the fact that some moves do not affect
+        # certain parts of the polymer for any optimization. Fill in any `None`
+        # values with the old state of the polymer explicitly.
+        inds = proposal[0]
+        r, t3, t2, states = MCAdapter.replace_none(poly, *proposal)
+        r = np.atleast_2d(r)
+        t3 = np.atleast_2d(t3)
+        t2 = np.atleast_2d(t2)
+
         density_poly, index_xyz = self._calc_density(
-            poly.r[ind0:indf, :], poly.states, ind0, indf)
+            poly.r[inds, :], poly.states[inds, :], inds[0], inds[-1]+1)
         density_poly_trial, index_xyz_trial = self._calc_density(
-            r, states, ind0, indf)
-        delta_density_poly_total = np.concatenate((
-            density_poly_trial, -density_poly))
-        delta_index_xyz_total = np.concatenate(
-            (index_xyz_trial, index_xyz)).astype(int)
-        delta_density, delta_index_xyz = combine_repeat(
-            delta_density_poly_total, delta_index_xyz_total)
+            r, states, inds[0], inds[-1]+1)
+        delta_density_poly_total = \
+            np.concatenate((density_poly_trial, -density_poly))
+        delta_index_xyz_total = \
+            np.concatenate((index_xyz_trial, index_xyz)).astype(int)
+        delta_density, delta_index_xyz = \
+            combine_repeat(delta_density_poly_total, delta_index_xyz_total)
 
         dE_marks = 0
         for i, (_, mark_info) in enumerate(self.marks.iterrows()):
@@ -301,10 +306,7 @@ class UniformDensityField(FieldBase):
             )
         return dE_marks
 
-    def _calc_density(self, r_poly, states, ind0, indf):
-
-        num_marks = states.shape[1]
-
+    def _find_bins(self, r_poly):
         # Find the (0,0,0) bins for the beads and the associated weights
         x_poly_box = (r_poly[:, 0] - 0.5 * self.dx - self.x_width * np.floor(
             (r_poly[:, 0] - 0.5 * self.dx) / self.x_width))
@@ -323,17 +325,22 @@ class UniformDensityField(FieldBase):
 
         index_x0y0z0 = index_x + self.nx*index_y + self.nx*self.ny*index_z
 
-        # Generate the weight array for all of the bins containing the beads
+        return weight_x, weight_y, weight_z, index_x0y0z0
 
-        #TODO if you clean this up, please use append instead
-        weight = weight_x * weight_y * weight_z
-        weight = np.concatenate((weight, (1 - weight_x) * weight_y * weight_z))
-        weight = np.concatenate((weight, weight_x * (1 - weight_y) * weight_z))
-        weight = np.concatenate((weight, (1 - weight_x) * (1 - weight_y) * weight_z))
-        weight = np.concatenate((weight, weight_x * weight_y * (1 - weight_z)))
-        weight = np.concatenate((weight, (1 - weight_x) * weight_y * (1 - weight_z)))
-        weight = np.concatenate((weight, weight_x * (1 - weight_y) * (1 - weight_z)))
-        weight = np.concatenate((weight, (1 - weight_x) * (1 - weight_y) * (1 - weight_z)))
+    def _generate_weight_vector(self, weight_x, weight_y, weight_z):
+        """Generate weight array for all of the bins containing the beads."""
+        weight = np.array([weight_x * weight_y * weight_z,
+                           (1 - weight_x) * weight_y * weight_z,
+                           weight_x * (1 - weight_y) * weight_z,
+                           (1 - weight_x) * (1 - weight_y) * weight_z,
+                           weight_x * weight_y * (1 - weight_z),
+                           (1 - weight_x) * weight_y * (1 - weight_z),
+                           weight_x * (1 - weight_y) * (1 - weight_z),
+                           (1 - weight_x) * (1 - weight_y) * (1 - weight_z)]
+                          ).flatten()
+        return weight
+
+    def _generate_index_vector(self, index_x0y0z0):
 
         #TODO this can be done in one line
         index_xyz_total = index_x0y0z0
@@ -344,16 +351,40 @@ class UniformDensityField(FieldBase):
         index_xyz_total = np.concatenate((index_xyz_total, self.bin_index[index_x0y0z0, 5])).astype(int)
         index_xyz_total = np.concatenate((index_xyz_total, self.bin_index[index_x0y0z0, 6])).astype(int)
         index_xyz_total = np.concatenate((index_xyz_total, self.bin_index[index_x0y0z0, 7])).astype(int)
+        return index_xyz_total
 
-        density_total = np.zeros((8 * (indf - ind0), num_marks + 1), 'd')
+    def _generate_weights_and_indices(self, r_poly):
+        """ Generate weight and indices vector from nucleosome coordiantes."""
+
+        # Find the (0,0,0) bins for the beads and the associated weights
+        weight_x, weight_y, weight_z, index_x0y0z0 = self._find_bins(r_poly)
+        # Generate the weight array for all of the bins containing the beads
+        weight = self._generate_weight_vector(weight_x, weight_y, weight_z)
+        # Generate index vector
+        index_xyz_total = self._generate_index_vector(index_x0y0z0)
+
+        return weight, index_xyz_total
+
+    def _calc_density(self, r_poly, states, ind0, indf):
+
+        states = np.atleast_2d(states)
+        num_marks = states.shape[1]
+        num_beads = r_poly.shape[0]
+
+        # Generate weights and indices
+        weight, index_xyz_total = self._generate_weights_and_indices(r_poly)
+
+        # Initialize density vector
+        density_total = np.zeros((len(weight), num_marks + 1), 'd')
+
         density_total[:, 0] = weight
         for ind_mark in range(num_marks):
             for ind_corner in range(8):
-                ind_corner0 = ind_corner * (indf - ind0)
-                ind_cornerf = ind_corner0 + indf - ind0
+                ind_corner0 = ind_corner * (num_beads)
+                ind_cornerf = ind_corner0 + num_beads
                 density_total[ind_corner0:ind_cornerf, ind_mark + 1] = \
                     weight[ind_corner0:ind_cornerf] \
-                    * states[ind0:indf, ind_mark]
+                    * states[:, ind_mark]
 
         # Combine repeat entries in the density array
         density, index_xyz = combine_repeat(density_total, index_xyz_total)
