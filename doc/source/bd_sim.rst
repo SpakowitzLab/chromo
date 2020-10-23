@@ -3,6 +3,61 @@
 Brownian Dynamics Simulations
 =============================
 
+Langevin equation for translation
+---------------------------------
+
+We consider a discrete chain of :math:`n_{b}` beads with positions :math:`\vec{r}^{(n)}`,
+where the bead index :math:`n` runs from 0 to :math:`n_{b}-1`.
+We consider a general potential energy :math:`E = E( \{ \vec{r}  \} )`, where :math:`\{ \vec{r}  \}` indicates
+the full set of positions.
+We define the potential forces on the beads to be
+
+.. math::
+    \vec{f}_{E}^{(n)} =  - \frac{\partial E}{\partial \vec{r}^{(n)}}
+
+The Langevin equation for the bead positions is given by
+
+.. math::
+    \xi_{r} \frac{\partial \vec{r}^{(n)}}{\partial t} = \vec{f}_{E}^{(n)} + \vec{f}_{B}^{(n)}
+
+The Brownian force :math:`\vec{f}_{B}^{(n)}` is governed by the fluctuation dissipation theorem,
+which states that :math:`\vec{f}_{B}^{(n)}` is a
+Gaussian-distributed random force
+that satisfies
+
+.. math::
+    \langle \vec{f}_{B}^{(n)}(t) \rangle & = & 0, \\
+    \langle \vec{f}_{B}^{(n)}(t) \vec{f}_{B}^{(n')}(t') \rangle
+    & = &
+    2 k_{B} T \xi \delta (t - t') \delta_{nn'} \mathbf{I}.
+
+This stochastic differential equation is numerically integrated by
+discretizing time in discrete time steps :math:`\delta t`.
+Thus, the discrete time at the :math:`j`th time step is
+given by :math:`t_{j} = \delta t (j-1)`, where :math:`t_{0} = 0`.
+Based on this time discretization, we numerically integrate the Langevin
+equation as
+
+.. math::
+    \vec{r}^{(n)}_{j+1} =
+    \vec{r}^{(n)}_{j} +
+    \frac{\delta t}{\xi_{r}} \left(
+    \vec{f}_{E_{j}}^{(n)} + \vec{f}_{B_{j}}^{(n)}
+    \right)
+
+which suggests an explicit integration algorithm.
+
+The fluctuation dissipation for the discrete time
+
+.. math::
+    \langle \vec{f}_{B_{j}}^{(n)} \rangle & = & 0, \\
+    \langle \vec{f}_{B_{j}}^{(n)} \vec{f}_{B_{j'}}^{(n')} \rangle
+    & = &
+    \frac{2 k_{B} T \xi}{\delta t}   \delta_{jj'} \delta_{nn'} \mathbf{I}.
+
+Thus, the value of :math:`\langle \vec{f}_{B_{j}}^{(n)}` is selected from a Gaussian distribution
+with variance :math:`\frac{2 k_{B} T \xi}{\delta t}`.
+
 Langevin equation for translation and rotation
 ----------------------------------------------
 
