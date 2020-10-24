@@ -55,7 +55,7 @@ The fluctuation dissipation for the discrete time
     & = &
     \frac{2 k_{B} T \xi}{\delta t}   \delta_{jj'} \delta_{nn'} \mathbf{I}.
 
-Thus, the value of :math:`\langle \vec{f}_{B_{j}}^{(n)}` is selected from a Gaussian distribution
+Thus, the value of :math:`\vec{f}_{B_{j}}^{(n)}` is selected from a Gaussian distribution
 with variance :math:`\frac{2 k_{B} T \xi}{\delta t}`.
 
 Langevin equation for translation and rotation
