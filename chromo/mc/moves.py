@@ -29,6 +29,12 @@ class MCAdapter:
     ``num_success``) in order to dynamically adjust these amplitudes throughout
     the simulation to ensure they maintain reasonable values.
 
+    The ``upper_acceptance_limit`` and ``lower_acceptance_limit`` represent the
+    maximum and minimum acceptance rates, respectively, allowed before
+    adjustments are made to move amplitudes. Between these limits, the move
+    amplitude is unchanged, and adjustments are made to the window sizes
+    affected by the Monte Carlo moves.
+
     In the future, we want to do this optimization by looking at actual metrics
     based on the simulation output, but for now only implementation of an
     MCAdapter (`MCAdaptSuccessRate`) handles this optimization by simply trying
@@ -43,11 +49,47 @@ class MCAdapter:
         self.amp_bead = 10
         self.num_attempt = 0
         self.num_success = 0
+        self.upper_acceptance_limit = 0.7
+        self.lower_acceptance_limit = 0.3
+        self.acceptance_setpoint = 0.5
+        self.acceptance_history = []
+        self.window_factor = 0.95
+        self.move_factor = 0.95
         self.move_on = True
 
     def __str__(self):
         return f"MCAdapter<{self.name}>"
 
+    def set_adaption_factors(self, window_factor, move_factor):
+        """
+        Specify factors for window size and move amplitude adaptation.
+
+        By what factor should the size of a nucleosome window or the amplitude
+        of an MC move be adjusted during feedback control of the MC acceptance
+        rate?
+
+        Parameters
+        ----------
+        window_factor : float
+            Factor to adjust window sizes based on move acceptance
+        move_factor : float
+            Factor to adjust move amplitudes based on move acceptance
+        """
+        self.window_factor = window_factor
+        self.move_factor = move_factor
+    
+    def print_adaptation_factors(self):
+        """Print the adaptation factors for window size and move amplitude."""
+
+        print("Window size adaptation factor: " + str(self.window_factor))
+        print("Move amplitude adaptation factor: " + str(self.move_factor))
+
+    def print_acceptance_rate(self):
+        """Print the MC move acceptance rate."""
+        
+        print("Move: " + self.name)
+        print("Acceptance Rate: " + self.acceptance_history[-1])
+    
     def propose(self, polymer):
         """
         Get new proposed state of the system.
@@ -130,6 +172,78 @@ class MCAdapter:
             poly.states[inds[i]] = states[i]
 
         self.num_success += 1
+
+    def feedback_adaption(self):
+        """Adjust the bead and move amplitudes based on move acceptance."""
+        
+        # Calculate move acceptance rate
+        acceptance_rate = self.num_success / self.num_attempt
+        self.update_move_history(acceptance_rate)
+        
+        # Check move `acceptance_rate` relative to set point.
+        if np.isclose(acceptance_rate, self.acceptance_setpoint):
+            return
+
+        # Check `acceptance_rate` relative to limits
+        adapt_case = np.digitize(
+            acceptance_rate, 
+            [
+                -np.inf, 
+                self.lower_acceptance_limit, 
+                self.upper_acceptance_limit, 
+                np.inf
+            ]
+        )
+        # Adjust window size or move amplitude
+        if adapt_case == 1:
+            self.adjust_move_amp(self.move_factor, step_down=True)
+        elif adapt_case == 2:
+            self.adjust_window_size(self.window_factor, acceptance_rate)
+        else:
+            self.adjust_move_amp(self.move_factor, step_down=False)
+    
+    def adjust_move_amp(self, move_factor, step_down=True):
+        """
+        Adjust the MC move amplitude.
+
+        Parameters
+        ----------
+        move_factor : float
+            Factor to adjust move amplitudes based on move acceptance
+        step_down : bool, optional, default = True
+            Flag fwhether to adjust move amplitude up (False) or down (True) 
+        """
+        if step_down:
+            self.amp_move *= move_factor
+        else:
+            self.amp_move /= move_factor
+    
+    def adjust_window_size(self, window_factor, acceptance_rate):
+        """
+        Adjust the maximum window size affected by the MC move.
+
+        Parameters
+        ----------
+        window_factor : float
+            Factor to adjust window size based on acceptance
+        acceptance_rate : float
+            Rate of MC move acceptance
+        """
+        if acceptance_rate < self.acceptance_setpoint:
+            self.amp_bead *= window_factor
+        else:
+            self.amp_bead /= window_factor
+
+    def update_move_history(self, acceptance_rate):
+        """
+        Log the move acceptance rate.
+
+        Parameters
+        ----------
+        acceptance_rate : float
+            Rate of MC move acceptance
+        """
+        self.acceptance_history.append(acceptance_rate)
 
 
 def conduct_crank_shaft(polymer, ind0, indf, rot_angle):
