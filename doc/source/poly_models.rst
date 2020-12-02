@@ -38,24 +38,26 @@ For ring polymers, the chain is discretized into segments of length
 bead at :math:`\vec{r}^{(n_{b} - 1)}` and the first bead at
 :math:`\vec{r}^{(0)}`.
 
+Here, we provide a table of the polymer models that are included in the 'chromo'
+repository. The details of these polymer models are provided in the subsections below.
 
 .. table::
-    :widths: 30 30 30 30 30
+    :widths: 60 25 25 25 25 35
     :align: center
 
-    +-----------------+--------------+------------------+-------------------+-------------------+
-    |   model code    | 'track_norm' | 'bond_contraint' |     'ring'        | 'link_constraint' |
-    +=================+==============+==================+===================+===================+
-    |  'gauss_chain'  |    False     |      False       |    True/False     |      False        |
-    +-----------------+--------------+------------------+-------------------+-------------------+
-    |      'wlc'      |    False     |      True        |    True/False     |      False        |
-    +-----------------+--------------+------------------+-------------------+-------------------+
-    |     'sswlc'     |    False     |      False       |    True/False     |      False        |
-    +-----------------+--------------+------------------+-------------------+-------------------+
-    |     'twlc'      |    True      |      True        |    True/False     |    True/False     |
-    +-----------------+--------------+------------------+-------------------+-------------------+
-    |    'tsswlc'     |    True      |      False       |    True/False     |    True/False     |
-    +-----------------+--------------+------------------+-------------------+-------------------+
+    +--------------------------------------------------+----------------+--------------+------------------+-------------------+-------------------+
+    |  Polymer Model                                   |   model code   | 'track_norm' | 'bond_contraint' |     'ring'        | 'link_constraint' |
+    +==================================================+================+==============+==================+===================+===================+
+    |  Gaussian Chain                                  | 'gauss_chain'  |    False     |      False       |    True/False     |      False        |
+    +--------------------------------------------------+----------------+--------------+------------------+-------------------+-------------------+
+    |  Wormlike Chain                                  |     'wlc'      |    False     |      True        |    True/False     |      False        |
+    +--------------------------------------------------+----------------+--------------+------------------+-------------------+-------------------+
+    |  Shearable-Stretchable Wormlike Chain            |   'sswlc'      |    False     |      False       |    True/False     |      False        |
+    +--------------------------------------------------+----------------+--------------+------------------+-------------------+-------------------+
+    |  Wormlike Chain with Twist                       |   'twlc'       |    True      |      True        |    True/False     |    True/False     |
+    +--------------------------------------------------+----------------+--------------+------------------+-------------------+-------------------+
+    |  Shearable-Stretchable Wormlike Chain with Twist |  'tsswlc'      |    True      |      False       |    True/False     |    True/False     |
+    +--------------------------------------------------+----------------+--------------+------------------+-------------------+-------------------+
 
 
 Polymer chain model A: flexible Gaussian chain
@@ -151,7 +153,7 @@ walk polymer with length :math:`L = N b`,
 where :math:`N` is the number of Kuhn lengths in the
 chain.
 
-Polymer chain model B: shearable, stretchable wormlike chain
+Polymer chain model C: shearable, stretchable wormlike chain
 ------------------------------------------------------------
 
 We consider the shearable, stretchable wormlike chain potential, given by
@@ -169,9 +171,53 @@ where :math:`\Delta \vec{r}^{(n)} = \vec{r}^{(n+1)} - \vec{r}^{(n)}` is the bond
 is the perpendicular component of the bond vector to the tangent vector.
 
 
+The force on the nth bead is given by
+
+.. math::
+    \vec{f}^{(n)} & = &
+    -\eta \vec{\tau}_{b}^{(n)} + \eta ( \vec{\tau}_{b}^{(n)} \cdot \vec{t}_{3}^{(n)} ) \vec{t}_{3}^{(n)}
+    +\eta \vec{\tau}_{b}^{(n-1)} - \eta ( \vec{\tau}_{b}^{(n-1)} \cdot \vec{t}_{3}^{(n-1)} ) \vec{t}_{3}^{(n-1)}
+    \nonumber \\
+    &  &
+    + \frac{\epsilon_{\parallel}}{\Delta}
+    \left( \Delta \vec{r}^{(n)} \cdot \vec{t}_{3}^{(n)} - \Delta \gamma \right) \vec{t}_{3}^{(n)}
+    - \frac{\epsilon_{\parallel}}{\Delta}
+    \left( \Delta \vec{r}^{(n-1)} \cdot \vec{t}_{3}^{(n-1)} - \Delta \gamma \right) \vec{t}_{3}^{(n-1)}
+    \nonumber \\
+    &  &
+    + \frac{\epsilon_{\perp}}{\Delta}
+    \Delta \vec{r}_{\perp}^{(n)}
+    - \frac{\epsilon_{\perp}}{\Delta}
+    \Delta \vec{r}_{\perp}^{(n-1)}
+
+where
+
+.. math::
+    \vec{\tau}_{b}^{(n)} =
+    \frac{\epsilon_{b}}{\Delta} \left(
+    \vec{t}_{3}^{(n+1)} - \vec{t}_{3}^{(n)} - \eta \Delta \vec{r}_{\perp}^{(n)}
+    \right)
+
+and the torque vector acting on the tangent is given by
+
+.. math::
+    \vec{\tau}_{3}^{(n)} & = &
+    \vec{\tau}_{b}^{(n)} -
+    \vec{\tau}_{b}^{(n-1)} - \eta \left[
+    (\Delta \vec{r}^{(n)} \cdot \vec{t}_{3}^{(n)}) \vec{\tau}_{b}^{(n)}
+    + ( \vec{\tau}_{b}^{(n)} \cdot \vec{t}_{3}^{(n)} ) \Delta \vec{r}^{(n)}
+    \right]
+    \nonumber \\
+    &  &
+    - \frac{\epsilon_{\parallel}}{\Delta}
+    \left( \Delta \vec{r}^{(n)} \cdot \vec{t}_{3}^{(n)} - \Delta \gamma \right) \Delta \vec{r}^{(n)}
+    + \frac{\epsilon_{\perp}}{\Delta}
+    (\Delta \vec{r}^{(n)} \cdot \vec{t}_{3}^{(n)} ) \Delta \vec{r}_{\perp}^{(n)}
+    \nonumber \\
 
 
-Polymer chain model C: shearable, stretchable wormlike chain with twist
+
+Polymer chain model E: shearable, stretchable wormlike chain with twist
 -----------------------------------------------------------------------
 
 We consider a closed ring polymer, where the :math:`n_{b}` bead is the same as the zeroth bead.

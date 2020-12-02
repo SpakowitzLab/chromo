@@ -395,17 +395,17 @@ def slide(polymer, amp_move, amp_bead):
 
     # Use the bounds to select ordered start & end indices within polymer
     if bound_1 > num_beads:
-    	ind0 = bound_0
-    	indf = num_beads
+        ind0 = bound_0
+        indf = num_beads
     elif bound_1 < 0:
-    	ind0 = 0
-    	indf = bound_0 + 1
+        ind0 = 0
+        indf = bound_0 + 1
     elif bound_0 == bound_1:
-    	ind0 = bound_0
-    	indf = ind0 + 1
+        ind0 = bound_0
+        indf = ind0 + 1
     else:
-    	ind0 = min(bound_0, bound_1)
-    	indf = max(bound_0, bound_1)
+        ind0 = min(bound_0, bound_1)
+        indf = max(bound_0, bound_1)
     inds = np.arange(ind0, indf)
     continuous_inds = True
 
