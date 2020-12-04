@@ -36,6 +36,7 @@ class PerformanceTracker(object):
         """
         self.startup = True
         self.step_count = 0
+        self.num_steps_tracked = num_steps_tracked
         self.tracked_steps = [None] * num_steps_tracked
         self.startup_steps = max(num_steps_tracked, startup_steps)
         self.acceptance_rate = None
@@ -43,6 +44,20 @@ class PerformanceTracker(object):
         self.amp_bead_history = []
         self.amp_move_history = []
         self.steps = []
+    
+    def redo_startup(self):
+        """
+        Redo the startup tracking of move acceptance rates.
+
+        This method allows you to change the number of tracked steps in the
+        simulation.
+        """
+        self.tracked_steps = [None] * self.num_steps_tracked
+        self.step_count = 0
+        self.startup = True
+        
+        if self.num_steps_tracked > self.startup_steps:
+            self.startup_steps = self.num_steps_tracked
     
     def add_step(self, accepted):
         """
@@ -129,6 +144,21 @@ class PerformanceTracker(object):
         self.acceptance_history = []
         self.amp_bead_history = []
         self.amp_move_history = []
+
+    def store_performance(self, amp_bead, amp_move):
+        """
+        Get current acceptance rate from `PerformanceTracker` & add to log.
+
+        Parameters
+        ----------
+        amp_bead : int
+            Maximum number of beads affected by a single MC step
+        amp_move : float
+            Maximum amplitude of a move in a single MC step
+        """
+        step = self.step_count
+        acceptance_rate = self.calc_acceptance_rate()
+        self.log_performance(step, acceptance_rate, amp_bead, amp_move)
 
 
 def feedback_adaption(mc_adapter):

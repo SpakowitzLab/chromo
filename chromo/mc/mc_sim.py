@@ -1,10 +1,12 @@
 """Routines for performing Monte Carlo simulations."""
+from pathlib import Path
+
 import numpy as np
 
 import chromo.mc.adapt as adapt
 
 
-def mc_sim(polymers, epigenmarks, num_mc_steps, mc_moves, field):
+def mc_sim(polymers, epigenmarks, num_mc_steps, mc_moves, field, output_dir):
     """Perform Monte Carlo simulation."""
     for adaptible_move in mc_moves:
         adaptible_move.bead_amp_range[1] = min(
@@ -24,11 +26,14 @@ def mc_sim(polymers, epigenmarks, num_mc_steps, mc_moves, field):
                     # Adapt moves based on acceptance rate if startup complete
                     if not adaptible_move.performance_tracker.startup:
                         adapt.feedback_adaption(adaptible_move)
+                    else:
+                        adaptible_move.performance_tracker.store_performance(
+                            adaptible_move.amp_bead, adaptible_move.amp_move)
 
                 # Output model performance
                 adaptible_move.performance_tracker.save_performance(
-                    adaptible_move.name + "_acceptance_history.txt")
-                
+                    output_dir/Path(f"{adaptible_move.name}-acceptance_log.csv"))
+                    
 
 def mc_step(adaptible_move, poly, epigenmarks, field):
     """Compute energy change and determine move acceptance."""
@@ -45,4 +50,4 @@ def mc_step(adaptible_move, poly, epigenmarks, field):
     if np.random.rand() < np.exp(-dE):
         adaptible_move.accept(poly, *proposal)
     else:
-        adaptible_move.performance_tracker.add_step(accepted=False)
+        adaptible_move.reject()

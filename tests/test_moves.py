@@ -74,7 +74,7 @@ def test_determinitic_slide_move():
                             [4, 1, 3.5, 1],
                             [4, 0, 3.5, 1]]).T
 
-    r_observed = conduct_slide_move(r_points, translate_x, translate_y, translate_z)
+    r_observed = conduct_slide(r_points, translate_x, translate_y, translate_z)
 
     assert np.all(np.isclose(r_observed, r_expected))
 

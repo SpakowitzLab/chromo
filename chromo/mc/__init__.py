@@ -60,7 +60,7 @@ def _polymer_in_field(polymers, marks, field, num_save_mc, num_saves,
         mc_moves = all_moves
     # Perform Monte Carlo simulation for each save file
     for mc_count in range(num_saves):
-        mc_sim(polymers, marks, num_save_mc, mc_moves, field)
+        mc_sim(polymers, marks, num_save_mc, mc_moves, field, output_dir)
         for poly in polymers:
             poly.to_csv(output_dir / Path(f"{poly.name}-{mc_count}.csv"))
         print("Save point " + str(mc_count) + " completed")

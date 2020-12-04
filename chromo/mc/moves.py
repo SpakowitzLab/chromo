@@ -56,9 +56,9 @@ class MCAdapter:
         # move amplitudes are adjusted
         self.thresholds = [0.3, 0.5, 0.7]
         # Range of factors to multiply/divide window size by during adaption
-        self.window_factor = [0.80, 0.95]
+        self.window_factor = [0.80, 0.999]
         # Range of factors to multiply/divide move amplitude by during adaption
-        self.move_factor = [0.80, 0.95]
+        self.move_factor = [0.80, 0.999]
         # Range of number of nucleosomes affected in a single MC step
         self.bead_amp_range = [2, 10]
         # Maximum move amplitude affected in a single MC step
@@ -114,6 +114,15 @@ class MCAdapter:
             poly.states[inds[i]] = states[i]
 
         self.performance_tracker.add_step(accepted=True)
+
+    def reject(self):
+        """
+        Reject a proposed MC move.
+        
+        Leaves the position and tangent vectors unchanged, and logs a rejected
+        step to the performance tracer.
+        """
+        self.performance_tracker.add_step(accepted=False)
 
     @staticmethod
     def replace_none(poly, *proposal):
