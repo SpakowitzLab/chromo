@@ -3,6 +3,7 @@ import numpy as np
 
 import chromo.util.bead_selection as beads
 import chromo.util.linalg as linalg
+from chromo.mc.adapt import PerformanceTracker
 
 
 class MCAdapter:
@@ -29,11 +30,13 @@ class MCAdapter:
     ``num_success``) in order to dynamically adjust these amplitudes throughout
     the simulation to ensure they maintain reasonable values.
 
-    The ``upper_acceptance_limit`` and ``lower_acceptance_limit`` represent the
-    maximum and minimum acceptance rates, respectively, allowed before
-    adjustments are made to move amplitudes. Between these limits, the move
-    amplitude is unchanged, and adjustments are made to the window sizes
-    affected by the Monte Carlo moves.
+    The ``thresholds`` attribute lists three floats: a lower, setpoint, and
+    upper acceptance limit. Below the lower limit, move amplitudes are 
+    decreased to improve move acceptance. Above the upper limit, move 
+    amplitudes are increased to improve move convergence. Between the limits,
+    bead amplitudes are decreased if lower than setpoint or increased if above
+    setpoint to improve move acceptance and simulation convergence, 
+    respectively.
 
     In the future, we want to do this optimization by looking at actual metrics
     based on the simulation output, but for now only implementation of an
@@ -44,51 +47,28 @@ class MCAdapter:
     def __init__(self, move_func):
         self.name = move_func.__name__
         self.move_func = move_func
-        self.amp_move = 2 * np.pi
         self.num_per_cycle = 1
-        self.amp_bead = 10
-        self.num_attempt = 0
-        self.num_success = 0
-        self.upper_acceptance_limit = 0.7
-        self.lower_acceptance_limit = 0.3
-        self.acceptance_setpoint = 0.5
-        self.acceptance_history = []
-        self.window_factor = 0.95
-        self.move_factor = 0.95
         self.move_on = True
+        self.amp_move = 2 * np.pi
+        self.amp_bead = 10
+
+        # Minimum, setpoint, and maximum move acceptance rate outside of which
+        # move amplitudes are adjusted
+        self.thresholds = [0.3, 0.5, 0.7]
+        # Range of factors to multiply/divide window size by during adaption
+        self.window_factor = [0.80, 0.95]
+        # Range of factors to multiply/divide move amplitude by during adaption
+        self.move_factor = [0.80, 0.95]
+        # Range of number of nucleosomes affected in a single MC step
+        self.bead_amp_range = [2, 10]
+        # Maximum move amplitude affected in a single MC step
+        self.move_amp_range = [0, 5 * np.pi]
+        # PerformanceTracker object tracks move acceptance
+        self.performance_tracker = PerformanceTracker(
+            num_steps_tracked=50, startup_steps=100)
 
     def __str__(self):
         return f"MCAdapter<{self.name}>"
-
-    def set_adaption_factors(self, window_factor, move_factor):
-        """
-        Specify factors for window size and move amplitude adaptation.
-
-        By what factor should the size of a nucleosome window or the amplitude
-        of an MC move be adjusted during feedback control of the MC acceptance
-        rate?
-
-        Parameters
-        ----------
-        window_factor : float
-            Factor to adjust window sizes based on move acceptance
-        move_factor : float
-            Factor to adjust move amplitudes based on move acceptance
-        """
-        self.window_factor = window_factor
-        self.move_factor = move_factor
-    
-    def print_adaptation_factors(self):
-        """Print the adaptation factors for window size and move amplitude."""
-
-        print("Window size adaptation factor: " + str(self.window_factor))
-        print("Move amplitude adaptation factor: " + str(self.move_factor))
-
-    def print_acceptance_rate(self):
-        """Print the MC move acceptance rate."""
-        
-        print("Move: " + self.name)
-        print("Acceptance Rate: " + self.acceptance_history[-1])
     
     def propose(self, polymer):
         """
@@ -114,11 +94,26 @@ class MCAdapter:
             The proposed new chemical states, where *M* is the number of
             chemical states associated with the given polymer.
         """
-        self.num_attempt += 1
+        self.performance_tracker.step_count += 1
         return self.move_func(polymer=polymer, amp_move=self.amp_move,
                               amp_bead=self.amp_bead)
 
     _proposal_arg_names = ['inds', 'r', 't3', 't2', 'states', 'continuous_inds']
+
+    def accept(self, poly, *proposal):
+        """Update polymer with new state and update proposal stats."""
+        # update all the elements of `poly` for which the proposed state
+        # contains not "None"
+        inds = proposal[0]
+        r, t3, t2, states = MCAdapter.replace_none(poly, *proposal)
+
+        for i in range(len(inds)):
+            poly.r[inds[i]] = r[i]
+            poly.t3[inds[i]] = t3[i]
+            poly.t2[inds[i]] = t2[i]
+            poly.states[inds[i]] = states[i]
+
+        self.performance_tracker.add_step(accepted=True)
 
     @staticmethod
     def replace_none(poly, *proposal):
@@ -136,7 +131,6 @@ class MCAdapter:
         Returns
         -------
         r, t3, t2, states : Tuple[np.ndarray<M,3>]
-
         """
         prop_names = MCAdapter._proposal_arg_names
         kwargs = {prop_names[i]: proposal[i] for i in range(len(prop_names))}
@@ -157,93 +151,6 @@ class MCAdapter:
                 actual_proposal.append(prop)
 
         return actual_proposal
-
-    def accept(self, poly, *proposal):
-        """Update polymer with new state and update proposal stats."""
-        # update all the elements of `poly` for which the proposed state
-        # contains not "None"
-        inds = proposal[0]
-        r, t3, t2, states = MCAdapter.replace_none(poly, *proposal)
-
-        for i in range(len(inds)):
-            poly.r[inds[i]] = r[i]
-            poly.t3[inds[i]] = t3[i]
-            poly.t2[inds[i]] = t2[i]
-            poly.states[inds[i]] = states[i]
-
-        self.num_success += 1
-
-    def feedback_adaption(self):
-        """Adjust the bead and move amplitudes based on move acceptance."""
-        
-        # Calculate move acceptance rate
-        acceptance_rate = self.num_success / self.num_attempt
-        self.update_move_history(acceptance_rate)
-        
-        # Check move `acceptance_rate` relative to set point.
-        if np.isclose(acceptance_rate, self.acceptance_setpoint):
-            return
-
-        # Check `acceptance_rate` relative to limits
-        adapt_case = np.digitize(
-            acceptance_rate, 
-            [
-                -np.inf, 
-                self.lower_acceptance_limit, 
-                self.upper_acceptance_limit, 
-                np.inf
-            ]
-        )
-        # Adjust window size or move amplitude
-        if adapt_case == 1:
-            self.adjust_move_amp(self.move_factor, step_down=True)
-        elif adapt_case == 2:
-            self.adjust_window_size(self.window_factor, acceptance_rate)
-        else:
-            self.adjust_move_amp(self.move_factor, step_down=False)
-    
-    def adjust_move_amp(self, move_factor, step_down=True):
-        """
-        Adjust the MC move amplitude.
-
-        Parameters
-        ----------
-        move_factor : float
-            Factor to adjust move amplitudes based on move acceptance
-        step_down : bool, optional, default = True
-            Flag fwhether to adjust move amplitude up (False) or down (True) 
-        """
-        if step_down:
-            self.amp_move *= move_factor
-        else:
-            self.amp_move /= move_factor
-    
-    def adjust_window_size(self, window_factor, acceptance_rate):
-        """
-        Adjust the maximum window size affected by the MC move.
-
-        Parameters
-        ----------
-        window_factor : float
-            Factor to adjust window size based on acceptance
-        acceptance_rate : float
-            Rate of MC move acceptance
-        """
-        if acceptance_rate < self.acceptance_setpoint:
-            self.amp_bead *= window_factor
-        else:
-            self.amp_bead /= window_factor
-
-    def update_move_history(self, acceptance_rate):
-        """
-        Log the move acceptance rate.
-
-        Parameters
-        ----------
-        acceptance_rate : float
-            Rate of MC move acceptance
-        """
-        self.acceptance_history.append(acceptance_rate)
 
 
 def conduct_crank_shaft(polymer, ind0, indf, rot_angle):
@@ -267,7 +174,6 @@ def conduct_crank_shaft(polymer, ind0, indf, rot_angle):
         Array of coordinates for manipulated beads following move
     t3_poly_trial : array_like (N, 3)
         Array of t3 tangent vectors for manipulated beads following move
-
     """
     # Isolate the change in tangent vector orientation between initial and final coordinate
     if ind0 == (indf + 1):
@@ -326,8 +232,10 @@ def crank_shaft(polymer, amp_move, amp_bead):
         Maximum amplitude (rotation angle) of the end-pivot move
     amp_bead : int
         Maximum amplitude (number) of beads affected by the end-pivot move
-
     """
+    # At least two beads are required for the crank shaft move
+    amp_bead = max(3, amp_bead)
+
     # Select ind0 and indf for the crank-shaft move
     delta_ind = min(np.random.randint(2, amp_bead), polymer.num_beads)
     ind0 = np.random.randint(polymer.num_beads - delta_ind)
@@ -374,7 +282,6 @@ def conduct_end_pivot(r_points, r_pivot, r_base, t3_points, t2_points,
         Homogeneous tangent vectors for beads following rotation
     t2_trial : array_like (4, N)
         Homogeneous tangent vectors, orthogonal to t3_trial, following rotation
-
     """
     rot_matrix = linalg.arbitrary_axis_rotation(r_pivot, r_base, rot_angle)
 
@@ -399,7 +306,6 @@ def end_pivot(polymer, amp_move, amp_bead):
         Maximum amplitude (rotation angle) of the end-pivot move
     amp_bead : int
         Maximum amplitude (number) of beads affected by the end-pivot move
-
     """
     # Select a rotation angle based on the move amplitude
     rot_angle = amp_move * (np.random.rand() - 0.5)
@@ -469,7 +375,6 @@ def conduct_slide(r_points, x, y, z):
     ------
     r_trial : array_like (4, N)
         Homogeneous coordinates of beads following slide move
-
     """
     translation_mat = linalg.generate_translation_mat(x, y, z)
     r_trial = translation_mat @ r_points
@@ -489,7 +394,6 @@ def slide(polymer, amp_move, amp_bead):
         Maximum amplitude (translation distance) of the slide move
     amp_bead : int
         Maximum amplitude (number) of beads affected by the slide move
-
     """
     # Set the translation distance based on slide amplitude
     translation_amp = amp_move * (np.random.rand())
@@ -565,7 +469,6 @@ def conduct_tangent_rotation(r_point, t3_point, t2_point, phi, theta,
     t2_trial : array_like (4, N)
         Homogeneous tangent vectors, orthogonal to t3 tangents, following
         rotation
-
     """
     # Generate an arbitrary unit axis about which to conduct rotation
     r_ind0 = r_point
@@ -602,7 +505,6 @@ def one_bead_tangent_rotation(polymer, adjusted_beads, amp_move, num_beads):
         Fraction of 2 * pi maximum rotation to rotate bead (between 0-1)
     num_beads : int
         Number of beads in the polymer undergoing random bead rotations
-
     """
     # Generate a random amplitude for the rotation
     rot_angle = amp_move * np.random.uniform(0, 2 * np.pi)
@@ -660,7 +562,6 @@ def fill_in_gaps(polymer, adjusted_beads, all_t3_trial, all_t2_trial):
     full_t2_trial : array_like (N,)
         Ordered trial or existing t2 orientations for beads between min and max
         adjusted_beads
-
     """
     min_adjusted_bead = min(adjusted_beads)
     max_adjusted_bead = max(adjusted_beads)
@@ -695,7 +596,6 @@ def tangent_rotation(polymer, amp_move, amp_bead):
         maximum values
     amp_bead : int
         Number of beads to randomly rotate
-
     """
     # Select some number of beads to undergo rotation
     num_beads_to_move = int(np.random.uniform() * amp_bead)

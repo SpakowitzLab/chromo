@@ -50,7 +50,7 @@ def select_bead_from_left(window, N_beads, exclude_last_bead=True):
         if window == N_beads:
             window -= 1
         N_beads -= 1
-
+        
     if window > N_beads:
         raise ValueError("Bead selection window size must be less than polymer length")
     
