@@ -4,6 +4,7 @@ import os
 import sys
 
 import numpy as np
+import pandas as pd
 
 
 class PerformanceTracker(object):
@@ -182,20 +183,14 @@ def feedback_adaption(mc_adapter):
     MCAdapter Object
         MC move parameters updated based on move acceptance rate
     """
-    step = mc_adapter.performance_tracker.step_count
-    acceptance_rate = mc_adapter.performance_tracker.calc_acceptance_rate()
-    amp_bead = mc_adapter.amp_bead
-    amp_move = mc_adapter.amp_move
-
-    mc_adapter.performance_tracker.log_performance(
-        step, acceptance_rate, amp_bead, amp_move)
+    mc_adapter, _, acceptance_rate, _, _ = performance_to_file(mc_adapter)
 
     lower_lim = mc_adapter.thresholds[0]
     setpoint = mc_adapter.thresholds[1]
     upper_lim = mc_adapter.thresholds[2]
 
     if np.isclose(acceptance_rate, setpoint):
-        return
+        return mc_adapter
     
     adapt_case = np.digitize(acceptance_rate, 
         [-np.inf, lower_lim, setpoint, upper_lim, np.inf])
@@ -318,3 +313,122 @@ def adjust_amp_bead(mc_adapter, acceptance_rate, decrease=True):
     
     return mc_adapter
 
+
+def performance_to_file(mc_adapter):
+    """
+    Log the performance of the MC adapter to an output file.
+
+    Parameters
+    ----------
+    mc_adapter : MCAdapter Object
+        MC move parameters for adaption based on move acceptance rate
+    
+    Returns
+    -------
+    mc_adapter : MCAdapter Object
+        MC adapter with updated performance log
+    step : int
+        Step of simulation
+    acceptance_rate : float
+        Fraction of recent MC steps accepted
+    amp_bead : int
+        Maximum number of beads affected by a single MC step
+    amp_move : float
+        Maximum size of an MC move applied at a single step
+    """
+    step = mc_adapter.performance_tracker.step_count
+    acceptance_rate = mc_adapter.performance_tracker.calc_acceptance_rate()
+    amp_bead = mc_adapter.amp_bead
+    amp_move = mc_adapter.amp_move
+
+    mc_adapter.performance_tracker.log_performance(
+        step, acceptance_rate, amp_bead, amp_move)
+
+    return mc_adapter, step, acceptance_rate, amp_bead, amp_move
+
+
+def amp_bead_step_adapter(mc_adapter):
+    """
+    Step function applied to bead amplitude for response characterization.
+
+    Use this function to characterize changes in move acceptance rate in
+    response to step changes in simulation parameters. This allows us to
+    model the response as a first order process and fit control scheme for
+    move acceptance rates.
+
+    Parameters
+    ----------
+    mc_adapter : MCAdapter Object
+        MC move parameters for adaption based on move acceptance rate
+
+    Returns
+    -------
+    MCAdapter Object
+        MC move parameters updated based on step function
+    """
+    mc_adapter, _, _, _, _ = performance_to_file(mc_adapter)
+    
+    mc_adapter, make_step = check_step_start(mc_adapter)
+    if make_step:
+        mc_adapter.amp_bead = \
+            (mc_adapter.amp_bead + mc_adapter.bead_amp_range[1]) / 2
+    
+    return mc_adapter
+
+
+def amp_move_step_adapter(mc_adapter):
+    """
+    Step function applied to move amplitude for response characterization.
+
+    Use this function to characterize changes in move acceptance rate in
+    response to step changes in simulation parameters. This allows us to
+    model the response as a first order process and fit control scheme for
+    move acceptance rates.
+
+    Parameters
+    ----------
+    mc_adapter : MCAdapter Object
+        MC move parameters for adaption based on move acceptance rate
+
+    Returns
+    -------
+    MCAdapter Object
+        MC move parameters updated based on step function
+    """
+    mc_adapter, _, _, _, _ = performance_to_file(mc_adapter)
+
+    mc_adapter, make_step = check_step_start(mc_adapter)
+    if make_step:
+        mc_adapter.amp_move = mc_adapter.move_amp_range[1]
+    return mc_adapter
+
+
+def check_step_start(mc_adapter):
+    """
+    Flag for step in acceptance rate setpoint after one cycle of tracked steps.
+
+    Parameters
+    ----------
+    mc_adapter : MCAdapter Object
+        MC move parameters for adaption based on move acceptance rate
+
+    Returns
+    -------
+    MCAdapter Object
+        MC move parameters updated if reinitialized
+    bool
+        indicator for whether step function should be applied
+    """
+    # Make step down
+    if (mc_adapter.performance_tracker.step_count % 10000 == 0):
+
+        mc_adapter.amp_bead = 5
+        mc_adapter.amp_move = np.pi        
+
+        return mc_adapter, False
+    
+    # Make step up
+    if (mc_adapter.performance_tracker.step_count % 5000 == 0):
+        return mc_adapter, True
+    else:
+        return mc_adapter, False

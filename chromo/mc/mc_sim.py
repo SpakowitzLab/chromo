@@ -6,8 +6,10 @@ import numpy as np
 import chromo.mc.adapt as adapt
 
 
-def mc_sim(polymers, epigenmarks, num_mc_steps, mc_moves, field, output_dir):
+def mc_sim(
+    polymers, epigenmarks, num_mc_steps, mc_moves, field, adapter, output_dir):
     """Perform Monte Carlo simulation."""
+
     for adaptible_move in mc_moves:
         adaptible_move.bead_amp_range[1] = min(
             [poly.num_beads for poly in polymers]) - 1
@@ -23,12 +25,12 @@ def mc_sim(polymers, epigenmarks, num_mc_steps, mc_moves, field, output_dir):
                     for poly in polymers:
                         mc_step(adaptible_move, poly, epigenmarks, field)
 
-                    # Adapt moves based on acceptance rate if startup complete
-                    if not adaptible_move.performance_tracker.startup:
-                        adapt.feedback_adaption(adaptible_move)
-                    else:
-                        adaptible_move.performance_tracker.store_performance(
-                            adaptible_move.amp_bead, adaptible_move.amp_move)
+                # Adapt moves based on acceptance rate if startup complete
+                if not adaptible_move.performance_tracker.startup:
+                    adaptible_move = adapter(adaptible_move)
+                else:
+                    adaptible_move.performance_tracker.store_performance(
+                        adaptible_move.amp_bead, adaptible_move.amp_move)
 
                 # Output model performance
                 adaptible_move.performance_tracker.save_performance(

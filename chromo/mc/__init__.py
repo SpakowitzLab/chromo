@@ -4,6 +4,7 @@ import warnings
 
 import numpy as np
 
+import chromo.mc.adapt as adapt
 from .mc_sim import mc_sim
 from .moves import all_moves
 from ..util.reproducibility import make_reproducible
@@ -32,7 +33,8 @@ def simple_mc(num_polymers, num_beads, bead_length, num_marks, num_save_mc,
 
 
 def _polymer_in_field(polymers, marks, field, num_save_mc, num_saves,
-                      mc_moves=None, random_seed=0, output_dir='.'):
+    adapter=adapt.feedback_adaption, mc_moves=None, random_seed=0, 
+    output_dir='.'):
     """
     Monte Carlo simulation of a tssWLC in a field.
 
@@ -50,6 +52,9 @@ def _polymer_in_field(polymers, marks, field, num_save_mc, num_saves,
         The discretization of space in which to simulate the polymers.
     num_save_mc : int
         How many Monte Carlo steps to take between saving the simulation state.
+    adapter : adapter (optional, default `feedback_adaption`)
+        Move adapter to adjust move and bead amplitudes in responce to MC move
+        acceptance rates
     mc_moves : Optional[Sequence[int]]
         ID of each monte carlo move desired. Default of None uses all moves.
     output_dir : Optional[Path], default: '.'
@@ -58,9 +63,12 @@ def _polymer_in_field(polymers, marks, field, num_save_mc, num_saves,
     warnings.warn("The random seed is currently ignored.", UserWarning)
     if mc_moves is None:
         mc_moves = all_moves
+    
     # Perform Monte Carlo simulation for each save file
     for mc_count in range(num_saves):
-        mc_sim(polymers, marks, num_save_mc, mc_moves, field, output_dir)
+        mc_sim(
+            polymers, marks, num_save_mc, mc_moves, field, adapter, output_dir)
+        
         for poly in polymers:
             poly.to_csv(output_dir / Path(f"{poly.name}-{mc_count}.csv"))
         print("Save point " + str(mc_count) + " completed")
