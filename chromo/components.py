@@ -381,26 +381,12 @@ class Polymer:
             indf = max(inds) + 1
             delta_energy_poly += self.continuous_dE_poly(ind0, indf, 
                 r_trial, t3_trial, t2_trial)
-        # If the region is not continuous, parse the calculation into subregions
+        # If move not on continuous region, compute polymer dE about each bead
         else:
-            continuous_subset = [inds[0]]
-            # Calculate energy for each range of continuous indices
-            for i in range(1, len(inds)):
-                if inds[i-1] - inds[i] == 1:
-                    continuous_subset.append(inds[i])
-                else:
-                    # Run the energy calculation for the continuous region
-                    ind0 = continuous_subset[0]
-                    indf = continuous_subset[-1]
-                    delta_energy_poly += self.continuous_dE_poly(ind0, indf, 
-                        r_trial, t3_trial, t2_trial)
-                    # Reinitialize continuous region
-                    continuous_subset = [inds[i]]
-
-            # Run the energy calculation on the last continuous region
-            ind0 = continuous_subset[0]
-            indf = continuous_subset[-1]
-            delta_energy_poly += self.continuous_dE_poly(ind0, indf, 
-                r_trial, t3_trial, t2_trial)
+            for ind in inds:
+                # Run energy claculation on each bead
+                ind0, indf = ind, ind
+                delta_energy_poly += self.continuous_dE_poly(ind0, indf,
+                    r_trial, t3_trial, t2_trial)
 
         return delta_energy_poly

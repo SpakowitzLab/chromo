@@ -49,8 +49,8 @@ class MCAdapter:
         self.move_func = move_func
         self.num_per_cycle = 1
         self.move_on = True
-        self.amp_move = 2 * np.pi
-        self.amp_bead = 10
+        self.amp_move = np.pi
+        self.amp_bead = 5
 
         # Minimum, setpoint, and maximum move acceptance rate outside of which
         # move amplitudes are adjusted
@@ -62,7 +62,7 @@ class MCAdapter:
         # Range of number of nucleosomes affected in a single MC step
         self.bead_amp_range = [2, 10]
         # Maximum move amplitude affected in a single MC step
-        self.move_amp_range = [0, 5 * np.pi]
+        self.move_amp_range = [0, 2 * np.pi]
         # PerformanceTracker object tracks move acceptance
         self.performance_tracker = PerformanceTracker(
             num_steps_tracked=50, startup_steps=100)
