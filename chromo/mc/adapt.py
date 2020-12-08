@@ -7,6 +7,172 @@ import numpy as np
 import pandas as pd
 
 
+class FOPTD_PID(object):
+    """
+    Class representation of a PID controller for closed-loop feedback control.
+    """
+
+    def __init__(self, setpoint, Kc, tau_i, tau_d):
+        """
+        Initialize PID controller with tuning parameters.
+
+        Parameters
+        ----------
+        setpoint : float
+            Setpoint of controller
+        Kc : float
+            Controller gain
+        tau_i : float
+            Integral term time constant
+        tau_d : float
+            Derivative term time constant
+        """
+        self.setpoint = setpoint
+        self.Kc = Kc
+        self.tau_i = tau_i
+        self.tau_d = tau_d
+        self.time = {}
+        self.int_err = 0
+        self.err = {}
+        self.control_amp_bead = True
+        self.control_amp_move = True
+    
+    def PID_Step(self, adapter_name, time, data_point):
+        """
+        Response of PID controller to new data point.
+
+        Parameters
+        ----------
+        adapter_name : str
+            Name of the MC adapter affected by the controller.
+        time : float
+            Time point of new data measurement
+        data_point : float
+            New data point to be controlled to setpoint.
+        
+        Returns
+        -------
+        output : float
+            Controller output
+        """
+        err = data_point - self.setpoint
+
+        # Check if first step.
+        if len(self.time[adapter_name]) < 1:
+            self.time[adapter_name].append(time)
+            self.err[adapter_name].append(err)
+            return 0
+
+        # Identify time step
+        prev_time = self.time[adapter_name][-1]
+        dt = time - prev_time
+        self.time[adapter_name].append(time)
+        
+        # Identify process error (deviation from setpoint)
+        prev_err = self.err[adapter_name][-1]
+        self.err[adapter_name].append(err)
+        
+        # Approximate integral of error with trapezoid
+        step_int_err = (prev_err + 0.5 * (err - prev_err)) * dt
+        self.int_err += step_int_err
+
+        # Approximate derivative of the error term
+        de_dt = (err - prev_err) / dt
+
+        P = self.Kc * err
+        I = self.Kc / self.tau_i * self.int_err
+        D = self.Kc * self.tau_d * de_dt
+        output = P + I + D
+
+        return output
+
+    def control_mc(self, mc_adapter):
+        """
+        Apply PID controller to new MC step.
+
+        Parameters
+        ----------
+        mc_adapter : MCAdapter Object
+            MC move parameters for adaption based on move acceptance rate
+
+        Returns
+        -------
+        mc_adapter : MCAdapter Object
+            Updated MC move parameters based on PID controller output
+        """
+        mc_adapter, _, acceptance_rate, _, _ = performance_to_file(mc_adapter)
+
+        if mc_adapter.name not in self.time:
+            self.time[mc_adapter.name] = []
+            self.err[mc_adapter.name] = []
+
+        # Check if controller is active
+        if self.control_amp_bead or self.control_amp_move:
+            time = mc_adapter.performance_tracker.all_steps[-1]
+            output = self.PID_Step(mc_adapter.name, time, acceptance_rate)
+        else:
+            return mc_adapter
+        
+        if not np.isclose(output, 0):
+            if self.control_amp_bead:
+                mc_adapter = self.check_limits(mc_adapter, output, "amp_bead", "bead_amp_range")
+            if self.control_amp_move:
+                mc_adapter = self.check_limits(mc_adapter, output, "amp_move", "move_amp_range")
+        
+        return mc_adapter
+
+    def check_limits(self, mc_adapter, output, attribute, limit_attribute=None):
+        """
+        Make sure amplitude does not exceed their limits.
+
+        Parameters
+        ----------
+        mc_adapter : MCAdapter Object
+            MC move parameters for adaption based on move acceptance rate
+        output : float
+            Output of PID controller based on observed acceptance rate
+        attribute : str
+            mc_adapter attribute name containing parameter being controlled
+        limit_attribute : str (optional)
+            mc_adapter attribute name containing limits in list of length 2;
+            If None, no adjustment for limits is applied to the parameter
+
+        Returns
+        -------
+        mc_adapter : MCAdapter Object
+            Updated MC move parameters based on PID controller output
+        """
+        limits = getattr(mc_adapter, limit_attribute)
+        prev_val = getattr(mc_adapter, attribute)
+        new_val = prev_val + output
+        
+        setattr(mc_adapter, attribute, new_val)
+
+        if limit_attribute is not None:
+            
+            if output < 0:
+                if new_val < limits[0]:
+                    
+                    self.int_err -= \
+                        self.err[mc_adapter.name][-1] * \
+                        (self.time[mc_adapter.name][-1] - 
+                        self.time[mc_adapter.name][-2])
+
+                    setattr(mc_adapter, attribute, limits[0])
+
+            elif output > 0:
+                if new_val > limits[1]:
+
+                    self.int_err -= \
+                        self.err[mc_adapter.name][-1] * \
+                        (self.time[mc_adapter.name][-1] - 
+                        self.time[mc_adapter.name][-2])
+
+                    setattr(mc_adapter, attribute, limits[1])
+
+        return mc_adapter
+
+
 class PerformanceTracker(object):
     """
     Class representation of performance tracker for MC adapter.
@@ -38,13 +204,14 @@ class PerformanceTracker(object):
         self.startup = True
         self.step_count = 0
         self.num_steps_tracked = num_steps_tracked
-        self.tracked_steps = [None] * num_steps_tracked
+        self.tracked_steps = [i%2 for i in range(num_steps_tracked)]
         self.startup_steps = max(num_steps_tracked, startup_steps)
         self.acceptance_rate = None
         self.acceptance_history = []
         self.amp_bead_history = []
         self.amp_move_history = []
         self.steps = []
+        self.all_steps = []
     
     def redo_startup(self):
         """
@@ -162,7 +329,7 @@ class PerformanceTracker(object):
         self.log_performance(step, acceptance_rate, amp_bead, amp_move)
 
 
-def feedback_adaption(mc_adapter):
+def basic_feedback_adaption(mc_adapter):
     """
     Adjust bead and move amplitudes based on move acceptance.
 

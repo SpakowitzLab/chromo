@@ -4,6 +4,7 @@ import numpy as np
 import chromo.util.bead_selection as beads
 import chromo.util.linalg as linalg
 from chromo.mc.adapt import PerformanceTracker
+from chromo.mc.adapt import FOPTD_PID
 
 
 class MCAdapter:
@@ -95,6 +96,7 @@ class MCAdapter:
             chemical states associated with the given polymer.
         """
         self.performance_tracker.step_count += 1
+        self.performance_tracker.all_steps.append(self.performance_tracker.step_count)
         return self.move_func(polymer=polymer, amp_move=self.amp_move,
                               amp_bead=self.amp_bead)
 

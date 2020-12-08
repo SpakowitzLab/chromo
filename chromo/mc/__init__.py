@@ -33,7 +33,7 @@ def simple_mc(num_polymers, num_beads, bead_length, num_marks, num_save_mc,
 
 
 def _polymer_in_field(polymers, marks, field, num_save_mc, num_saves,
-    adapter=adapt.feedback_adaption, mc_moves=None, random_seed=0, 
+    adapter=adapt.basic_feedback_adaption, mc_moves=None, random_seed=0, 
     output_dir='.'):
     """
     Monte Carlo simulation of a tssWLC in a field.
@@ -52,9 +52,10 @@ def _polymer_in_field(polymers, marks, field, num_save_mc, num_saves,
         The discretization of space in which to simulate the polymers.
     num_save_mc : int
         How many Monte Carlo steps to take between saving the simulation state.
-    adapter : adapter (optional, default `feedback_adaption`)
+    adapter : adapter (optional, default `basic_feedback_adaption`)
         Move adapter to adjust move and bead amplitudes in responce to MC move
-        acceptance rates
+        acceptance rates. Must be a function that takes in and returns instance
+        of MCAdapter.
     mc_moves : Optional[Sequence[int]]
         ID of each monte carlo move desired. Default of None uses all moves.
     output_dir : Optional[Path], default: '.'

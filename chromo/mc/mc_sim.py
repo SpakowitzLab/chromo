@@ -39,6 +39,7 @@ def mc_sim(
 
 def mc_step(adaptible_move, poly, epigenmarks, field):
     """Compute energy change and determine move acceptance."""
+    
     # get proposed state
     proposal = adaptible_move.propose(poly)
 
