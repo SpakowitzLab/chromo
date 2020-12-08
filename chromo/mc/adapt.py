@@ -32,7 +32,7 @@ class FOPTD_PID(object):
         self.tau_i = tau_i
         self.tau_d = tau_d
         self.time = {}
-        self.int_err = 0
+        self.int_err = {}
         self.err = {}
         self.control_amp_bead = True
         self.control_amp_move = True
@@ -74,13 +74,13 @@ class FOPTD_PID(object):
         
         # Approximate integral of error with trapezoid
         step_int_err = (prev_err + 0.5 * (err - prev_err)) * dt
-        self.int_err += step_int_err
+        self.int_err[adapter_name] += step_int_err
 
         # Approximate derivative of the error term
         de_dt = (err - prev_err) / dt
 
         P = self.Kc * err
-        I = self.Kc / self.tau_i * self.int_err
+        I = self.Kc / self.tau_i * self.int_err[adapter_name]
         D = self.Kc * self.tau_d * de_dt
         output = P + I + D
 
@@ -105,6 +105,7 @@ class FOPTD_PID(object):
         if mc_adapter.name not in self.time:
             self.time[mc_adapter.name] = []
             self.err[mc_adapter.name] = []
+            self.int_err[mc_adapter.name] = 0
 
         # Check if controller is active
         if self.control_amp_bead or self.control_amp_move:
@@ -153,7 +154,7 @@ class FOPTD_PID(object):
             if output < 0:
                 if new_val < limits[0]:
                     
-                    self.int_err -= \
+                    self.int_err[mc_adapter.name] -= \
                         self.err[mc_adapter.name][-1] * \
                         (self.time[mc_adapter.name][-1] - 
                         self.time[mc_adapter.name][-2])
@@ -163,7 +164,7 @@ class FOPTD_PID(object):
             elif output > 0:
                 if new_val > limits[1]:
 
-                    self.int_err -= \
+                    self.int_err[mc_adapter.name] -= \
                         self.err[mc_adapter.name][-1] * \
                         (self.time[mc_adapter.name][-1] - 
                         self.time[mc_adapter.name][-2])
