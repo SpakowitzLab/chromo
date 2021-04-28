@@ -136,8 +136,12 @@ def find_ind_mid_slice(r_poly, n_max, ring):
     for ind in range(n_max):
         if (ind_save[ind_sort[ind]] == 1) and (ind_save[ind_sort[ind] - 1] == 1):
             connect_left[ind_sort[ind]] = 1
-        if (ind_save[ind_sort[ind]] == 1) and (ind_save[ind_sort[ind] + 1] == 1):
-            connect_right[ind_sort[ind]] = 1
+        if ind_sort[ind] == (len(r_poly[:, 0]) - 1):
+            if (ind_save[ind_sort[ind]] == 1) and (ind_save[0] == 1):
+                connect_right[ind_sort[ind]] = 1
+        else:
+            if (ind_save[ind_sort[ind]] == 1) and (ind_save[ind_sort[ind] + 1] == 1):
+                connect_right[ind_sort[ind]] = 1
 
     # Remove the end connections if ring is false
     if not ring:
