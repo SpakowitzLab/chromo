@@ -11,13 +11,20 @@ import numpy as np
 
 
 def gen_pymol_file(r_poly, meth_seq = np.array([]), hp1_seq = np.array([]), limit_n = False, n_max = 100000,
-                   max_method = 'mid_slice', add_nucleus = False, filename='r_poly.pdb', ring=False):
+                   max_method = 'mid_slice', ind_save = np.array([]),
+                   add_com = False, filename='r_poly.pdb', ring=False):
     r"""
 
     Parameters
     ----------
     r_poly : (num_beads, 3) float
         Conformation of the chain subjected to active-Brownian forces
+    meth_seq : (num_beads) int
+        Epigenetic sequence (0 = No tails methylated, 1 = 1 tail methylated, 2 = 2 tails methylated)
+    hp1_seq : (num_beads) int
+        Number of tails with HP1 bound
+    limit_n : Boolean
+
     filename : str
         File name to write the pdb file
     ring : bool
@@ -25,6 +32,7 @@ def gen_pymol_file(r_poly, meth_seq = np.array([]), hp1_seq = np.array([]), limi
 
     Returns
     -------
+    none
 
     """
 
@@ -45,14 +53,16 @@ def gen_pymol_file(r_poly, meth_seq = np.array([]), hp1_seq = np.array([]), limi
 
     # Determine the bead indices to reduce the total represented to n_max if limit_n True
 
-    if n_max >= numresidues:
-        limit_n = False
-
-    if limit_n:
-        if max_method == 'mid_slice':
-            ind_save, connect_left, connect_right = find_ind_mid_slice(r_poly, n_max, ring)
+    if not ind_save.size == 0:
+        connect_left, connect_right = find_connect(ind_save, ring)
     else:
-        ind_save, connect_left, connect_right = find_ind_total(r_poly, ring)
+        if n_max >= numresidues:
+            limit_n = False
+        if limit_n:
+            if max_method == 'mid_slice':
+                ind_save, connect_left, connect_right = find_ind_mid_slice(r_poly, n_max, ring)
+        else:
+            ind_save, connect_left, connect_right = find_ind_total(r_poly, ring)
 
     # Write the preamble to the pymol file
 
@@ -79,7 +89,7 @@ def gen_pymol_file(r_poly, meth_seq = np.array([]), hp1_seq = np.array([]), limi
     atomname = 'AN'
     chain = 'B'
     r_com = np.mean(r_poly, axis = 0)
-    if add_nucleus:
+    if add_com:
         f.write('ATOM%7d %4s %3s %1s        %8.3f%8.3f%8.3f%6.2f%6.2f           C\n' %
                 (count + 1, atomname, resname, chain, r_com[0], r_com[1], r_com[2], 1.00, 1.00))
 
@@ -103,8 +113,8 @@ def gen_pymol_file(r_poly, meth_seq = np.array([]), hp1_seq = np.array([]), limi
                 f.write('CONECT%5d%5d\n' % (count + 1, ind_left + 1))
             elif connect_left[ind] == 0 and connect_right[ind] == 1:
                 f.write('CONECT%5d%5d\n' % (count + 1, ind_right + 1))
-#            elif connect_left[ind] == 0 and connect_right[ind] == 0:
-#                f.write('CONECT%5d\n' % (count + 1))
+            elif connect_left[ind] == 0 and connect_right[ind] == 0:
+                f.write('CONECT%5d\n' % (count + 1))
             count += 1
 
     # Close the file
@@ -122,33 +132,17 @@ def find_ind_mid_slice(r_poly, n_max, ring):
     # Find the value of the x-coordinate and sort the beads according to distance from mean
     x_ave = np.mean(r_poly[:, 0])
     delta_x = r_poly[:, 0] - x_ave
-    ind_sort = np.argsort(np.abs(delta_x))
+#    ind_sort = np.argsort(np.abs(delta_x))
+    ind_sort = np.argsort(-delta_x)
 
     # Select the first n_max beads based on distance from the mean
     ind_save = np.zeros(len(r_poly[:, 0]))
-    connect_left = np.zeros(len(r_poly[:, 0]))
-    connect_right = np.zeros(len(r_poly[:, 0]))
 
     for ind in range(n_max):
         ind_save[ind_sort[ind]] = 1
 
     # Determine whether adjacent beads are saved to define connections
-    for ind in range(n_max):
-        if (ind_save[ind_sort[ind]] == 1) and (ind_save[ind_sort[ind] - 1] == 1):
-            connect_left[ind_sort[ind]] = 1
-        if ind_sort[ind] == (len(r_poly[:, 0]) - 1):
-            if (ind_save[ind_sort[ind]] == 1) and (ind_save[0] == 1):
-                connect_right[ind_sort[ind]] = 1
-        else:
-            if (ind_save[ind_sort[ind]] == 1) and (ind_save[ind_sort[ind] + 1] == 1):
-                connect_right[ind_sort[ind]] = 1
-
-    # Remove the end connections if ring is false
-    if not ring:
-        connect_left[0] = 0
-
-    if not ring:
-        connect_right[-1] = 0
+    connect_left, connect_right = find_connect(ind_save, ring)
 
     return ind_save, connect_left, connect_right
 
@@ -159,17 +153,37 @@ def find_ind_total(r_poly, ring):
     """
 
     ind_save = np.ones(len(r_poly[:, 0]))
-    connect_left = np.ones(len(r_poly[:, 0]))
-    connect_right = np.ones(len(r_poly[:, 0]))
-
-    if ring:
-        connect_left[0] = 1
-    else:
-        connect_left[0] = 0
-
-    if ring:
-        connect_right[-1] = 1
-    else:
-        connect_right[-1] = 0
+    connect_left, connect_right = find_connect(ind_save, ring)
 
     return ind_save, connect_left, connect_right
+
+
+def find_connect(ind_save, ring):
+    r"""
+
+
+    """
+    connect_left = np.zeros(len(ind_save))
+    connect_right = np.zeros(len(ind_save))
+
+    for ind in range(len(ind_save)):
+        if ind_save[ind] * ind_save[ind - 1] == 1:
+            connect_left[ind] = 1
+
+        if ind == (len(ind_save) - 1):
+            if ind_save[ind] * ind_save[0] == 1:
+                connect_right[ind] = 1
+        else:
+            if ind_save[ind] * ind_save[ind + 1] == 1:
+                connect_right[ind] = 1
+
+    # Remove end connection if ring False
+
+    if not ring:
+        connect_left[0] = 0
+
+    if not ring:
+        connect_right[-1] = 0
+
+    return connect_left, connect_right
+
