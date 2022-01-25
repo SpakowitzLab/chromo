@@ -1,0 +1,15 @@
+ConfigParser~=5.2.0
+Cython~=0.29.24
+IPython~=7.31.1
+karma_sphinx_theme~=0.0.8
+matplotlib~=3.2.1
+nbsphinx~=0.8.8
+numba~=0.55.0
+numpy~=1.18.4
+pandas~=1.0.3
+pytest~=6.0.1
+scikit_learn~=1.0.2
+scipy~=1.4.1
+setuptools~=40.8.0
+sphinx~=4.4.0
+sphinx_theme~=1.0
