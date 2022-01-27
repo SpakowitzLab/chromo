@@ -1673,9 +1673,9 @@ cdef class SSTWLC(SSWLC):
         double bead_rad = 5,
         double[:, ::1] t3 = empty_2d,
         double[:, ::1] t2 = empty_2d,
-        np.ndarray[long, ndim=2] states = mty_2d_int,
+        long[:, ::1] states = mty_2d_int,
         np.ndarray mark_names = empty_1d,
-        np.ndarray[long, ndim=2] chemical_mods = mty_2d_int,
+        long[:, ::1] chemical_mods = mty_2d_int,
         np.ndarray chemical_mod_names = empty_1d_str,
         str log_path = ""
     ):
