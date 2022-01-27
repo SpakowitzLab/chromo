@@ -48,6 +48,8 @@ Quickstart
    $ cd doc/examples
    $ jupyter nbconvert --ExecutePreprocessor.timeout=-1 --to notebook --output <Output_Notebook_Name> --execute <Example_Notebook_Name>
 
+.. Tip:: To recompile the Sphinx documentation, you will also need to run :code:`conda install pandoc`.
+
 |
 
 Examples
