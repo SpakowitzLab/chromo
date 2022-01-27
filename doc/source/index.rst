@@ -190,6 +190,8 @@ The width and number of voxels in each dimension of the field must be specified.
 
    Chromatin + HP1 + PRC1 <two_mark_chromatin_OUT.ipynb>
 
+   Ring Polymer <looped_loosely_confined_OUT.ipynb>
+
 .. toctree::
    :hidden:
    :maxdepth: 2
