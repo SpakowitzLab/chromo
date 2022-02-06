@@ -34,7 +34,7 @@ cdef class UniformDensityField(FieldBase):
     cdef public double[:, ::1] density, density_trial
     cdef public dict access_vols    
     cdef public double chi
-    cdef public dict dict_
+    cdef public dict dict_, total_mark_densities
     cdef public list mark_dict
     cdef public double[:] half_width_xyz
     cdef public double[:] half_step_xyz

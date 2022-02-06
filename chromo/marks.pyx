@@ -59,7 +59,8 @@ cdef class Epigenmark(Mark):
         bind_energy_no_mod: float,
         interaction_energy: float,
         chemical_potential: float,
-        interaction_radius: float
+        interaction_radius: float,
+        cross_talk_interaction_energy: dict = {}
     ) -> None:
         """Initialize the epigenetic mark object with physical properties.
 
@@ -84,6 +85,9 @@ cdef class Epigenmark(Mark):
         interaction_radius : float
             Cutoff distance between pairs of marks for which the interaction
             energy will be acquired
+        cross_talk_interaction_energy : Dict[str, float]
+            Cross talk interaction energy between the epigenetic mark and other
+            epigenetic marks in the system
         """
         super().__init__(name, sites_per_bead)
         self.bind_energy_mod = bind_energy_mod
@@ -94,6 +98,8 @@ cdef class Epigenmark(Mark):
         self.interaction_volume = (4.0/3.0) * np.pi * interaction_radius ** 3
         self.field_energy_prefactor = 0.0
         self.interaction_energy_intranucleosome = 0.0
+        self.cross_talk_interaction_energy = cross_talk_interaction_energy
+        self.cross_talk_field_energy_prefactor = {}
     
     def dict(self):
         """Represent a class instance as a dictionary (exclude derived values).
@@ -114,7 +120,10 @@ cdef class Epigenmark(Mark):
             "interaction_volume": self.interaction_volume,
             "field_energy_prefactor": self.field_energy_prefactor,
             "interaction_energy_intranucleosome":\
-                self.interaction_energy_intranucleosome
+                self.interaction_energy_intranucleosome,
+            "cross_talk_interaction_energy": self.cross_talk_interaction_energy,
+            "cross_talk_field_energy_prefactor":\
+                self.cross_talk_field_energy_prefactor
         }
 
 
@@ -133,7 +142,8 @@ as a placeholder.
 
 hp1 = Epigenmark(
     'HP1', sites_per_bead=2, bind_energy_mod=-0.01, bind_energy_no_mod=1.52,
-    interaction_energy=-4, chemical_potential=-1, interaction_radius=3
+    interaction_energy=-4, chemical_potential=-1, interaction_radius=3,
+    cross_talk_interaction_energy={'PRC1': 0}
 )
 """Heterochromatin Protein 1, binds H3K9me marks.
 
@@ -142,7 +152,15 @@ Notes
 For now, we just use filler values for the energies. In the future, this
 documentation string should go through the process of explaining exactly how we
 arrive at the values that we actually use.
+
 The filler values for interaction energy and chemical potential are both 1.
+
+We define a cross-talk interaction energy to capture the relationship between
+HP1 and PRC1; the default value of zero suggests no cross-talk, indicating that
+HP1 and PRC1 occur completely independent of one-another.
+
+To avoid double-counting the cross-talk between HP1 and PRC1, we do not include
+a cross-talk interaction energy for PRC1.
 """
 
 prc1 = Epigenmark(

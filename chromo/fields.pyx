@@ -16,6 +16,7 @@ pyximport.install()
 
 # Built-in Modules
 from pathlib import Path
+import sys
 from libc.math cimport floor, sqrt
 
 # External Modules
@@ -287,6 +288,8 @@ cdef class UniformDensityField(FieldBase):
         (column 0) and each chemical mark (columns 1...) in each voxel of the
         discretized space; voxels are sorted by super-index and arranged down
         the rows the the density arrays
+    total_mark_densities : dict[str, double]
+        Total density of each mark in all voxels affected by an MC move.
     access_vols : Dict[long, double]
         Mapping of voxel super-index (keys) to volume of the voxel inside the
         confining boundary (values).
@@ -359,6 +362,7 @@ cdef class UniformDensityField(FieldBase):
         self.num_marks = len(marks)
         self.doubly_bound = np.zeros((self.num_marks,), dtype=int)
         self.doubly_bound_trial = np.zeros((self.num_marks,), dtype=int)
+        self.total_mark_densities = {}
         self.init_field_energy_prefactors()
         self.density = np.zeros((self.n_bins, self.num_marks + 1), 'd')
         self.density_trial = self.density.copy()
@@ -429,16 +433,34 @@ cdef class UniformDensityField(FieldBase):
     def init_field_energy_prefactors(self):
         """Initialize the field energy prefactor for each epigenetic mark.
         """
+        mark_names = []
+        for i in range(self.num_marks):
+            mark_name = self.marks.loc[i, "name"]
+            mark_names.append(mark_name)
+            self.total_mark_densities[mark_name] = 0.0
+
         for i in range(self.num_marks):
             self.marks.at[i, 'field_energy_prefactor'] = (
                 0.5 * self.marks.iloc[i].interaction_energy
                 * self.marks.iloc[i].interaction_volume
                 * self.vol_bin
             )
+
             self.marks.at[i, 'interaction_energy_intranucleosome'] = (
                 self.marks.iloc[i].interaction_energy
                 * (1 - self.marks.iloc[i].interaction_volume / self.vol_bin)
             )
+
+            for next_mark in mark_names:
+                if next_mark in self.marks.iloc[i].cross_talk_interaction_energy.keys():
+                    self.marks.at[i, 'cross_talk_field_energy_prefactor'][next_mark] = (
+                        0.5 * self.marks.iloc[i].cross_talk_interaction_energy[next_mark]
+                        * self.marks.iloc[i].interaction_volume
+                        * self.vol_bin
+                    )
+                else:
+                    self.marks.at[i, 'cross_talk_field_energy_prefactor'][next_mark] = 0
+
 
     cpdef dict get_accessible_volumes(self, long n_side):
         """Numerically find accessible volume of voxels at confinement edge.
@@ -1240,13 +1262,25 @@ cdef class UniformDensityField(FieldBase):
             tot_density_change = 0
             for j in range(n_bins):
                 tot_density_change += rho_change[j, i+1]
+            self.total_mark_densities[mark_info["name"]] = tot_density_change
+
             # Oligomerization
             dE_marks_beads +=\
                 mark_info['field_energy_prefactor'] * tot_density_change
+
             # Intranucleosome interaction
             n_double_bound = self.doubly_bound_trial[i] - self.doubly_bound[i]
             dE_marks_beads +=\
                 mark_info['interaction_energy_intranucleosome'] * n_double_bound
+
+        # Cross-talk Interaction
+        for i, mark_info in enumerate(self.mark_dict):
+            for j, next_mark_info in enumerate(self.mark_dict):
+                dE_marks_beads += mark_info["cross_talk_field_energy_prefactor"][next_mark_info["name"]] *\
+                    np.min([
+                        self.total_mark_densities[mark_info["name"]],
+                        self.total_mark_densities[next_mark_info["name"]]
+                    ])
 
         # Nonspecific bead interaction energy
         dE_marks_beads += self.nonspecific_interact_dE(poly, bin_inds, n_bins)

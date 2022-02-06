@@ -14,3 +14,5 @@ cdef class Epigenmark(Mark):
         interaction_energy, chemical_potential, interaction_radius,\
         interaction_volume, field_energy_prefactor,\
         interaction_energy_intranucleosome
+    cdef public dict cross_talk_interaction_energy, \
+        cross_talk_field_energy_prefactor
