@@ -362,7 +362,6 @@ cdef class UniformDensityField(FieldBase):
         self.num_marks = len(marks)
         self.doubly_bound = np.zeros((self.num_marks,), dtype=int)
         self.doubly_bound_trial = np.zeros((self.num_marks,), dtype=int)
-        self.total_mark_densities = {}
         self.init_field_energy_prefactors()
         self.density = np.zeros((self.n_bins, self.num_marks + 1), 'd')
         self.density_trial = self.density.copy()
@@ -437,7 +436,6 @@ cdef class UniformDensityField(FieldBase):
         for i in range(self.num_marks):
             mark_name = self.marks.loc[i, "name"]
             mark_names.append(mark_name)
-            self.total_mark_densities[mark_name] = 0.0
 
         for i in range(self.num_marks):
             self.marks.at[i, 'field_energy_prefactor'] = (
@@ -454,7 +452,7 @@ cdef class UniformDensityField(FieldBase):
             for next_mark in mark_names:
                 if next_mark in self.marks.iloc[i].cross_talk_interaction_energy.keys():
                     self.marks.at[i, 'cross_talk_field_energy_prefactor'][next_mark] = (
-                        0.5 * self.marks.iloc[i].cross_talk_interaction_energy[next_mark]
+                        self.marks.iloc[i].cross_talk_interaction_energy[next_mark]
                         * self.marks.iloc[i].interaction_volume
                         * self.vol_bin
                     )
@@ -1237,20 +1235,38 @@ cdef class UniformDensityField(FieldBase):
             Change in energy associated with reconfiguration of marks based on
             mark interaction energies, as well as nonspecific bead interactions
         """
-        cdef long n_bins, i, j, n_double_bound
+        cdef long n_bins, i, j, kn_double_bound
         cdef double tot_density_change, dE_marks_beads
-        cdef double[:, ::1] rho_change
+        cdef double[:, ::1] delta_rho_squared, rho_change
+        cdef double[:, :, ::1] delta_rho_interact_squared
         cdef dict mark_info
 
         # Change in squared density for each mark
         n_bins = len(bin_inds)
         rho_change = np.zeros((n_bins, poly.n_marks_p1), dtype='d')
+        delta_rho_squared = np.zeros((n_bins, poly.n_marks_p1), dtype='d')
+        delta_rho_interact_squared = \
+            np.zeros((n_bins, poly.n_marks_p1, poly.n_marks_p1), dtype='d')
         for i in range(n_bins):
             for j in range(poly.n_marks_p1):
-                rho_change[i, j] = (
+                rho_change[i, j] = (self.density_trial[bin_inds[i], j])
+
+                delta_rho_squared[i, j] = (
                     self.density[bin_inds[i], j] +
                     self.density_trial[bin_inds[i], j]
                 ) ** 2 - self.density[bin_inds[i], j] ** 2
+
+                for k in range(poly.n_marks_p1):
+                    delta_rho_interact_squared[i, j, k] = ((
+                        self.density[bin_inds[i], j] +
+                        self.density_trial[bin_inds[i], j]
+                    ) * (
+                        self.density[bin_inds[i], k] +
+                        self.density_trial[bin_inds[i], k]
+                    )) - (
+                        self.density[bin_inds[i], j] *
+                        self.density[bin_inds[i], k]
+                    )
 
         # Count the number of nucleosomes bound by mark at both histone tails
         self.count_doubly_bound(poly, inds, n_inds, trial=1)
@@ -1261,8 +1277,7 @@ cdef class UniformDensityField(FieldBase):
             # Calculate total density change
             tot_density_change = 0
             for j in range(n_bins):
-                tot_density_change += rho_change[j, i+1]
-            self.total_mark_densities[mark_info["name"]] = tot_density_change
+                tot_density_change += delta_rho_squared[j, i+1]
 
             # Oligomerization
             dE_marks_beads +=\
@@ -1276,11 +1291,11 @@ cdef class UniformDensityField(FieldBase):
         # Cross-talk Interaction
         for i, mark_info in enumerate(self.mark_dict):
             for j, next_mark_info in enumerate(self.mark_dict):
+                tot_density_change_interact = 0
+                for k in range(n_bins):
+                    tot_density_change_interact += delta_rho_interact_squared[k, i, j]
                 dE_marks_beads += mark_info["cross_talk_field_energy_prefactor"][next_mark_info["name"]] *\
-                    np.min([
-                        self.total_mark_densities[mark_info["name"]],
-                        self.total_mark_densities[next_mark_info["name"]]
-                    ])
+                    tot_density_change_interact
 
         # Nonspecific bead interaction energy
         dE_marks_beads += self.nonspecific_interact_dE(poly, bin_inds, n_bins)
