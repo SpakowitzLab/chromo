@@ -26,7 +26,7 @@ os.chdir(cwd + '/../../output')
 
 #sim = ps.get_latest_simulation()
 sim = "sim_" + str(int(sys.argv[1]))
-# num_equilibration_steps = 50
+#num_equilibration_steps = 50
 
 print("Sim: " + sim)
 output_dir = os.getcwd() + '/' + sim
@@ -63,7 +63,7 @@ for i, f in enumerate(output_files):
         print()
     output_path = "output/" + sim + "/" + f
     r = np.ascontiguousarray(
-        pd.read_csv(output_path, usecols=[1, 2, 3], skiprows=[0, 1]).to_numpy()
+        pd.read_csv(output_path, usecols=[1, 2, 3, 11], skiprows=[0, 1]).to_numpy()
     )
     if i == 0:
         n_beads = len(r)
@@ -73,7 +73,7 @@ for i, f in enumerate(output_files):
         contacts_at_sep = np.zeros(n_beads)
 
     bins = assign_beads_to_bins(
-        r, n_beads, nx, ny, nz, x_width, y_width, z_width
+        np.ascontiguousarray(r[:, :3]), n_beads, nx, ny, nz, x_width, y_width, z_width
     )
     n_bins = len(bins.keys())
     neighboring_bins = get_neighboring_bins(nx, ny, nz)
@@ -93,13 +93,14 @@ for i, f in enumerate(output_files):
 
                     block_1 = blocks[ind_1]
                     block_2 = blocks[ind_2]
+                    wt = min(r[ind_1, 3], r[ind_2, 3])
 
-                    diff = r[ind_1] - r[ind_2]
+                    diff = r[ind_1, :3] - r[ind_2, :3]
                     dist = np.linalg.norm(diff)
 
                     if dist <= cutoff_dist:
-                        contacts[block_1, block_2] += 1
-                        contacts[block_2, block_1] += 1
+                        contacts[block_1, block_2] += 1 * wt
+                        contacts[block_2, block_1] += 1 * wt
                         sep = np.abs(ind_2 - ind_1)
                         contacts_at_sep[sep] += 1
 
@@ -108,8 +109,8 @@ log_contacts = np.log10(contacts+1)
 contacts_at_sep /= len(output_files)
 
 print("Saving contact matrix...")
-np.savetxt(output_dir + "/contact_matrix_single_sim.csv", contacts, delimiter=",")
-np.savetxt(output_dir + "/contacts_at_sep_single_sim.csv", contacts_at_sep, delimiter=",")
+np.savetxt(output_dir + "/contact_matrix_single_sim_PRC1.csv", contacts, delimiter=",")
+np.savetxt(output_dir + "/contacts_at_sep_single_sim_PRC1.csv", contacts_at_sep, delimiter=",")
 
 font = {'family' : 'serif',
         'weight':'normal',
@@ -123,4 +124,4 @@ plt.colorbar()
 plt.xlabel("Locus One (kb)")
 plt.ylabel("Locus Two (kb)")
 plt.tight_layout()
-plt.savefig(output_dir + "/contact_matrix_single_sim.png", dpi=600)
+plt.savefig(output_dir + "/contact_matrix_single_sim_PRC1.png", dpi=600)

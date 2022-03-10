@@ -26,7 +26,7 @@ os.chdir(cwd + '/../../output')
 
 # Specify simulation to evaluate
 # sim = ps.get_latest_simulation()
-sim = "sim_57"
+sim = "sim_25"
 delta = 50
 lp = 53
 print("Sim: " + sim)

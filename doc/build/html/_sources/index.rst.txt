@@ -48,8 +48,6 @@ Quickstart
    $ cd doc/examples
    $ jupyter nbconvert --ExecutePreprocessor.timeout=-1 --to notebook --output <Output_Notebook_Name> --execute <Example_Notebook_Name>
 
-.. Tip:: To recompile the Sphinx documentation, you will also need to run :code:`conda install pandoc`.
-
 |
 
 Examples
@@ -191,8 +189,6 @@ The width and number of voxels in each dimension of the field must be specified.
    Chromatin + HP1 <one_mark_chromatin_OUT.ipynb>
 
    Chromatin + HP1 + PRC1 <two_mark_chromatin_OUT.ipynb>
-
-   Ring Polymer <looped_loosely_confined_OUT.ipynb>
 
 .. toctree::
    :hidden:

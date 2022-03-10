@@ -14,6 +14,7 @@ sys.path.insert(1, parent_dir)
 
 import numpy as np
 import pandas as pd
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 import chromo.util.poly_stat as ps
@@ -24,11 +25,11 @@ from chromo.fields import (
 cwd = os.path.dirname(os.path.abspath(__file__))
 os.chdir(cwd + '/../../output')
 
-# sim = ps.get_latest_simulation()
-# sim = "sim_37"
-sim_IDs = np.arange(1, 26, 1)
+sim_IDs = sys.argv[1:]
+sim_IDs = np.array([int(sim_ID) for sim_ID in sim_IDs])
+print(sim_IDs)
 num_files = 0
-num_equilibration_steps = 70
+#num_equilibration_steps = 45
 
 for ind, sim_ID in enumerate(sim_IDs):
     sim = "sim_" + str(sim_ID)
@@ -39,6 +40,9 @@ for ind, sim_ID in enumerate(sim_IDs):
         f for f in output_files if f.endswith(".csv") and f.startswith("Chr")
     ]
     snapshot = [int(f.split("-")[-1].split(".")[0]) for f in output_files]
+    max_snapshot = np.max(snapshot)
+    num_equilibration_steps = max_snapshot-20
+
     sorted_snap = np.sort(np.array(snapshot))
     output_files = [f for _, f in sorted(zip(snapshot, output_files))]
     output_files = [
@@ -67,7 +71,7 @@ for ind, sim_ID in enumerate(sim_IDs):
             ny = 63
             z_width = 1800
             nz = 63
-            block_size = 10
+            block_size = 50
             cutoff_dist = 10000
 
             n_beads = len(r)
@@ -113,20 +117,27 @@ contacts /= num_files
 log_contacts = np.log10(contacts+1)
 contacts_at_sep /= num_files
 
-# print("Saving contact matrix...")
-# np.savetxt(output_dir + "/contact_matrix.csv", contacts, delimiter=",")
-# np.savetxt(output_dir + "/contacts_at_sep.csv", contacts_at_sep, delimiter=",")
+print("Saving contact matrix...")
+np.savetxt(output_dir + "/contact_matrix_BPS.csv", contacts, delimiter=",")
+np.savetxt(output_dir + "/contacts_at_sep_BPS.csv", contacts_at_sep, delimiter=",")
+
+print("Plotting contact map...")
 
 font = {'family' : 'serif',
         'weight':'normal',
         'size': 18}
 plt.rc('font', **font)
 
-print("Plotting contact map...")
-plt.figure()
-plt.imshow(log_contacts, cmap='Reds')
+fig, ax = plt.subplots(1, 1)
+cmap = mpl.cm.Reds
+norm = mpl.colors.Normalize(vmin=0, vmax=4.5)
+cb1 = mpl.colorbar.ColorbarBase(ax, cmap=cmap, norm=norm, orientation='vertical')
+cb1.set_label('Log10 Contact Frequency')
+extents = [0, 5, 5, 0]
+ax.imshow(log_contacts, extent=extents)
+ax.xaxis.tick_top()
+ax.set_xlabel("Locus One (Mb)")
+ax.set_ylabel("Locus Two (Mb)")
 plt.colorbar()
-plt.xlabel("First bin")
-plt.ylabel("Second bin")
 plt.tight_layout()
-plt.savefig(output_dir + "/contact_matrix.png", dpi=600)
+plt.savefig(output_dir + "/contact_matrix_BPS.png", dpi=600)
