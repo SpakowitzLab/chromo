@@ -1,0 +1,1074 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Simulate Chromatin Bound by HP1 &mdash; chromo  documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="chromo  documentation" href="index.html"/>
+        <link rel="next" title="Simulate Chromatin Bound by HP1 and PRC1" href="two_mark_chromatin_OUT.html"/>
+        <link rel="prev" title="Simulate a Flexible, Confined Homopolymer" href="flexible_confined_homopolymer_OUT.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> chromo
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="abstract.html">Abstract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_structure.html">Code Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mc_sim.html">Monte Carlo Simulations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Theory</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="poly_models.html">Polymer Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="field.html">Field Theoretic Treatment of Interactions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="semiflexible_homopolymer_OUT.html">Semiflexible, Unconfined Homopolymer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flexible_confined_homopolymer_OUT.html">Flexible, Confined Homopolymer</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Chromatin + HP1</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Specify-Epigenetic-Marks">Specify Epigenetic Marks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Specify-Confinement">Specify Confinement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Instantiate-Polymer">Instantiate Polymer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Define-Uniform-Density-Field">Define Uniform Density Field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Specify-Simulation">Specify Simulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Move-and-Bead-Amplitudes">Move and Bead Amplitudes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Define-MC-Moves">Define MC Moves</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Adjust-Move-Ratios">Adjust Move Ratios</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Simulation-Length">Simulation Length</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#Run-the-Simulation">Run the Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Evaluate-Convergence">Evaluate Convergence</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#List-Polymer-Output-Files">List Polymer Output Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Calcualate-Energies">Calcualate Energies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Plot-Energy-Convergence">Plot Energy Convergence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Calculate-MSD">Calculate MSD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Plot-MSD-Convergence">Plot MSD Convergence</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#Generate-Contact-Map">Generate Contact Map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="two_mark_chromatin_OUT.html">Chromatin + HP1 + PRC1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="looped_loosely_confined_OUT.html">Ring Polymer</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Additional Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">chromo</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Simulate Chromatin Bound by HP1</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/one_mark_chromatin_OUT.ipynb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<section id="Simulate-Chromatin-Bound-by-HP1">
+<h1>Simulate Chromatin Bound by HP1<a class="headerlink" href="#Simulate-Chromatin-Bound-by-HP1" title="Permalink to this headline">¶</a></h1>
+<p>This notebook runs a Monte Carlo simulation of a wormlike chain modeled after chromatin. The polymer includes 100 minomeric units, each separated by 16.5 nm, representing a DNA linker of approximately 50 base pairs. Twist is not considered in this simulation. The polymer is confined by a 900 nm radius spherical confinement, representing a single chromosome territory. The simulation is run for 100 snapshots, each involving 100,000 MC iterations.</p>
+<p>Each monomeric unit of the simulation represents a nucleosome. Each nucleosome has two tails which can be modified by trimethylation of histone H3 lysine 9 (H3K9me3). Nucleosomes with this chemical modification are preferentially bound by Heterochromatin Protein 1 (HP1). When multiple HP1 proteins are in proximity, they tend to oligomerize. We do not track interactions between explicit nucleosomes or HP1 proteins. Instead, we use a field theoretic approach, abstracting components into a density
+field which dictate the magnitude of their interactions.</p>
+<section id="Setup">
+<h2>Setup<a class="headerlink" href="#Setup" title="Permalink to this headline">¶</a></h2>
+<p>Install necessary modules, add the package root directory to the system path, and change working directory to root. Every simulation will involve similar setup steps.</p>
+<p><strong>Do not run the setup cell more than once, except after restarting the kernel.</strong> There is no way to consistently track the directory containing the notebook.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Built-in modules</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="c1"># Insert package root to system path</span>
+<span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+<span class="n">parent_dir</span> <span class="o">=</span> <span class="n">cwd</span> <span class="o">+</span> <span class="s2">&quot;/../..&quot;</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">parent_dir</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Directory containing the notebook:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Directory containing the notebook:
+/home/users/jwakim/CodeDev/chromo_20Jan2022/doc/examples
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># External modules</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="c1"># Package modules</span>
+<span class="kn">import</span> <span class="nn">chromo.mc</span> <span class="k">as</span> <span class="nn">mc</span>
+<span class="kn">from</span> <span class="nn">chromo.polymers</span> <span class="kn">import</span> <span class="n">Chromatin</span>
+<span class="kn">import</span> <span class="nn">chromo.marks</span>
+<span class="kn">from</span> <span class="nn">chromo.fields</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">UniformDensityField</span><span class="p">,</span> <span class="n">get_blocks</span><span class="p">,</span> <span class="n">get_neighboring_bins</span><span class="p">,</span> <span class="n">assign_beads_to_bins</span>
+<span class="p">)</span>
+<span class="kn">import</span> <span class="nn">chromo.mc.mc_controller</span> <span class="k">as</span> <span class="nn">ctrl</span>
+<span class="kn">from</span> <span class="nn">chromo.util.reproducibility</span> <span class="kn">import</span> <span class="n">get_unique_subfolder_name</span>
+<span class="kn">import</span> <span class="nn">chromo.util.poly_stat</span> <span class="k">as</span> <span class="nn">ps</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Change working directory to package root</span>
+<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">parent_dir</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Root Directory of Package: &quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Root Directory of Package:
+/home/users/jwakim/CodeDev/chromo_20Jan2022
+</pre></div></div>
+</div>
+</section>
+<section id="Specify-Epigenetic-Marks">
+<h2>Specify Epigenetic Marks<a class="headerlink" href="#Specify-Epigenetic-Marks" title="Permalink to this headline">¶</a></h2>
+<p>Epigenetic marks are collectively stored in a data frame that we call the “mark collection.” We can generate the mark collection using the <code class="docutils literal notranslate"><span class="pre">make_mark_collection</span></code> function in the <code class="docutils literal notranslate"><span class="pre">chromo.marks</span></code> module. The mark collection accepts as an input a list of epigenetic mark objects. Certain epigenetic mark objects are pre-implemented in the <code class="docutils literal notranslate"><span class="pre">chromo.marks</span></code> module and can be instantiated by name using the <code class="docutils literal notranslate"><span class="pre">get_by_name</span></code> method in the <code class="docutils literal notranslate"><span class="pre">chromo.marks</span></code> module. Below, we instantiate a single
+epigenetic mark object for HP1, and we create a mark collection from that single mark.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Instantiate the HP1 mark, which is pre-defined in the `chromo.marks` module</span>
+<span class="n">hp1</span> <span class="o">=</span> <span class="n">chromo</span><span class="o">.</span><span class="n">marks</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="s1">&#39;HP1&#39;</span><span class="p">)</span>
+
+<span class="c1"># Create the mark collection</span>
+<span class="n">marks</span> <span class="o">=</span> <span class="n">chromo</span><span class="o">.</span><span class="n">marks</span><span class="o">.</span><span class="n">make_mark_collection</span><span class="p">([</span><span class="n">hp1</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Specify-Confinement">
+<h2>Specify Confinement<a class="headerlink" href="#Specify-Confinement" title="Permalink to this headline">¶</a></h2>
+<p>The behavior of confining boundaries are defined in the <code class="docutils literal notranslate"><span class="pre">chromo.field</span></code> module. The confinement type is specified as a string name. The confinement length depends on the confinement type (as should be documented in the <code class="docutils literal notranslate"><span class="pre">chromo.field</span></code> module) and is specified as a float.</p>
+<p>Here we define a spherical confinement with a 900 nm radius, representing a single chromosome territory (Cremer &amp; Cremer 2001).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">confine_type</span> <span class="o">=</span> <span class="s2">&quot;Spherical&quot;</span>
+<span class="n">confine_length</span> <span class="o">=</span> <span class="mi">900</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Instantiate-Polymer">
+<h2>Instantiate Polymer<a class="headerlink" href="#Instantiate-Polymer" title="Permalink to this headline">¶</a></h2>
+<p>Various polymer models are defined in the <code class="docutils literal notranslate"><span class="pre">chromo.polymers</span></code> model. All polymer classes share the attributes and methods in the <code class="docutils literal notranslate"><span class="pre">PolymerBase</span></code> class. We have defined a <code class="docutils literal notranslate"><span class="pre">Chromatin</span></code> polymer as a subclass of <code class="docutils literal notranslate"><span class="pre">SSWLC</span></code>, which is based on the stretchable, shearable wormlike chain model.</p>
+<p>We instantiate a chromatin polymer with 100 beads, each separated by 16.5 nm (corresponding to a linker length of approximately 50 base pairs). The chromatin chain is initialized as a Gaussian random walk inside the spherical confinement.</p>
+<p>Each bead of the polymer can be defined with chemical modification states. Chemical modification states are required for each bound mark. Since each bead represents a nucleosome which can be bound by HP1, the chemical modification we are interested in is H3K9me3. The chemical modification state is <code class="docutils literal notranslate"><span class="pre">0</span></code> if the bead does not have the chemical modification, <code class="docutils literal notranslate"><span class="pre">1</span></code> if the bead has the chemical modification on a single tail, and <code class="docutils literal notranslate"><span class="pre">2</span></code> if the bead has the chemical modification on both tails. The
+chemical modification states are read from a file, and the <code class="docutils literal notranslate"><span class="pre">load_seqs</span></code> method of the <code class="docutils literal notranslate"><span class="pre">PolymerBase</span></code> class facilitates this. We initialize each HP1 binding state to match the H3K9me3 modification state, meaning each tail modified by H3K9me3 is initially bound by the mark.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">num_beads</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">bead_spacing</span> <span class="o">=</span> <span class="mf">16.5</span>
+
+<span class="n">chem_mods_path</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s2">&quot;chromo/chemical_mods/H3K9me3_100.txt&quot;</span><span class="p">])</span>
+<span class="n">chemical_mods</span> <span class="o">=</span> <span class="n">Chromatin</span><span class="o">.</span><span class="n">load_seqs</span><span class="p">(</span><span class="n">chem_mods_path</span><span class="p">)</span>
+<span class="n">states</span> <span class="o">=</span> <span class="n">chemical_mods</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+<span class="n">chromatin</span> <span class="o">=</span> <span class="n">Chromatin</span><span class="o">.</span><span class="n">confined_gaussian_walk</span><span class="p">(</span>
+    <span class="s1">&#39;Chr-1&#39;</span><span class="p">,</span>
+    <span class="n">num_beads</span><span class="p">,</span>
+    <span class="n">bead_spacing</span><span class="p">,</span>
+    <span class="n">states</span><span class="o">=</span><span class="n">states</span><span class="p">,</span>
+    <span class="n">confine_type</span><span class="o">=</span><span class="n">confine_type</span><span class="p">,</span>
+    <span class="n">confine_length</span><span class="o">=</span><span class="n">confine_length</span><span class="p">,</span>
+    <span class="n">mark_names</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s1">&#39;HP1&#39;</span><span class="p">]),</span>
+    <span class="n">chemical_mods</span><span class="o">=</span><span class="n">chemical_mods</span><span class="p">,</span>
+    <span class="n">chemical_mod_names</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s1">&#39;H3K9me3&#39;</span><span class="p">])</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">chromatin</span><span class="o">.</span><span class="n">r</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">chromatin</span><span class="o">.</span><span class="n">r</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">chromatin</span><span class="o">.</span><span class="n">r</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot3D</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_zlabel</span><span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/one_mark_chromatin_OUT_16_0.png" src="_images/one_mark_chromatin_OUT_16_0.png" />
+</div>
+</div>
+</section>
+<section id="Define-Uniform-Density-Field">
+<h2>Define Uniform Density Field<a class="headerlink" href="#Define-Uniform-Density-Field" title="Permalink to this headline">¶</a></h2>
+<p>We leverage a field theoretic approach to model interactions between nucleosomes and bound marks. The approach enables us to model full human chromosomes at nucleosome scale resolution. The field tracks the density of the polymer and all marks in cubical voxels of space. To instantiate the field, we need to specify the dimensions of the voxel grid, the confinement, and all polymers and marks contained.</p>
+<p>Here we instantiate a field that contains the spherical confinement with voxels of ~28.6 nm width in the x, y, and z directions.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n_bins_x</span> <span class="o">=</span> <span class="mi">63</span>
+<span class="n">n_bins_y</span> <span class="o">=</span> <span class="n">n_bins_x</span>
+<span class="n">n_bins_z</span> <span class="o">=</span> <span class="n">n_bins_x</span>
+
+<span class="n">x_width</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">confine_length</span>
+<span class="n">y_width</span> <span class="o">=</span> <span class="n">x_width</span>
+<span class="n">z_width</span> <span class="o">=</span> <span class="n">x_width</span>
+
+<span class="n">udf</span> <span class="o">=</span> <span class="n">UniformDensityField</span><span class="p">(</span>
+    <span class="n">polymers</span> <span class="o">=</span> <span class="p">[</span><span class="n">chromatin</span><span class="p">],</span>
+    <span class="n">marks</span> <span class="o">=</span> <span class="n">marks</span><span class="p">,</span>
+    <span class="n">x_width</span> <span class="o">=</span> <span class="n">x_width</span><span class="p">,</span>
+    <span class="n">nx</span> <span class="o">=</span> <span class="n">n_bins_x</span><span class="p">,</span>
+    <span class="n">y_width</span> <span class="o">=</span> <span class="n">y_width</span><span class="p">,</span>
+    <span class="n">ny</span> <span class="o">=</span> <span class="n">n_bins_y</span><span class="p">,</span>
+    <span class="n">z_width</span> <span class="o">=</span> <span class="n">z_width</span><span class="p">,</span>
+    <span class="n">nz</span> <span class="o">=</span> <span class="n">n_bins_z</span><span class="p">,</span>
+    <span class="n">confine_type</span> <span class="o">=</span> <span class="n">confine_type</span><span class="p">,</span>
+    <span class="n">confine_length</span> <span class="o">=</span> <span class="n">confine_length</span><span class="p">,</span>
+    <span class="n">chi</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Specify-Simulation">
+<h2>Specify Simulation<a class="headerlink" href="#Specify-Simulation" title="Permalink to this headline">¶</a></h2>
+<p>The simulator proposes and evaluates random configurational changes to chromatin, which include geometric transformations and effector protein binding/unbinding to the biopolymer.</p>
+<section id="Move-and-Bead-Amplitudes">
+<h3>Move and Bead Amplitudes<a class="headerlink" href="#Move-and-Bead-Amplitudes" title="Permalink to this headline">¶</a></h3>
+<p>There are two ways to tune these configurational changes over the course of the simulation; we can either adjust the magnitude of the selection window for affected beads, or we can adjust the magnitude of the transformation itself. We define a “bead amplitude” to represent the maximum magnitude of the selection window for a move and a “move amplitude” to represent the maximum magnitude of the move’s transformation. Note, changes in binding state do not have move amplitudes, since they do not
+involve a physical transformation. We restrict the move and bead amplitudes between bounds to ensure that MC moves do not become too large or too small. The bounds of the move and bead amplitudes are dependent on the polymers’ sizes and are determined by the <code class="docutils literal notranslate"><span class="pre">get_amplitude_bounds</span></code> method in the <code class="docutils literal notranslate"><span class="pre">__init__</span></code> module of the <code class="docutils literal notranslate"><span class="pre">mc</span></code> directory.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">amp_bead_bounds</span><span class="p">,</span> <span class="n">amp_move_bounds</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get_amplitude_bounds</span><span class="p">(</span>
+    <span class="n">polymers</span> <span class="o">=</span> <span class="p">[</span><span class="n">chromatin</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Define-MC-Moves">
+<h3>Define MC Moves<a class="headerlink" href="#Define-MC-Moves" title="Permalink to this headline">¶</a></h3>
+<p>Here, we identify exactly which MC moves we wish to include in the simulation. In this example, we use the following moves:</p>
+<ul class="simple">
+<li><p><strong>Slide:</strong> Translation of a continuous segment of beads in a random direction</p></li>
+<li><p><strong>Crank-Shaft:</strong> Rotation of an internal segment of the polymer about the axis containing the segment</p></li>
+<li><p><strong>End-Pivot:</strong> Rotation of a segment on one end of the polymer about an arbitrary axis</p></li>
+<li><p><strong>Tangent Rotation:</strong> Rotation of the tangent vectors of random beads in the polymer</p></li>
+<li><p><strong>Binding State:</strong> Random changes in HP1 binding state</p></li>
+</ul>
+<p>Since we often use this combination of MC moves, comprising all the move types we’ve implemented so far, we have defined a helper function called <code class="docutils literal notranslate"><span class="pre">all_moves</span></code> in the <code class="docutils literal notranslate"><span class="pre">chromo.mc.mc_controller</span></code> module to initialize the moves. The adaptable moves themselves are attributes of controllers that dynamically adjusts the move and bead amplitudes over the course of the simulation. Since each move is associated with a log file that may be used to track its acceptance rate, we need to specify an output
+directory for the simulation. The <code class="docutils literal notranslate"><span class="pre">get_unique_subfolder_name</span></code> function in the <code class="docutils literal notranslate"><span class="pre">chromo.util.reproducibility</span></code> module identifies a unique output directory name for the simulation.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">latest_sim</span> <span class="o">=</span> <span class="n">get_unique_subfolder_name</span><span class="p">(</span><span class="s2">&quot;output/sim_&quot;</span><span class="p">)</span>
+<span class="n">moves_to_use</span> <span class="o">=</span> <span class="n">ctrl</span><span class="o">.</span><span class="n">all_moves</span><span class="p">(</span>
+    <span class="n">log_dir</span><span class="o">=</span><span class="n">latest_sim</span><span class="p">,</span>
+    <span class="n">polymers</span><span class="o">=</span><span class="p">[</span><span class="n">chromatin</span><span class="p">],</span>
+    <span class="n">bead_amp_bounds</span><span class="o">=</span><span class="n">amp_bead_bounds</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span>
+    <span class="n">move_amp_bounds</span><span class="o">=</span><span class="n">amp_move_bounds</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span>
+    <span class="n">controller</span><span class="o">=</span><span class="n">ctrl</span><span class="o">.</span><span class="n">SimpleControl</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Adjust-Move-Ratios">
+<h3>Adjust Move Ratios<a class="headerlink" href="#Adjust-Move-Ratios" title="Permalink to this headline">¶</a></h3>
+<p>Each move is attempted a specified number of times per MC iteration. These define the ratio at which each move type is applied. By default, the number of attempts for each move in an MC iteration are: 60 slide moves, 30 crank-shaft moves, 1 end-pivot move, 60 tangent rotation moves, and 10 changes in mark binding state. We adjust these values so that each move is attempted just one time per MC iteration.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">move_controller</span> <span class="ow">in</span> <span class="n">moves_to_use</span><span class="p">:</span>
+    <span class="n">move_controller</span><span class="o">.</span><span class="n">move</span><span class="o">.</span><span class="n">num_per_cycle</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Simulation-Length">
+<h3>Simulation Length<a class="headerlink" href="#Simulation-Length" title="Permalink to this headline">¶</a></h3>
+<p>We define the simulation by the number of snapshots we would like to generate and the number of iterations of each move between the snapshots. Here, we specify a simulation producing 100 snapshots, each with 100,000 iterations of each MC move.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">num_snapshots</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">mc_steps_per_snapshot</span> <span class="o">=</span> <span class="mi">100000</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Run-the-Simulation">
+<h2>Run the Simulation<a class="headerlink" href="#Run-the-Simulation" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">polymer_in_field</span></code> method defined in the <code class="docutils literal notranslate"><span class="pre">__init__</span></code> file of the <code class="docutils literal notranslate"><span class="pre">mc</span></code> directory initiates the simulation. Running the code block below generates a unique output directory and run the simulation.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%capture</span>
+<span class="n">mc</span><span class="o">.</span><span class="n">polymer_in_field</span><span class="p">(</span>
+    <span class="n">polymers</span> <span class="o">=</span> <span class="p">[</span><span class="n">chromatin</span><span class="p">],</span>
+    <span class="n">marks</span> <span class="o">=</span> <span class="n">marks</span><span class="p">,</span>
+    <span class="n">field</span> <span class="o">=</span> <span class="n">udf</span><span class="p">,</span>
+    <span class="n">num_save_mc</span> <span class="o">=</span> <span class="n">mc_steps_per_snapshot</span><span class="p">,</span>
+    <span class="n">num_saves</span> <span class="o">=</span> <span class="n">num_snapshots</span><span class="p">,</span>
+    <span class="n">bead_amp_bounds</span> <span class="o">=</span> <span class="n">amp_bead_bounds</span><span class="p">,</span>
+    <span class="n">move_amp_bounds</span> <span class="o">=</span> <span class="n">amp_move_bounds</span><span class="p">,</span>
+    <span class="n">output_dir</span> <span class="o">=</span> <span class="s1">&#39;output&#39;</span><span class="p">,</span>
+    <span class="n">mc_move_controllers</span> <span class="o">=</span> <span class="n">moves_to_use</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Evaluate-Convergence">
+<h2>Evaluate Convergence<a class="headerlink" href="#Evaluate-Convergence" title="Permalink to this headline">¶</a></h2>
+<p>With the simulation complete, we want to check for energy and configurational convergence in the Monte Carlo snapshots. First we recall the latest simulation output directory. From that directory, we load the polymer configuration in each snapshot. We then evaluate the elastic energy of each bond and field energy contribution of each bead, giving us the total energy at each snapshot. We then check that the mean squared separation distance between beads <span class="math notranslate nohighlight">\(n = 10\)</span> monomers apart on the chain
+also converges.</p>
+<section id="List-Polymer-Output-Files">
+<h3>List Polymer Output Files<a class="headerlink" href="#List-Polymer-Output-Files" title="Permalink to this headline">¶</a></h3>
+<p>Polymer configurations are saved at each snapshot of the simulation in the simulation’s output directory. All polymer configurations are saved with <code class="docutils literal notranslate"><span class="pre">.csv</span></code> extension and are prepended with the label <code class="docutils literal notranslate"><span class="pre">Chr</span></code>. The snapshot number is indicated after a hyphen and before the file extension in the polymer output file name.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load names of polymer configuration output files</span>
+<span class="n">output_files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">latest_sim</span><span class="p">)</span>
+<span class="n">output_files</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">output_files</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.csv&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">f</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Chr&quot;</span><span class="p">)</span>
+<span class="p">]</span>
+<span class="n">snapshot</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">output_files</span><span class="p">]</span>
+<span class="n">sorted_snap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">snapshot</span><span class="p">))</span>
+<span class="n">output_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">snapshot</span><span class="p">,</span> <span class="n">output_files</span><span class="p">))]</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Calcualate-Energies">
+<h3>Calcualate Energies<a class="headerlink" href="#Calcualate-Energies" title="Permalink to this headline">¶</a></h3>
+<p>The field and polymer classes each have a <code class="docutils literal notranslate"><span class="pre">compute_E</span></code> method for calculating total energy.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">all_energies</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">polymer_energies</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">field_energies</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">output_files</span><span class="p">):</span>
+    <span class="n">snap</span> <span class="o">=</span> <span class="n">sorted_snap</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="n">output_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">latest_sim</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">f</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="n">output_path</span><span class="p">,</span>
+        <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">skiprows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+    <span class="n">t3</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="n">output_path</span><span class="p">,</span>
+        <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">skiprows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+    <span class="n">states</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="n">output_path</span><span class="p">,</span>
+        <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">skiprows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">],</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+    <span class="n">chromatin</span><span class="o">.</span><span class="n">r</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">chromatin</span><span class="o">.</span><span class="n">t3</span> <span class="o">=</span> <span class="n">t3</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">chromatin</span><span class="o">.</span><span class="n">states</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="n">field_energy</span> <span class="o">=</span> <span class="n">udf</span><span class="o">.</span><span class="n">compute_E</span><span class="p">(</span><span class="n">chromatin</span><span class="p">)</span>
+    <span class="n">polymer_energy</span> <span class="o">=</span> <span class="n">chromatin</span><span class="o">.</span><span class="n">compute_E</span><span class="p">()</span>
+    <span class="n">polymer_energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">polymer_energy</span><span class="p">)</span>
+    <span class="n">field_energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">field_energy</span><span class="p">)</span>
+    <span class="n">all_energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">polymer_energy</span> <span class="o">+</span> <span class="n">field_energy</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Plot-Energy-Convergence">
+<h3>Plot Energy Convergence<a class="headerlink" href="#Plot-Energy-Convergence" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sorted_snap</span><span class="p">,</span> <span class="n">all_energies</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Total&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sorted_snap</span><span class="p">,</span> <span class="n">field_energies</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Field&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sorted_snap</span><span class="p">,</span> <span class="n">polymer_energies</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Polymer&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Snapshot number&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Energy&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/one_mark_chromatin_OUT_45_0.png" src="_images/one_mark_chromatin_OUT_45_0.png" />
+</div>
+</div>
+</section>
+<section id="Calculate-MSD">
+<h3>Calculate MSD<a class="headerlink" href="#Calculate-MSD" title="Permalink to this headline">¶</a></h3>
+<p>Check that the mean squared separation distance of beads <span class="math notranslate nohighlight">\(n = 10\)</span> monomers apart on the chain converges during the simulation. In the <code class="docutils literal notranslate"><span class="pre">chromo.util.poly_stat</span></code> module, there is a method that does this calculation.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">lp</span> <span class="o">=</span> <span class="mi">53</span>     <span class="c1"># Persistence length of DNA; in this example, `lp` has no effect</span>
+<span class="n">delta</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># Monomer monomer separation at which to calculate mean squared distance.</span>
+
+<span class="n">all_dists</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">output_files</span><span class="p">):</span>
+    <span class="n">snap</span> <span class="o">=</span> <span class="n">sorted_snap</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="n">output_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">latest_sim</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">f</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="n">output_path</span><span class="p">,</span>
+        <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">skiprows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">poly_stat</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">PolyStats</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">lp</span><span class="p">,</span> <span class="s2">&quot;overlap&quot;</span><span class="p">)</span>
+    <span class="n">windows</span> <span class="o">=</span> <span class="n">poly_stat</span><span class="o">.</span><span class="n">load_indices</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span>
+    <span class="n">all_dists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">poly_stat</span><span class="o">.</span><span class="n">calc_r2</span><span class="p">(</span><span class="n">windows</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Plot-MSD-Convergence">
+<h3>Plot MSD Convergence<a class="headerlink" href="#Plot-MSD-Convergence" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sorted_snap</span><span class="p">,</span> <span class="n">all_dists</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Snapshot number&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\langle R^2 \rangle /(2l_p)^2$&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/one_mark_chromatin_OUT_51_0.png" src="_images/one_mark_chromatin_OUT_51_0.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="Generate-Contact-Map">
+<h2>Generate Contact Map<a class="headerlink" href="#Generate-Contact-Map" title="Permalink to this headline">¶</a></h2>
+<p>We generate a heatmap of chromatin contacts between pairs of loci to emulate a Hi-C contact map that would be generated by experiments. Contacts frequencies are counted for discrete “blocks” of neighboring nucleosomes, each containing <code class="docutils literal notranslate"><span class="pre">block_size</span></code> beads; smaller block sizes indicate a higher-resolution contact map. Any pair of beads within <code class="docutils literal notranslate"><span class="pre">cutoff_dist</span></code> of one-another is counted as a contact. Contacts frequencies for each block are averaged between all snapshots following equilibration. We
+allow the polymer 70 snapshots to equilibrate.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">block_size</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">cutoff_dist</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">num_equilibration</span> <span class="o">=</span> <span class="mi">70</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">output_files</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">num_equilibration</span><span class="p">:</span>
+        <span class="k">continue</span>
+
+    <span class="n">output_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">latest_sim</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">f</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="n">output_path</span><span class="p">,</span>
+            <span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+            <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">skiprows</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">num_equilibration</span><span class="p">:</span>
+        <span class="n">n_beads</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+        <span class="n">blocks</span> <span class="o">=</span> <span class="n">get_blocks</span><span class="p">(</span><span class="n">n_beads</span><span class="p">,</span> <span class="n">block_size</span><span class="p">)</span>
+        <span class="n">num_blocks</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">n_beads</span> <span class="o">/</span> <span class="n">block_size</span><span class="p">))</span>
+        <span class="n">contacts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_blocks</span><span class="p">,</span> <span class="n">num_blocks</span><span class="p">))</span>
+        <span class="n">contacts_at_sep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_beads</span><span class="p">)</span>
+
+    <span class="n">bins</span> <span class="o">=</span> <span class="n">assign_beads_to_bins</span><span class="p">(</span>
+        <span class="n">r</span><span class="p">,</span> <span class="n">num_beads</span><span class="p">,</span> <span class="n">udf</span><span class="o">.</span><span class="n">nx</span><span class="p">,</span> <span class="n">udf</span><span class="o">.</span><span class="n">ny</span><span class="p">,</span> <span class="n">udf</span><span class="o">.</span><span class="n">nz</span><span class="p">,</span> <span class="n">udf</span><span class="o">.</span><span class="n">x_width</span><span class="p">,</span> <span class="n">udf</span><span class="o">.</span><span class="n">y_width</span><span class="p">,</span>
+        <span class="n">udf</span><span class="o">.</span><span class="n">z_width</span>
+    <span class="p">)</span>
+    <span class="n">n_bins</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">neighboring_bins</span> <span class="o">=</span> <span class="n">get_neighboring_bins</span><span class="p">(</span><span class="n">udf</span><span class="o">.</span><span class="n">nx</span><span class="p">,</span> <span class="n">udf</span><span class="o">.</span><span class="n">ny</span><span class="p">,</span> <span class="n">udf</span><span class="o">.</span><span class="n">nz</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">bins</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">nbr_bin</span> <span class="ow">in</span> <span class="n">neighboring_bins</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+            <span class="n">beads_in_bin</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">[</span><span class="n">nbr_bin</span><span class="p">])</span>
+
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">beads_in_bin</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">beads_in_bin</span><span class="p">):</span>
+                    <span class="n">ind_1</span> <span class="o">=</span> <span class="n">bins</span><span class="p">[</span><span class="n">nbr_bin</span><span class="p">][</span><span class="n">k</span><span class="p">]</span>
+                    <span class="n">ind_2</span> <span class="o">=</span> <span class="n">bins</span><span class="p">[</span><span class="n">nbr_bin</span><span class="p">][</span><span class="n">l</span><span class="p">]</span>
+
+                    <span class="n">block_1</span> <span class="o">=</span> <span class="n">blocks</span><span class="p">[</span><span class="n">ind_1</span><span class="p">]</span>
+                    <span class="n">block_2</span> <span class="o">=</span> <span class="n">blocks</span><span class="p">[</span><span class="n">ind_2</span><span class="p">]</span>
+
+                    <span class="n">diff</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="n">ind_1</span><span class="p">]</span> <span class="o">-</span> <span class="n">r</span><span class="p">[</span><span class="n">ind_2</span><span class="p">]</span>
+                    <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;=</span> <span class="n">cutoff_dist</span><span class="p">:</span>
+                        <span class="n">contacts</span><span class="p">[</span><span class="n">block_1</span><span class="p">,</span> <span class="n">block_2</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">contacts</span><span class="p">[</span><span class="n">block_2</span><span class="p">,</span> <span class="n">block_1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">sep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ind_2</span> <span class="o">-</span> <span class="n">ind_1</span><span class="p">)</span>
+                        <span class="n">contacts_at_sep</span><span class="p">[</span><span class="n">sep</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="n">contacts</span> <span class="o">/=</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_files</span><span class="p">)</span>
+<span class="n">log_contacts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">contacts</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">contacts_at_sep</span> <span class="o">/=</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_files</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">font</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;family&#39;</span><span class="p">:</span> <span class="s1">&#39;serif&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="mi">18</span><span class="p">}</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rc</span><span class="p">(</span><span class="s1">&#39;font&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">font</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">log_contacts</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Reds&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;First bin&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Second bin&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/one_mark_chromatin_OUT_55_0.png" src="_images/one_mark_chromatin_OUT_55_0.png" />
+</div>
+</div>
+</section>
+<section id="Summary">
+<h2>Summary<a class="headerlink" href="#Summary" title="Permalink to this headline">¶</a></h2>
+<p>We began by defining the components of our simulation, representing a single chroamtin strand bound by HP1. We then defined a Monte Carlo simulation, which includes multiple types of configurational changes applied and evaluated iteratively on the polymer. We finally assessed the predicted chromatin architectures at various snapshots, verifying convergence and generating a simulation-based contact map. This notebook predicts the structure of the chromatin strand from its pattern of H3K9me3
+modification using a purely physics-based approach.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="two_mark_chromatin_OUT.html" class="btn btn-neutral float-right" title="Simulate Chromatin Bound by HP1 and PRC1" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="flexible_confined_homopolymer_OUT.html" class="btn btn-neutral" title="Simulate a Flexible, Confined Homopolymer" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2022, Joseph Wakim, Bruno Beltran, Andrew Spakowitz.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> and ❤️  using a custom <a href="https://github.com/LinxiFan/Sphinx-theme">theme</a> based on <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/documentation_options.js"></script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script type="text/javascript" src="None"></script>
+      <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

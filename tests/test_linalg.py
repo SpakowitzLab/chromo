@@ -1,15 +1,27 @@
-import chromo.util.linalg as linalg
+
+import pyximport
+# `generate_translation_mat` is a cython module
+pyximport.install()
+
+import chromo.util.linalg as la
+import chromo.polymers as poly
 
 import numpy as np
 
 
 def test_z_axis_rotation():
-    r0 = np.array([0, 0, 0])
-    r1 = np.array([0, 0, 1])
+    """Test 45-degree rotation about the z-axis.
+    """
+    r0 = np.array([0., 0., 0.])
+    r1 = np.array([0., 0., 1.])
+    axis = r1 - r0
+    point = np.array([0., 0., 0.])
     rot_angle = np.pi / 4
 
-    rot_mat = linalg.arbitrary_axis_rotation(r0, r1, rot_angle)
-    rot_mat_inv_inv = linalg.arbitrary_axis_rotation(r1, r0, -rot_angle)
+    rot_mat = la.return_arbitrary_axis_rotation(axis, point, rot_angle)
+    rot_mat_inv_inv = np.linalg.inv(
+        la.return_arbitrary_axis_rotation(r1, r0, -rot_angle)
+    )
 
     expected_rot_mat = np.identity(4)
     expected_rot_mat[0:2, 0:2] = np.array([
@@ -23,22 +35,31 @@ def test_z_axis_rotation():
 
 
 def test_translation():
+    """Test translation matrix.
+    """
     r0 = np.ones(4)
+    transformed_object = poly.TransformedObject()
 
     delta_x = 0.1
     delta_y = 0.2
     delta_z = 0.3
-    translation_mat = linalg.generate_translation_mat(delta_x, delta_y, delta_z)
+    delta = np.array([delta_x, delta_y, delta_z])
+    la.generate_translation_mat(delta, transformed_object)
+    translation_mat = np.asarray(transformed_object.transformation_mat)
 
-    expected_translation_mat = np.array([[1, 0, 0, 0.1],
-                                         [0, 1, 0, 0.2],
-                                         [0, 0, 1, 0.3],
-                                         [0, 0, 0, 1  ]])
-    
+    expected_translation_mat = np.array(
+        [
+            [1, 0, 0, 0.1],
+            [0, 1, 0, 0.2],
+            [0, 0, 1, 0.3],
+            [0, 0, 0, 1]
+        ]
+    )
+
     assert(np.all(np.isclose(translation_mat, expected_translation_mat)))
-    
+
     r1 = translation_mat @ r0.T
     r1 = r1.T
     r1_expected = np.array([1.1, 1.2, 1.3, 1])
-       
+
     assert np.all(np.isclose(r1, r1_expected))
