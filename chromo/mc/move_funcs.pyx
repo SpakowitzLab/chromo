@@ -803,11 +803,10 @@ cdef void conduct_change_binding_states(
     num_tails_flipped : long
         Number of binding sites on the bead to flip
     """
-    cdef long[:, ::1] states
     cdef long i
 
     for i in range(n_inds):
-        polymer.states_trial[i, mark_ind] = get_new_state(
+        polymer.states_trial[inds[i], mark_ind] = get_new_state(
             polymer.beads[0].marks[mark_ind], polymer.states[i, mark_ind],
             num_tails, num_tails_flipped
         )
