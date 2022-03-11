@@ -52,10 +52,10 @@ confine_length = 900
 
 print("Constructing polymer...")
 # Specify polymers length
-num_beads = 10000          # 393217
+num_beads = 25000          # 393217
 bead_spacing = 16.5        # About 50 bp linker length
 
-chem_mods_path = np.array(["chromo/chemical_mods/H3K9me3_10000.txt"])
+chem_mods_path = np.array(["chromo/chemical_mods/HNCFF683HCZ_H3K9me3_methyl_25000.txt"])
 chemical_mods = Chromatin.load_seqs(chem_mods_path)
 
 p = Chromatin.confined_gaussian_walk(
@@ -92,7 +92,7 @@ if __name__ == "__main__":
     """Run the simulation.
     """
     print("Starting new simulation...")
-    num_snapshots = 100
+    num_snapshots = 200
     mc_steps_per_snapshot = 500000
     mc.polymer_in_field(
         [p],
