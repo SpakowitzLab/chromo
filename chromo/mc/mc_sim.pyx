@@ -135,8 +135,7 @@ cdef void mc_step(
         return
 
     dE = 0
-    if adaptible_move.name != "change_binding_state":
-        dE += poly.compute_dE(adaptible_move.name, inds, n_inds)
+    dE += poly.compute_dE(adaptible_move.name, inds, n_inds)
     
     if poly in field and active_field:
         if adaptible_move.name != "tangent_rotation":
