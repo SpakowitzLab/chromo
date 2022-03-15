@@ -82,7 +82,7 @@ class CommandLineUsage():
                  "binding pattern will be saved into file `avg_hp1.csv`.",
             required=False,
             metavar="",
-            default="avg_binding_pattern.csv"
+            default="avg_binding_pattern"
         )
         self.args = parser.parse_args()
 
