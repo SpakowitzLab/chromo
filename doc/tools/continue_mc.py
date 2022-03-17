@@ -15,8 +15,8 @@ sys.path.insert(1, parent_dir)
 # Custom Modules
 import chromo.mc as mc
 from chromo.polymers import (Chromatin)
-import chromo.marks
-from doc.source.mc import marks, udf
+import chromo.binders
+from doc.source.mc import binders, udf
 
 polymer_class = Chromatin
 output_dir = "output"
@@ -25,7 +25,7 @@ num_saves = 2
 
 mc.continue_polymer_in_field_simulation(
     polymer_class,
-    marks,
+    binders,
     udf,
     output_dir,
     num_save_mc,

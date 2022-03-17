@@ -5,8 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Simulate Chromatin Bound by HP1 &mdash; chromo  documentation</title>
@@ -28,10 +27,6 @@
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   
 
-  
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   
 
   
@@ -86,24 +81,24 @@
           
             
             
-                <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+                <p class="caption"><span class="caption-text">Introduction</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="abstract.html">Abstract</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code_structure.html">Code Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mc_sim.html">Monte Carlo Simulations</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Theory</span></p>
+<p class="caption"><span class="caption-text">Theory</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="poly_models.html">Polymer Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="field.html">Field Theoretic Treatment of Interactions</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="semiflexible_homopolymer_OUT.html">Semiflexible, Unconfined Homopolymer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="flexible_confined_homopolymer_OUT.html">Flexible, Confined Homopolymer</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Chromatin + HP1</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#Setup">Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Specify-Epigenetic-Marks">Specify Epigenetic Marks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Specify-Reader-Proteins">Specify Reader Proteins</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Specify-Confinement">Specify Confinement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Instantiate-Polymer">Instantiate Polymer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Define-Uniform-Density-Field">Define Uniform Density Field</a></li>
@@ -128,8 +123,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="two_mark_chromatin_OUT.html">Chromatin + HP1 + PRC1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="looped_loosely_confined_OUT.html">Ring Polymer</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Additional Resources</span></p>
+<p class="caption"><span class="caption-text">Additional Resources</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
@@ -444,12 +440,12 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<section id="Simulate-Chromatin-Bound-by-HP1">
+<div class="section" id="Simulate-Chromatin-Bound-by-HP1">
 <h1>Simulate Chromatin Bound by HP1<a class="headerlink" href="#Simulate-Chromatin-Bound-by-HP1" title="Permalink to this headline">¶</a></h1>
 <p>This notebook runs a Monte Carlo simulation of a wormlike chain modeled after chromatin. The polymer includes 100 minomeric units, each separated by 16.5 nm, representing a DNA linker of approximately 50 base pairs. Twist is not considered in this simulation. The polymer is confined by a 900 nm radius spherical confinement, representing a single chromosome territory. The simulation is run for 100 snapshots, each involving 100,000 MC iterations.</p>
 <p>Each monomeric unit of the simulation represents a nucleosome. Each nucleosome has two tails which can be modified by trimethylation of histone H3 lysine 9 (H3K9me3). Nucleosomes with this chemical modification are preferentially bound by Heterochromatin Protein 1 (HP1). When multiple HP1 proteins are in proximity, they tend to oligomerize. We do not track interactions between explicit nucleosomes or HP1 proteins. Instead, we use a field theoretic approach, abstracting components into a density
 field which dictate the magnitude of their interactions.</p>
-<section id="Setup">
+<div class="section" id="Setup">
 <h2>Setup<a class="headerlink" href="#Setup" title="Permalink to this headline">¶</a></h2>
 <p>Install necessary modules, add the package root directory to the system path, and change working directory to root. Every simulation will involve similar setup steps.</p>
 <p><strong>Do not run the setup cell more than once, except after restarting the kernel.</strong> There is no way to consistently track the directory containing the notebook.</p>
@@ -492,7 +488,7 @@ Directory containing the notebook:
 <span class="c1"># Package modules</span>
 <span class="kn">import</span> <span class="nn">chromo.mc</span> <span class="k">as</span> <span class="nn">mc</span>
 <span class="kn">from</span> <span class="nn">chromo.polymers</span> <span class="kn">import</span> <span class="n">Chromatin</span>
-<span class="kn">import</span> <span class="nn">chromo.marks</span>
+<span class="kn">import</span> <span class="nn">chromo.binders</span>
 <span class="kn">from</span> <span class="nn">chromo.fields</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">UniformDensityField</span><span class="p">,</span> <span class="n">get_blocks</span><span class="p">,</span> <span class="n">get_neighboring_bins</span><span class="p">,</span> <span class="n">assign_beads_to_bins</span>
 <span class="p">)</span>
@@ -522,25 +518,25 @@ Root Directory of Package:
 /home/users/jwakim/CodeDev/chromo_20Jan2022
 </pre></div></div>
 </div>
-</section>
-<section id="Specify-Epigenetic-Marks">
-<h2>Specify Epigenetic Marks<a class="headerlink" href="#Specify-Epigenetic-Marks" title="Permalink to this headline">¶</a></h2>
-<p>Epigenetic marks are collectively stored in a data frame that we call the “mark collection.” We can generate the mark collection using the <code class="docutils literal notranslate"><span class="pre">make_mark_collection</span></code> function in the <code class="docutils literal notranslate"><span class="pre">chromo.marks</span></code> module. The mark collection accepts as an input a list of epigenetic mark objects. Certain epigenetic mark objects are pre-implemented in the <code class="docutils literal notranslate"><span class="pre">chromo.marks</span></code> module and can be instantiated by name using the <code class="docutils literal notranslate"><span class="pre">get_by_name</span></code> method in the <code class="docutils literal notranslate"><span class="pre">chromo.marks</span></code> module. Below, we instantiate a single
-epigenetic mark object for HP1, and we create a mark collection from that single mark.</p>
+</div>
+<div class="section" id="Specify-Reader-Proteins">
+<h2>Specify Reader Proteins<a class="headerlink" href="#Specify-Reader-Proteins" title="Permalink to this headline">¶</a></h2>
+<p>Reader proteins are collectively stored in a data frame that we call the “binder collection.” We can generate the binder collection using the <code class="docutils literal notranslate"><span class="pre">make_binder_collection</span></code> function in the <code class="docutils literal notranslate"><span class="pre">chromo.binders</span></code> module. The binder collection accepts as an input a list of reader protein objects. Certain reader protein objects are pre-implemented in the <code class="docutils literal notranslate"><span class="pre">chromo.binders</span></code> module and can be instantiated by name using the <code class="docutils literal notranslate"><span class="pre">get_by_name</span></code> method in the <code class="docutils literal notranslate"><span class="pre">chromo.binders</span></code> module. Below, we instantiate a
+single reader protein object for HP1, and we create a binder collection from that single reader protein.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Instantiate the HP1 mark, which is pre-defined in the `chromo.marks` module</span>
-<span class="n">hp1</span> <span class="o">=</span> <span class="n">chromo</span><span class="o">.</span><span class="n">marks</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="s1">&#39;HP1&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Instantiate the HP1 reader protein, which is pre-defined in the `chromo.binders` module</span>
+<span class="n">hp1</span> <span class="o">=</span> <span class="n">chromo</span><span class="o">.</span><span class="n">binders</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="s1">&#39;HP1&#39;</span><span class="p">)</span>
 
-<span class="c1"># Create the mark collection</span>
-<span class="n">marks</span> <span class="o">=</span> <span class="n">chromo</span><span class="o">.</span><span class="n">marks</span><span class="o">.</span><span class="n">make_mark_collection</span><span class="p">([</span><span class="n">hp1</span><span class="p">])</span>
+<span class="c1"># Create the binder collection</span>
+<span class="n">binders</span> <span class="o">=</span> <span class="n">chromo</span><span class="o">.</span><span class="n">binders</span><span class="o">.</span><span class="n">make_binder_collection</span><span class="p">([</span><span class="n">hp1</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Specify-Confinement">
+</div>
+<div class="section" id="Specify-Confinement">
 <h2>Specify Confinement<a class="headerlink" href="#Specify-Confinement" title="Permalink to this headline">¶</a></h2>
 <p>The behavior of confining boundaries are defined in the <code class="docutils literal notranslate"><span class="pre">chromo.field</span></code> module. The confinement type is specified as a string name. The confinement length depends on the confinement type (as should be documented in the <code class="docutils literal notranslate"><span class="pre">chromo.field</span></code> module) and is specified as a float.</p>
 <p>Here we define a spherical confinement with a 900 nm radius, representing a single chromosome territory (Cremer &amp; Cremer 2001).</p>
@@ -553,13 +549,13 @@ epigenetic mark object for HP1, and we create a mark collection from that single
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Instantiate-Polymer">
+</div>
+<div class="section" id="Instantiate-Polymer">
 <h2>Instantiate Polymer<a class="headerlink" href="#Instantiate-Polymer" title="Permalink to this headline">¶</a></h2>
 <p>Various polymer models are defined in the <code class="docutils literal notranslate"><span class="pre">chromo.polymers</span></code> model. All polymer classes share the attributes and methods in the <code class="docutils literal notranslate"><span class="pre">PolymerBase</span></code> class. We have defined a <code class="docutils literal notranslate"><span class="pre">Chromatin</span></code> polymer as a subclass of <code class="docutils literal notranslate"><span class="pre">SSWLC</span></code>, which is based on the stretchable, shearable wormlike chain model.</p>
 <p>We instantiate a chromatin polymer with 100 beads, each separated by 16.5 nm (corresponding to a linker length of approximately 50 base pairs). The chromatin chain is initialized as a Gaussian random walk inside the spherical confinement.</p>
-<p>Each bead of the polymer can be defined with chemical modification states. Chemical modification states are required for each bound mark. Since each bead represents a nucleosome which can be bound by HP1, the chemical modification we are interested in is H3K9me3. The chemical modification state is <code class="docutils literal notranslate"><span class="pre">0</span></code> if the bead does not have the chemical modification, <code class="docutils literal notranslate"><span class="pre">1</span></code> if the bead has the chemical modification on a single tail, and <code class="docutils literal notranslate"><span class="pre">2</span></code> if the bead has the chemical modification on both tails. The
-chemical modification states are read from a file, and the <code class="docutils literal notranslate"><span class="pre">load_seqs</span></code> method of the <code class="docutils literal notranslate"><span class="pre">PolymerBase</span></code> class facilitates this. We initialize each HP1 binding state to match the H3K9me3 modification state, meaning each tail modified by H3K9me3 is initially bound by the mark.</p>
+<p>Each bead of the polymer can be defined with chemical modification states. Chemical modification states are required for each bound reader protein. Since each bead represents a nucleosome which can be bound by HP1, the chemical modification we are interested in is H3K9me3. The chemical modification state is <code class="docutils literal notranslate"><span class="pre">0</span></code> if the bead does not have the chemical modification, <code class="docutils literal notranslate"><span class="pre">1</span></code> if the bead has the chemical modification on a single tail, and <code class="docutils literal notranslate"><span class="pre">2</span></code> if the bead has the chemical modification on both tails.
+The chemical modification states are read from a file, and the <code class="docutils literal notranslate"><span class="pre">load_seqs</span></code> method of the <code class="docutils literal notranslate"><span class="pre">PolymerBase</span></code> class facilitates this. We initialize each HP1 binding state to match the H3K9me3 modification state, meaning each tail modified by H3K9me3 is initially bound by the reader protein.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
@@ -578,7 +574,7 @@ chemical modification states are read from a file, and the <code class="docutils
     <span class="n">states</span><span class="o">=</span><span class="n">states</span><span class="p">,</span>
     <span class="n">confine_type</span><span class="o">=</span><span class="n">confine_type</span><span class="p">,</span>
     <span class="n">confine_length</span><span class="o">=</span><span class="n">confine_length</span><span class="p">,</span>
-    <span class="n">mark_names</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s1">&#39;HP1&#39;</span><span class="p">]),</span>
+    <span class="n">binder_names</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s1">&#39;HP1&#39;</span><span class="p">]),</span>
     <span class="n">chemical_mods</span><span class="o">=</span><span class="n">chemical_mods</span><span class="p">,</span>
     <span class="n">chemical_mod_names</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s1">&#39;H3K9me3&#39;</span><span class="p">])</span>
 <span class="p">)</span>
@@ -611,10 +607,10 @@ chemical modification states are read from a file, and the <code class="docutils
 <img alt="_images/one_mark_chromatin_OUT_16_0.png" src="_images/one_mark_chromatin_OUT_16_0.png" />
 </div>
 </div>
-</section>
-<section id="Define-Uniform-Density-Field">
+</div>
+<div class="section" id="Define-Uniform-Density-Field">
 <h2>Define Uniform Density Field<a class="headerlink" href="#Define-Uniform-Density-Field" title="Permalink to this headline">¶</a></h2>
-<p>We leverage a field theoretic approach to model interactions between nucleosomes and bound marks. The approach enables us to model full human chromosomes at nucleosome scale resolution. The field tracks the density of the polymer and all marks in cubical voxels of space. To instantiate the field, we need to specify the dimensions of the voxel grid, the confinement, and all polymers and marks contained.</p>
+<p>We leverage a field theoretic approach to model interactions between nucleosomes and bound reader proteins. The approach enables us to model full human chromosomes at nucleosome scale resolution. The field tracks the density of the polymer and all reader proteins in cubical voxels of space. To instantiate the field, we need to specify the dimensions of the voxel grid, the confinement, and all polymers and reader proteins contained.</p>
 <p>Here we instantiate a field that contains the spherical confinement with voxels of ~28.6 nm width in the x, y, and z directions.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
@@ -630,7 +626,7 @@ chemical modification states are read from a file, and the <code class="docutils
 
 <span class="n">udf</span> <span class="o">=</span> <span class="n">UniformDensityField</span><span class="p">(</span>
     <span class="n">polymers</span> <span class="o">=</span> <span class="p">[</span><span class="n">chromatin</span><span class="p">],</span>
-    <span class="n">marks</span> <span class="o">=</span> <span class="n">marks</span><span class="p">,</span>
+    <span class="n">binders</span> <span class="o">=</span> <span class="n">binders</span><span class="p">,</span>
     <span class="n">x_width</span> <span class="o">=</span> <span class="n">x_width</span><span class="p">,</span>
     <span class="n">nx</span> <span class="o">=</span> <span class="n">n_bins_x</span><span class="p">,</span>
     <span class="n">y_width</span> <span class="o">=</span> <span class="n">y_width</span><span class="p">,</span>
@@ -644,11 +640,11 @@ chemical modification states are read from a file, and the <code class="docutils
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Specify-Simulation">
+</div>
+<div class="section" id="Specify-Simulation">
 <h2>Specify Simulation<a class="headerlink" href="#Specify-Simulation" title="Permalink to this headline">¶</a></h2>
 <p>The simulator proposes and evaluates random configurational changes to chromatin, which include geometric transformations and effector protein binding/unbinding to the biopolymer.</p>
-<section id="Move-and-Bead-Amplitudes">
+<div class="section" id="Move-and-Bead-Amplitudes">
 <h3>Move and Bead Amplitudes<a class="headerlink" href="#Move-and-Bead-Amplitudes" title="Permalink to this headline">¶</a></h3>
 <p>There are two ways to tune these configurational changes over the course of the simulation; we can either adjust the magnitude of the selection window for affected beads, or we can adjust the magnitude of the transformation itself. We define a “bead amplitude” to represent the maximum magnitude of the selection window for a move and a “move amplitude” to represent the maximum magnitude of the move’s transformation. Note, changes in binding state do not have move amplitudes, since they do not
 involve a physical transformation. We restrict the move and bead amplitudes between bounds to ensure that MC moves do not become too large or too small. The bounds of the move and bead amplitudes are dependent on the polymers’ sizes and are determined by the <code class="docutils literal notranslate"><span class="pre">get_amplitude_bounds</span></code> method in the <code class="docutils literal notranslate"><span class="pre">__init__</span></code> module of the <code class="docutils literal notranslate"><span class="pre">mc</span></code> directory.</p>
@@ -662,8 +658,8 @@ involve a physical transformation. We restrict the move and bead amplitudes betw
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Define-MC-Moves">
+</div>
+<div class="section" id="Define-MC-Moves">
 <h3>Define MC Moves<a class="headerlink" href="#Define-MC-Moves" title="Permalink to this headline">¶</a></h3>
 <p>Here, we identify exactly which MC moves we wish to include in the simulation. In this example, we use the following moves:</p>
 <ul class="simple">
@@ -690,10 +686,10 @@ directory for the simulation. The <code class="docutils literal notranslate"><sp
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Adjust-Move-Ratios">
+</div>
+<div class="section" id="Adjust-Move-Ratios">
 <h3>Adjust Move Ratios<a class="headerlink" href="#Adjust-Move-Ratios" title="Permalink to this headline">¶</a></h3>
-<p>Each move is attempted a specified number of times per MC iteration. These define the ratio at which each move type is applied. By default, the number of attempts for each move in an MC iteration are: 60 slide moves, 30 crank-shaft moves, 1 end-pivot move, 60 tangent rotation moves, and 10 changes in mark binding state. We adjust these values so that each move is attempted just one time per MC iteration.</p>
+<p>Each move is attempted a specified number of times per MC iteration. These define the ratio at which each move type is applied. By default, the number of attempts for each move in an MC iteration are: 60 slide moves, 30 crank-shaft moves, 1 end-pivot move, 60 tangent rotation moves, and 10 changes in reader protein binding state. We adjust these values so that each move is attempted just one time per MC iteration.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
@@ -703,8 +699,8 @@ directory for the simulation. The <code class="docutils literal notranslate"><sp
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Simulation-Length">
+</div>
+<div class="section" id="Simulation-Length">
 <h3>Simulation Length<a class="headerlink" href="#Simulation-Length" title="Permalink to this headline">¶</a></h3>
 <p>We define the simulation by the number of snapshots we would like to generate and the number of iterations of each move between the snapshots. Here, we specify a simulation producing 100 snapshots, each with 100,000 iterations of each MC move.</p>
 <div class="nbinput nblast docutils container">
@@ -716,9 +712,9 @@ directory for the simulation. The <code class="docutils literal notranslate"><sp
 </pre></div>
 </div>
 </div>
-</section>
-</section>
-<section id="Run-the-Simulation">
+</div>
+</div>
+<div class="section" id="Run-the-Simulation">
 <h2>Run the Simulation<a class="headerlink" href="#Run-the-Simulation" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">polymer_in_field</span></code> method defined in the <code class="docutils literal notranslate"><span class="pre">__init__</span></code> file of the <code class="docutils literal notranslate"><span class="pre">mc</span></code> directory initiates the simulation. Running the code block below generates a unique output directory and run the simulation.</p>
 <div class="nbinput nblast docutils container">
@@ -728,7 +724,7 @@ directory for the simulation. The <code class="docutils literal notranslate"><sp
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%capture</span>
 <span class="n">mc</span><span class="o">.</span><span class="n">polymer_in_field</span><span class="p">(</span>
     <span class="n">polymers</span> <span class="o">=</span> <span class="p">[</span><span class="n">chromatin</span><span class="p">],</span>
-    <span class="n">marks</span> <span class="o">=</span> <span class="n">marks</span><span class="p">,</span>
+    <span class="n">binders</span> <span class="o">=</span> <span class="n">binders</span><span class="p">,</span>
     <span class="n">field</span> <span class="o">=</span> <span class="n">udf</span><span class="p">,</span>
     <span class="n">num_save_mc</span> <span class="o">=</span> <span class="n">mc_steps_per_snapshot</span><span class="p">,</span>
     <span class="n">num_saves</span> <span class="o">=</span> <span class="n">num_snapshots</span><span class="p">,</span>
@@ -740,12 +736,12 @@ directory for the simulation. The <code class="docutils literal notranslate"><sp
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Evaluate-Convergence">
+</div>
+<div class="section" id="Evaluate-Convergence">
 <h2>Evaluate Convergence<a class="headerlink" href="#Evaluate-Convergence" title="Permalink to this headline">¶</a></h2>
 <p>With the simulation complete, we want to check for energy and configurational convergence in the Monte Carlo snapshots. First we recall the latest simulation output directory. From that directory, we load the polymer configuration in each snapshot. We then evaluate the elastic energy of each bond and field energy contribution of each bead, giving us the total energy at each snapshot. We then check that the mean squared separation distance between beads <span class="math notranslate nohighlight">\(n = 10\)</span> monomers apart on the chain
 also converges.</p>
-<section id="List-Polymer-Output-Files">
+<div class="section" id="List-Polymer-Output-Files">
 <h3>List Polymer Output Files<a class="headerlink" href="#List-Polymer-Output-Files" title="Permalink to this headline">¶</a></h3>
 <p>Polymer configurations are saved at each snapshot of the simulation in the simulation’s output directory. All polymer configurations are saved with <code class="docutils literal notranslate"><span class="pre">.csv</span></code> extension and are prepended with the label <code class="docutils literal notranslate"><span class="pre">Chr</span></code>. The snapshot number is indicated after a hyphen and before the file extension in the polymer output file name.</p>
 <div class="nbinput nblast docutils container">
@@ -763,8 +759,8 @@ also converges.</p>
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Calcualate-Energies">
+</div>
+<div class="section" id="Calcualate-Energies">
 <h3>Calcualate Energies<a class="headerlink" href="#Calcualate-Energies" title="Permalink to this headline">¶</a></h3>
 <p>The field and polymer classes each have a <code class="docutils literal notranslate"><span class="pre">compute_E</span></code> method for calculating total energy.</p>
 <div class="nbinput nblast docutils container">
@@ -815,8 +811,8 @@ also converges.</p>
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Plot-Energy-Convergence">
+</div>
+<div class="section" id="Plot-Energy-Convergence">
 <h3>Plot Energy Convergence<a class="headerlink" href="#Plot-Energy-Convergence" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
@@ -841,8 +837,8 @@ also converges.</p>
 <img alt="_images/one_mark_chromatin_OUT_45_0.png" src="_images/one_mark_chromatin_OUT_45_0.png" />
 </div>
 </div>
-</section>
-<section id="Calculate-MSD">
+</div>
+<div class="section" id="Calculate-MSD">
 <h3>Calculate MSD<a class="headerlink" href="#Calculate-MSD" title="Permalink to this headline">¶</a></h3>
 <p>Check that the mean squared separation distance of beads <span class="math notranslate nohighlight">\(n = 10\)</span> monomers apart on the chain converges during the simulation. In the <code class="docutils literal notranslate"><span class="pre">chromo.util.poly_stat</span></code> module, there is a method that does this calculation.</p>
 <div class="nbinput nblast docutils container">
@@ -869,8 +865,8 @@ also converges.</p>
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Plot-MSD-Convergence">
+</div>
+<div class="section" id="Plot-MSD-Convergence">
 <h3>Plot MSD Convergence<a class="headerlink" href="#Plot-MSD-Convergence" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
@@ -892,9 +888,9 @@ also converges.</p>
 <img alt="_images/one_mark_chromatin_OUT_51_0.png" src="_images/one_mark_chromatin_OUT_51_0.png" />
 </div>
 </div>
-</section>
-</section>
-<section id="Generate-Contact-Map">
+</div>
+</div>
+<div class="section" id="Generate-Contact-Map">
 <h2>Generate Contact Map<a class="headerlink" href="#Generate-Contact-Map" title="Permalink to this headline">¶</a></h2>
 <p>We generate a heatmap of chromatin contacts between pairs of loci to emulate a Hi-C contact map that would be generated by experiments. Contacts frequencies are counted for discrete “blocks” of neighboring nucleosomes, each containing <code class="docutils literal notranslate"><span class="pre">block_size</span></code> beads; smaller block sizes indicate a higher-resolution contact map. Any pair of beads within <code class="docutils literal notranslate"><span class="pre">cutoff_dist</span></code> of one-another is counted as a contact. Contacts frequencies for each block are averaged between all snapshots following equilibration. We
 allow the polymer 70 snapshots to equilibrate.</p>
@@ -989,13 +985,13 @@ allow the polymer 70 snapshots to equilibrate.</p>
 <img alt="_images/one_mark_chromatin_OUT_55_0.png" src="_images/one_mark_chromatin_OUT_55_0.png" />
 </div>
 </div>
-</section>
-<section id="Summary">
+</div>
+<div class="section" id="Summary">
 <h2>Summary<a class="headerlink" href="#Summary" title="Permalink to this headline">¶</a></h2>
 <p>We began by defining the components of our simulation, representing a single chroamtin strand bound by HP1. We then defined a Monte Carlo simulation, which includes multiple types of configurational changes applied and evaluated iteratively on the polymer. We finally assessed the predicted chromatin architectures at various snapshots, verifying convergence and generating a simulation-based contact map. This notebook predicts the structure of the chromatin strand from its pattern of H3K9me3
 modification using a purely physics-based approach.</p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>
@@ -1045,13 +1041,13 @@ modification using a purely physics-based approach.</p>
             SOURCELINK_SUFFIX: '.txt'
         };
     </script>
-      <script type="text/javascript" src="_static/documentation_options.js"></script>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/language_data.js"></script>
       <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
       <script type="text/javascript" src="None"></script>
-      <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
   
 

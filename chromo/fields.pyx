@@ -1,4 +1,4 @@
-"""Fields discretize space to efficiently track changes in Mark energy.
+"""Fields discretize space to efficiently track changes in reader protein energy.
 
 Notes
 -----
@@ -59,8 +59,8 @@ cdef class FieldBase:
         one polymer in the field
     n_polymers : long
         Number of polymers in the field
-    marks : pd.DataFrame
-        Table containing marks bound to the polymer and their relevant
+    binders : pd.DataFrame
+        Table containing reader proteins bound to the polymer and their relevant
         properties
     """
 
@@ -75,11 +75,11 @@ cdef class FieldBase:
         return self.__class__.__name__
 
     def __init__(self):
-        """Construct a field holding no Polymers, tracking no Marks.
+        """Construct a field holding no polymers, tracking no reader proteins.
         """
         self.polymers = []
         self.n_polymers = 0
-        self.marks = pd.DataFrame()
+        self.binders = pd.DataFrame()
 
     def __str__(self):
         """Print representation of empty field.
@@ -121,7 +121,7 @@ cdef class FieldBase:
 
 
 class Reconstructor:
-    """Defer construction of `Field` until after `PolymerBase`/`Mark` instances.
+    """Defer construction of `Field` until after `PolymerBase`/`Binder` instances.
 
     Notes
     -----
@@ -147,15 +147,15 @@ class Reconstructor:
         self.field_constructor = cls
         self.kwargs = kwargs
 
-    def finalize(self, polymers, marks) -> FieldBase:
+    def finalize(self, polymers, binders) -> FieldBase:
         """Finish construction of appropriate `Field` object.
 
         Parameters
         ----------
         polymers : List[PolymerBase]
             List of polymers contained in the field
-        marks : pd.DataFrame
-            Table representing chemical marks bound to polymers in the field
+        binders : pd.DataFrame
+            Table representing reader proteins bound to polymers in the field
 
         Returns
         -------
@@ -163,7 +163,7 @@ class Reconstructor:
             Field representation of discretized space containing polymers
         """
         return self.field_constructor(
-            polymers=polymers, marks=marks, **self.kwargs
+            polymers=polymers, binders=binders, **self.kwargs
         )
 
     @classmethod
@@ -184,7 +184,7 @@ class Reconstructor:
         kwargs = pd.read_csv(path).iloc[0].to_dict()
         return cls(constructor, **kwargs)
 
-    def __call__(self, polymers, marks) -> FieldBase:
+    def __call__(self, polymers, binders) -> FieldBase:
         """Synonym for `Reconstructor.finalize()`.
 
         Notes
@@ -192,7 +192,7 @@ class Reconstructor:
         See documentation for `Reconstructor.finalize()` for additional
         details and parameter/returns definitions.
         """
-        return self.finalize(polymers, marks)
+        return self.finalize(polymers, binders)
 
 
 cdef class UniformDensityField(FieldBase):
@@ -272,11 +272,11 @@ cdef class UniformDensityField(FieldBase):
         Vector of a bead's linearly interpolated weights in a voxel in the x, y,
         and z directions as determined for the voxel surrounding the bead with
         the lowest x, y, z indices; TEMP
-    num_marks : long
-        Number of chemical marks bound to the polymer in the simulation
+    num_binders : long
+        Number of reader proteins bound to the polymer in the simulation
     doubly_bound, doubly_bound_trial : long[:]
         Vectors indicating whether or not a bead is doubly bound by each
-        tracked chemical mark in the current polymer configuration
+        tracked reader protein in the current polymer configuration
         (`doubly_bond`) and trial configuration (`doubly_bound_trial`); TEMP
     confine_type : str
         Name of the confining boundary around the polymer; if the polymer is
@@ -285,11 +285,12 @@ cdef class UniformDensityField(FieldBase):
         Length scale of the confining boundary
     density, density_trial : double[:, ::1]
         Current (`density`) and proposed (`density_trials`) density of beads
-        (column 0) and each chemical mark (columns 1...) in each voxel of the
+        (column 0) and each reader protein (columns 1...) in each voxel of the
         discretized space; voxels are sorted by super-index and arranged down
         the rows the the density arrays
-    total_mark_densities : dict[str, double]
-        Total density of each mark in all voxels affected by an MC move.
+    total_binder_densities : dict[str, double]
+        Total density of each reader protein in all voxels affected by an MC
+        move
     access_vols : Dict[long, double]
         Mapping of voxel super-index (keys) to volume of the voxel inside the
         confining boundary (values).
@@ -298,8 +299,8 @@ cdef class UniformDensityField(FieldBase):
         interaction
     dict_ : dict
         Dictionary of key attributes defining the field and their values
-    mark_dict : dict
-        Dictionary representation of each chemical mark and their properties
+    binder_dict : dict
+        Dictionary representation of each reader protein and their properties
     half_width_xyz : double[:]
         Half the width of the full discretized space in the x, y,
         and z directions; equivalent to `np.array([self.x_width/2,
@@ -317,7 +318,7 @@ cdef class UniformDensityField(FieldBase):
     """
 
     def __init__(
-        self, polymers, marks, x_width, nx, y_width, ny, z_width, nz,
+        self, polymers, binders, x_width, nx, y_width, ny, z_width, nz,
         confine_type = "", confine_length = 0.0, chi = 1.0
     ):
         """Construct a `UniformDensityField` containing polymers.
@@ -326,9 +327,9 @@ cdef class UniformDensityField(FieldBase):
         ----------
         polymers : List[PolymerBase]
             List of polymers contained in the field
-        marks : pd.DataFrame
-            Output of `chromo.marks.make_mark_collection` applied to the list
-            of `Mark` objects contained in the field
+        binders : pd.DataFrame
+            Output of `chromo.binders.make_binder_collection` applied to the list
+            of `Binder` objects contained in the field
         x_width, y_width, z_width : double
             Width of the box containing the field in the x, y, and z-directions
         nx, ny, nz : long
@@ -346,11 +347,11 @@ cdef class UniformDensityField(FieldBase):
         self._field_descriptors = _field_descriptors
         self.polymers = polymers
         self.n_polymers = len(polymers)
-        self.marks = marks
+        self.binders = binders
         for poly in polymers:
-            if poly.num_marks != len(marks):
+            if poly.num_binders != len(binders):
                 raise NotImplementedError(
-                    "For now, all polymers must use all of the same marks."
+                    "For now, all polymers must use all of the same binders."
                 )
         self.x_width = x_width
         self.y_width = y_width
@@ -359,18 +360,18 @@ cdef class UniformDensityField(FieldBase):
         self.ny = ny
         self.nz = nz
         self.init_grid()
-        self.num_marks = len(marks)
-        self.doubly_bound = np.zeros((self.num_marks,), dtype=int)
-        self.doubly_bound_trial = np.zeros((self.num_marks,), dtype=int)
+        self.num_binders = len(binders)
+        self.doubly_bound = np.zeros((self.num_binders,), dtype=int)
+        self.doubly_bound_trial = np.zeros((self.num_binders,), dtype=int)
         self.init_field_energy_prefactors()
-        self.density = np.zeros((self.n_bins, self.num_marks + 1), 'd')
+        self.density = np.zeros((self.n_bins, self.num_binders + 1), 'd')
         self.density_trial = self.density.copy()
         self.confine_type = confine_type
         self.confine_length = confine_length
         self.access_vols = self.get_accessible_volumes(n_side=20)
         self.chi = chi
         self.dict_ = self.get_dict()
-        self.mark_dict = self.marks.to_dict(orient='records')
+        self.binder_dict = self.binders.to_dict(orient='records')
         self.update_all_densities_for_all_polymers()
     
     def init_grid(self):
@@ -430,34 +431,34 @@ cdef class UniformDensityField(FieldBase):
                 )
     
     def init_field_energy_prefactors(self):
-        """Initialize the field energy prefactor for each epigenetic mark.
+        """Initialize the field energy prefactor for each reader protein.
         """
-        mark_names = []
-        for i in range(self.num_marks):
-            mark_name = self.marks.loc[i, "name"]
-            mark_names.append(mark_name)
+        binder_names = []
+        for i in range(self.num_binders):
+            binder_name = self.binders.loc[i, "name"]
+            binder_names.append(binder_name)
 
-        for i in range(self.num_marks):
-            self.marks.at[i, 'field_energy_prefactor'] = (
-                0.5 * self.marks.iloc[i].interaction_energy
-                * self.marks.iloc[i].interaction_volume
+        for i in range(self.num_binders):
+            self.binders.at[i, 'field_energy_prefactor'] = (
+                0.5 * self.binders.iloc[i].interaction_energy
+                * self.binders.iloc[i].interaction_volume
                 * self.vol_bin
             )
 
-            self.marks.at[i, 'interaction_energy_intranucleosome'] = (
-                self.marks.iloc[i].interaction_energy
-                * (1 - self.marks.iloc[i].interaction_volume / self.vol_bin)
+            self.binders.at[i, 'interaction_energy_intranucleosome'] = (
+                self.binders.iloc[i].interaction_energy
+                * (1 - self.binders.iloc[i].interaction_volume / self.vol_bin)
             )
 
-            for next_mark in mark_names:
-                if next_mark in self.marks.iloc[i].cross_talk_interaction_energy.keys():
-                    self.marks.at[i, 'cross_talk_field_energy_prefactor'][next_mark] = (
-                        self.marks.iloc[i].cross_talk_interaction_energy[next_mark]
-                        * self.marks.iloc[i].interaction_volume
+            for next_binder in binder_names:
+                if next_binder in self.binders.iloc[i].cross_talk_interaction_energy.keys():
+                    self.binders.at[i, 'cross_talk_field_energy_prefactor'][next_binder] = (
+                        self.binders.iloc[i].cross_talk_interaction_energy[next_binder]
+                        * self.binders.iloc[i].interaction_volume
                         * self.vol_bin
                     )
                 else:
-                    self.marks.at[i, 'cross_talk_field_energy_prefactor'][next_mark] = 0
+                    self.binders.at[i, 'cross_talk_field_energy_prefactor'][next_binder] = 0
 
 
     cpdef dict get_accessible_volumes(self, long n_side):
@@ -653,7 +654,7 @@ cdef class UniformDensityField(FieldBase):
         return frac_accessible
 
     def to_file(self, path):
-        """Save Field description and Polymer/Mark names to CSV as Series.
+        """Save Field description + Polymer/ReaderProtein names to CSV.
 
         Parameters
         ----------
@@ -669,14 +670,14 @@ cdef class UniformDensityField(FieldBase):
         rows = {name: self.dict_[name] for name in self._field_descriptors}
         for i, polymer in enumerate(self.polymers):
             rows[polymer.name] = 'polymer'
-        for i, mark in self.marks.iterrows():
-            # careful! mark.name is the Series.name attribute
-            rows[mark['name']] = 'mark'
+        for i, binder in self.binders.iterrows():
+            # careful! binder.name is the Series.name attribute
+            rows[binder['name']] = 'binder'
         # prints just key,value for each key in rows
         return pd.Series(rows).to_csv(path, header=False)
 
     @classmethod
-    def from_file(cls, path, polymers, marks):
+    def from_file(cls, path, polymers, binders):
         """Recover field saved with `.to_file()`.
 
         Notes
@@ -690,8 +691,8 @@ cdef class UniformDensityField(FieldBase):
             Path to the CSV file representing the field
         polymers : List[PolymerBase]
             Polymers contained in the field
-        marks : pd.DataFrame
-            Table describing chemical marks affecting the field
+        binders : pd.DataFrame
+            Table describing reader proteins affecting the field
 
         Returns
         -------
@@ -708,7 +709,7 @@ cdef class UniformDensityField(FieldBase):
             elif key in _str_field_descriptors and np.isnan(kwargs[key]):
                 kwargs[key] = ""
         polymer_names = field_series[field_series == 'polymer'].index.values
-        mark_names = field_series[field_series == 'mark'].index.values
+        binder_names = field_series[field_series == 'binder'].index.values
         err_prefix = f"Tried to instantiate class:{cls} from file:{path} with "
 
         if len(polymers) != len(polymer_names):
@@ -722,18 +723,18 @@ cdef class UniformDensityField(FieldBase):
                     err_prefix + f"polymer:{polymer.name}, but "
                     " this polymer was not present in file."
                 )
-        if len(marks) != len(mark_names):
+        if len(binders) != len(binder_names):
             raise ValueError(
-                err_prefix + f"{len(marks)} marks, but "
-                f" there are {len(mark_names)} listed."
+                err_prefix + f"{len(binders)} binders, but "
+                f" there are {len(binder_names)} listed."
             )
-        for i, mark in marks.iterrows():
-            if mark['name'] not in mark_names:
+        for i, binder in binders.iterrows():
+            if binder['name'] not in binder_names:
                 raise ValueError(
-                    err_prefix + f"mark:{mark}, but "
-                    " this mark was not present in file."
+                    err_prefix + f"binder:{binder}, but "
+                    " this binder was not present in file."
                 )
-        return cls(polymers=polymers, marks=marks, **kwargs)
+        return cls(polymers=polymers, binders=binders, **kwargs)
 
     def __eq__(self, other):
         """Check if two `UniformDensityField` objects are equivalent.
@@ -751,7 +752,7 @@ cdef class UniformDensityField(FieldBase):
         return np.all(
             [
                 self.polymers == other.polymers,
-                self.marks.equals(other.marks),
+                self.binders.equals(other.binders),
                 self.nx == other.nx,
                 self.x_width == other.x_width,
                 self.ny == other.ny,
@@ -834,7 +835,7 @@ cdef class UniformDensityField(FieldBase):
             "nx" : self.nx,
             "ny" : self.ny,
             "nz" : self.nz,
-            "num_marks" : self.num_marks,
+            "num_binders" : self.num_binders,
             "n_bins" : self.n_bins,
             "density" : self.density,
             "confine_type" : self.confine_type,
@@ -859,12 +860,13 @@ cdef class UniformDensityField(FieldBase):
         the move lie inside the confinement, do the following:
 
         Load the current position and states for the polymer. Using this data,
-        identify the density of the polymer and marks in each bin in space.
-        Repeat this density calculation for the trial polymer and mark
+        identify the density of the polymer and binders in each bin in space.
+        Repeat this density calculation for the trial polymer and binders
         configuration. Determine the self-interaction energy based on the
         interpolated densities between each bin using the approach described
-        by MacPherson et al [1]. For each mark on the chain, add its
-        contribution to the field energy based on interactions with like marks.
+        by MacPherson et al [1]. For each binder on the chain, add its
+        contribution to the field energy based on interactions with like
+        binders.
 
         References
         ----------
@@ -905,8 +907,8 @@ cdef class UniformDensityField(FieldBase):
         # Find changes in polymer density in affected voxels
         bin_inds = self.get_change_in_density(poly, inds, n_inds)
 
-        # Get change in energy based on differences in bead and mark densities
-        dE = self.get_dE_marks_and_beads(poly, inds, n_inds, bin_inds)
+        # Get change in energy based on differences in bead and binder densities
+        dE = self.get_dE_binders_and_beads(poly, inds, n_inds, bin_inds)
 
         return dE
 
@@ -991,8 +993,8 @@ cdef class UniformDensityField(FieldBase):
 
             - Finally, generate an index vector identifying the affected bins.
         
-        (2) Then initialize a density vector and loop through marks and corner
-        bin indices to fill in the density vector.
+        (2) Then initialize a density vector and loop through binders and
+        corner bin indices to fill in the density vector.
 
             - Values in arrays are determined element-by-element to improve
             speed once compiled.
@@ -1060,14 +1062,14 @@ cdef class UniformDensityField(FieldBase):
             # Distribute weights into bins
             # k indicates current (0) or trial (1) configuration
             # l indicates for which of eight bins density is being calculated
-            # m indicates polymer (0) or which protein (1 to n_marks)
+            # m indicates polymer (0) or which protein (1 to n_binders)
             for k in range(2):
                 for l in range(8):
                     poly.densities_temp[k, 0, l] = (
                         self.wt_vec_with_trial[k, l] /
                         self.access_vols[self.nbr_inds_with_trial[k, l]]
                     )
-                    for m in range(1, poly.n_marks_p1):
+                    for m in range(1, poly.n_binders_p1):
                         if k == 0:
                             poly.densities_temp[k, m, l] =\
                                 poly.densities_temp[k, 0, l] *\
@@ -1088,12 +1090,12 @@ cdef class UniformDensityField(FieldBase):
                 # Accumulate densities
                 for l in range(8):
                     if self.nbr_inds_with_trial[k, l] in bins_found:
-                        for m in range(poly.n_marks_p1):
+                        for m in range(poly.n_binders_p1):
                             self.density_trial[self.nbr_inds_with_trial[k, l], m] +=\
                                 prefactor * poly.densities_temp[k, m, l]
                     else:
                         bins_found.add(self.nbr_inds_with_trial[k, l])
-                        for m in range(poly.n_marks_p1):
+                        for m in range(poly.n_binders_p1):
                             self.density_trial[self.nbr_inds_with_trial[k, l], m] =\
                                 prefactor * poly.densities_temp[k, m, l]
 
@@ -1204,15 +1206,15 @@ cdef class UniformDensityField(FieldBase):
                 (1 + self.index_xyz_with_trial[i, 2])
             ]
 
-    cdef double get_dE_marks_and_beads(
+    cdef double get_dE_binders_and_beads(
         self, poly.PolymerBase poly, long[:] inds, long n_inds, long[:] bin_inds
     ):
-        """Get the change in energy associated with reconfiguration of marks.
+        """Get the change in energy associated with reconfiguration of binders.
 
         Notes
         -----
-        The scale of the oligomerization energy is constant for each epigenetic
-        mark. While it does not affect runtime too much, this method can be 
+        The scale of the oligomerization energy is constant for each reader
+        protein. While it does not affect runtime too much, this method can be
         optimized by precomputing the scale.
 
         TODO: Remove enumerate call -- that carries overhead
@@ -1232,23 +1234,24 @@ cdef class UniformDensityField(FieldBase):
         Returns
         -------
         double
-            Change in energy associated with reconfiguration of marks based on
-            mark interaction energies, as well as nonspecific bead interactions
+            Change in energy associated with reconfiguration of binders based
+            on binder interaction energies, as well as nonspecific bead
+            interactions
         """
         cdef long n_bins, i, j, kn_double_bound
-        cdef double tot_density_change, dE_marks_beads
+        cdef double tot_density_change, dE_binders_beads
         cdef double[:, ::1] delta_rho_squared, rho_change
         cdef double[:, :, ::1] delta_rho_interact_squared
-        cdef dict mark_info
+        cdef dict binder_info
 
-        # Change in squared density for each mark
+        # Change in squared density for each binder
         n_bins = len(bin_inds)
-        rho_change = np.zeros((n_bins, poly.n_marks_p1), dtype='d')
-        delta_rho_squared = np.zeros((n_bins, poly.n_marks_p1), dtype='d')
+        rho_change = np.zeros((n_bins, poly.n_binders_p1), dtype='d')
+        delta_rho_squared = np.zeros((n_bins, poly.n_binders_p1), dtype='d')
         delta_rho_interact_squared = \
-            np.zeros((n_bins, poly.n_marks_p1, poly.n_marks_p1), dtype='d')
+            np.zeros((n_bins, poly.n_binders_p1, poly.n_binders_p1), dtype='d')
         for i in range(n_bins):
-            for j in range(poly.n_marks_p1):
+            for j in range(poly.n_binders_p1):
                 rho_change[i, j] = (self.density_trial[bin_inds[i], j])
 
                 delta_rho_squared[i, j] = (
@@ -1256,7 +1259,7 @@ cdef class UniformDensityField(FieldBase):
                     self.density_trial[bin_inds[i], j]
                 ) ** 2 - self.density[bin_inds[i], j] ** 2
 
-                for k in range(poly.n_marks_p1):
+                for k in range(poly.n_binders_p1):
                     delta_rho_interact_squared[i, j, k] = ((
                         self.density[bin_inds[i], j] +
                         self.density_trial[bin_inds[i], j]
@@ -1268,38 +1271,39 @@ cdef class UniformDensityField(FieldBase):
                         self.density[bin_inds[i], k]
                     )
 
-        # Count the number of nucleosomes bound by mark at both histone tails
+        # Count num. nucleosomes bound by reader proteins at both histone tails
         self.count_doubly_bound(poly, inds, n_inds, trial=1)
         self.count_doubly_bound(poly, inds, n_inds, trial=0)
 
-        dE_marks_beads = 0
-        for i, mark_info in enumerate(self.mark_dict):
+        dE_binders_beads = 0
+        for i, binder_info in enumerate(self.binder_dict):
             # Calculate total density change
             tot_density_change = 0
             for j in range(n_bins):
                 tot_density_change += delta_rho_squared[j, i+1]
 
             # Oligomerization
-            dE_marks_beads +=\
-                mark_info['field_energy_prefactor'] * tot_density_change
+            dE_binders_beads +=\
+                binder_info['field_energy_prefactor'] * tot_density_change
 
             # Intranucleosome interaction
             n_double_bound = self.doubly_bound_trial[i] - self.doubly_bound[i]
-            dE_marks_beads +=\
-                mark_info['interaction_energy_intranucleosome'] * n_double_bound
+            dE_binders_beads +=\
+                binder_info['interaction_energy_intranucleosome'] * n_double_bound
 
         # Cross-talk Interaction
-        for i, mark_info in enumerate(self.mark_dict):
-            for j, next_mark_info in enumerate(self.mark_dict):
+        for i, binder_info in enumerate(self.binder_dict):
+            for j, next_binder_info in enumerate(self.binder_dict):
                 tot_density_change_interact = 0
                 for k in range(n_bins):
                     tot_density_change_interact += delta_rho_interact_squared[k, i, j]
-                dE_marks_beads += mark_info["cross_talk_field_energy_prefactor"][next_mark_info["name"]] *\
+                dE_binders_beads +=\
+                    binder_info["cross_talk_field_energy_prefactor"][next_binder_info["name"]] *\
                     tot_density_change_interact
 
         # Nonspecific bead interaction energy
-        dE_marks_beads += self.nonspecific_interact_dE(poly, bin_inds, n_bins)
-        return dE_marks_beads
+        dE_binders_beads += self.nonspecific_interact_dE(poly, bin_inds, n_bins)
+        return dE_binders_beads
 
     cdef double nonspecific_interact_dE(
         self, poly.PolymerBase poly, long[:] bin_inds, long n_bins
@@ -1389,19 +1393,19 @@ cdef class UniformDensityField(FieldBase):
     cdef void count_doubly_bound(
         self, poly.PolymerBase poly, long[:] inds, long n_inds, bint trial
     ):
-        """For each epigenetic mark, count the number of doubly bound beads.
+        """For each reader protein, count the number of doubly bound beads.
 
         Notes
         -----
-        We refer to nucleosomes with two histone tails bound by an epigenetic
-        mark as being doubly bound.
+        We refer to nucleosomes with two histone tails bound by a reader
+        protein as being doubly bound.
 
         When both histone tails of a nucleosome are bound by the same
-        epigenetic mark, there is an additional intranucleosome interaction
+        reader protein, there is an additional intranucleosome interaction
         energy contributing to the binding energy.
 
         This function counts the number of doubly bounded nucleosomes for each
-        epigenetic mark.
+        reader protein.
 
         Parameters
         ----------
@@ -1419,7 +1423,7 @@ cdef class UniformDensityField(FieldBase):
 
         # Count doubly-bound beads for current configuration
         if trial == 0:
-            for j in range(poly.num_marks):
+            for j in range(poly.num_binders):
                 self.doubly_bound[j] = 0
                 for i in range(n_inds):
                     if poly.states[inds[i], j] == 2:
@@ -1427,7 +1431,7 @@ cdef class UniformDensityField(FieldBase):
 
         # Count doubly-bound beads for current configuration
         elif trial == 1:
-            for j in range(poly.num_marks):
+            for j in range(poly.num_binders):
                 self.doubly_bound_trial[j] = 0
                 for i in range(n_inds):
                     if poly.states_trial[inds[i], j] == 2:
@@ -1444,7 +1448,7 @@ cdef class UniformDensityField(FieldBase):
         -----
         Load the positions and states of the entire polymer. Then determine the
         number density of beads in each bin of the field. Use these densities
-        and mark states on each bead to determine an overall field energy.
+        and binder states on each bead to determine an overall field energy.
 
         Parameters
         ----------
@@ -1463,7 +1467,7 @@ cdef class UniformDensityField(FieldBase):
         n_inds = poly.num_beads
         inds = np.arange(0, n_inds, 1)
         self.update_all_densities(poly, inds, n_inds)
-        E = self.get_E_marks_and_beads(poly, inds, n_inds)
+        E = self.get_E_binders_and_beads(poly, inds, n_inds)
         return E
 
     cdef void update_all_densities(
@@ -1491,7 +1495,7 @@ cdef class UniformDensityField(FieldBase):
 
         # Re-initialize all densities
         for i in range(self.n_bins):
-            for j in range(poly.num_marks+1):
+            for j in range(poly.num_binders+1):
                 self.density[i, j] = 0
         
         # Iterate through beads and add their densities to corresponding bins
@@ -1520,11 +1524,11 @@ cdef class UniformDensityField(FieldBase):
 
             # Distribute weights into bins
             # l indicates for which of eight bins density is being calculated
-            # m indicates polymer (0) or which protein (1 to n_marks)
+            # m indicates polymer (0) or which protein (1 to n_binders)
             for l in range(8):
                 density = self.wt_vec[l] / self.access_vols[self.nbr_inds[l]]
                 self.density[self.nbr_inds[l], 0] += density
-                for m in range(1, poly.n_marks_p1):
+                for m in range(1, poly.n_binders_p1):
                     self.density[self.nbr_inds[l], m] += density *\
                         poly.states[inds[i], m-1]
 
@@ -1536,7 +1540,7 @@ cdef class UniformDensityField(FieldBase):
         Updates the voxel densities stored in the field object.
         """
         cdef double density
-        cdef long h, i, j, l, m, ind, n_marks_p1, n_inds
+        cdef long h, i, j, l, m, ind, n_binders_p1, n_inds
         cdef long[:] superindices, inds
         cdef poly.PolymerBase poly
 
@@ -1544,11 +1548,11 @@ cdef class UniformDensityField(FieldBase):
             poly = self.polymers[h]
             inds = np.arange(0, poly.num_beads, 1)
             n_inds = poly.num_beads
-            n_marks_p1 = poly.n_marks_p1
+            n_binders_p1 = poly.n_binders_p1
 
             # Re-initialize all densities
             for i in range(self.n_bins):
-                for j in range(poly.num_marks+1):
+                for j in range(poly.num_binders+1):
                     self.density[i, j] = 0
             
             # Iterate through beads and add densities to corresponding bins
@@ -1577,11 +1581,11 @@ cdef class UniformDensityField(FieldBase):
 
                 # Distribute weights into bins
                 # l indicates for which of 8 bins density is being calculated
-                # m indicates polymer (0) or which protein (1 to n_marks)
+                # m indicates polymer (0) or which protein (1 to n_binders)
                 for l in range(8):
                     density = self.wt_vec[l] / self.access_vols[self.nbr_inds[l]]
                     self.density[self.nbr_inds[l], 0] += density
-                    for m in range(1, n_marks_p1):
+                    for m in range(1, n_binders_p1):
                         self.density[self.nbr_inds[l], m] += density *\
                             poly.states[inds[i], m-1]
         
@@ -1621,10 +1625,10 @@ cdef class UniformDensityField(FieldBase):
                 ind_x, ind_y, ind_z, self.nx, self.ny
             )
 
-    cdef double get_E_marks_and_beads(
+    cdef double get_E_binders_and_beads(
         self, poly.PolymerBase poly, long[:] inds, long n_inds
     ):
-        """Get total energy of polymer associated with configuration and marks.
+        """Get total energy of polymer associated with configuration and binders.
 
         Parameters
         ----------
@@ -1641,30 +1645,30 @@ cdef class UniformDensityField(FieldBase):
         double
             Field energy associated with the polymer
         """
-        cdef double E_marks_beads, tot_density
+        cdef double E_binders_beads, tot_density
         cdef long i, j, n_double_bound
-        cdef dict mark_info
+        cdef dict binder_info
 
-        # Count the number of nucleosomes bound by mark at both histone tails
+        # Count num. nucleosomes bound by reader proteins at both histone tails
         self.count_doubly_bound(poly, inds, n_inds, trial=0)
 
-        E_marks_beads = 0
-        for i, mark_info in enumerate(self.mark_dict):
+        E_binders_beads = 0
+        for i, binder_info in enumerate(self.binder_dict):
             # Calculate the total density
             tot_density = 0
             for j in range(self.n_bins):
                 tot_density += self.density[j, i]
             # Oligomerization
-            E_marks_beads +=\
-                mark_info['field_energy_prefactor'] * tot_density
+            E_binders_beads +=\
+                binder_info['field_energy_prefactor'] * tot_density
             # Intranucleosome interaction
             n_double_bound = self.doubly_bound[i]
-            E_marks_beads +=\
-                mark_info['interaction_energy_intranucleosome'] * n_double_bound
+            E_binders_beads +=\
+                binder_info['interaction_energy_intranucleosome'] * n_double_bound
 
         # Nonspecific bead interaction energy
-        E_marks_beads += self.nonspecific_interact_E(poly)
-        return E_marks_beads
+        E_binders_beads += self.nonspecific_interact_E(poly)
+        return E_binders_beads
 
     cdef double nonspecific_interact_E(self, poly.PolymerBase poly):
         """Get nonspecific interaction energy for the full polymer.
@@ -1773,13 +1777,13 @@ cdef class UniformDensityField(FieldBase):
         long[:, ::1]
             Binding states on polymer at specified bead indices, where rows
             identify individual beads and columns correspond to binding states
-            for each epigenetic mark
+            for each reader protein
         """
         cdef long i, j
         cdef long[:, ::1] states
-        states = np.empty((n_inds, poly.num_marks), dtype=int)
+        states = np.empty((n_inds, poly.num_binders), dtype=int)
         for i in range(n_inds):
-            for j in range(poly.num_marks):    
+            for j in range(poly.num_binders):    
                 states[i, j] = poly.states[inds[i], j]
         return states
 

@@ -20,7 +20,7 @@ from chromo.mc.move_funcs import (
 )
 from chromo.polymers import PolymerBase
 from chromo.polymers cimport PolymerBase
-from chromo.marks import Epigenmark
+from chromo.binders import ReaderProtein
 
 
 MOVE_AMP = float
@@ -37,7 +37,7 @@ _proposal_arg_types = Tuple[
     List[Tuple[float, float, float]],
     List[Tuple[float, float, float]],
     List[Tuple[float, float, float]],
-    List[Epigenmark],
+    List[ReaderProtein],
     bool,
     BEAD_AMP,
     MOVE_AMP
@@ -185,7 +185,7 @@ cdef class MCAdapter:
 
         if self.name == "change_binding_state":
             for i in range(n_inds):
-                for j in range(poly.num_marks):
+                for j in range(poly.num_binders):
                     poly.states[inds[i], j] = poly.states_trial[inds[i], j]
         elif self.name == "slide":
             for i in range(n_inds):

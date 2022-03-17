@@ -19,7 +19,7 @@ import numpy as np
 import chromo
 import chromo.mc as mc
 from chromo.polymers import Chromatin
-import chromo.marks
+import chromo.binders
 from chromo.fields import UniformDensityField
 import chromo.mc.mc_controller as ctrl
 from chromo.util.reproducibility import get_unique_subfolder_name
@@ -31,19 +31,17 @@ print(os.getcwd())
 print("System path: ")
 print(sys.path)
 
-# Specify epigenetic mark
-epimarks = [chromo.marks.get_by_name('HP1')]
+# Specify reader proteins
+binders = [chromo.binders.get_by_name('HP1')]
 
 chemical_potential = float(sys.argv[1])
-epimarks[0].chemical_potential = chemical_potential
+binders[0].chemical_potential = chemical_potential
 
-print("Epigenetic marks: ")
-print(epimarks)
+print("Reader Proteins: ")
+print(binders)
 
-# Reformat epigenic marks into a dataframe format
-marks = chromo.marks.make_mark_collection(
-    epimarks
-)
+# Reformat reader proteins into a dataframe format
+binders = chromo.binders.make_binder_collection(binders)
 
 # Confine to spherical chrom. territory 1800 um diameter (Cremer & Cremer 2001)
 confine_type = "Spherical"
@@ -55,7 +53,9 @@ print("Constructing polymer...")
 num_beads = 25000          # 393217
 bead_spacing = 16.5        # About 50 bp linker length
 
-chem_mods_path = np.array(["chromo/chemical_mods/HNCFF683HCZ_H3K9me3_methyl_25000.txt"])
+chem_mods_path = np.array(
+    ["chromo/chemical_mods/HNCFF683HCZ_H3K9me3_methyl_25000.txt"]
+)
 chemical_mods = Chromatin.load_seqs(chem_mods_path)
 
 p = Chromatin.confined_gaussian_walk(
@@ -65,7 +65,7 @@ p = Chromatin.confined_gaussian_walk(
     states=chemical_mods.copy(),
     confine_type=confine_type,
     confine_length=confine_length,
-    mark_names=np.array(['HP1']),
+    binder_names=np.array(['HP1']),
     chemical_mods=chemical_mods,
     chemical_mod_names=np.array(['H3K9me3'])
 )
@@ -78,7 +78,7 @@ y_width = x_width
 n_bins_z = n_bins_x
 z_width = x_width
 udf = UniformDensityField(
-    [p], marks, x_width, n_bins_x, y_width,
+    [p], binders, x_width, n_bins_x, y_width,
     n_bins_y, z_width, n_bins_z, confine_type=confine_type,
     confine_length=confine_length
 )
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     mc_steps_per_snapshot = 500000
     mc.polymer_in_field(
         [p],
-        marks,
+        binders,
         udf,
         mc_steps_per_snapshot,
         num_snapshots,

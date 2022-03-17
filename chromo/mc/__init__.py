@@ -21,8 +21,8 @@ from ..util.poly_stat import (
 )
 from ..util.timer import decorator_timed_path
 from ..polymers import PolymerBase, Chromatin
-from ..marks import Epigenmark
-from ..marks import get_by_name, make_mark_collection
+from ..binders import ReaderProtein
+from ..binders import get_by_name, make_binder_collection
 from ..fields import UniformDensityField, FieldBase
 
 
@@ -35,7 +35,7 @@ DIR = str           # Directory in which to save outputs
 
 def _polymer_in_field(
     polymers: List[PolymerBase],
-    marks: List[Epigenmark],
+    binders: List[ReaderProtein],
     field: FieldBase,
     num_save_mc: STEPS,
     num_saves: SAVES,
@@ -56,9 +56,9 @@ def _polymer_in_field(
     ----------
     polymers : List[PolymerBase]
         The polymers to be simulated
-    epigenmarks : List[Epigenmark]
-        Output of `chromo.marks.make_mark_collection`. Summarizes the energetic
-        properties of each chemical modification
+    binders : List[ReaderProtein]
+        Output of `chromo.binders.make_binder_collection`. Summarizes the
+        energetic properties of each chemical modification
     field : FieldBase
         The discretization of space in which to simulate the polymers
     num_save_mc : int
@@ -95,7 +95,7 @@ def _polymer_in_field(
     t1_start = process_time()
     for mc_count in range(num_saves):
         decorator_timed_path(output_dir)(mc_sim)(
-            polymers, marks, num_save_mc, mc_move_controllers, field,
+            polymers, binders, num_save_mc, mc_move_controllers, field,
             random_seed
         )
         for poly in polymers:
@@ -126,7 +126,7 @@ polymer_in_field = make_reproducible(_polymer_in_field)
 
 def continue_polymer_in_field_simulation(
     polymer_class,
-    marks: List[Epigenmark],
+    binders: List[ReaderProtein],
     field: FieldBase,
     output_dir: str,
     num_save_mc: STEPS,
@@ -140,8 +140,8 @@ def continue_polymer_in_field_simulation(
     ----------
     polymer_class : PolymerBase
         Class of polymers for which to continue the simulation
-    marks : List[Epigenmark]
-        List of epigenetic marks active on polymer
+    binders : List[ReaderProteins]
+        List of reader proteins active on polymer
     field : FieldBase
         The discretization of space in which to simulate the polymers
     output_dir : str
@@ -176,7 +176,7 @@ def continue_polymer_in_field_simulation(
     field.polymers = polymers
     bead_amp_bounds, move_amp_bounds = get_amplitude_bounds(polymers)
     args = [
-        polymers, marks, field, num_save_mc, num_saves, bead_amp_bounds,
+        polymers, binders, field, num_save_mc, num_saves, bead_amp_bounds,
         move_amp_bounds
     ]
     if mc_move_controllers is not None:
@@ -190,17 +190,17 @@ def continue_polymer_in_field_simulation(
 @make_reproducible
 def simple_mc(
     num_polymers: int, num_beads: int, bead_length: float,
-    num_marks: int, num_save_mc: int, num_saves: int,
+    num_binders: int, num_save_mc: int, num_saves: int,
     x_width: float, nx: int, y_width: float, ny: int,
     z_width: float, nz: int, random_seed: Optional[int] = 0,
     output_dir: Optional[DIR] = '.'
 ) -> Callable[
-    [List[Chromatin], List[Epigenmark], F, STEPS, SAVES, int, DIR], None
+    [List[Chromatin], List[ReaderProtein], F, STEPS, SAVES, int, DIR], None
 ]:
     """Single line implementation of basic Monte Carlo simulation.
 
-    Initialize straight-line polymers with HP1 marks, and simulate in a uniform
-    density field.
+    Initialize straight-line polymers with HP1 reader proteins, and simulate
+    in a uniform density field.
 
     Parameters
     ----------
@@ -210,8 +210,8 @@ def simple_mc(
         Number of beads in each polymer of the Monte Carlo simulation
     bead_length : float
         Length associated with a single bead in the polymer (bead + linker)
-    num_marks : int
-        Number of epigenetic marks in the simulation
+    num_binders : int
+        Number of reader proteins in the simulation
     num_save_mc : int
         Number of Monte Carlo steps to take between configuration save points
     num_saves : int
@@ -228,24 +228,24 @@ def simple_mc(
 
     Returns
     -------
-    Callable[[List[Chromtin], List[Epigenmark], FieldBase, STEPS, SAVES, int,
+    Callable[[List[Chromtin], List[ReaderProteins], FieldBase, STEPS, SAVES, int,
     DIR], None]
         Monte Carlo simulation of a tssWLC in a field
     """
     polymers = [
         Chromatin.straight_line_in_x(
             f'Polymer-{i}', num_beads, bead_length,
-            states=np.zeros((num_beads, num_marks)),
-            mark_names=num_marks*['HP1']
+            states=np.zeros((num_beads, num_binders)),
+            binder_names=num_binders*['HP1']
         ) for i in range(num_polymers)
     ]
-    marks = [get_by_name('HP1') for i in range(num_marks)]
-    marks = make_mark_collection(marks)
+    binders = [get_by_name('HP1') for i in range(num_binders)]
+    binders = make_binder_collection(binders)
     field = UniformDensityField(
-        polymers, marks, x_width, nx, y_width, ny, z_width, nz
+        polymers, binders, x_width, nx, y_width, ny, z_width, nz
     )
     return _polymer_in_field(
-        polymers, marks, field, num_save_mc, num_saves,
+        polymers, binders, field, num_save_mc, num_saves,
         random_seed=random_seed, output_dir=output_dir
     )
 

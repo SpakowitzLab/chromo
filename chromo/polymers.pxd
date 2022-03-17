@@ -14,7 +14,7 @@ cdef class PolymerBase(TransformedObject):
     cdef public beads
     cdef public configuration_tracker
     cdef public double lp
-    cdef public long num_marks, num_beads, n_marks_p1
+    cdef public long num_binders, num_beads, n_binders_p1
     cdef public long[:] all_inds
     cdef public double[:, ::1] r, t3, t2, r_trial, t3_trial, t2_trial
     cdef public long[:, ::1] states, states_trial
@@ -23,7 +23,7 @@ cdef class PolymerBase(TransformedObject):
     cdef public double[:] direction, point
     cdef public double last_amp_move
     cdef public long last_amp_bead
-    cdef public np.ndarray mark_names, required_attrs, _arrays, _3d_arrays
+    cdef public np.ndarray binder_names, required_attrs, _arrays, _3d_arrays
     cdef public double[:] dr, dr_test, dr_perp, dr_perp_test, bend, bend_test
     cdef public double[:, :, ::1] densities_temp
     cdef double compute_dE(
@@ -34,14 +34,14 @@ cdef class PolymerBase(TransformedObject):
     )
     cpdef void update_log_path(self, str log_path)
     cdef void construct_beads(self)
-    cdef void check_marks(self, long[:, ::1] states, np.ndarray mark_names)
+    cdef void check_binders(self, long[:, ::1] states, np.ndarray binder_names)
     cdef void check_chemical_mods(
         self, long[:, ::1] chemical_mods,
         np.ndarray chemical_mod_names
     )
     cpdef np.ndarray get_prop(self, long[:] inds, str prop)
     cpdef np.ndarray get_all(self, str prop)
-    cpdef long get_num_marks(self)
+    cpdef long get_num_binders(self)
     cpdef long get_num_beads(self)
     cpdef bint is_field_active(self)
 

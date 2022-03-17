@@ -12,7 +12,7 @@ The **polymer** module provides classes for different polymer modles and methods
 for evaluating elastic energy.
 The **beads** module provides classes to represent the discrete monomeric units
 of the polymer with various levels of detail.
-Finally, at the smallest scale, the **marks** module provides chemical
+Finally, at the smallest scale, the **binders** module provides chemical
 properties of proteins or other bound material that dictate their interaction
 with the polymer and with each other.
 
@@ -44,10 +44,10 @@ chromo.beads
    :members:
    :show-inheritance:
 
-chromo.marks
-------------
+chromo.binders
+--------------
 
-.. automodule:: chromo.marks
+.. automodule:: chromo.binders
    :members:
    :show-inheritance:
 

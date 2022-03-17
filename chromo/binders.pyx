@@ -1,13 +1,13 @@
-"""Modifications to the polymer's chemical state that affect the energy.
+"""Modifications to polymer's reader protein binding state that affect energy.
 
 Notes
 -----
-Each simulation type will typically require a particular type of Mark, for
-which there will be a class defined here. In addition, for common, physically
-derived marks, such as known epigenetic modifications to DNA or
-well-characterized modifications to other real polymers, the best-known
-parameters for that mark should be documented here, as instances of the
-appropriate `.Mark` subclass.
+Each simulation will typically involve a polymer bound by some `Binder`.
+
+For common, physically characterized binding components, such as those bound to
+known epigenetic modifications or well-characterized modifications on other real
+polymers, the best known parameters for that binder should be documented here as
+instances of the appropriate `Binder` subclass.
 """
 import inspect
 import sys
@@ -16,39 +16,40 @@ import pandas as pd
 import numpy as np
 
 
-cdef class Mark:
-    """Class representation of an arbitrary mark binding to a polymer.
+cdef class Binder:
+    """Class representation of an arbitrary components binding to a polymer.
 
     Notes
     -----
-    For this code to work, all marks need a string name.
+    For this code to work, all binders need a string name.
 
     Attributes
     ----------
     name : str
-        Name of the chemical mark
+        Name of the binding component
     sites_per_bead : int
-        Number of sites to which the chemical mark can bind on each monomeric
-        unit of the polymer
+        Number of sites to which the binding component can bind on each
+        monomeric unit of the polymer
     """
 
     def __init__(self, name: str, sites_per_bead: int) -> None:
-        """Initialize the mark object.
+        """Initialize the Binder object.
 
         Parameters
         ----------
         name : str
-            Name of the mark binding the polymer
+            Name of the binding component
         sites_per_bead : int
-            Quantity of the mark that can be bound to a single polymer bead
+            Number of binding components that can be bound to a single polymer
+            bead
         """
         self.name = name
         self.sites_per_bead = sites_per_bead
         self.binding_seq = np.zeros((sites_per_bead,), dtype=int)
 
 
-cdef class Epigenmark(Mark):
-    """Information about the chemical properties of an epigenetic mark.
+cdef class ReaderProtein(Binder):
+    """Information about the chemical properties of a reader protein.
     """
 
     def __init__(
@@ -62,32 +63,34 @@ cdef class Epigenmark(Mark):
         interaction_radius: float,
         cross_talk_interaction_energy: dict = {}
     ) -> None:
-        """Initialize the epigenetic mark object with physical properties.
+        """Initialize the reader protein object with physical properties.
 
         Parameters
         ----------
         name : str
-            Name of the epigenetic mark binding the polymer
+            Name of the reader protein binding the polymer
         sites_per_bead : int
-            Quantity of the epigenetic mark that can bind a single polymer bead
+            Number of the reader protein that can bind a single polymer bead
         bind_energy_mod : float
-            Binding energy of the epigenetic mark to a bead with the associated
+            Binding energy of the reader protein to a bead with the associated
             chemical modification
         bind_energy_no_mod : float
-            Binding energy of the epigenetic mark to a bead without the
+            Binding energy of the reader protein to a bead without the
             associated chemical modification
         interaction_energy : float
-            Interaction energy contributed by each pair of the epigenetic mark
+            Interaction energy contributed by each pair of the reader protein
             within a specified interaction volume of one-another -- e.g., can
-            represent oligomerization between epigenetic marks
+            represent oligomerization between reader proteins
         chemical_potential : float
-            Chemical potential of the unbound epigenetic mark
+            Chemical potential of the unbound reader proteins; characterizes
+            the tendency for the reader protein to bind the polymer and is
+            dicated by the concentration of unbound reader proteins
         interaction_radius : float
-            Cutoff distance between pairs of marks for which the interaction
-            energy will be acquired
+            Cutoff distance between pairs of reader proteins for which the
+            interaction energy will be acquired
         cross_talk_interaction_energy : Dict[str, float]
-            Cross talk interaction energy between the epigenetic mark and other
-            epigenetic marks in the system
+            Cross talk interaction energy between the reader protein and other
+            reader proteins in the system
         """
         super().__init__(name, sites_per_bead)
         self.bind_energy_mod = bind_energy_mod
@@ -107,7 +110,7 @@ cdef class Epigenmark(Mark):
         Returns
         -------
         dict
-            Dictionary with key attributes representing the marks
+            Dictionary with key attributes representing the reader protein
         """
         return {
             "name": self.name,
@@ -127,20 +130,20 @@ cdef class Epigenmark(Mark):
         }
 
 
-null_mark = Epigenmark(
-    'null_mark', sites_per_bead=0, bind_energy_mod=0, bind_energy_no_mod=0,
+null_reader = ReaderProtein(
+    'null_reader', sites_per_bead=0, bind_energy_mod=0, bind_energy_no_mod=0,
     interaction_energy=0, chemical_potential=0, interaction_radius=0
 )
-"""Placeholder mark.
+"""Placeholder reader protein.
 
 Notes
 -----
-Right now, the simulator requires at least one mark to be defined; this serves
-as a placeholder.
+Right now, the simulator requires at least one reader protein to be defined;
+this serves as a placeholder.
 """
 
 
-hp1 = Epigenmark(
+hp1 = ReaderProtein(
     'HP1', sites_per_bead=2, bind_energy_mod=-0.01, bind_energy_no_mod=1.52,
     interaction_energy=-4, chemical_potential=-1, interaction_radius=3,
     cross_talk_interaction_energy={'PRC1': 0}
@@ -163,7 +166,7 @@ To avoid double-counting the cross-talk between HP1 and PRC1, we do not include
 a cross-talk interaction energy for PRC1.
 """
 
-prc1 = Epigenmark(
+prc1 = ReaderProtein(
     'PRC1', sites_per_bead=2, bind_energy_mod=-0.01, bind_energy_no_mod=1.52,
     interaction_energy=-4, chemical_potential=-1, interaction_radius=3
 )
@@ -179,42 +182,42 @@ The filler values for interaction energy and chemical potential are both 1.
 
 
 def get_by_name(name):
-    """Look up saved mark by name.
+    """Look up saved reader protein by name.
 
     Parameters
     ----------
     name : str
-        Name of the pre-defined mark to retrieve
+        Name of the pre-defined reader protein to retrieve
 
     Returns
     -------
-    Mark
-        Object representing the mark that was queried.
+    Binder
+        Object representing the reader protein that was queried.
     """
-    all_marks = [
+    all_binders = [
         obj for name_, obj in inspect.getmembers(sys.modules[__name__])
-        if isinstance(obj, Mark)
+        if isinstance(obj, Binder)
     ]
-    matching_marks = [mark for mark in all_marks if mark.name == name]
-    if not matching_marks:
-        raise ValueError(f"No marks found in {__name__} with name: {name}")
-    if len(matching_marks) > 1:
-        raise ValueError(f"More than one mark has the name requested: {name}")
-    return matching_marks[0]
+    matching_binders = [binder for binder in all_binders if binder.name == name]
+    if not matching_binders:
+        raise ValueError(f"No binders found in {__name__} with name: {name}")
+    if len(matching_binders) > 1:
+        raise ValueError(f"More than one binder has the name requested: {name}")
+    return matching_binders[0]
 
 
-def make_mark_collection(marks):
-    """Construct summary DataFrame from sequence of marks.
+def make_binder_collection(binders):
+    """Construct summary DataFrame from sequence of binders.
 
     Parameters
     ----------
-    marks : Mark or str or Sequence[Mark] or Sequence[str]
-        The marks to be summarized by the DataFrame.
+    binders : Binder or str or Sequence[Binder] or Sequence[str]
+        The binders to be summarized by the DataFrame.
 
     Returns
     -------
     pd.DataFrame
-        Columns are the properties of each Mark.
+        Columns are the properties of each Binders.
     """
     df = pd.DataFrame(
         columns=[
@@ -222,13 +225,13 @@ def make_mark_collection(marks):
             'interaction_energy', 'chemical_potential'
         ]
     )
-    if marks is None:
+    if binders is None:
         return None
-    input_type = type(marks)
-    if input_type is str or issubclass(input_type, Mark):
-        marks = [marks]  # allow the "one mark" case
-    for mark in marks:
-        if type(mark) is str:
-            mark = get_by_name(mark)
-        df = df.append(mark.dict(), ignore_index=True)
+    input_type = type(binders)
+    if input_type is str or issubclass(input_type, Binder):
+        binders = [binders]  # allow the "one binder" case
+    for binder in binders:
+        if type(binder) is str:
+            binder = get_by_name(binder)
+        df = df.append(binder.dict(), ignore_index=True)
     return df

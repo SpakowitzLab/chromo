@@ -5,8 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Polymer Models &mdash; chromo  documentation</title>
@@ -28,10 +27,6 @@
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   
 
-  
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   
 
   
@@ -86,13 +81,13 @@
           
             
             
-                <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+                <p class="caption"><span class="caption-text">Introduction</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="abstract.html">Abstract</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code_structure.html">Code Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mc_sim.html">Monte Carlo Simulations</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Theory</span></p>
+<p class="caption"><span class="caption-text">Theory</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Polymer Models</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#polymer-chain-model-a-flexible-gaussian-chain">Polymer chain model A: flexible Gaussian chain</a></li>
@@ -102,14 +97,15 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="field.html">Field Theoretic Treatment of Interactions</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="semiflexible_homopolymer_OUT.html">Semiflexible, Unconfined Homopolymer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="flexible_confined_homopolymer_OUT.html">Flexible, Confined Homopolymer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="one_mark_chromatin_OUT.html">Chromatin + HP1</a></li>
 <li class="toctree-l1"><a class="reference internal" href="two_mark_chromatin_OUT.html">Chromatin + HP1 + PRC1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="looped_loosely_confined_OUT.html">Ring Polymer</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Additional Resources</span></p>
+<p class="caption"><span class="caption-text">Additional Resources</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
@@ -176,7 +172,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <section id="polymer-models">
+  <div class="section" id="polymer-models">
 <span id="poly-models"></span><h1>Polymer Models<a class="headerlink" href="#polymer-models" title="Permalink to this headline">¶</a></h1>
 <p>We introduce the polymer models that can be used in the chromo simulation.
 These models are designed to capture different physical effects.
@@ -212,7 +208,7 @@ bead at <span class="math notranslate nohighlight">\(\vec{r}^{(n_{b} - 1)}\)</sp
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-<section id="polymer-chain-model-a-flexible-gaussian-chain">
+<div class="section" id="polymer-chain-model-a-flexible-gaussian-chain">
 <h2>Polymer chain model A: flexible Gaussian chain<a class="headerlink" href="#polymer-chain-model-a-flexible-gaussian-chain" title="Permalink to this headline">¶</a></h2>
 <p>The flexible Gaussian chain captures the behavior of a flexible polymer chain that
 is representative of a Gaussian random walk in the absence of additional interactions.
@@ -293,8 +289,8 @@ chain.</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-</section>
-<section id="polymer-chain-model-b-shearable-stretchable-wormlike-chain">
+</div>
+<div class="section" id="polymer-chain-model-b-shearable-stretchable-wormlike-chain">
 <h2>Polymer chain model B: shearable, stretchable wormlike chain<a class="headerlink" href="#polymer-chain-model-b-shearable-stretchable-wormlike-chain" title="Permalink to this headline">¶</a></h2>
 <p>We consider the shearable, stretchable wormlike chain potential, given by</p>
 <div class="math notranslate nohighlight">
@@ -310,8 +306,8 @@ is the perpendicular component of the bond vector to the tangent vector.</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-</section>
-<section id="polymer-chain-model-c-shearable-stretchable-wormlike-chain-with-twist">
+</div>
+<div class="section" id="polymer-chain-model-c-shearable-stretchable-wormlike-chain-with-twist">
 <h2>Polymer chain model C: shearable, stretchable wormlike chain with twist<a class="headerlink" href="#polymer-chain-model-c-shearable-stretchable-wormlike-chain-with-twist" title="Permalink to this headline">¶</a></h2>
 <p>We consider a closed ring polymer, where the <span class="math notranslate nohighlight">\(n_{b}\)</span> bead is the same as the zeroth bead.
 We consider the shearable, stretchable wormlike chain potential with twist, given by</p>
@@ -457,8 +453,8 @@ We write a differential change in <span class="math notranslate nohighlight">\(\
 \Delta \vec{r}_{\perp}^{(n)}
 - \frac{\epsilon_{\perp}}{\Delta}
 \Delta \vec{r}_{\perp}^{(n-1)}\end{split}\]</div>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>
@@ -508,13 +504,13 @@ We write a differential change in <span class="math notranslate nohighlight">\(\
             SOURCELINK_SUFFIX: '.txt'
         };
     </script>
-      <script type="text/javascript" src="_static/documentation_options.js"></script>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/language_data.js"></script>
       <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
       <script type="text/javascript" src="None"></script>
-      <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
   
 

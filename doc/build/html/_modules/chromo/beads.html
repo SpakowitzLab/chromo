@@ -28,10 +28,6 @@
   
 
   
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  
-    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-  
 
   
         <link rel="index" title="Index"
@@ -84,25 +80,26 @@
           
             
             
-                <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+                <p class="caption"><span class="caption-text">Introduction</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../abstract.html">Abstract</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../code_structure.html">Code Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../mc_sim.html">Monte Carlo Simulations</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Theory</span></p>
+<p class="caption"><span class="caption-text">Theory</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../poly_models.html">Polymer Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../field.html">Field Theoretic Treatment of Interactions</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../semiflexible_homopolymer_OUT.html">Semiflexible, Unconfined Homopolymer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../flexible_confined_homopolymer_OUT.html">Flexible, Confined Homopolymer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../one_mark_chromatin_OUT.html">Chromatin + HP1</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../two_mark_chromatin_OUT.html">Chromatin + HP1 + PRC1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../looped_loosely_confined_OUT.html">Ring Polymer</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Additional Resources</span></p>
+<p class="caption"><span class="caption-text">Additional Resources</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../modules.html">Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../references.html">References</a></li>
@@ -181,7 +178,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="c1"># Custom Modules</span>
-<span class="kn">from</span> <span class="nn">.marks</span> <span class="kn">import</span> <span class="n">Mark</span><span class="p">,</span> <span class="n">get_by_name</span>
+<span class="kn">from</span> <span class="nn">.binders</span> <span class="kn">import</span> <span class="n">Binder</span><span class="p">,</span> <span class="n">get_by_name</span>
 <span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">linalg</span> <span class="k">as</span> <span class="n">la</span>
 <span class="kn">from</span> <span class="nn">.util.gjk</span> <span class="kn">import</span> <span class="n">gjk_collision</span>
 
@@ -201,14 +198,14 @@
 <span class="sd">        Tangential orientation vector defining the bead; orthogonal to `t3`</span>
 <span class="sd">    states : array_like (M,) of int</span>
 <span class="sd">        State of each bound protein on the bead</span>
-<span class="sd">    mark_names : array_like (M,) of str</span>
+<span class="sd">    binder_names : array_like (M,) of str</span>
 <span class="sd">        Name of each bound protein on the bead</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">id_</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">t3</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">t2</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">states</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">mark_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">binder_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize the bead object.</span>
 
@@ -230,23 +227,22 @@
 <span class="sd">            nucleosome; a third orthogonal tangent vector can be obtained</span>
 <span class="sd">            from the cross product of `t2` and `t3`, default = `None`</span>
 <span class="sd">        states : Optional[np.ndarray] (M, ) of int</span>
-<span class="sd">            State of each of the M marks being tracked, default = None</span>
-<span class="sd">        mark_names : Optional[Sequence[str]] (M, )</span>
-<span class="sd">            The name of each chemical modification tracked in `states`, for</span>
-<span class="sd">            each of tracking which mark is which. Mark names are how the</span>
-<span class="sd">            properties of the mark are obtained, default = None</span>
+<span class="sd">            State of each of the M binders being tracked, default = None</span>
+<span class="sd">        binder_names : Optional[Sequence[str]] (M, )</span>
+<span class="sd">            The name of each bound component tracked in `states`; binder names</span>
+<span class="sd">            are how the properties of the binders are loaded, default = None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">id_</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">r</span> <span class="o">=</span> <span class="n">r</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">t3</span> <span class="o">=</span> <span class="n">t3</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">t2</span> <span class="o">=</span> <span class="n">t2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">states</span> <span class="o">=</span> <span class="n">states</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mark_names</span> <span class="o">=</span> <span class="n">mark_names</span>
-        <span class="k">if</span> <span class="n">mark_names</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">marks</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Mark</span><span class="p">]]</span> <span class="o">=</span>\
-                <span class="p">[</span><span class="n">get_by_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">mark_names</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">binder_names</span> <span class="o">=</span> <span class="n">binder_names</span>
+        <span class="k">if</span> <span class="n">binder_names</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">binders</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Binder</span><span class="p">]]</span> <span class="o">=</span>\
+                <span class="p">[</span><span class="n">get_by_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">binder_names</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">marks</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">binders</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="Bead.test_collision"><a class="viewcode-back" href="../../chromo.html#chromo.beads.Bead.test_collision">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">test_collision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -281,7 +277,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">id_</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">t3</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">t2</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">states</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">mark_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">rad</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="n">binder_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">rad</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize the non-interacting ghost bead object.</span>
@@ -299,16 +295,15 @@
 <span class="sd">            nucleosome; a third orthogonal tangent vector can be obtained</span>
 <span class="sd">            from the cross product of `t2` and `t3`, default = `None`</span>
 <span class="sd">        states : Optional[np.ndarray] (M, ) of int</span>
-<span class="sd">            State of each of the M marks being tracked, default = None</span>
-<span class="sd">        mark_names : Optional[Sequence[str]] (M, )</span>
-<span class="sd">            The name of each chemical modification tracked in `states`, for</span>
-<span class="sd">            each of tracking which mark is which. Mark names are how the</span>
-<span class="sd">            properties of the mark are obtained, default = None</span>
+<span class="sd">            State of each of the M binders being tracked, default = None</span>
+<span class="sd">        binder_names : Optional[Sequence[str]] (M, )</span>
+<span class="sd">            The name of each bound component tracked in `states`; binder names</span>
+<span class="sd">            are how the properties of the binders are loaded, default = None</span>
 <span class="sd">        rad : Optional[float]</span>
 <span class="sd">            Radius of the spherical ghost particle.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">GhostBead</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">id_</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t3</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">mark_names</span>
+            <span class="n">id_</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t3</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">binder_names</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rad</span> <span class="o">=</span> <span class="n">rad</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vol</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">rad</span> <span class="o">**</span> <span class="mi">3</span>
@@ -355,7 +350,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">id_</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">t3</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">t2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">vertices</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">states</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">mark_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">binder_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize detailed nucleosome object.</span>
 
@@ -377,13 +372,13 @@
 <span class="sd">            coincides with the positive x-axis and t2 coincides with the</span>
 <span class="sd">            positive z-axis.</span>
 <span class="sd">        states : Optional[np.ndarray] (M, ) of int</span>
-<span class="sd">            State of each of the M epigenetic marks being tracked</span>
-<span class="sd">        mark_names : Optional[Sequence[str]] (M, )</span>
-<span class="sd">            The name of each chemical modification tracked in `states`, for</span>
-<span class="sd">            each of tracking which mark is which.</span>
+<span class="sd">            State of each of the M epigenetic binders being tracked</span>
+<span class="sd">        binder_names : Optional[Sequence[str]] (M, )</span>
+<span class="sd">            The name of each bound component tracked in `states`; binder names</span>
+<span class="sd">            are how the properties of the binders are loaded, default = None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Prism</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">id_</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t3</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">mark_names</span>
+            <span class="n">id_</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t3</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">binder_names</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vertices</span> <span class="o">=</span> <span class="n">vertices</span>
 
@@ -392,7 +387,7 @@
         <span class="bp">cls</span><span class="p">,</span> <span class="n">id_</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">t3</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">t2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">num_sides</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">states</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">mark_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">binder_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Construct nucleosome as a prism w/ specified position &amp; orientation.</span>
 
@@ -422,10 +417,10 @@
 <span class="sd">            nucleosome&#39;s verticies. The `height` gives the height of the prism</span>
 <span class="sd">            in the simulation&#39;s distance units.</span>
 <span class="sd">        states : Optional[np.ndarray] (M,) of int</span>
-<span class="sd">            State of each of the M epigenetic marks being tracked</span>
-<span class="sd">        mark_names : Optional[Sequence[str]] (M,)</span>
-<span class="sd">            The name of each chemical modification tracked in `states`, for</span>
-<span class="sd">            each of tracking which mark is which.</span>
+<span class="sd">            State of each of the M epigenetic binders being tracked</span>
+<span class="sd">        binder_names : Optional[Sequence[str]] (M, )</span>
+<span class="sd">            The name of each bound component tracked in `states`; binder names</span>
+<span class="sd">            are how the properties of the binders are loaded, default = None</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -435,7 +430,7 @@
         <span class="n">verticies</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">get_prism_verticies</span><span class="p">(</span><span class="n">num_sides</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">id_</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t3</span><span class="o">=</span><span class="n">t3</span><span class="p">,</span> <span class="n">t2</span><span class="o">=</span><span class="n">t2</span><span class="p">,</span> <span class="n">vertices</span><span class="o">=</span><span class="n">verticies</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="n">states</span><span class="p">,</span>
-            <span class="n">mark_names</span><span class="o">=</span><span class="n">mark_names</span>
+            <span class="n">binder_names</span><span class="o">=</span><span class="n">binder_names</span>
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="Prism.test_collision"><a class="viewcode-back" href="../../chromo.html#chromo.beads.Prism.test_collision">[docs]</a>    <span class="k">def</span> <span class="nf">test_collision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertices</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">max_iters</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -558,7 +553,7 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">id_</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">t3</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">t2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">bead_length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">rad</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
         <span class="n">states</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">mark_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">binder_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize nucleosome object.</span>
 
@@ -580,15 +575,13 @@
 <span class="sd">            Radius of spherical excluded volume around nucleosome in simulation</span>
 <span class="sd">            units of distance; default is 5</span>
 <span class="sd">        states : Optional array_like (M,) of int</span>
-<span class="sd">            State of each of the M epigenetic marks being tracked; default is</span>
+<span class="sd">            State of each of the M epigenetic binders being tracked; default is</span>
 <span class="sd">            None</span>
-<span class="sd">        mark_names : Optional array_like (M,) of str</span>
-<span class="sd">            The name of each chemical modification tracked in `states`, for</span>
-<span class="sd">            each of tracking which mark is which; must have same lenght as</span>
-<span class="sd">            `states` so that each state is associated with a mark; default is</span>
-<span class="sd">            None</span>
+<span class="sd">        binder_names : Optional[Sequence[str]] (M, )</span>
+<span class="sd">            The name of each bound component tracked in `states`; binder names</span>
+<span class="sd">            are how the properties of the binders are loaded, default = None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">Nucleosome</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">id_</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t3</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">mark_names</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Nucleosome</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">id_</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t3</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">states</span><span class="p">,</span> <span class="n">binder_names</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bead_length</span> <span class="o">=</span> <span class="n">bead_length</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rad</span> <span class="o">=</span> <span class="n">rad</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vol</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">rad</span> <span class="o">**</span> <span class="mi">3</span>
@@ -662,11 +655,13 @@
             SOURCELINK_SUFFIX: '.txt'
         };
     </script>
-      <script type="text/javascript" src="../../_static/documentation_options.js"></script>
       <script type="text/javascript" src="../../_static/jquery.js"></script>
       <script type="text/javascript" src="../../_static/underscore.js"></script>
       <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/language_data.js"></script>
       <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="../../None"></script>
 
   
 

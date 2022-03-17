@@ -9,7 +9,7 @@ cimport numpy as np
 cdef class FieldBase:
     cdef public list polymers
     cdef public long n_polymers
-    cdef public marks
+    cdef public binders
 
 cdef class UniformDensityField(FieldBase):
     cdef public _field_descriptors
@@ -27,7 +27,7 @@ cdef class UniformDensityField(FieldBase):
     cdef public double[:, ::1] wt_vec_with_trial, xyz_with_trial
     cdef public double[:, ::1] weight_xyz_with_trial
     cdef public long[:, ::1] index_xyz_with_trial
-    cdef public long num_marks
+    cdef public long num_binders
     cdef public long[:] doubly_bound, doubly_bound_trial
     cdef public str confine_type
     cdef public double confine_length
@@ -35,7 +35,7 @@ cdef class UniformDensityField(FieldBase):
     cdef public dict access_vols    
     cdef public double chi
     cdef public dict dict_
-    cdef public list mark_dict
+    cdef public list binder_dict
     cdef public double[:] half_width_xyz
     cdef public double[:] half_step_xyz
     cdef public long[:] n_xyz_m1
@@ -67,7 +67,7 @@ cdef class UniformDensityField(FieldBase):
     )
     cdef void _generate_weight_vector_with_trial(self)
     cdef void _generate_index_vector_with_trial(self)
-    cdef double get_dE_marks_and_beads(
+    cdef double get_dE_binders_and_beads(
         self, poly.PolymerBase poly, long[:] inds, long n_inds, long[:] bin_inds
     )
     cdef double nonspecific_interact_dE(
@@ -86,7 +86,7 @@ cdef class UniformDensityField(FieldBase):
     cpdef void update_all_densities_for_all_polymers(self)
     cdef void _generate_weight_vector(self)
     cdef void _generate_index_vector(self)
-    cdef double get_E_marks_and_beads(
+    cdef double get_E_binders_and_beads(
         self, poly.PolymerBase poly, long[:] inds, long n_inds
     )
     cdef double nonspecific_interact_E(self, poly.PolymerBase poly)

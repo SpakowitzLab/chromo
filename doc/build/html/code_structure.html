@@ -5,8 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Code Overview and Structure &mdash; chromo  documentation</title>
@@ -28,10 +27,6 @@
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   
 
-  
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   
 
   
@@ -86,25 +81,26 @@
           
             
             
-                <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+                <p class="caption"><span class="caption-text">Introduction</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="abstract.html">Abstract</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Code Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mc_sim.html">Monte Carlo Simulations</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Theory</span></p>
+<p class="caption"><span class="caption-text">Theory</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="poly_models.html">Polymer Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="field.html">Field Theoretic Treatment of Interactions</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="semiflexible_homopolymer_OUT.html">Semiflexible, Unconfined Homopolymer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="flexible_confined_homopolymer_OUT.html">Flexible, Confined Homopolymer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="one_mark_chromatin_OUT.html">Chromatin + HP1</a></li>
 <li class="toctree-l1"><a class="reference internal" href="two_mark_chromatin_OUT.html">Chromatin + HP1 + PRC1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="looped_loosely_confined_OUT.html">Ring Polymer</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Additional Resources</span></p>
+<p class="caption"><span class="caption-text">Additional Resources</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
@@ -171,17 +167,17 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <section id="code-overview-and-structure">
+  <div class="section" id="code-overview-and-structure">
 <span id="code-structure"></span><h1>Code Overview and Structure<a class="headerlink" href="#code-overview-and-structure" title="Permalink to this headline">¶</a></h1>
-<p>Chromo is implemented with an object-oriented approach to accommodate flexible polymer models at various scales, bound by arbitrary numbers of interacting marks.
+<p>Chromo is implemented with an object-oriented approach to accommodate flexible polymer models at various scales, bound by arbitrary numbers of interacting reader proteins.
 The simulator is specifically designed to model chromatin, but can be adapted to model arbitrary block co-polymers with or without confinement.</p>
 <p>The hierarchcial organization of chromatin (and block copolymers in general) is reflected by the simulator’s class structure.
 At the largest scale, instances of the <code class="code docutils literal notranslate"><span class="pre">Mixture</span></code> class contain all interacting polymers in the system.
 Each chromatin strand is instantiated as a <code class="code docutils literal notranslate"><span class="pre">Chromatin</span></code> object, which adopts physical properties of a stretchable, shearable wormlike chain.
 <code class="code docutils literal notranslate"><span class="pre">Chromatin</span></code> instances track a sequence of nucleosomes, each of which is instantiated as a <code class="code docutils literal notranslate"><span class="pre">Nucleosome</span></code> object.
-The <code class="code docutils literal notranslate"><span class="pre">Chromatin</span></code> class also stores patterns of chemical modifications and associated epigenetic mark binding states.
-Physical properties of the epigenetic marks, which define how marks interact, are specified as attributes of the <code class="code docutils literal notranslate"><span class="pre">Mark</span></code> class.
-An instance of the <code class="code docutils literal notranslate"><span class="pre">UniformDensityField</span></code> class maintains a discrete density field for the polymer and all its marks.
+The <code class="code docutils literal notranslate"><span class="pre">Chromatin</span></code> class also stores patterns of chemical modifications and associated reader protein binding states.
+Physical properties of the reader proteins, which define how reader proteins interact, are specified as attributes of the <code class="code docutils literal notranslate"><span class="pre">ReaderProtein</span></code> class.
+An instance of the <code class="code docutils literal notranslate"><span class="pre">UniformDensityField</span></code> class maintains a discrete density field for the polymer and all its reader proteins.
 This field is used to efficiently evaluate the interaction energy of components in the simulation.</p>
 <p>To enable convenient adaption of our software for different polymer models, we defined abstract classes for each component of our system, and we leveraged a hierarchy of subclasses with increasing levels of detail.
 For example, the <code class="code docutils literal notranslate"><span class="pre">Chromatin</span></code> class inherits from a <code class="code docutils literal notranslate"><span class="pre">SSWLC</span></code> class that defines physical properties of a stretchable, shearable wormlike chains, including methods for evaluating elastic energy.
@@ -195,7 +191,7 @@ Below is a schematic of hierarchical organization of our simulator.</p>
 However, as an interpreted language, Python code is notoriously slow to run.
 To work around this limitation, parts of the codebase were written in “Cython,” a variation of Python that allows for direct translation to C code.
 All parts of the codebase involved in the inner-loop of the Monte Carlo algorithm have been translated to Cython.</p>
-</section>
+</div>
 
 
            </div>
@@ -245,11 +241,13 @@ All parts of the codebase involved in the inner-loop of the Monte Carlo algorith
             SOURCELINK_SUFFIX: '.txt'
         };
     </script>
-      <script type="text/javascript" src="_static/documentation_options.js"></script>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/language_data.js"></script>
       <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="None"></script>
 
   
 

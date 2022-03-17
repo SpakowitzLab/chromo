@@ -10,7 +10,7 @@ def combine_repeat(a, idx):
     """Combine the repeat entries in an array of bin densities.
 
     Flatten one dimension of the value array `a` so each column represents a
-    different epigenetic mark, but densities in all bins are combined into the
+    different reader protein, but densities in all bins are combined into the
     same column.
 
     Flatten the index array `idx` so that indices for each of the eight bins
@@ -21,14 +21,14 @@ def combine_repeat(a, idx):
     Identify the unique bins and the indices where they are first encountered
     in the sourted index array.
 
-    Add the density within each bin (separately for each epigenetic mark).
+    Add the density within each bin (separately for each reader protein).
 
     Parameters
     ----------
     a : double[:, :, ::1]
         3D memoryview representing the distribution of densities for each bead
         (dimension 0) in the nearest eight neighboring bins (dimension 2) for
-        each epigenetic mark (dimension 1)
+        each reader protein (dimension 1)
     idx : long[:, ::1]
         2D memoryview of bin indices; the first dimension represents each bead
         affected, and the second dimension contains the indices of the eight
@@ -38,7 +38,7 @@ def combine_repeat(a, idx):
     -------
     a_combine : double[:, ::1]
         2D memoryview of total density in each affected bin (dimension 0) of
-        the polymer and each epigenetic mark (dimension 1)
+        the polymer and each reader protein (dimension 1)
     """
     a = np.asarray(a)
     idx = np.asarray(idx)

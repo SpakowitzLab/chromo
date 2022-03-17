@@ -5,8 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Simulate a Semiflexible, Unconfined Homopolymer &mdash; chromo  documentation</title>
@@ -28,10 +27,6 @@
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   
 
-  
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   
 
   
@@ -86,22 +81,22 @@
           
             
             
-                <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+                <p class="caption"><span class="caption-text">Introduction</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="abstract.html">Abstract</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code_structure.html">Code Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mc_sim.html">Monte Carlo Simulations</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Theory</span></p>
+<p class="caption"><span class="caption-text">Theory</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="poly_models.html">Polymer Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="field.html">Field Theoretic Treatment of Interactions</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Semiflexible, Unconfined Homopolymer</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#Setup">Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Specify-Epigenetic-Marks">Specify Epigenetic Marks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Specify-Reader-Proteins">Specify Reader Proteins</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Instantiate-Polymer(s)">Instantiate Polymer(s)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Define-Uniform-Density-Field">Define Uniform Density Field</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Specify-Simulation">Specify Simulation</a><ul>
@@ -126,8 +121,9 @@
 <li class="toctree-l1"><a class="reference internal" href="flexible_confined_homopolymer_OUT.html">Flexible, Confined Homopolymer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="one_mark_chromatin_OUT.html">Chromatin + HP1</a></li>
 <li class="toctree-l1"><a class="reference internal" href="two_mark_chromatin_OUT.html">Chromatin + HP1 + PRC1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="looped_loosely_confined_OUT.html">Ring Polymer</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Additional Resources</span></p>
+<p class="caption"><span class="caption-text">Additional Resources</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
@@ -442,10 +438,10 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<section id="Simulate-a-Semiflexible,-Unconfined-Homopolymer">
+<div class="section" id="Simulate-a-Semiflexible,-Unconfined-Homopolymer">
 <h1>Simulate a Semiflexible, Unconfined Homopolymer<a class="headerlink" href="#Simulate-a-Semiflexible,-Unconfined-Homopolymer" title="Permalink to this headline">¶</a></h1>
 <p>This notebook runs a Monte Carlo simulation of a wormlike chain homopolymer. The polymer includes 1,000 monomeric units, each separated by 0.25 persistence lengths. Twist is not considered during the simulation. The polymer is unconfined. Monomers are non-interacting; field energies are not evaluated. The simulation is run for 100 snapshots, each involving 10,000 MC iterations.</p>
-<section id="Setup">
+<div class="section" id="Setup">
 <h2>Setup<a class="headerlink" href="#Setup" title="Permalink to this headline">¶</a></h2>
 <p>Install necessary modules, add the package root directory to the system path, and change working directory to root. Every simulation will involve similar setup steps.</p>
 <p><strong>Do not run the setup cell more than once, except after restarting the kernel.</strong> There is no way to consistently track the directory containing the notebook.</p>
@@ -488,7 +484,7 @@ Directory containing the notebook:
 <span class="c1"># Package modules</span>
 <span class="kn">import</span> <span class="nn">chromo.mc</span> <span class="k">as</span> <span class="nn">mc</span>
 <span class="kn">from</span> <span class="nn">chromo.polymers</span> <span class="kn">import</span> <span class="n">SSWLC</span>
-<span class="kn">import</span> <span class="nn">chromo.marks</span>
+<span class="kn">import</span> <span class="nn">chromo.binders</span>
 <span class="kn">from</span> <span class="nn">chromo.fields</span> <span class="kn">import</span> <span class="n">UniformDensityField</span>
 <span class="kn">import</span> <span class="nn">chromo.mc.mc_controller</span> <span class="k">as</span> <span class="nn">ctrl</span>
 <span class="kn">from</span> <span class="nn">chromo.util.reproducibility</span> <span class="kn">import</span> <span class="n">get_unique_subfolder_name</span>
@@ -516,25 +512,25 @@ Root Directory of Package:
 /Users/jwakim/Documents/Wakim_Research/Scripts/chromo_20Jan2022
 </pre></div></div>
 </div>
-</section>
-<section id="Specify-Epigenetic-Marks">
-<h2>Specify Epigenetic Marks<a class="headerlink" href="#Specify-Epigenetic-Marks" title="Permalink to this headline">¶</a></h2>
-<p>Epigenetic marks are collectively stored in a data frame that we call the “mark collection.” We can generate the mark collection using the <code class="docutils literal notranslate"><span class="pre">make_mark_collection</span></code> function in the <code class="docutils literal notranslate"><span class="pre">chromo.marks</span></code> module. The mark collection accepts as an input a list of epigenetic mark objects. Certain epigenetic mark objects are pre-implemented in the <code class="docutils literal notranslate"><span class="pre">chromo.marks</span></code> module and can be instantiated by name using the <code class="docutils literal notranslate"><span class="pre">get_by_name</span></code> method in the <code class="docutils literal notranslate"><span class="pre">chromo.marks</span></code> module.</p>
-<p>All simulations require at least one mark to be defined, even if we want to simulate a homopolymer like here. We have defined a placeholder mark named <code class="docutils literal notranslate"><span class="pre">null_mark</span></code> which serves only to ensure compatibility with the rest of the code.</p>
+</div>
+<div class="section" id="Specify-Reader-Proteins">
+<h2>Specify Reader Proteins<a class="headerlink" href="#Specify-Reader-Proteins" title="Permalink to this headline">¶</a></h2>
+<p>Reader proteins are collectively stored in a data frame that we call the “binder collection.” We can generate the binder collection using the <code class="docutils literal notranslate"><span class="pre">make_binder_collection</span></code> function in the <code class="docutils literal notranslate"><span class="pre">chromo.binders</span></code> module. The binder collection accepts as an input a list of binder protein objects. Certain reader protein objects are pre-implemented in the <code class="docutils literal notranslate"><span class="pre">chromo.binders</span></code> module and can be instantiated by name using the <code class="docutils literal notranslate"><span class="pre">get_by_name</span></code> method in the <code class="docutils literal notranslate"><span class="pre">chromo.binders</span></code> module.</p>
+<p>All simulations require at least one binder to be defined, even if we want to simulate a homopolymer like here. We have defined a placeholder binder named <code class="docutils literal notranslate"><span class="pre">null_binder</span></code> which serves only to ensure compatibility with the rest of the code.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Instantiate the HP1 mark, which is pre-defined in the `chromo.marks` module</span>
-<span class="n">null_mark</span> <span class="o">=</span> <span class="n">chromo</span><span class="o">.</span><span class="n">marks</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="s1">&#39;null_mark&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Instantiate the HP1 reader protein, which is pre-defined in the `chromo.binders` module</span>
+<span class="n">null_binder</span> <span class="o">=</span> <span class="n">chromo</span><span class="o">.</span><span class="n">binders</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="s1">&#39;null_binder&#39;</span><span class="p">)</span>
 
-<span class="c1"># Create the mark collection</span>
-<span class="n">marks</span> <span class="o">=</span> <span class="n">chromo</span><span class="o">.</span><span class="n">marks</span><span class="o">.</span><span class="n">make_mark_collection</span><span class="p">([</span><span class="n">null_mark</span><span class="p">])</span>
+<span class="c1"># Create the binder collection</span>
+<span class="n">binders</span> <span class="o">=</span> <span class="n">chromo</span><span class="o">.</span><span class="n">binders</span><span class="o">.</span><span class="n">make_binder_collection</span><span class="p">([</span><span class="n">null_binder</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Instantiate-Polymer(s)">
+</div>
+<div class="section" id="Instantiate-Polymer(s)">
 <h2>Instantiate Polymer(s)<a class="headerlink" href="#Instantiate-Polymer(s)" title="Permalink to this headline">¶</a></h2>
 <p>Various polymer models are defined in the <code class="docutils literal notranslate"><span class="pre">chromo.polymers</span></code> module. All polymer classes share the attributes and methods defined in the <code class="docutils literal notranslate"><span class="pre">PolymerBase</span></code> class. We instantiate a stretchable, shearable wormlike chain from the <code class="docutils literal notranslate"><span class="pre">SSWLC</span></code> class in the <code class="docutils literal notranslate"><span class="pre">chromo.polymers</span></code> module. The polymer has 1000 beads, each separated by 25 nm, and we specify the persistence length of the polymer as being 100 nm. The polymer is initialized as a Gaussian random walk.</p>
 <div class="nbinput docutils container">
@@ -589,10 +585,10 @@ No chemical modifications defined.
 <img alt="_images/semiflexible_homopolymer_OUT_15_0.png" src="_images/semiflexible_homopolymer_OUT_15_0.png" />
 </div>
 </div>
-</section>
-<section id="Define-Uniform-Density-Field">
+</div>
+<div class="section" id="Define-Uniform-Density-Field">
 <h2>Define Uniform Density Field<a class="headerlink" href="#Define-Uniform-Density-Field" title="Permalink to this headline">¶</a></h2>
-<p>We leverage a field theoretic approach to model interactions between beads and bound marks. The field tracks the density of the polymer and all marks in cubical voxels of space. To instantiate the field, we need to specify the dimensions of the voxel grid, the confinement, and all polymers and marks contained.</p>
+<p>We leverage a field theoretic approach to model interactions between beads and bound reader proteins. The field tracks the density of the polymer and all binders in cubical voxels of space. To instantiate the field, we need to specify the dimensions of the voxel grid, the confinement, and all polymers and binders contained.</p>
 <p>Here we instantiate a field that contains the spherical confinement with voxels of ~28.6 nm width in the x, y, and z directions. Since we are dealing with a homopolymer, there is no energy contribution by the field; however, the simulation requires that a field be defined.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
@@ -608,7 +604,7 @@ No chemical modifications defined.
 
 <span class="n">udf</span> <span class="o">=</span> <span class="n">UniformDensityField</span><span class="p">(</span>
     <span class="n">polymers</span> <span class="o">=</span> <span class="p">[</span><span class="n">polymer</span><span class="p">],</span>
-    <span class="n">marks</span> <span class="o">=</span> <span class="n">marks</span><span class="p">,</span>
+    <span class="n">binders</span> <span class="o">=</span> <span class="n">binders</span><span class="p">,</span>
     <span class="n">x_width</span> <span class="o">=</span> <span class="n">x_width</span><span class="p">,</span>
     <span class="n">nx</span> <span class="o">=</span> <span class="n">n_bins_x</span><span class="p">,</span>
     <span class="n">y_width</span> <span class="o">=</span> <span class="n">y_width</span><span class="p">,</span>
@@ -619,11 +615,11 @@ No chemical modifications defined.
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Specify-Simulation">
+</div>
+<div class="section" id="Specify-Simulation">
 <h2>Specify Simulation<a class="headerlink" href="#Specify-Simulation" title="Permalink to this headline">¶</a></h2>
 <p>The simulator proposes and evaluates random configurational changes to the polymer; in the case of the homopolymer, moves involve physical transformations to the chain.</p>
-<section id="Move-and-Bead-Amplitudes">
+<div class="section" id="Move-and-Bead-Amplitudes">
 <h3>Move and Bead Amplitudes<a class="headerlink" href="#Move-and-Bead-Amplitudes" title="Permalink to this headline">¶</a></h3>
 <p>There are two ways to tune these configurational changes over the course of the simulation; we can either adjust the magnitude of the selection window for affected beads, or we can adjust the magnitude of the transformation itself. We define a “bead amplitude” to represent the maximum magnitude of the selection window for a move and a “move amplitude” to represent the maximum magnitude of the move’s transformation. We restrict the move and bead amplitudes between bounds to ensure that MC moves
 do not become too large or too small. The bounds of the move and bead amplitudes are dependent on the polymers’ sizes and are determined by the <code class="docutils literal notranslate"><span class="pre">get_amplitude_bounds</span></code> method in the <code class="docutils literal notranslate"><span class="pre">__init__</span></code> module of the <code class="docutils literal notranslate"><span class="pre">mc</span></code> directory.</p>
@@ -637,8 +633,8 @@ do not become too large or too small. The bounds of the move and bead amplitudes
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Define-MC-Moves">
+</div>
+<div class="section" id="Define-MC-Moves">
 <h3>Define MC Moves<a class="headerlink" href="#Define-MC-Moves" title="Permalink to this headline">¶</a></h3>
 <p>Here, we identify exactly which MC moves we wish to include in the simulation. We use the following moves in this. example:</p>
 <ul class="simple">
@@ -664,8 +660,8 @@ rate, we need to specify an output directory for the simulation. The <code class
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Simulation-Length">
+</div>
+<div class="section" id="Simulation-Length">
 <h3>Simulation Length<a class="headerlink" href="#Simulation-Length" title="Permalink to this headline">¶</a></h3>
 <p>We define the simulation by the number of snapshots we would like to generate and the number of iterations of each move between the snapshots. Here, we specify a simulation producing 100 snapshots, each with 10,000 iterations of each MC move.</p>
 <div class="nbinput nblast docutils container">
@@ -677,9 +673,9 @@ rate, we need to specify an output directory for the simulation. The <code class
 </pre></div>
 </div>
 </div>
-</section>
-</section>
-<section id="Run-the-Simulation">
+</div>
+</div>
+<div class="section" id="Run-the-Simulation">
 <h2>Run the Simulation<a class="headerlink" href="#Run-the-Simulation" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">polymer_in_field</span></code> method defined in the <code class="docutils literal notranslate"><span class="pre">__init__</span></code> file of the <code class="docutils literal notranslate"><span class="pre">mc</span></code> directory initiates the simulation. Running the code block below generates a unique output directory and run the simulation.</p>
 <div class="nbinput nblast docutils container">
@@ -689,7 +685,7 @@ rate, we need to specify an output directory for the simulation. The <code class
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%capture</span>
 <span class="n">mc</span><span class="o">.</span><span class="n">polymer_in_field</span><span class="p">(</span>
     <span class="n">polymers</span> <span class="o">=</span> <span class="p">[</span><span class="n">polymer</span><span class="p">],</span>
-    <span class="n">marks</span> <span class="o">=</span> <span class="n">marks</span><span class="p">,</span>
+    <span class="n">binders</span> <span class="o">=</span> <span class="n">binders</span><span class="p">,</span>
     <span class="n">field</span> <span class="o">=</span> <span class="n">udf</span><span class="p">,</span>
     <span class="n">num_save_mc</span> <span class="o">=</span> <span class="n">mc_steps_per_snapshot</span><span class="p">,</span>
     <span class="n">num_saves</span> <span class="o">=</span> <span class="n">num_snapshots</span><span class="p">,</span>
@@ -701,11 +697,11 @@ rate, we need to specify an output directory for the simulation. The <code class
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Evaluate-Convergence">
+</div>
+<div class="section" id="Evaluate-Convergence">
 <h2>Evaluate Convergence<a class="headerlink" href="#Evaluate-Convergence" title="Permalink to this headline">¶</a></h2>
 <p>With the simulation complete, we want to check for energy and configurational convergence in the Monte Carlo snapshots. First we recall the latest simulation output directory. From that directory, we load the polymer configuration in each snapshot. We then evaluate the elastic energy of each bond. We lastly check that the mean squared separation distance between beads <span class="math notranslate nohighlight">\(n = 50\)</span> monomers apart on the chain also converges.</p>
-<section id="List-Polymer-Output-Files">
+<div class="section" id="List-Polymer-Output-Files">
 <h3>List Polymer Output Files<a class="headerlink" href="#List-Polymer-Output-Files" title="Permalink to this headline">¶</a></h3>
 <p>Polymer configurations are saved at each snapshot of the simulation in the simulation’s output directory. All polymer configurations are saved with <code class="docutils literal notranslate"><span class="pre">.csv</span></code> extension and are prepended with the label <code class="docutils literal notranslate"><span class="pre">poly_1</span></code>. The snapshot number is indicated after a hyphen and before the file extension in the polymer output file name.</p>
 <div class="nbinput nblast docutils container">
@@ -723,8 +719,8 @@ rate, we need to specify an output directory for the simulation. The <code class
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Calculate-Energies">
+</div>
+<div class="section" id="Calculate-Energies">
 <h3>Calculate Energies<a class="headerlink" href="#Calculate-Energies" title="Permalink to this headline">¶</a></h3>
 <p>The polymer class has a <code class="docutils literal notranslate"><span class="pre">compute_E</span></code> method for calculating total energy</p>
 <div class="nbinput nblast docutils container">
@@ -762,8 +758,8 @@ rate, we need to specify an output directory for the simulation. The <code class
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Plot-Energy-Convergence">
+</div>
+<div class="section" id="Plot-Energy-Convergence">
 <h3>Plot Energy Convergence<a class="headerlink" href="#Plot-Energy-Convergence" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
@@ -785,8 +781,8 @@ rate, we need to specify an output directory for the simulation. The <code class
 <img alt="_images/semiflexible_homopolymer_OUT_41_0.png" src="_images/semiflexible_homopolymer_OUT_41_0.png" />
 </div>
 </div>
-</section>
-<section id="Calculate-MSD">
+</div>
+<div class="section" id="Calculate-MSD">
 <h3>Calculate MSD<a class="headerlink" href="#Calculate-MSD" title="Permalink to this headline">¶</a></h3>
 <p>Check that the mean squared separation distance of beads <span class="math notranslate nohighlight">\(n = 50\)</span> monomers apart on the chain converges during the simulation. In the <code class="docutils literal notranslate"><span class="pre">chromo.util.poly_stat</span></code> module, there is a method that does this calculation.</p>
 <div class="nbinput nblast docutils container">
@@ -813,8 +809,8 @@ rate, we need to specify an output directory for the simulation. The <code class
 </pre></div>
 </div>
 </div>
-</section>
-<section id="Plot-MSD-Convergence">
+</div>
+<div class="section" id="Plot-MSD-Convergence">
 <h3>Plot MSD Convergence<a class="headerlink" href="#Plot-MSD-Convergence" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
@@ -837,9 +833,9 @@ rate, we need to specify an output directory for the simulation. The <code class
 </div>
 </div>
 <p>If energy and/or configurational convergence are not achieved, a longer simulation is required to enable equilibration.</p>
-</section>
-</section>
-<section id="Evaluate-Consistency-with-WLC-Statistics">
+</div>
+</div>
+<div class="section" id="Evaluate-Consistency-with-WLC-Statistics">
 <h2>Evaluate Consistency with WLC Statistics<a class="headerlink" href="#Evaluate-Consistency-with-WLC-Statistics" title="Permalink to this headline">¶</a></h2>
 <p>We compare the results of this simulation to the theoretical mean squared distance of monomers separated by variable chain lengths. We start by defining integer monomer index separations along the chain that are approximately linear on a log scale; we also represent these monomer separations as numbers of kuhn lenghts, using the <code class="docutils literal notranslate"><span class="pre">bead_spacing</span></code> variable defined from earlier. We allow the polymer 70 snapshots to equilibrate. From each output configuration after equilibration, we calculate the
 average squared distance of beads in the polymer at each monomer separation value. Lastly, we plot the empirical bead separation distances against theoretical values.</p>
@@ -924,12 +920,12 @@ average squared distance of beads in the polymer at each monomer separation valu
 <img alt="_images/semiflexible_homopolymer_OUT_54_0.png" src="_images/semiflexible_homopolymer_OUT_54_0.png" />
 </div>
 </div>
-</section>
-<section id="Summary">
+</div>
+<div class="section" id="Summary">
 <h2>Summary<a class="headerlink" href="#Summary" title="Permalink to this headline">¶</a></h2>
 <p>We began by defining the components of a 1,000 bead semiflexible homopolymer. We then specified the Monte Carlo simulation, which entailed iterative geometric transformation of the polymer. We finally assessed the predicted polymer structures at various snapshots, verifying convergence and generating a plot of MSD. Using a purely physics-based approach, we were able to match the theoretical MSD of a wormlike chain.</p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>
@@ -979,13 +975,13 @@ average squared distance of beads in the polymer at each monomer separation valu
             SOURCELINK_SUFFIX: '.txt'
         };
     </script>
-      <script type="text/javascript" src="_static/documentation_options.js"></script>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/language_data.js"></script>
       <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
       <script type="text/javascript" src="None"></script>
-      <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
   
 
