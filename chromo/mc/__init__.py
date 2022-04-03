@@ -278,13 +278,17 @@ def get_amplitude_bounds(
         "slide": (min(10, poly_len), min(150, poly_len)),
         "end_pivot": (min(50, poly_len/4), min(150, int(poly_len/2))),
         "tangent_rotation": (1, poly_len),
-        "change_binding_state": (min(10, poly_len), min(150, poly_len))
+        "change_binding_state": (min(10, poly_len), min(150, poly_len)),
+        "full_chain_rotation": (0, poly_len),
+        "full_chain_translation": (0, poly_len)
     })
     move_amp_bounds = Bounds("move_amp_bounds", {
         "crank_shaft": (0.1 * np.pi, np.pi),
         "slide": (0.2 * min_spacing, min_spacing),
         "end_pivot": (0.2 * np.pi, np.pi),
         "tangent_rotation": (0.2 * np.pi, np.pi),
-        "change_binding_state": (0, 0)
+        "change_binding_state": (0, 0),
+        "full_chain_rotation": (0.2 * np.pi, np.pi),
+        "full_chain_translation": (0.2 * min_spacing, min_spacing)
     })
     return bead_amp_bounds, move_amp_bounds

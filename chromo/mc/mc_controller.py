@@ -3,7 +3,7 @@
 
 # Built-in Modules
 from abc import ABC, abstractmethod
-from typing import List, Optional, Tuple, Dict
+from typing import List, Optional, Tuple, Dict, Callable
 
 # External Modules
 # import numpy as np
@@ -215,19 +215,16 @@ class SimpleControl(Controller):
 
 def all_moves(
     log_dir: str,
-    polymers: List[PolymerBase],
     bead_amp_bounds: Dict[str, Tuple[float, float]],
     move_amp_bounds: Dict[str, Tuple[float, float]],
     controller: Optional[Controller] = NoControl
 ) -> List[Controller]:
-    """Generate a list of controllers for all adaptable MC moves.
+    """Generate a list of controllers for all adaptable MC moves (single poly).
 
     Parameters
     ----------
     log_dir : str
         Path to the directory in which to save log files
-    polymers : List[PolymerBase]
-        Polymers on which the move is applied
     bead_amp_bounds : Dict[str, Tuple[float, float]]
         Dictionary of bead selection amplitude bounds where keys specify the
         name of the MC move and the values specify the selection amplitude
@@ -271,19 +268,16 @@ def all_moves(
 
 def all_moves_except_binding_state(
     log_dir: str,
-    polymers: List[PolymerBase],
     bead_amp_bounds: Dict[str, Tuple[float, float]],
     move_amp_bounds: Dict[str, Tuple[float, float]],
     controller: Optional[Controller] = NoControl
 ) -> List[Controller]:
-    """Generate a list of controllers for all adaptable physical MC moves.
+    """Generate list of controllers for physical MC moves (single poly).
 
     Parameters
     ----------
     log_dir : str
         Path to the directory in which to save log files
-    polymers : List[PolymerBase]
-        Polymers on which the move is applied
     bead_amp_bounds : Dict[str, Tuple[float, float]]
         Dictionary of bead selection amplitude bounds where keys specify the
         name of the MC move and the values specify the selection amplitude
@@ -329,19 +323,18 @@ def all_moves_except_binding_state(
 def specific_move(
     move_fxn,
     log_dir: str,
-    polymers: List[PolymerBase],
     bead_amp_bounds: Dict[str, Tuple[float, float]],
     move_amp_bounds: Dict[str, Tuple[float, float]],
     controller: Optional[Controller] = NoControl,
 ) -> List[Controller]:
-    """Generate a list of controllers for all adaptable physical MC moves.
+    """Generate a list of controllers for a specific MC move.
 
     Parameters
     ----------
+    move_fxn : Callable
+        Monte Carlo move function (from `move_funcs.pyx`)
     log_dir : str
         Path to the directory in which to save log files
-    polymers : List[PolymerBase]
-        Polymers on which the move is applied
     bead_amp_bounds : Dict[str, Tuple[float, float]]
         Dictionary of bead selection amplitude bounds where keys specify the
         name of the MC move and the values specify the selection amplitude
@@ -374,5 +367,55 @@ def specific_move(
         ]
     ]
     controllers[0].move.num_per_cycle = 1
+
+    return controllers
+
+
+def specific_moves(
+        move_fxns: List[Callable],
+        log_dir: str,
+        bead_amp_bounds: Dict[str, Tuple[float, float]],
+        move_amp_bounds: Dict[str, Tuple[float, float]],
+        controller: Optional[Controller] = NoControl,
+) -> List[Controller]:
+    """Generate a list of controllers for all adaptable physical MC moves.
+
+    Parameters
+    ----------
+    move_fxns : List[Callable]
+        List of Monte Carlo move functions (from `move_funcs.pyx`)
+    log_dir : str
+        Path to the directory in which to save log files
+    bead_amp_bounds : Dict[str, Tuple[float, float]]
+        Dictionary of bead selection amplitude bounds where keys specify the
+        name of the MC move and the values specify the selection amplitude
+        bounds for the move in the form (lower bound, upper bound)
+    move_amp_bounds : Dict[str, Tuple[float, float]]
+        Dictionary of maximum move amplitude bounds where keys specify the
+        name of the MC move and the values specify the move amplitude bounds
+        for the move in the form (lower bound, upper bound)
+    controller : Optional[Controller]
+        Bead and move amplitude controller (default = NoControl)
+
+    Returns
+    -------
+    List of controllers for all adaptable MC moves.
+    """
+    controllers = [
+        controller(
+            mv.MCAdapter(
+                str(log_dir) + '/acceptance_trackers',
+                move.__name__ + "_snap_",
+                move,
+                moves_in_average=20,
+                init_amp_bead=bead_amp_bounds[move.__name__][0],
+                init_amp_move=move_amp_bounds[move.__name__][0]
+            ),
+            bead_amp_bounds=bead_amp_bounds[move.__name__],
+            move_amp_bounds=move_amp_bounds[move.__name__]
+        ) for move in move_fxns
+    ]
+    for i in range(len(move_fxns)):
+        controllers[i].move.num_per_cycle = 1
 
     return controllers

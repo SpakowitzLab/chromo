@@ -17,6 +17,7 @@ import pandas as pd
 
 # Custom Modules
 import chromo.beads as beads
+import chromo.binders as binds
 import chromo.util.mc_stat as mc_stat
 from chromo.util.linalg cimport (vec_sub3, vec_dot3, vec_scale3)
 from .util import dss_params
