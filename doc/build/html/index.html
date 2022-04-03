@@ -5,8 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Chromo: Physics-based Chromatin Simulator &mdash; chromo  documentation</title>
@@ -28,10 +27,6 @@
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   
 
-  
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   
 
   
@@ -85,25 +80,26 @@
           
             
             
-                <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+                <p class="caption"><span class="caption-text">Introduction</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="abstract.html">Abstract</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code_structure.html">Code Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mc_sim.html">Monte Carlo Simulations</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Theory</span></p>
+<p class="caption"><span class="caption-text">Theory</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="poly_models.html">Polymer Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="field.html">Field Theoretic Treatment of Interactions</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="semiflexible_homopolymer_OUT.html">Semiflexible, Unconfined Homopolymer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="flexible_confined_homopolymer_OUT.html">Flexible, Confined Homopolymer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="one_mark_chromatin_OUT.html">Chromatin + HP1</a></li>
 <li class="toctree-l1"><a class="reference internal" href="two_mark_chromatin_OUT.html">Chromatin + HP1 + PRC1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="looped_loosely_confined_OUT.html">Ring Polymer</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Additional Resources</span></p>
+<p class="caption"><span class="caption-text">Additional Resources</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
@@ -170,13 +166,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <section id="chromo-physics-based-chromatin-simulator">
+  <div class="section" id="chromo-physics-based-chromatin-simulator">
 <h1>Chromo: Physics-based Chromatin Simulator<a class="headerlink" href="#chromo-physics-based-chromatin-simulator" title="Permalink to this headline">¶</a></h1>
 <p>Joseph Wakim, Bruno Beltran, Andrew Spakowitz</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-<section id="quickstart">
+<div class="section" id="quickstart">
 <h2>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic simple">
 <li><p><strong>Download Chromo Source Code.</strong> The Chromo source code can be downloaded from the <a class="reference external" href="https://github.com/SpakowitzLab">Spakowitz Lab GitHub</a>.</p></li>
@@ -212,19 +208,23 @@ For more details behind executing a Jupyter notebook from the terminal, visit th
 $ jupyter nbconvert --ExecutePreprocessor.timeout=-1 --to notebook --output &lt;Output_Notebook_Name&gt; --execute &lt;Example_Notebook_Name&gt;
 </pre></div>
 </div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>To recompile the Sphinx documentation, you will also need to run <code class="code docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">pandoc</span></code>.</p>
+</div>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-</section>
-<section id="examples">
+</div>
+<div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
-<p><strong>Specify Epigenetic Marks.</strong>
-Default properties for HP1 and PRC1 are implemented; these marks can be called by name.
-New epigenetic marks can be defined by specifying their physical properties.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hp1</span> <span class="o">=</span> <span class="n">chromo</span><span class="o">.</span><span class="n">marks</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="s1">&#39;HP1&#39;</span><span class="p">)</span>
-<span class="n">prc1</span> <span class="o">=</span> <span class="n">chromo</span><span class="o">.</span><span class="n">marks</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="s1">&#39;PRC1&#39;</span><span class="p">)</span>
-<span class="n">custom_mark</span> <span class="o">=</span> <span class="n">Epigenmark</span><span class="p">(</span>
-   <span class="n">name</span><span class="o">=</span><span class="s2">&quot;new_mark&quot;</span><span class="p">,</span>
+<p><strong>Specify Reader Proteins.</strong>
+Default properties for HP1 and PRC1 are implemented; these binders can be called by name.
+New reader proteins can be defined by specifying their physical properties.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hp1</span> <span class="o">=</span> <span class="n">chromo</span><span class="o">.</span><span class="n">binders</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="s1">&#39;HP1&#39;</span><span class="p">)</span>
+<span class="n">prc1</span> <span class="o">=</span> <span class="n">chromo</span><span class="o">.</span><span class="n">binders</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="s1">&#39;PRC1&#39;</span><span class="p">)</span>
+<span class="n">custom_binder</span> <span class="o">=</span> <span class="n">ReaderProtein</span><span class="p">(</span>
+   <span class="n">name</span><span class="o">=</span><span class="s2">&quot;new_binder&quot;</span><span class="p">,</span>
    <span class="n">sites_per_bead</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
    <span class="n">bind_energy_mod</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
    <span class="n">bind_energy_no_mod</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -232,16 +232,16 @@ New epigenetic marks can be defined by specifying their physical properties.</p>
    <span class="n">chemical_potential</span><span class="o">=-</span><span class="mf">1.5</span><span class="p">,</span>
    <span class="n">interaction_radius</span><span class="o">=</span><span class="mi">3</span>
 <span class="p">)</span>
-<span class="n">marks</span> <span class="o">=</span> <span class="n">chromo</span><span class="o">.</span><span class="n">marks</span><span class="o">.</span><span class="n">make_mark_collection</span><span class="p">([</span><span class="n">hp1</span><span class="p">,</span> <span class="n">prc1</span><span class="p">,</span> <span class="n">custom_mark</span><span class="p">])</span>
+<span class="n">binders</span> <span class="o">=</span> <span class="n">chromo</span><span class="o">.</span><span class="n">binders</span><span class="o">.</span><span class="n">make_binder_collection</span><span class="p">([</span><span class="n">hp1</span><span class="p">,</span> <span class="n">prc1</span><span class="p">,</span> <span class="n">custom_binder</span><span class="p">])</span>
 </pre></div>
 </div>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
 <p><strong>Specify Chemical Modifications &amp; Initial Binding States.</strong>
-Each epigeneic mark requires a pattern of histone modifications dictating binding.
+Each reader protein requires a pattern of histone modifications dictating binding.
 These patterns can be specified directly or read from a file.
-Initial mark binding states may be trivially defined to match the chemical modifications.</p>
+Initial reader protein binding states may be trivially defined to match the chemical modifications.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">H3K9me3</span> <span class="o">=</span> <span class="n">Chromatin</span><span class="o">.</span><span class="n">load_seqs</span><span class="p">([</span><span class="s2">&quot;path/to/H3K9me3/sequence&quot;</span><span class="p">])</span>
 <span class="n">H3K27me3</span> <span class="o">=</span> <span class="n">Chromatin</span><span class="o">.</span><span class="n">load_seqs</span><span class="p">([</span><span class="s2">&quot;path/to/H3K27me3/sequence&quot;</span><span class="p">])</span>
 <span class="n">custom_mod</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">H3K0me3</span><span class="p">))</span>
@@ -269,7 +269,7 @@ The polymer is initialized along a Gaussian random walk.</p>
 </div>
 <p>To instantiate chromatin, specify basic dimensions, histone modification patterns, and an initial configuration.
 The polymer below is confined to a sphere with a 900-unit radius.
-Each bead is modified at three sites, and initial mark binding states match the initial modifications.</p>
+Each bead is modified at three sites, and initial reader proptein binding states match the initial modifications.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">chromatin</span> <span class="o">=</span> <span class="n">Chromatin</span><span class="o">.</span><span class="n">confined_gaussian_walk</span><span class="p">(</span>
     <span class="s1">&#39;Chr-1&#39;</span><span class="p">,</span>
     <span class="n">num_beads</span><span class="p">,</span>
@@ -277,7 +277,7 @@ Each bead is modified at three sites, and initial mark binding states match the 
     <span class="n">states</span><span class="o">=</span><span class="n">states</span><span class="p">,</span>
     <span class="n">confine_type</span><span class="o">=</span><span class="s2">&quot;Sphere&quot;</span><span class="p">,</span>
     <span class="n">confine_length</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span>
-    <span class="n">mark_names</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s1">&#39;HP1&#39;</span><span class="p">,</span> <span class="s1">&#39;PRC1&#39;</span><span class="p">,</span> <span class="s1">&#39;Custom&#39;</span><span class="p">]),</span>
+    <span class="n">binder_names</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s1">&#39;HP1&#39;</span><span class="p">,</span> <span class="s1">&#39;PRC1&#39;</span><span class="p">,</span> <span class="s1">&#39;Custom&#39;</span><span class="p">]),</span>
     <span class="n">chemical_mods</span><span class="o">=</span><span class="n">chemical_mods</span><span class="p">,</span>
     <span class="n">chemical_mod_names</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s1">&#39;H3K9me3&#39;</span><span class="p">,</span> <span class="s1">&#39;H3K27me3&#39;</span><span class="p">,</span> <span class="s1">&#39;custom_mod&#39;</span><span class="p">])</span>
 <span class="p">)</span>
@@ -287,7 +287,7 @@ Each bead is modified at three sites, and initial mark binding states match the 
 <div class="line"><br /></div>
 </div>
 <p><strong>Define Uniform Density Field.</strong>
-The density field for the polymer and its marks is instantiated as a grid of discrete voxels.
+The density field for the polymer and its binders is instantiated as a grid of discrete voxels.
 The width and number of voxels in each dimension of the field must be specified.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">x_width</span> <span class="o">=</span> <span class="mi">1000</span>
 <span class="n">y_width</span> <span class="o">=</span> <span class="n">x_width</span>
@@ -299,7 +299,7 @@ The width and number of voxels in each dimension of the field must be specified.
 
 <span class="n">udf</span> <span class="o">=</span> <span class="n">UniformDensityField</span><span class="p">(</span>
     <span class="n">polymers</span> <span class="o">=</span> <span class="p">[</span><span class="n">polymer</span><span class="p">],</span>
-    <span class="n">marks</span> <span class="o">=</span> <span class="n">marks</span><span class="p">,</span>
+    <span class="n">binders</span> <span class="o">=</span> <span class="n">binders</span><span class="p">,</span>
     <span class="n">x_width</span> <span class="o">=</span> <span class="n">x_width</span><span class="p">,</span>
     <span class="n">nx</span> <span class="o">=</span> <span class="n">n_bins_x</span><span class="p">,</span>
     <span class="n">y_width</span> <span class="o">=</span> <span class="n">y_width</span><span class="p">,</span>
@@ -324,13 +324,13 @@ The width and number of voxels in each dimension of the field must be specified.
 </div>
 <div class="toctree-wrapper compound">
 </div>
-</section>
-</section>
-<section id="indices-and-tables">
+</div>
+</div>
+<div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
 <p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p>
 <p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p>
-</section>
+</div>
 
 
            </div>
@@ -378,11 +378,13 @@ The width and number of voxels in each dimension of the field must be specified.
             SOURCELINK_SUFFIX: '.txt'
         };
     </script>
-      <script type="text/javascript" src="_static/documentation_options.js"></script>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/language_data.js"></script>
       <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="None"></script>
 
   
 

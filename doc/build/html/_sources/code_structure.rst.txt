@@ -3,16 +3,16 @@
 Code Overview and Structure
 ===========================
 
-Chromo is implemented with an object-oriented approach to accommodate flexible polymer models at various scales, bound by arbitrary numbers of interacting marks.
+Chromo is implemented with an object-oriented approach to accommodate flexible polymer models at various scales, bound by arbitrary numbers of interacting reader proteins.
 The simulator is specifically designed to model chromatin, but can be adapted to model arbitrary block co-polymers with or without confinement.
 
 The hierarchcial organization of chromatin (and block copolymers in general) is reflected by the simulator's class structure.
 At the largest scale, instances of the :code:`Mixture` class contain all interacting polymers in the system.
 Each chromatin strand is instantiated as a :code:`Chromatin` object, which adopts physical properties of a stretchable, shearable wormlike chain.
 :code:`Chromatin` instances track a sequence of nucleosomes, each of which is instantiated as a :code:`Nucleosome` object.
-The :code:`Chromatin` class also stores patterns of chemical modifications and associated epigenetic mark binding states.
-Physical properties of the epigenetic marks, which define how marks interact, are specified as attributes of the :code:`Mark` class.
-An instance of the :code:`UniformDensityField` class maintains a discrete density field for the polymer and all its marks.
+The :code:`Chromatin` class also stores patterns of chemical modifications and associated reader protein binding states.
+Physical properties of the reader proteins, which define how reader proteins interact, are specified as attributes of the :code:`ReaderProtein` class.
+An instance of the :code:`UniformDensityField` class maintains a discrete density field for the polymer and all its reader proteins.
 This field is used to efficiently evaluate the interaction energy of components in the simulation.
 
 To enable convenient adaption of our software for different polymer models, we defined abstract classes for each component of our system, and we leveraged a hierarchy of subclasses with increasing levels of detail.

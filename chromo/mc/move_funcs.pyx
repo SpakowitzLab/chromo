@@ -26,8 +26,8 @@ import chromo.util.linalg as la
 cimport chromo.util.linalg as la
 import chromo.polymers as poly
 cimport chromo.polymers as poly
-from chromo.marks import Mark
-from chromo.marks cimport Mark
+from chromo.binders import Binder
+from chromo.binders cimport Binder
 
 
 cdef double[:] origin = np.array([0., 0., 0.])
@@ -715,17 +715,18 @@ cpdef long[:] full_chain_translation(
 cpdef long[:] change_binding_state(
     poly.PolymerBase polymer, double amp_move, long amp_bead
 ):
-    """Flip the binding state of a mark.
+    """Flip the binding state of a reader protein.
     
     Notes
     -----
-    Before applying the move, check that the polymer has any marks at all.
+    Before applying the move, check that the polymer has any reader proteins at
+    all.
 
     Begin the move by identifying the number of binding sites that each bead
-    has for the particular mark. Then randomly select a bead in the chain.
-    Select a second bead from a two sided decaying exponential distribution
-    around the index of the first bead. Replace the binding state of the 
-    selected beads.
+    has for the particular reader protein. Then randomly select a bead in the
+    chain. Select a second bead from a two sided decaying exponential
+    distribution around the index of the first bead. Replace the binding state
+    of the selected beads.
 
     In our model, we do not track the binding state of individual tails. We
     care only about how many tails are bound. Therefore, for each move, we will
@@ -753,12 +754,12 @@ cpdef long[:] change_binding_state(
         Indices of M beads affected by the MC move
     """
     # Type Declarations
-    cdef long mark_ind, n_tails, n_flip, b_0, b_1, ind0, indf, n_inds
+    cdef long binder_ind, n_tails, n_flip, b_0, b_1, ind0, indf, n_inds
     cdef long[:] inds, possible_flips
 
     # Stochastic Move Selection
-    mark_ind = rand() % polymer.num_marks
-    n_tails = polymer.beads[0].marks[mark_ind].sites_per_bead
+    binder_ind = rand() % polymer.num_binders
+    n_tails = polymer.beads[0].binders[binder_ind].sites_per_bead
     b_0 = rand() % polymer.num_beads
     b_1 = beads.from_point(amp_bead, polymer.num_beads, b_0)
     ind0, indf = beads.check_bead_bounds(b_0, b_1, polymer.num_beads)
@@ -772,14 +773,14 @@ cpdef long[:] change_binding_state(
 
     # Perform Binding Move
     conduct_change_binding_states(
-        polymer, ind0, indf, n_inds, inds, mark_ind, n_tails, n_flip
+        polymer, ind0, indf, n_inds, inds, binder_ind, n_tails, n_flip
     )
     return inds
 
 
 cdef void conduct_change_binding_states(
     poly.PolymerBase polymer, long ind0, long indf, long n_inds, long[:] inds,
-    long mark_ind, long num_tails, long num_tails_flipped
+    long binder_ind, long num_tails, long num_tails_flipped
 ):
     """Get new binding states for the beads affected by the binding state move.
 
@@ -794,62 +795,61 @@ cdef void conduct_change_binding_states(
     inds : array_like (M,)
         Bead indices in the polymer to which the change binding state move is
         applied
-    mark_ind : long
-        Index of the mark for which the state is being swapped; the value
+    binder_ind : long
+        Index of the binder for which the state is being swapped; the value
         represents the column of the states array affected by the move
     num_tails : long
-        Number of binding sites of the bead for the particular mark being
+        Number of binding sites of the bead for the particular binder being
         flipped by the move.
     num_tails_flipped : long
         Number of binding sites on the bead to flip
     """
-    cdef long[:, ::1] states
     cdef long i
 
     for i in range(n_inds):
-        polymer.states_trial[i, mark_ind] = get_new_state(
-            polymer.beads[0].marks[mark_ind], polymer.states[i, mark_ind],
+        polymer.states_trial[inds[i], binder_ind] = get_new_state(
+            polymer.beads[0].binders[binder_ind], polymer.states[i, binder_ind],
             num_tails, num_tails_flipped
         )
 
 
 cdef long get_new_state(
-    Mark mark, long state, long num_tails, long num_tails_flipped
+    Binder binder, long state, long num_tails, long num_tails_flipped
 ):
     """Get a next binding state of a bead.
 
     Parameters
     ----------
-    mark : Mark
-        The Epigenetic mark object whose protein binding state is being changed
+    binder : Binder
+        The Binder object whose binding state is being changed
     state : long
         Current binding state of the bead – how many bead tails are bound
     num_tails : long
-        Number of tails for the particular mark which may be bound
+        Number of tails for the particular binder which may be bound
     num_tails_flipped : long
-        Number of tails for the particular mark which are swapped
+        Number of tails for the particular binder which are swapped
 
     Returns
     -------
     long
-        Number of tails that are marked after the move
+        Number of tails that are bound after the move
     """
     cdef long new_binding_state, i
 
     for i in range(num_tails):
         if i < state:
-            mark.binding_seq[i] = 1
+            binder.binding_seq[i] = 1
         else:
-            mark.binding_seq[i] = 0
+            binder.binding_seq[i] = 0
 
-    fisher_yates_shuffle(mark.binding_seq, num_tails)
+    fisher_yates_shuffle(binder.binding_seq, num_tails)
 
     for i in range(num_tails_flipped):
-        mark.binding_seq[i] = (mark.binding_seq[i] + 1) % 2
+        binder.binding_seq[i] = (binder.binding_seq[i] + 1) % 2
 
     new_binding_state = 0
     for i in range(num_tails_flipped):
-        new_binding_state += mark.binding_seq[i]
+        new_binding_state += binder.binding_seq[i]
 
     return new_binding_state
 

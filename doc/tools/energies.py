@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 import chromo.polymers as poly
 import chromo.fields as fld
-import chromo.marks
+import chromo.binders
 import chromo.util.poly_stat as ps
 
 # Navigate to output directory
@@ -26,7 +26,7 @@ os.chdir(cwd + '/../../output')
 
 # Specify simulation to evaluate
 # sim = ps.get_latest_simulation()
-sim = "sim_25"
+sim = "sim_57"
 delta = 50
 lp = 53
 print("Sim: " + sim)
@@ -54,7 +54,7 @@ states = np.ascontiguousarray(pd.read_csv(
     output_path, usecols=[10], skiprows=[0, 1]
 ).to_numpy())
 chemical_mods = np.ascontiguousarray(np.zeros((len(r), 1), dtype=int))
-mark_name = np.array(["HP1"])
+binder_name = np.array(["HP1"])
 chemical_mod_name = np.array(["H3K9me3"])
 
 # Instantiate Polymer Object
@@ -65,7 +65,7 @@ polymer = poly.Chromatin(
     t3=t3,
     t2=t3,
     states=states,
-    mark_names=mark_name,
+    binder_names=binder_name,
     chemical_mods=chemical_mods,
     chemical_mod_names=chemical_mod_name
 )
@@ -78,10 +78,10 @@ n_bins_y = n_bins_x
 y_width = x_width
 n_bins_z = n_bins_x
 z_width = x_width
-mark_objs = [chromo.marks.get_by_name('HP1')]
-marks = chromo.marks.make_mark_collection(mark_objs)
+binder_objs = [chromo.binders.get_by_name('HP1')]
+binders = chromo.binders.make_binder_collection(binder_objs)
 field = fld.UniformDensityField(
-    [polymer], marks, x_width, n_bins_x, y_width, n_bins_y, z_width, n_bins_z
+    [polymer], binders, x_width, n_bins_x, y_width, n_bins_y, z_width, n_bins_z
 )
 
 # Calculate Polymer Energies

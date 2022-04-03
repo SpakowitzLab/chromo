@@ -5,8 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>chromo.mc package &mdash; chromo  documentation</title>
@@ -28,10 +27,6 @@
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   
 
-  
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   
 
   
@@ -87,25 +82,26 @@
           
             
             
-                <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+                <p class="caption"><span class="caption-text">Introduction</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="abstract.html">Abstract</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code_structure.html">Code Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mc_sim.html">Monte Carlo Simulations</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Theory</span></p>
+<p class="caption"><span class="caption-text">Theory</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="poly_models.html">Polymer Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="field.html">Field Theoretic Treatment of Interactions</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="semiflexible_homopolymer_OUT.html">Semiflexible, Unconfined Homopolymer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="flexible_confined_homopolymer_OUT.html">Flexible, Confined Homopolymer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="one_mark_chromatin_OUT.html">Chromatin + HP1</a></li>
 <li class="toctree-l1"><a class="reference internal" href="two_mark_chromatin_OUT.html">Chromatin + HP1 + PRC1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="looped_loosely_confined_OUT.html">Ring Polymer</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Additional Resources</span></p>
+<p class="caption"><span class="caption-text">Additional Resources</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">Modules</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="chromo.html">Chromo</a></li>
@@ -186,34 +182,34 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <section id="chromo-mc-package">
+  <div class="section" id="chromo-mc-package">
 <h1>chromo.mc package<a class="headerlink" href="#chromo-mc-package" title="Permalink to this headline">¶</a></h1>
 <p>Modules in this package operate and adapt the Monte Carlo simulation.</p>
-<section id="module-chromo.mc.mc_controller">
+<div class="section" id="module-chromo.mc.mc_controller">
 <span id="chromo-mc-mc-controller-module"></span><h2>chromo.mc.mc_controller module<a class="headerlink" href="#module-chromo.mc.mc_controller" title="Permalink to this headline">¶</a></h2>
 <p>Control MC simulation parameters.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.mc.mc_controller.Controller">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.mc.mc_controller.</span></span><span class="sig-name descname"><span class="pre">Controller</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mc_adapter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#chromo.mc.moves.MCAdapter" title="chromo.mc.moves.MCAdapter"><span class="pre">chromo.mc.moves.MCAdapter</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bead_amp_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">move_amp_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#Controller"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.mc.mc_controller.Controller" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.mc.mc_controller.Controller">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.mc.mc_controller.</code><code class="sig-name descname">Controller</code><span class="sig-paren">(</span><em class="sig-param">mc_adapter: chromo.mc.moves.MCAdapter, bead_amp_bounds: Tuple[int, int], move_amp_bounds: Tuple[float, float]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#Controller"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.mc.mc_controller.Controller" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Class representation of controller for MC simulation parameters.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.mc.mc_controller.Controller.update_amplitudes">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update_amplitudes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#Controller.update_amplitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.mc.mc_controller.Controller.update_amplitudes" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.mc.mc_controller.Controller.update_amplitudes">
+<em class="property">abstract </em><code class="sig-name descname">update_amplitudes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#Controller.update_amplitudes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.mc.mc_controller.Controller.update_amplitudes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update bead selection and move amplitudes.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.mc.mc_controller.Controller.update_bead_amplitude">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update_bead_amplitude</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#Controller.update_bead_amplitude"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.mc.mc_controller.Controller.update_bead_amplitude" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.mc.mc_controller.Controller.update_bead_amplitude">
+<em class="property">abstract </em><code class="sig-name descname">update_bead_amplitude</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#Controller.update_bead_amplitude"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.mc.mc_controller.Controller.update_bead_amplitude" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the bead selection amplitude.</p>
 <p>Use acceptance rate <cite>self.move.acceptance_tracker.acceptance_rate</cite>
 to update the move amplitude.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.mc.mc_controller.Controller.update_move_amplitude">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update_move_amplitude</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#Controller.update_move_amplitude"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.mc.mc_controller.Controller.update_move_amplitude" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.mc.mc_controller.Controller.update_move_amplitude">
+<em class="property">abstract </em><code class="sig-name descname">update_move_amplitude</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#Controller.update_move_amplitude"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.mc.mc_controller.Controller.update_move_amplitude" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the move amplitude.</p>
 <p>Use acceptance rate <cite>self.move.acceptance_tracker.acceptance_rate</cite>
 to update the move amplitude.</p>
@@ -221,34 +217,34 @@ to update the move amplitude.</p>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.mc.mc_controller.NoControl">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.mc.mc_controller.</span></span><span class="sig-name descname"><span class="pre">NoControl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mc_adapter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#chromo.mc.moves.MCAdapter" title="chromo.mc.moves.MCAdapter"><span class="pre">chromo.mc.moves.MCAdapter</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bead_amp_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">move_amp_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#NoControl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.mc.mc_controller.NoControl" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.mc.mc_controller.NoControl">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.mc.mc_controller.</code><code class="sig-name descname">NoControl</code><span class="sig-paren">(</span><em class="sig-param">mc_adapter: chromo.mc.moves.MCAdapter, bead_amp_bounds: Tuple[int, int], move_amp_bounds: Tuple[float, float]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#NoControl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.mc.mc_controller.NoControl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#chromo.mc.mc_controller.Controller" title="chromo.mc.mc_controller.Controller"><code class="xref py py-class docutils literal notranslate"><span class="pre">chromo.mc.mc_controller.Controller</span></code></a></p>
 <p>Class representation of a trivial, non-acting MC controller.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.mc.mc_controller.NoControl.update_amplitudes">
-<span class="sig-name descname"><span class="pre">update_amplitudes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#NoControl.update_amplitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.mc.mc_controller.NoControl.update_amplitudes" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.mc.mc_controller.NoControl.update_amplitudes">
+<code class="sig-name descname">update_amplitudes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#NoControl.update_amplitudes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.mc.mc_controller.NoControl.update_amplitudes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Trivially maintain current move and bead amplitudes.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.mc.mc_controller.NoControl.update_bead_amplitude">
-<span class="sig-name descname"><span class="pre">update_bead_amplitude</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#NoControl.update_bead_amplitude"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.mc.mc_controller.NoControl.update_bead_amplitude" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.mc.mc_controller.NoControl.update_bead_amplitude">
+<code class="sig-name descname">update_bead_amplitude</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#NoControl.update_bead_amplitude"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.mc.mc_controller.NoControl.update_bead_amplitude" title="Permalink to this definition">¶</a></dt>
 <dd><p>Trivially maintain current bead selection amplitude.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.mc.mc_controller.NoControl.update_move_amplitude">
-<span class="sig-name descname"><span class="pre">update_move_amplitude</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#NoControl.update_move_amplitude"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.mc.mc_controller.NoControl.update_move_amplitude" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.mc.mc_controller.NoControl.update_move_amplitude">
+<code class="sig-name descname">update_move_amplitude</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#NoControl.update_move_amplitude"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.mc.mc_controller.NoControl.update_move_amplitude" title="Permalink to this definition">¶</a></dt>
 <dd><p>Trivially maintain current move amplitude.</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.mc.mc_controller.SimpleControl">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.mc.mc_controller.</span></span><span class="sig-name descname"><span class="pre">SimpleControl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mc_adapter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#chromo.mc.moves.MCAdapter" title="chromo.mc.moves.MCAdapter"><span class="pre">chromo.mc.moves.MCAdapter</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bead_amp_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">move_amp_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#SimpleControl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.mc.mc_controller.SimpleControl" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.mc.mc_controller.SimpleControl">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.mc.mc_controller.</code><code class="sig-name descname">SimpleControl</code><span class="sig-paren">(</span><em class="sig-param">mc_adapter: chromo.mc.moves.MCAdapter, bead_amp_bounds: Tuple[int, int], move_amp_bounds: Tuple[float, float]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#SimpleControl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.mc.mc_controller.SimpleControl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#chromo.mc.mc_controller.Controller" title="chromo.mc.mc_controller.Controller"><code class="xref py py-class docutils literal notranslate"><span class="pre">chromo.mc.mc_controller.Controller</span></code></a></p>
 <p>Apply factor changes to move or bead amplitude based on acceptance rate.</p>
 <p>A factor change is applied to the move amplitude based on the acceptance
@@ -257,9 +253,9 @@ amplitude is increased; otherwise, the move amplitude is decreased. Once
 the move amplitude reaches an upper or lower threshold, rather than
 changing the move amplitude, the bead amplitude is increased or decreased
 by a certain length, and the move amplitude is reset to its lowest value.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.mc.mc_controller.SimpleControl.update_amplitudes">
-<span class="sig-name descname"><span class="pre">update_amplitudes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">setpoint_acceptance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">move_adjust_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_delta_beads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#SimpleControl.update_amplitudes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.mc.mc_controller.SimpleControl.update_amplitudes" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.mc.mc_controller.SimpleControl.update_amplitudes">
+<code class="sig-name descname">update_amplitudes</code><span class="sig-paren">(</span><em class="sig-param">setpoint_acceptance: Optional[float] = 0.5</em>, <em class="sig-param">move_adjust_factor: Optional[float] = 0.95</em>, <em class="sig-param">num_delta_beads: Optional[int] = 1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#SimpleControl.update_amplitudes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.mc.mc_controller.SimpleControl.update_amplitudes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update move and bead amplitudes using a simple controller.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -273,9 +269,9 @@ to current acceptance rate, between 0 and 1 (default = 0.95)</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.mc.mc_controller.SimpleControl.update_bead_amplitude">
-<span class="sig-name descname"><span class="pre">update_bead_amplitude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">increase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_delta_beads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#SimpleControl.update_bead_amplitude"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.mc.mc_controller.SimpleControl.update_bead_amplitude" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.mc.mc_controller.SimpleControl.update_bead_amplitude">
+<code class="sig-name descname">update_bead_amplitude</code><span class="sig-paren">(</span><em class="sig-param">increase: bool</em>, <em class="sig-param">num_delta_beads: Optional[int] = 1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#SimpleControl.update_bead_amplitude"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.mc.mc_controller.SimpleControl.update_bead_amplitude" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the bead amplitude based on the acceptance rate.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -293,9 +289,9 @@ to current acceptance rate, between 0 and 1 (default = 0.95)</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.mc.mc_controller.SimpleControl.update_move_amplitude">
-<span class="sig-name descname"><span class="pre">update_move_amplitude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">setpoint_acceptance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">move_adjust_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_delta_beads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#SimpleControl.update_move_amplitude"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.mc.mc_controller.SimpleControl.update_move_amplitude" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.mc.mc_controller.SimpleControl.update_move_amplitude">
+<code class="sig-name descname">update_move_amplitude</code><span class="sig-paren">(</span><em class="sig-param">setpoint_acceptance: Optional[float] = 0.5</em>, <em class="sig-param">move_adjust_factor: Optional[float] = 0.95</em>, <em class="sig-param">num_delta_beads: Optional[int] = 1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#SimpleControl.update_move_amplitude"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.mc.mc_controller.SimpleControl.update_move_amplitude" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update move amplitude based on acceptance rate.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -311,9 +307,9 @@ to current acceptance rate, between 0 and 1 (default = 0.95)</p></li>
 
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.mc.mc_controller.all_moves">
-<span class="sig-prename descclassname"><span class="pre">chromo.mc.mc_controller.</span></span><span class="sig-name descname"><span class="pre">all_moves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">log_dir:</span> <span class="pre">str,</span> <span class="pre">polymers:</span> <span class="pre">typing.List[chromo.polymers.PolymerBase],</span> <span class="pre">bead_amp_bounds:</span> <span class="pre">typing.Dict[str,</span> <span class="pre">typing.Tuple[float,</span> <span class="pre">float]],</span> <span class="pre">move_amp_bounds:</span> <span class="pre">typing.Dict[str,</span> <span class="pre">typing.Tuple[float,</span> <span class="pre">float]],</span> <span class="pre">controller:</span> <span class="pre">typing.Optional[chromo.mc.mc_controller.Controller]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'chromo.mc.mc_controller.NoControl'&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#chromo.mc.mc_controller.Controller" title="chromo.mc.mc_controller.Controller"><span class="pre">chromo.mc.mc_controller.Controller</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#all_moves"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.mc.mc_controller.all_moves" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.mc.mc_controller.all_moves">
+<code class="sig-prename descclassname">chromo.mc.mc_controller.</code><code class="sig-name descname">all_moves</code><span class="sig-paren">(</span><em class="sig-param">log_dir: str, polymers: List[chromo.polymers.PolymerBase], bead_amp_bounds: Dict[str, Tuple[float, float]], move_amp_bounds: Dict[str, Tuple[float, float]], controller: Optional[chromo.mc.mc_controller.Controller] = &lt;class 'chromo.mc.mc_controller.NoControl'&gt;</em><span class="sig-paren">)</span> &#x2192; List[chromo.mc.mc_controller.Controller]<a class="reference internal" href="_modules/chromo/mc/mc_controller.html#all_moves"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.mc.mc_controller.all_moves" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a list of controllers for all adaptable MC moves.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -329,15 +325,18 @@ for the move in the form (lower bound, upper bound)</p></li>
 <li><p><strong>controller</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#chromo.mc.mc_controller.Controller" title="chromo.mc.mc_controller.Controller"><em>Controller</em></a><em>]</em>) – Bead and move amplitude controller (default = NoControl)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>List of controllers for all adaptable MC moves.</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List of controllers for all adaptable MC moves.</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.mc.mc_controller.all_moves_except_binding_state">
-<span class="sig-prename descclassname"><span class="pre">chromo.mc.mc_controller.</span></span><span class="sig-name descname"><span class="pre">all_moves_except_binding_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">log_dir:</span> <span class="pre">str,</span> <span class="pre">polymers:</span> <span class="pre">typing.List[chromo.polymers.PolymerBase],</span> <span class="pre">bead_amp_bounds:</span> <span class="pre">typing.Dict[str,</span> <span class="pre">typing.Tuple[float,</span> <span class="pre">float]],</span> <span class="pre">move_amp_bounds:</span> <span class="pre">typing.Dict[str,</span> <span class="pre">typing.Tuple[float,</span> <span class="pre">float]],</span> <span class="pre">controller:</span> <span class="pre">typing.Optional[chromo.mc.mc_controller.Controller]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'chromo.mc.mc_controller.NoControl'&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#chromo.mc.mc_controller.Controller" title="chromo.mc.mc_controller.Controller"><span class="pre">chromo.mc.mc_controller.Controller</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#all_moves_except_binding_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.mc.mc_controller.all_moves_except_binding_state" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.mc.mc_controller.all_moves_except_binding_state">
+<code class="sig-prename descclassname">chromo.mc.mc_controller.</code><code class="sig-name descname">all_moves_except_binding_state</code><span class="sig-paren">(</span><em class="sig-param">log_dir: str, polymers: List[chromo.polymers.PolymerBase], bead_amp_bounds: Dict[str, Tuple[float, float]], move_amp_bounds: Dict[str, Tuple[float, float]], controller: Optional[chromo.mc.mc_controller.Controller] = &lt;class 'chromo.mc.mc_controller.NoControl'&gt;</em><span class="sig-paren">)</span> &#x2192; List[chromo.mc.mc_controller.Controller]<a class="reference internal" href="_modules/chromo/mc/mc_controller.html#all_moves_except_binding_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.mc.mc_controller.all_moves_except_binding_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a list of controllers for all adaptable physical MC moves.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -353,15 +352,18 @@ for the move in the form (lower bound, upper bound)</p></li>
 <li><p><strong>controller</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#chromo.mc.mc_controller.Controller" title="chromo.mc.mc_controller.Controller"><em>Controller</em></a><em>]</em>) – Bead and move amplitude controller (default = NoControl)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>List of controllers for all adaptable MC moves.</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List of controllers for all adaptable MC moves.</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.mc.mc_controller.specific_move">
-<span class="sig-prename descclassname"><span class="pre">chromo.mc.mc_controller.</span></span><span class="sig-name descname"><span class="pre">specific_move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">move_fxn,</span> <span class="pre">log_dir:</span> <span class="pre">str,</span> <span class="pre">polymers:</span> <span class="pre">typing.List[chromo.polymers.PolymerBase],</span> <span class="pre">bead_amp_bounds:</span> <span class="pre">typing.Dict[str,</span> <span class="pre">typing.Tuple[float,</span> <span class="pre">float]],</span> <span class="pre">move_amp_bounds:</span> <span class="pre">typing.Dict[str,</span> <span class="pre">typing.Tuple[float,</span> <span class="pre">float]],</span> <span class="pre">controller:</span> <span class="pre">typing.Optional[chromo.mc.mc_controller.Controller]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'chromo.mc.mc_controller.NoControl'&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#chromo.mc.mc_controller.Controller" title="chromo.mc.mc_controller.Controller"><span class="pre">chromo.mc.mc_controller.Controller</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/chromo/mc/mc_controller.html#specific_move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.mc.mc_controller.specific_move" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.mc.mc_controller.specific_move">
+<code class="sig-prename descclassname">chromo.mc.mc_controller.</code><code class="sig-name descname">specific_move</code><span class="sig-paren">(</span><em class="sig-param">move_fxn, log_dir: str, polymers: List[chromo.polymers.PolymerBase], bead_amp_bounds: Dict[str, Tuple[float, float]], move_amp_bounds: Dict[str, Tuple[float, float]], controller: Optional[chromo.mc.mc_controller.Controller] = &lt;class 'chromo.mc.mc_controller.NoControl'&gt;</em><span class="sig-paren">)</span> &#x2192; List[chromo.mc.mc_controller.Controller]<a class="reference internal" href="_modules/chromo/mc/mc_controller.html#specific_move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.mc.mc_controller.specific_move" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a list of controllers for all adaptable physical MC moves.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -377,19 +379,22 @@ for the move in the form (lower bound, upper bound)</p></li>
 <li><p><strong>controller</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#chromo.mc.mc_controller.Controller" title="chromo.mc.mc_controller.Controller"><em>Controller</em></a><em>]</em>) – Bead and move amplitude controller (default = NoControl)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>List of controllers for all adaptable MC moves.</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List of controllers for all adaptable MC moves.</p>
 </dd>
 </dl>
 </dd></dl>
 
-</section>
-<section id="module-chromo.mc.mc_sim">
+</div>
+<div class="section" id="module-chromo.mc.mc_sim">
 <span id="chromo-mc-mc-sim-module"></span><h2>chromo.mc.mc_sim module<a class="headerlink" href="#module-chromo.mc.mc_sim" title="Permalink to this headline">¶</a></h2>
 <p>Routines for performing Monte Carlo simulations.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.mc.mc_sim.mc_sim">
-<span class="sig-prename descclassname"><span class="pre">chromo.mc.mc_sim.</span></span><span class="sig-name descname"><span class="pre">mc_sim</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.mc_sim.mc_sim" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.mc.mc_sim.mc_sim">
+<code class="sig-prename descclassname">chromo.mc.mc_sim.</code><code class="sig-name descname">mc_sim</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.mc_sim.mc_sim" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform Monte Carlo simulation.</p>
 <p class="rubric">Notes</p>
 <dl class="simple">
@@ -403,7 +408,7 @@ for the move in the form (lower bound, upper bound)</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>polymers</strong> (<em>List</em><em>[</em><a class="reference internal" href="chromo.html#chromo.polymers.SSWLC" title="chromo.polymers.SSWLC"><em>SSWLC</em></a><em>]</em>) – Polymers affected by Monte Carlo simulation</p></li>
-<li><p><strong>epigenmarks</strong> (<em>List</em><em>[</em><a class="reference internal" href="chromo.html#chromo.marks.Epigenmark" title="chromo.marks.Epigenmark"><em>Epigenmark</em></a><em>]</em>) – Specification of epigenetic marks on polymer</p></li>
+<li><p><strong>readerproteins</strong> (<em>List</em><em>[</em><em>ReaderProteins</em><em>]</em>) – Specification of reader proteins on polymer</p></li>
 <li><p><strong>num_mc_steps</strong> (<em>int</em>) – Number of Monte Carlo steps to take between save points</p></li>
 <li><p><strong>mc_move_controllers</strong> (<em>List</em><em>[</em><a class="reference internal" href="#chromo.mc.mc_controller.Controller" title="chromo.mc.mc_controller.Controller"><em>Controller</em></a><em>]</em>) – List of controllers for active MC moves in simulation</p></li>
 <li><p><strong>field</strong> (<a class="reference internal" href="chromo.html#chromo.fields.UniformDensityField" title="chromo.fields.UniformDensityField"><em>UniformDensityField</em></a>) – Field affecting polymer in Monte Carlo simulation</p></li>
@@ -413,23 +418,24 @@ for the move in the form (lower bound, upper bound)</p></li>
 </dl>
 </dd></dl>
 
-</section>
-<section id="module-chromo.mc.move_funcs">
+</div>
+<div class="section" id="module-chromo.mc.move_funcs">
 <span id="chromo-mc-move-funcs-module"></span><h2>chromo.mc.move_funcs module<a class="headerlink" href="#module-chromo.mc.move_funcs" title="Permalink to this headline">¶</a></h2>
 <p>Functions for performing Monte Carlo transformations.</p>
 <p class="rubric">Notes</p>
 <p>TODO: No need to make a numpy inds array when the inds are continuous!</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.mc.move_funcs.change_binding_state">
-<span class="sig-prename descclassname"><span class="pre">chromo.mc.move_funcs.</span></span><span class="sig-name descname"><span class="pre">change_binding_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.move_funcs.change_binding_state" title="Permalink to this definition">¶</a></dt>
-<dd><p>Flip the binding state of a mark.</p>
+<dl class="function">
+<dt id="chromo.mc.move_funcs.change_binding_state">
+<code class="sig-prename descclassname">chromo.mc.move_funcs.</code><code class="sig-name descname">change_binding_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.move_funcs.change_binding_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flip the binding state of a reader protein.</p>
 <p class="rubric">Notes</p>
-<p>Before applying the move, check that the polymer has any marks at all.</p>
+<p>Before applying the move, check that the polymer has any reader proteins at
+all.</p>
 <p>Begin the move by identifying the number of binding sites that each bead
-has for the particular mark. Then randomly select a bead in the chain.
-Select a second bead from a two sided decaying exponential distribution
-around the index of the first bead. Replace the binding state of the
-selected beads.</p>
+has for the particular reader protein. Then randomly select a bead in the
+chain. Select a second bead from a two sided decaying exponential
+distribution around the index of the first bead. Replace the binding state
+of the selected beads.</p>
 <p>In our model, we do not track the binding state of individual tails. We
 care only about how many tails are bound. Therefore, for each move, we will
 generate a random order of bound and unbound tails and will flip the state
@@ -456,9 +462,9 @@ binding state move</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.mc.move_funcs.crank_shaft">
-<span class="sig-prename descclassname"><span class="pre">chromo.mc.move_funcs.</span></span><span class="sig-name descname"><span class="pre">crank_shaft</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.move_funcs.crank_shaft" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.mc.move_funcs.crank_shaft">
+<code class="sig-prename descclassname">chromo.mc.move_funcs.</code><code class="sig-name descname">crank_shaft</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.move_funcs.crank_shaft" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rotate section of polymer around axis connecting two end beads.</p>
 <p class="rubric">Notes</p>
 <p>The crank shaft move affects a continuous range of beads; the internal
@@ -488,9 +494,9 @@ the rotation matrix and obtain trial positions and tangents for evaluation.</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.mc.move_funcs.end_pivot">
-<span class="sig-prename descclassname"><span class="pre">chromo.mc.move_funcs.</span></span><span class="sig-name descname"><span class="pre">end_pivot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.move_funcs.end_pivot" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.mc.move_funcs.end_pivot">
+<code class="sig-prename descclassname">chromo.mc.move_funcs.</code><code class="sig-name descname">end_pivot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.move_funcs.end_pivot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Randomly rotate segment from end of polymer about random axis.</p>
 <p class="rubric">Notes</p>
 <p>Begin by selecting a random rotation angle based on the move amplitude.
@@ -520,9 +526,9 @@ rotate the LHS of the polymer. Set <cite>rotate_lhs = rand()</cite>. Change the
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.mc.move_funcs.full_chain_rotation">
-<span class="sig-prename descclassname"><span class="pre">chromo.mc.move_funcs.</span></span><span class="sig-name descname"><span class="pre">full_chain_rotation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.move_funcs.full_chain_rotation" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.mc.move_funcs.full_chain_rotation">
+<code class="sig-prename descclassname">chromo.mc.move_funcs.</code><code class="sig-name descname">full_chain_rotation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.move_funcs.full_chain_rotation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rotate an entire polymer about an arbitrary axis.</p>
 <p class="rubric">Notes</p>
 <p>This move does not change a polymer’s internal configurational (elastic)
@@ -548,9 +554,9 @@ move functions and does not affect the full chain rotation</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.mc.move_funcs.full_chain_translation">
-<span class="sig-prename descclassname"><span class="pre">chromo.mc.move_funcs.</span></span><span class="sig-name descname"><span class="pre">full_chain_translation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.move_funcs.full_chain_translation" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.mc.move_funcs.full_chain_translation">
+<code class="sig-prename descclassname">chromo.mc.move_funcs.</code><code class="sig-name descname">full_chain_translation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.move_funcs.full_chain_translation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Translate an entire polymer in an arbitrary direction.</p>
 <p class="rubric">Notes</p>
 <p>This move does not change a polymer’s internal configurational (elastic)
@@ -576,9 +582,9 @@ move functions and does not affect the full chain translation</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.mc.move_funcs.slide">
-<span class="sig-prename descclassname"><span class="pre">chromo.mc.move_funcs.</span></span><span class="sig-name descname"><span class="pre">slide</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.move_funcs.slide" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.mc.move_funcs.slide">
+<code class="sig-prename descclassname">chromo.mc.move_funcs.</code><code class="sig-name descname">slide</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.move_funcs.slide" title="Permalink to this definition">¶</a></dt>
 <dd><p>Randomly translate a segment of the polymer.</p>
 <p class="rubric">Notes</p>
 <p>Randomly set the translation distance based on the slide move amplitude.
@@ -608,9 +614,9 @@ code, the move amplitude specifies the maximum magnitude of translation.</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.mc.move_funcs.tangent_rotation">
-<span class="sig-prename descclassname"><span class="pre">chromo.mc.move_funcs.</span></span><span class="sig-name descname"><span class="pre">tangent_rotation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.move_funcs.tangent_rotation" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.mc.move_funcs.tangent_rotation">
+<code class="sig-prename descclassname">chromo.mc.move_funcs.</code><code class="sig-name descname">tangent_rotation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.move_funcs.tangent_rotation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Random bead rotation for a random selection of beads.</p>
 <p class="rubric">Notes</p>
 <p>Select a random rotation angle. Then select some random number of beads
@@ -635,9 +641,9 @@ to each selected bead.</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.mc.move_funcs.transform_r_t3_t2">
-<span class="sig-prename descclassname"><span class="pre">chromo.mc.move_funcs.</span></span><span class="sig-name descname"><span class="pre">transform_r_t3_t2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.move_funcs.transform_r_t3_t2" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.mc.move_funcs.transform_r_t3_t2">
+<code class="sig-prename descclassname">chromo.mc.move_funcs.</code><code class="sig-name descname">transform_r_t3_t2</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.move_funcs.transform_r_t3_t2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply transformation operations to <cite>r_trial</cite>, <cite>t3_trial</cite>, <cite>t2_trial</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -651,40 +657,40 @@ transformation matrix).</p></li>
 </dl>
 </dd></dl>
 
-</section>
-<section id="module-chromo.mc.moves">
+</div>
+<div class="section" id="module-chromo.mc.moves">
 <span id="chromo-mc-moves-module"></span><h2>chromo.mc.moves module<a class="headerlink" href="#module-chromo.mc.moves" title="Permalink to this headline">¶</a></h2>
 <p>Utilities for proposing Monte Carlo moves.</p>
 <p>This module include an MC adapter class which will drive move adaption and
 functions applying transformations made by each move.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.mc.moves.Bounds">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.mc.moves.</span></span><span class="sig-name descname"><span class="pre">Bounds</span></span><a class="headerlink" href="#chromo.mc.moves.Bounds" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.mc.moves.Bounds">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.mc.moves.</code><code class="sig-name descname">Bounds</code><a class="headerlink" href="#chromo.mc.moves.Bounds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class representation of move or bead amplitude bounds.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.mc.moves.Bounds.to_csv">
-<span class="sig-name descname"><span class="pre">to_csv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.moves.Bounds.to_csv" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.mc.moves.Bounds.to_csv">
+<code class="sig-name descname">to_csv</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.moves.Bounds.to_csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save Polymer object to CSV file as DataFrame.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.mc.moves.Bounds.to_dataframe">
-<span class="sig-name descname"><span class="pre">to_dataframe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.moves.Bounds.to_dataframe" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.mc.moves.Bounds.to_dataframe">
+<code class="sig-name descname">to_dataframe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.moves.Bounds.to_dataframe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Express the Bounds using a dataframe.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.mc.moves.Bounds.to_file">
-<span class="sig-name descname"><span class="pre">to_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.moves.Bounds.to_file" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.mc.moves.Bounds.to_file">
+<code class="sig-name descname">to_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.moves.Bounds.to_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Synonym for <cite>to_csv</cite> to conform to <cite>make_reproducible</cite> spec.</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.mc.moves.MCAdapter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.mc.moves.</span></span><span class="sig-name descname"><span class="pre">MCAdapter</span></span><a class="headerlink" href="#chromo.mc.moves.MCAdapter" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.mc.moves.MCAdapter">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.mc.moves.</code><code class="sig-name descname">MCAdapter</code><a class="headerlink" href="#chromo.mc.moves.MCAdapter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Track success rate and adjust parameters for Monte Carlo moves.</p>
 <p>In order to ensure that a Monte Carlo simulation equilibrates as quickly as
@@ -713,9 +719,9 @@ MCAdapter (<cite>MCAdaptSuccessRate</cite>) handles this optimization by simply 
 to maintain a fixed target success rate.</p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.mc.moves.all_moves">
-<span class="sig-prename descclassname"><span class="pre">chromo.mc.moves.</span></span><span class="sig-name descname"><span class="pre">all_moves</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.moves.all_moves" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.mc.moves.all_moves">
+<code class="sig-prename descclassname">chromo.mc.moves.</code><code class="sig-name descname">all_moves</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.mc.moves.all_moves" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a list of all adaptable MC move objects.</p>
 <p>NOTE: Use <cite>all_moves</cite> function in <cite>chromo.mc.mc_controller</cite> module to
 create list of controllers for all moves. This function only creates
@@ -725,28 +731,31 @@ in <cite>chromo.mc.mc_sim</cite> module.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>log_dir</strong> (<em>str</em>) – Path to the directory in which to save log files</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>List of all adaptable MC move objects</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List of all adaptable MC move objects</p>
 </dd>
 </dl>
 </dd></dl>
 
-</section>
-<section id="module-chromo.mc">
+</div>
+<div class="section" id="module-chromo.mc">
 <span id="chromo-mc-init"></span><h2>chromo.mc.__init__<a class="headerlink" href="#module-chromo.mc" title="Permalink to this headline">¶</a></h2>
 <p>Monte Carlo simulations of a discrete wormlike chain.</p>
 <p>This module runs Monte Carlo simulations for the reconfiguration of multiple
 discrete wormlike chains when placed in a user-specified field and labeled by
 multiple epigenetic marks.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.mc.continue_polymer_in_field_simulation">
-<span class="sig-prename descclassname"><span class="pre">chromo.mc.</span></span><span class="sig-name descname"><span class="pre">continue_polymer_in_field_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">polymer_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="chromo.html#chromo.marks.Epigenmark" title="chromo.marks.Epigenmark"><span class="pre">chromo.marks.Epigenmark</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="chromo.html#chromo.fields.FieldBase" title="chromo.fields.FieldBase"><span class="pre">chromo.fields.FieldBase</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_save_mc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_saves</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mc_move_controllers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#chromo.mc.mc_controller.Controller" title="chromo.mc.mc_controller.Controller"><span class="pre">chromo.mc.mc_controller.Controller</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc.html#continue_polymer_in_field_simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.mc.continue_polymer_in_field_simulation" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.mc.continue_polymer_in_field_simulation">
+<code class="sig-prename descclassname">chromo.mc.</code><code class="sig-name descname">continue_polymer_in_field_simulation</code><span class="sig-paren">(</span><em class="sig-param">polymer_class, binders: List[chromo.binders.ReaderProtein], field: chromo.fields.FieldBase, output_dir: str, num_save_mc: int, num_saves: int, mc_move_controllers: Optional[List[chromo.mc.mc_controller.Controller]] = None, random_seed: Optional[int] = 0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mc.html#continue_polymer_in_field_simulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.mc.continue_polymer_in_field_simulation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Continue a simulation of a polymer in a field.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>polymer_class</strong> (<a class="reference internal" href="chromo.html#chromo.polymers.PolymerBase" title="chromo.polymers.PolymerBase"><em>PolymerBase</em></a>) – Class of polymers for which to continue the simulation</p></li>
-<li><p><strong>marks</strong> (<em>List</em><em>[</em><a class="reference internal" href="chromo.html#chromo.marks.Epigenmark" title="chromo.marks.Epigenmark"><em>Epigenmark</em></a><em>]</em>) – List of epigenetic marks active on polymer</p></li>
+<li><p><strong>binders</strong> (<em>List</em><em>[</em><em>ReaderProteins</em><em>]</em>) – List of reader proteins active on polymer</p></li>
 <li><p><strong>field</strong> (<a class="reference internal" href="chromo.html#chromo.fields.FieldBase" title="chromo.fields.FieldBase"><em>FieldBase</em></a>) – The discretization of space in which to simulate the polymers</p></li>
 <li><p><strong>output_dir</strong> (<em>str</em>) – Output directory from which to continue the simulation</p></li>
 <li><p><strong>num_save_mc</strong> (<em>int</em>) – Number of steps per snapshot in continued simulation</p></li>
@@ -759,9 +768,9 @@ multiple epigenetic marks.</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.mc.get_amplitude_bounds">
-<span class="sig-prename descclassname"><span class="pre">chromo.mc.</span></span><span class="sig-name descname"><span class="pre">get_amplitude_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">polymers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="chromo.html#chromo.polymers.PolymerBase" title="chromo.polymers.PolymerBase"><span class="pre">chromo.polymers.PolymerBase</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/chromo/mc.html#get_amplitude_bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.mc.get_amplitude_bounds" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.mc.get_amplitude_bounds">
+<code class="sig-prename descclassname">chromo.mc.</code><code class="sig-name descname">get_amplitude_bounds</code><span class="sig-paren">(</span><em class="sig-param">polymers: List[chromo.polymers.PolymerBase]</em><span class="sig-paren">)</span> &#x2192; Tuple[Dict[str, Tuple[int, int]], Dict[str, Tuple[float, float]]]<a class="reference internal" href="_modules/chromo/mc.html#get_amplitude_bounds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.mc.get_amplitude_bounds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get lower and upper bound for bead selection and move amplitudes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -781,8 +790,8 @@ bound, upper bound)</p></li>
 </dl>
 </dd></dl>
 
-</section>
-</section>
+</div>
+</div>
 
 
            </div>
@@ -832,11 +841,13 @@ bound, upper bound)</p></li>
             SOURCELINK_SUFFIX: '.txt'
         };
     </script>
-      <script type="text/javascript" src="_static/documentation_options.js"></script>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/language_data.js"></script>
       <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="None"></script>
 
   
 

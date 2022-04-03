@@ -5,8 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>chromo package &mdash; chromo  documentation</title>
@@ -28,10 +27,6 @@
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   
 
-  
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   
 
   
@@ -87,25 +82,26 @@
           
             
             
-                <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+                <p class="caption"><span class="caption-text">Introduction</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="abstract.html">Abstract</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code_structure.html">Code Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mc_sim.html">Monte Carlo Simulations</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Theory</span></p>
+<p class="caption"><span class="caption-text">Theory</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="poly_models.html">Polymer Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="field.html">Field Theoretic Treatment of Interactions</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="semiflexible_homopolymer_OUT.html">Semiflexible, Unconfined Homopolymer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="flexible_confined_homopolymer_OUT.html">Flexible, Confined Homopolymer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="one_mark_chromatin_OUT.html">Chromatin + HP1</a></li>
 <li class="toctree-l1"><a class="reference internal" href="two_mark_chromatin_OUT.html">Chromatin + HP1 + PRC1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="looped_loosely_confined_OUT.html">Ring Polymer</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Additional Resources</span></p>
+<p class="caption"><span class="caption-text">Additional Resources</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">Modules</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Chromo</a><ul>
@@ -113,7 +109,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#module-chromo.mixtures">chromo.mixtures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-chromo.polymers">chromo.polymers</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-chromo.beads">chromo.beads</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-chromo.marks">chromo.marks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-chromo.binders">chromo.binders</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-chromo">chromo.__init__</a></li>
 </ul>
 </li>
@@ -187,7 +183,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <section id="chromo-package">
+  <div class="section" id="chromo-package">
 <h1>chromo package<a class="headerlink" href="#chromo-package" title="Permalink to this headline">¶</a></h1>
 <p>This package contains the main components of the polymer system being simulated.
 Each module represents a different scale of chromatin.
@@ -200,29 +196,29 @@ The <strong>polymer</strong> module provides classes for different polymer modle
 for evaluating elastic energy.
 The <strong>beads</strong> module provides classes to represent the discrete monomeric units
 of the polymer with various levels of detail.
-Finally, at the smallest scale, the <strong>marks</strong> module provides chemical
+Finally, at the smallest scale, the <strong>binders</strong> module provides chemical
 properties of proteins or other bound material that dictate their interaction
 with the polymer and with each other.</p>
-<section id="module-chromo.fields">
+<div class="section" id="module-chromo.fields">
 <span id="chromo-fields"></span><h2>chromo.fields<a class="headerlink" href="#module-chromo.fields" title="Permalink to this headline">¶</a></h2>
-<p>Fields discretize space to efficiently track changes in Mark energy.</p>
+<p>Fields discretize space to efficiently track changes in reader protein energy.</p>
 <p class="rubric">Notes</p>
 <p>Creates a field object that contains parameters for the field calculations
 and functions to generate the densities.</p>
 <p>Cythonized to accomodate expensive <cite>compute_dE</cite> method.</p>
 <p>To profile runtime of cython functions, add the following comment to the top of
 this file: # cython: profile=True</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.fields.FieldBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.fields.</span></span><span class="sig-name descname"><span class="pre">FieldBase</span></span><a class="headerlink" href="#chromo.fields.FieldBase" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.fields.FieldBase">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.fields.</code><code class="sig-name descname">FieldBase</code><a class="headerlink" href="#chromo.fields.FieldBase" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A discretization of space for computing energies.</p>
 <p class="rubric">Notes</p>
 <p>Must be subclassed to be useful.</p>
 <p>As implemented so far, this codebase accepts only one polymer in the field</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.FieldBase.polymers">
-<span class="sig-name descname"><span class="pre">polymers</span></span><a class="headerlink" href="#chromo.fields.FieldBase.polymers" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.FieldBase.polymers">
+<code class="sig-name descname">polymers</code><a class="headerlink" href="#chromo.fields.FieldBase.polymers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Polymers contained in the field; for now, this codebase accepts only
 one polymer in the field</p>
 <dl class="field-list simple">
@@ -232,9 +228,9 @@ one polymer in the field</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.FieldBase.n_polymers">
-<span class="sig-name descname"><span class="pre">n_polymers</span></span><a class="headerlink" href="#chromo.fields.FieldBase.n_polymers" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.FieldBase.n_polymers">
+<code class="sig-name descname">n_polymers</code><a class="headerlink" href="#chromo.fields.FieldBase.n_polymers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Number of polymers in the field</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -243,10 +239,10 @@ one polymer in the field</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.FieldBase.marks">
-<span class="sig-name descname"><span class="pre">marks</span></span><a class="headerlink" href="#chromo.fields.FieldBase.marks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Table containing marks bound to the polymer and their relevant
+<dl class="attribute">
+<dt id="chromo.fields.FieldBase.binders">
+<code class="sig-name descname">binders</code><a class="headerlink" href="#chromo.fields.FieldBase.binders" title="Permalink to this definition">¶</a></dt>
+<dd><p>Table containing reader proteins bound to the polymer and their relevant
 properties</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -255,9 +251,9 @@ properties</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.fields.FieldBase.compute_dE">
-<span class="sig-name descname"><span class="pre">compute_dE</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.FieldBase.compute_dE" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.fields.FieldBase.compute_dE">
+<code class="sig-name descname">compute_dE</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.FieldBase.compute_dE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the change in field energy due to a proposed move.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -280,9 +276,9 @@ field.</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.FieldBase.name">
-<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#chromo.fields.FieldBase.name" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.FieldBase.name">
+<code class="sig-name descname">name</code><a class="headerlink" href="#chromo.fields.FieldBase.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print the name of the field.</p>
 <p class="rubric">Notes</p>
 <p>For now, there’s only one field per sim, so classname works.</p>
@@ -290,11 +286,11 @@ field.</p>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.fields.Reconstructor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.fields.</span></span><span class="sig-name descname"><span class="pre">Reconstructor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.Reconstructor" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.fields.Reconstructor">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.fields.</code><code class="sig-name descname">Reconstructor</code><a class="headerlink" href="#chromo.fields.Reconstructor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Defer construction of <cite>Field</cite> until after <cite>PolymerBase</cite>/<cite>Mark</cite> instances.</p>
+<p>Defer construction of <cite>Field</cite> until after <cite>PolymerBase</cite>/<cite>Binder</cite> instances.</p>
 <p class="rubric">Notes</p>
 <p>Constructs a kwargs object that can be re-passed to the appropriate <cite>Field</cite>
 constructor when they become available.</p>
@@ -306,15 +302,15 @@ constructor when they become available.</p>
 </ul>
 </dd>
 </dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.fields.Reconstructor.finalize">
-<span class="sig-name descname"><span class="pre">finalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">polymers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marks</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#chromo.fields.FieldBase" title="chromo.fields.FieldBase"><span class="pre">chromo.fields.FieldBase</span></a></span></span><a class="headerlink" href="#chromo.fields.Reconstructor.finalize" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.Reconstructor.finalize">
+<code class="sig-name descname">finalize</code><a class="headerlink" href="#chromo.fields.Reconstructor.finalize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finish construction of appropriate <cite>Field</cite> object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>polymers</strong> (<em>List</em><em>[</em><a class="reference internal" href="#chromo.polymers.PolymerBase" title="chromo.polymers.PolymerBase"><em>PolymerBase</em></a><em>]</em>) – List of polymers contained in the field</p></li>
-<li><p><strong>marks</strong> (<em>pd.DataFrame</em>) – Table representing chemical marks bound to polymers in the field</p></li>
+<li><p><strong>binders</strong> (<em>pd.DataFrame</em>) – Table representing reader proteins bound to polymers in the field</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -326,9 +322,9 @@ constructor when they become available.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.fields.Reconstructor.from_file">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#chromo.fields.FieldBase" title="chromo.fields.FieldBase"><span class="pre">chromo.fields.FieldBase</span></a></span></span><a class="headerlink" href="#chromo.fields.Reconstructor.from_file" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.fields.Reconstructor.from_file">
+<em class="property">classmethod </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param">path: pathlib.Path</em><span class="sig-paren">)</span> &#x2192; chromo.fields.FieldBase<a class="headerlink" href="#chromo.fields.Reconstructor.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Assume class name is encoded in file name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -345,9 +341,9 @@ constructor when they become available.</p>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.fields.</span></span><span class="sig-name descname"><span class="pre">UniformDensityField</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.fields.UniformDensityField">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.fields.</code><code class="sig-name descname">UniformDensityField</code><a class="headerlink" href="#chromo.fields.UniformDensityField" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#chromo.fields.FieldBase" title="chromo.fields.FieldBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">chromo.fields.FieldBase</span></code></a></p>
 <p>Rectilinear discretization of space as a rectangular box.</p>
 <p class="rubric">Notes</p>
@@ -361,9 +357,9 @@ change. We choose to track and update these attributes to avoid costly
 array initialization during each iteration of the MC simulation.
 Affected attributes are identified with the “TEMP” flag in their
 description.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField._field_descriptors">
-<span class="sig-name descname"><span class="pre">_field_descriptors</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField._field_descriptors" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField._field_descriptors">
+<code class="sig-name descname">_field_descriptors</code><a class="headerlink" href="#chromo.fields.UniformDensityField._field_descriptors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Names of attributes which describe the geometric layout of the field
 as a grid of voxels</p>
 <dl class="field-list simple">
@@ -373,9 +369,9 @@ as a grid of voxels</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">x_width,</span> <span class="pre">y_width,</span> <span class="pre">z_width</span></span></dt>
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">x_width, y_width, z_width</code></dt>
 <dd><p>Dimensions of the discretized field in the x, y, and z directions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -384,9 +380,9 @@ as a grid of voxels</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.width_xyz">
-<span class="sig-name descname"><span class="pre">width_xyz</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.width_xyz" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.width_xyz">
+<code class="sig-name descname">width_xyz</code><a class="headerlink" href="#chromo.fields.UniformDensityField.width_xyz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Vectorized representation of the x, y, and z widths of the
 discretized field</p>
 <dl class="field-list simple">
@@ -396,9 +392,9 @@ discretized field</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">nx,</span> <span class="pre">ny,</span> <span class="pre">nz</span></span></dt>
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">nx, ny, nz</code></dt>
 <dd><p>Number of voxels in each of the x, y, and z directions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -407,9 +403,9 @@ discretized field</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">dx,</span> <span class="pre">dy,</span> <span class="pre">dz</span></span></dt>
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">dx, dy, dz</code></dt>
 <dd><p>Width of each voxel in the x, y, and z directions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -418,9 +414,9 @@ discretized field</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.dxyz">
-<span class="sig-name descname"><span class="pre">dxyz</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.dxyz" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.dxyz">
+<code class="sig-name descname">dxyz</code><a class="headerlink" href="#chromo.fields.UniformDensityField.dxyz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Vectorized representation of the voxel widths in the x, y, and z
 directions</p>
 <dl class="field-list simple">
@@ -430,9 +426,9 @@ directions</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.n_bins">
-<span class="sig-name descname"><span class="pre">n_bins</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.n_bins" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.n_bins">
+<code class="sig-name descname">n_bins</code><a class="headerlink" href="#chromo.fields.UniformDensityField.n_bins" title="Permalink to this definition">¶</a></dt>
 <dd><p>Number of voxels in the field</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -441,9 +437,9 @@ directions</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.vol_bin">
-<span class="sig-name descname"><span class="pre">vol_bin</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.vol_bin" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.vol_bin">
+<code class="sig-name descname">vol_bin</code><a class="headerlink" href="#chromo.fields.UniformDensityField.vol_bin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Volume of each voxel; equal to <cite>dx*dy*dz</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -452,9 +448,9 @@ directions</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.bin_index">
-<span class="sig-name descname"><span class="pre">bin_index</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.bin_index" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.bin_index">
+<code class="sig-name descname">bin_index</code><a class="headerlink" href="#chromo.fields.UniformDensityField.bin_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>For each of the <cite>nx*ny*nz</cite> voxels in the field, stores indices
 identifying eight vertices at the corners of the voxel</p>
 <dl class="field-list simple">
@@ -464,9 +460,9 @@ identifying eight vertices at the corners of the voxel</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.nbr_indices_with_trial">
-<span class="sig-name descname"><span class="pre">nbr_indices_with_trial</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.nbr_indices_with_trial" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.nbr_indices_with_trial">
+<code class="sig-name descname">nbr_indices_with_trial</code><a class="headerlink" href="#chromo.fields.UniformDensityField.nbr_indices_with_trial" title="Permalink to this definition">¶</a></dt>
 <dd><p>Super-indices of eight neighboring voxels containing a bead’s
 position in space (dim1) from the polymer’s current configuration
 (dim1=0) and proposed configuration (dim1=1); TEMP</p>
@@ -477,9 +473,9 @@ position in space (dim1) from the polymer’s current configuration
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.nbr_inds">
-<span class="sig-name descname"><span class="pre">nbr_inds</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.nbr_inds" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.nbr_inds">
+<code class="sig-name descname">nbr_inds</code><a class="headerlink" href="#chromo.fields.UniformDensityField.nbr_inds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Super-indices of eight neighboring voxels containing a bead’s
 position in space; TEMP</p>
 <dl class="field-list simple">
@@ -489,9 +485,9 @@ position in space; TEMP</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.index_xyz_with_trial">
-<span class="sig-name descname"><span class="pre">index_xyz_with_trial</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.index_xyz_with_trial" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.index_xyz_with_trial">
+<code class="sig-name descname">index_xyz_with_trial</code><a class="headerlink" href="#chromo.fields.UniformDensityField.index_xyz_with_trial" title="Permalink to this definition">¶</a></dt>
 <dd><p>Vector containing a bead’s bin index in the x, y, and z directions
 (dim1) for the polymer’s current configuration (dim0=0) and trial
 configuration (dim0=1); TEMP</p>
@@ -502,9 +498,9 @@ configuration (dim0=1); TEMP</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.index_xyz">
-<span class="sig-name descname"><span class="pre">index_xyz</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.index_xyz" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.index_xyz">
+<code class="sig-name descname">index_xyz</code><a class="headerlink" href="#chromo.fields.UniformDensityField.index_xyz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Vector containing a bead’s bin index in the x, y, and z directions; TEMP</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -513,9 +509,9 @@ configuration (dim0=1); TEMP</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.wt_vec_with_trial">
-<span class="sig-name descname"><span class="pre">wt_vec_with_trial</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.wt_vec_with_trial" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.wt_vec_with_trial">
+<code class="sig-name descname">wt_vec_with_trial</code><a class="headerlink" href="#chromo.fields.UniformDensityField.wt_vec_with_trial" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bead’s weight linearly interpolated between the eight nearest voxels
 surrounding it (dim1) for a polymer’s current configuration (dim0=0)
 and trial configuration (dim0=1); TEMP</p>
@@ -526,9 +522,9 @@ and trial configuration (dim0=1); TEMP</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.wt_vec">
-<span class="sig-name descname"><span class="pre">wt_vec</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.wt_vec" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.wt_vec">
+<code class="sig-name descname">wt_vec</code><a class="headerlink" href="#chromo.fields.UniformDensityField.wt_vec" title="Permalink to this definition">¶</a></dt>
 <dd><p>Vector containing a bead’s weight linearly interpolated between the
 eight nearest voxels surrounding it; TEMP</p>
 <dl class="field-list simple">
@@ -538,9 +534,9 @@ eight nearest voxels surrounding it; TEMP</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.xyz_with_trial">
-<span class="sig-name descname"><span class="pre">xyz_with_trial</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.xyz_with_trial" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.xyz_with_trial">
+<code class="sig-name descname">xyz_with_trial</code><a class="headerlink" href="#chromo.fields.UniformDensityField.xyz_with_trial" title="Permalink to this definition">¶</a></dt>
 <dd><p>Position of the bead in the x, y, z directions (dim1), shifted during
 linear interpolation of voxel weights for the polymer’s current
 configuration (dim0=0) and trial configuration (dim0=1); TEMP</p>
@@ -551,9 +547,9 @@ configuration (dim0=0) and trial configuration (dim0=1); TEMP</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.xyz">
-<span class="sig-name descname"><span class="pre">xyz</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.xyz" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.xyz">
+<code class="sig-name descname">xyz</code><a class="headerlink" href="#chromo.fields.UniformDensityField.xyz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Position of the bead in the x, y, z directions, shifted during linear
 interpolation of voxel weights; TEMP</p>
 <dl class="field-list simple">
@@ -563,9 +559,9 @@ interpolation of voxel weights; TEMP</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.weight_xyz_with_trial">
-<span class="sig-name descname"><span class="pre">weight_xyz_with_trial</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.weight_xyz_with_trial" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.weight_xyz_with_trial">
+<code class="sig-name descname">weight_xyz_with_trial</code><a class="headerlink" href="#chromo.fields.UniformDensityField.weight_xyz_with_trial" title="Permalink to this definition">¶</a></dt>
 <dd><p>Vector of a bead’s linearly interpolated weights in a voxel in the x, y,
 and z directions as determined for the voxel surrounding the bead with
 the lowest x, y, z indices (dim1) for the polymer’s current
@@ -577,9 +573,9 @@ configuration (dim0=0) and tiral configuration (dim0=1); TEMP</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.weight_xyz">
-<span class="sig-name descname"><span class="pre">weight_xyz</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.weight_xyz" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.weight_xyz">
+<code class="sig-name descname">weight_xyz</code><a class="headerlink" href="#chromo.fields.UniformDensityField.weight_xyz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Vector of a bead’s linearly interpolated weights in a voxel in the x, y,
 and z directions as determined for the voxel surrounding the bead with
 the lowest x, y, z indices; TEMP</p>
@@ -590,10 +586,10 @@ the lowest x, y, z indices; TEMP</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.num_marks">
-<span class="sig-name descname"><span class="pre">num_marks</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.num_marks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of chemical marks bound to the polymer in the simulation</p>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.num_binders">
+<code class="sig-name descname">num_binders</code><a class="headerlink" href="#chromo.fields.UniformDensityField.num_binders" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of reader proteins bound to the polymer in the simulation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>long</p>
@@ -601,11 +597,11 @@ the lowest x, y, z indices; TEMP</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">doubly_bound,</span> <span class="pre">doubly_bound_trial</span></span></dt>
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">doubly_bound, doubly_bound_trial</code></dt>
 <dd><p>Vectors indicating whether or not a bead is doubly bound by each
-tracked chemical mark in the current polymer configuration
+tracked reader protein in the current polymer configuration
 (<cite>doubly_bond</cite>) and trial configuration (<cite>doubly_bound_trial</cite>); TEMP</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -614,9 +610,9 @@ tracked chemical mark in the current polymer configuration
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.confine_type">
-<span class="sig-name descname"><span class="pre">confine_type</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.confine_type" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.confine_type">
+<code class="sig-name descname">confine_type</code><a class="headerlink" href="#chromo.fields.UniformDensityField.confine_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of the confining boundary around the polymer; if the polymer is
 unconfined, <cite>confine_type</cite> is a blank string</p>
 <dl class="field-list simple">
@@ -626,9 +622,9 @@ unconfined, <cite>confine_type</cite> is a blank string</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.confine_length">
-<span class="sig-name descname"><span class="pre">confine_length</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.confine_length" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.confine_length">
+<code class="sig-name descname">confine_length</code><a class="headerlink" href="#chromo.fields.UniformDensityField.confine_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Length scale of the confining boundary</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -637,11 +633,11 @@ unconfined, <cite>confine_type</cite> is a blank string</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">density,</span> <span class="pre">density_trial</span></span></dt>
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">density, density_trial</code></dt>
 <dd><p>Current (<cite>density</cite>) and proposed (<cite>density_trials</cite>) density of beads
-(column 0) and each chemical mark (columns 1…) in each voxel of the
+(column 0) and each reader protein (columns 1…) in each voxel of the
 discretized space; voxels are sorted by super-index and arranged down
 the rows the the density arrays</p>
 <dl class="field-list simple">
@@ -651,9 +647,21 @@ the rows the the density arrays</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.access_vols">
-<span class="sig-name descname"><span class="pre">access_vols</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.access_vols" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.total_binder_densities">
+<code class="sig-name descname">total_binder_densities</code><a class="headerlink" href="#chromo.fields.UniformDensityField.total_binder_densities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Total density of each reader protein in all voxels affected by an MC
+move</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict[str, double]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.access_vols">
+<code class="sig-name descname">access_vols</code><a class="headerlink" href="#chromo.fields.UniformDensityField.access_vols" title="Permalink to this definition">¶</a></dt>
 <dd><p>Mapping of voxel super-index (keys) to volume of the voxel inside the
 confining boundary (values).</p>
 <dl class="field-list simple">
@@ -663,9 +671,9 @@ confining boundary (values).</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.chi">
-<span class="sig-name descname"><span class="pre">chi</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.chi" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.chi">
+<code class="sig-name descname">chi</code><a class="headerlink" href="#chromo.fields.UniformDensityField.chi" title="Permalink to this definition">¶</a></dt>
 <dd><p>Negative local Flory-Huggins parameter dictating non-specific bead
 interaction</p>
 <dl class="field-list simple">
@@ -675,9 +683,9 @@ interaction</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.dict_">
-<span class="sig-name descname"><span class="pre">dict_</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.dict_" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.dict_">
+<code class="sig-name descname">dict_</code><a class="headerlink" href="#chromo.fields.UniformDensityField.dict_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dictionary of key attributes defining the field and their values</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -686,10 +694,10 @@ interaction</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.mark_dict">
-<span class="sig-name descname"><span class="pre">mark_dict</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.mark_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dictionary representation of each chemical mark and their properties</p>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.binder_dict">
+<code class="sig-name descname">binder_dict</code><a class="headerlink" href="#chromo.fields.UniformDensityField.binder_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary representation of each reader protein and their properties</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>dict</p>
@@ -697,9 +705,9 @@ interaction</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.half_width_xyz">
-<span class="sig-name descname"><span class="pre">half_width_xyz</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.half_width_xyz" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.half_width_xyz">
+<code class="sig-name descname">half_width_xyz</code><a class="headerlink" href="#chromo.fields.UniformDensityField.half_width_xyz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Half the width of the full discretized space in the x, y,
 and z directions; equivalent to <cite>np.array([self.x_width/2,
 self.y_width/2, self.z_width/2])</cite></p>
@@ -710,9 +718,9 @@ self.y_width/2, self.z_width/2])</cite></p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.half_step_xyz">
-<span class="sig-name descname"><span class="pre">half_step_xyz</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.half_step_xyz" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.half_step_xyz">
+<code class="sig-name descname">half_step_xyz</code><a class="headerlink" href="#chromo.fields.UniformDensityField.half_step_xyz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Half the length of the voxel in single x, y, and z directions;
 equivalent to <cite>np.array([self.dx/2, self.dy/2, self.dz/2])</cite></p>
 <dl class="field-list simple">
@@ -722,9 +730,9 @@ equivalent to <cite>np.array([self.dx/2, self.dy/2, self.dz/2])</cite></p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.n_xyz_m1">
-<span class="sig-name descname"><span class="pre">n_xyz_m1</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.n_xyz_m1" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.n_xyz_m1">
+<code class="sig-name descname">n_xyz_m1</code><a class="headerlink" href="#chromo.fields.UniformDensityField.n_xyz_m1" title="Permalink to this definition">¶</a></dt>
 <dd><p>One less than the number of voxels that fit in the x, y, and z
 directions of the  field.</p>
 <dl class="field-list simple">
@@ -734,9 +742,9 @@ directions of the  field.</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.inds_xyz_to_super">
-<span class="sig-name descname"><span class="pre">inds_xyz_to_super</span></span><a class="headerlink" href="#chromo.fields.UniformDensityField.inds_xyz_to_super" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.fields.UniformDensityField.inds_xyz_to_super">
+<code class="sig-name descname">inds_xyz_to_super</code><a class="headerlink" href="#chromo.fields.UniformDensityField.inds_xyz_to_super" title="Permalink to this definition">¶</a></dt>
 <dd><p>Array containing the super-index of each voxel (stored in the array
 values) for each combination of x-voxel position (dim0), y-voxel
 position (dim1) and z-voxel position (dim2).</p>
@@ -747,14 +755,14 @@ position (dim1) and z-voxel position (dim2).</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.compute_E">
-<span class="sig-name descname"><span class="pre">compute_E</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.UniformDensityField.compute_E" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.fields.UniformDensityField.compute_E">
+<code class="sig-name descname">compute_E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.UniformDensityField.compute_E" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute total field energy for the current polymer configuration.</p>
 <p class="rubric">Notes</p>
 <p>Load the positions and states of the entire polymer. Then determine the
 number density of beads in each bin of the field. Use these densities
-and mark states on each bead to determine an overall field energy.</p>
+and binder states on each bead to determine an overall field energy.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>poly</strong> (<em>poly.PolymerBase</em>) – Polymer object undergoing transformation in field</p>
@@ -768,9 +776,9 @@ and mark states on each bead to determine an overall field energy.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.from_file">
-<span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.UniformDensityField.from_file" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.fields.UniformDensityField.from_file">
+<code class="sig-name descname">from_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.UniformDensityField.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Recover field saved with <cite>.to_file()</cite>.</p>
 <p class="rubric">Notes</p>
 <p>The zeroths column is an index column, and the first column stores the
@@ -780,7 +788,7 @@ data specifying the field.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>path</strong> (<em>str</em>) – Path to the CSV file representing the field</p></li>
 <li><p><strong>polymers</strong> (<em>List</em><em>[</em><a class="reference internal" href="#chromo.polymers.PolymerBase" title="chromo.polymers.PolymerBase"><em>PolymerBase</em></a><em>]</em>) – Polymers contained in the field</p></li>
-<li><p><strong>marks</strong> (<em>pd.DataFrame</em>) – Table describing chemical marks affecting the field</p></li>
+<li><p><strong>binders</strong> (<em>pd.DataFrame</em>) – Table describing reader proteins affecting the field</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -792,9 +800,9 @@ data specifying the field.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.get_accessible_volumes">
-<span class="sig-name descname"><span class="pre">get_accessible_volumes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.UniformDensityField.get_accessible_volumes" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.fields.UniformDensityField.get_accessible_volumes">
+<code class="sig-name descname">get_accessible_volumes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.UniformDensityField.get_accessible_volumes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Numerically find accessible volume of voxels at confinement edge.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -817,9 +825,9 @@ confining boundary</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.get_dict">
-<span class="sig-name descname"><span class="pre">get_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.UniformDensityField.get_dict" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.fields.UniformDensityField.get_dict">
+<code class="sig-name descname">get_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.UniformDensityField.get_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dictionary representation of the <cite>UniformDensityField</cite> object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -831,15 +839,15 @@ confining boundary</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.init_field_energy_prefactors">
-<span class="sig-name descname"><span class="pre">init_field_energy_prefactors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.UniformDensityField.init_field_energy_prefactors" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize the field energy prefactor for each epigenetic mark.</p>
+<dl class="method">
+<dt id="chromo.fields.UniformDensityField.init_field_energy_prefactors">
+<code class="sig-name descname">init_field_energy_prefactors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.UniformDensityField.init_field_energy_prefactors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the field energy prefactor for each reader protein.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.init_grid">
-<span class="sig-name descname"><span class="pre">init_grid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.UniformDensityField.init_grid" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.fields.UniformDensityField.init_grid">
+<code class="sig-name descname">init_grid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.UniformDensityField.init_grid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize the discrete grid containing the field.</p>
 <p class="rubric">Notes</p>
 <p>The field will be represented by a grid of rectangular prism (typically
@@ -848,10 +856,10 @@ interaction energies, density will be determined inside each voxel and
 a mean field approach will be applied.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.to_file">
-<span class="sig-name descname"><span class="pre">to_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.UniformDensityField.to_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save Field description and Polymer/Mark names to CSV as Series.</p>
+<dl class="method">
+<dt id="chromo.fields.UniformDensityField.to_file">
+<code class="sig-name descname">to_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.UniformDensityField.to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save Field description + Polymer/ReaderProtein names to CSV.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – File path at which to save the CSV file representing the field</p>
@@ -866,9 +874,9 @@ representing the field as a string</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.fields.UniformDensityField.update_all_densities_for_all_polymers">
-<span class="sig-name descname"><span class="pre">update_all_densities_for_all_polymers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.UniformDensityField.update_all_densities_for_all_polymers" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.fields.UniformDensityField.update_all_densities_for_all_polymers">
+<code class="sig-name descname">update_all_densities_for_all_polymers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.UniformDensityField.update_all_densities_for_all_polymers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the density map for every polymer in the field.</p>
 <p class="rubric">Notes</p>
 <p>Updates the voxel densities stored in the field object.</p>
@@ -876,9 +884,9 @@ representing the field as a string</p>
 
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.fields.assign_beads_to_bins">
-<span class="sig-prename descclassname"><span class="pre">chromo.fields.</span></span><span class="sig-name descname"><span class="pre">assign_beads_to_bins</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.assign_beads_to_bins" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.fields.assign_beads_to_bins">
+<code class="sig-prename descclassname">chromo.fields.</code><code class="sig-name descname">assign_beads_to_bins</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.assign_beads_to_bins" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a mapping from bin indices to list of associated beads.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -903,9 +911,9 @@ the bin indices and values are lists of beads contained in the bin</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.fields.get_blocks">
-<span class="sig-prename descclassname"><span class="pre">chromo.fields.</span></span><span class="sig-name descname"><span class="pre">get_blocks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.get_blocks" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.fields.get_blocks">
+<code class="sig-prename descclassname">chromo.fields.</code><code class="sig-name descname">get_blocks</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.get_blocks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Coarse grain individual beads into blocks of linearly adjacent beads.</p>
 <p class="rubric">Notes</p>
 <p>Used to improve computational tractibility of contact map generation.</p>
@@ -925,9 +933,9 @@ the bin indices and values are lists of beads contained in the bin</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.fields.get_neighboring_bins">
-<span class="sig-prename descclassname"><span class="pre">chromo.fields.</span></span><span class="sig-name descname"><span class="pre">get_neighboring_bins</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.get_neighboring_bins" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.fields.get_neighboring_bins">
+<code class="sig-prename descclassname">chromo.fields.</code><code class="sig-name descname">get_neighboring_bins</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.get_neighboring_bins" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate map of bin indices to all immediately neighboring bin indices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -947,9 +955,9 @@ all immediately neighboring bin indices, including the key.</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.fields.get_neighbors_at_ind">
-<span class="sig-prename descclassname"><span class="pre">chromo.fields.</span></span><span class="sig-name descname"><span class="pre">get_neighbors_at_ind</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.get_neighbors_at_ind" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.fields.get_neighbors_at_ind">
+<code class="sig-prename descclassname">chromo.fields.</code><code class="sig-name descname">get_neighbors_at_ind</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.get_neighbors_at_ind" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identify the bin indices immediately neighboring a specific bin index.</p>
 <p class="rubric">Notes</p>
 <p>This method is no longer in use – it was determined that the method for
@@ -975,9 +983,9 @@ the bin specified by <cite>ind</cite></p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.fields.super_ind_to_inds">
-<span class="sig-prename descclassname"><span class="pre">chromo.fields.</span></span><span class="sig-name descname"><span class="pre">super_ind_to_inds</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.super_ind_to_inds" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.fields.super_ind_to_inds">
+<code class="sig-prename descclassname">chromo.fields.</code><code class="sig-name descname">super_ind_to_inds</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.fields.super_ind_to_inds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the three-dimensional indices from a super-index.</p>
 <p class="rubric">Notes</p>
 <p>Given the super-index of a voxel and the number of voxels in the x and y
@@ -1000,18 +1008,18 @@ directions, calculate the three-dimensional indices of the voxel.</p>
 </dl>
 </dd></dl>
 
-</section>
-<section id="module-chromo.mixtures">
+</div>
+<div class="section" id="module-chromo.mixtures">
 <span id="chromo-mixtures"></span><h2>chromo.mixtures<a class="headerlink" href="#module-chromo.mixtures" title="Permalink to this headline">¶</a></h2>
 <p>Mixtures represent collections of interacting polymers.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.mixtures.Mixture">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.mixtures.</span></span><span class="sig-name descname"><span class="pre">Mixture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">polymers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#chromo.polymers.PolymerBase" title="chromo.polymers.PolymerBase"><span class="pre">chromo.polymers.PolymerBase</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mixtures.html#Mixture"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.mixtures.Mixture" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.mixtures.Mixture">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.mixtures.</code><code class="sig-name descname">Mixture</code><span class="sig-paren">(</span><em class="sig-param">polymers: List[chromo.polymers.PolymerBase]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/mixtures.html#Mixture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.mixtures.Mixture" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class representation of a mixture of multiple polymers.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.mixtures.Mixture.count_beads">
-<span class="sig-name descname"><span class="pre">count_beads</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/chromo/mixtures.html#Mixture.count_beads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.mixtures.Mixture.count_beads" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.mixtures.Mixture.count_beads">
+<code class="sig-name descname">count_beads</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/chromo/mixtures.html#Mixture.count_beads"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.mixtures.Mixture.count_beads" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the total number of nucleosomes in all polymers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -1023,9 +1031,9 @@ directions, calculate the three-dimensional indices of the voxel.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.mixtures.Mixture.get_neighbors">
-<span class="sig-name descname"><span class="pre">get_neighbors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#chromo.beads.Bead" title="chromo.beads.Bead"><span class="pre">chromo.beads.Bead</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#chromo.beads.Bead" title="chromo.beads.Bead"><span class="pre">chromo.beads.Bead</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/chromo/mixtures.html#Mixture.get_neighbors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.mixtures.Mixture.get_neighbors" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.mixtures.Mixture.get_neighbors">
+<code class="sig-name descname">get_neighbors</code><span class="sig-paren">(</span><em class="sig-param">radius: float</em><span class="sig-paren">)</span> &#x2192; List[Tuple[chromo.beads.Bead, chromo.beads.Bead]]<a class="reference internal" href="_modules/chromo/mixtures.html#Mixture.get_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.mixtures.Mixture.get_neighbors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get neighboring beads in polymer mixture.</p>
 <p>NOTE: Determination of pairwise neighbors requires pairwise calculation
 of distances between all beads on all polymers. As such, this method is
@@ -1046,13 +1054,13 @@ low numbers of total beads.</p>
 
 </dd></dl>
 
-</section>
-<section id="module-chromo.polymers">
+</div>
+<div class="section" id="module-chromo.polymers">
 <span id="chromo-polymers"></span><h2>chromo.polymers<a class="headerlink" href="#module-chromo.polymers" title="Permalink to this headline">¶</a></h2>
 <p>Polymers that will make up our simulation.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.polymers.Chromatin">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.polymers.</span></span><span class="sig-name descname"><span class="pre">Chromatin</span></span><a class="headerlink" href="#chromo.polymers.Chromatin" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.polymers.Chromatin">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.polymers.</code><code class="sig-name descname">Chromatin</code><a class="headerlink" href="#chromo.polymers.Chromatin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#chromo.polymers.SSWLC" title="chromo.polymers.SSWLC"><code class="xref py py-class docutils literal notranslate"><span class="pre">chromo.polymers.SSWLC</span></code></a></p>
 <p>Stretchable, sharable WLC model of chromatin.</p>
 <p class="rubric">Notes</p>
@@ -1067,14 +1075,14 @@ abstraction. To implement chromatin as an instance of the SSWLC, we need
 to adjust the <cite>construct_beads</cite> method to accept an arbitrary bead type.</p>
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.polymers.LoopedSSTWLC">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.polymers.</span></span><span class="sig-name descname"><span class="pre">LoopedSSTWLC</span></span><a class="headerlink" href="#chromo.polymers.LoopedSSTWLC" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.polymers.LoopedSSTWLC">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.polymers.</code><code class="sig-name descname">LoopedSSTWLC</code><a class="headerlink" href="#chromo.polymers.LoopedSSTWLC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#chromo.polymers.SSTWLC" title="chromo.polymers.SSTWLC"><code class="xref py py-class docutils literal notranslate"><span class="pre">chromo.polymers.SSTWLC</span></code></a></p>
 <p>Class representation of a looped SSTWLC.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.LoopedSSTWLC.looped_confined_gaussian_walk">
-<span class="sig-name descname"><span class="pre">looped_confined_gaussian_walk</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.LoopedSSTWLC.looped_confined_gaussian_walk" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.LoopedSSTWLC.looped_confined_gaussian_walk">
+<code class="sig-name descname">looped_confined_gaussian_walk</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.LoopedSSTWLC.looped_confined_gaussian_walk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize a polymer to a looped, confined Gaussian random walk.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1102,16 +1110,16 @@ Gaussian random walk</p>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.polymers.</span></span><span class="sig-name descname"><span class="pre">PolymerBase</span></span><a class="headerlink" href="#chromo.polymers.PolymerBase" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.polymers.PolymerBase">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.polymers.</code><code class="sig-name descname">PolymerBase</code><a class="headerlink" href="#chromo.polymers.PolymerBase" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#chromo.polymers.TransformedObject" title="chromo.polymers.TransformedObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">chromo.polymers.TransformedObject</span></code></a></p>
 <p>Base class representation of an arbitrary polymer.</p>
 <p class="rubric">Notes</p>
 <p>See <cite>TransformedObject</cite> documentation for additional notes and attributes.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.name">
-<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#chromo.polymers.PolymerBase.name" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.polymers.PolymerBase.name">
+<code class="sig-name descname">name</code><a class="headerlink" href="#chromo.polymers.PolymerBase.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>A name of the polymer for convenient representation; should be a
 valid filename</p>
 <dl class="field-list simple">
@@ -1121,9 +1129,9 @@ valid filename</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.log_path">
-<span class="sig-name descname"><span class="pre">log_path</span></span><a class="headerlink" href="#chromo.polymers.PolymerBase.log_path" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.polymers.PolymerBase.log_path">
+<code class="sig-name descname">log_path</code><a class="headerlink" href="#chromo.polymers.PolymerBase.log_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Path to configuration tracker log (if empty, flags for no configuration
 log to be generated)</p>
 <dl class="field-list simple">
@@ -1133,9 +1141,9 @@ log to be generated)</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.beads">
-<span class="sig-name descname"><span class="pre">beads</span></span><a class="headerlink" href="#chromo.polymers.PolymerBase.beads" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.polymers.PolymerBase.beads">
+<code class="sig-name descname">beads</code><a class="headerlink" href="#chromo.polymers.PolymerBase.beads" title="Permalink to this definition">¶</a></dt>
 <dd><p>Monomeric unit forming the polymer</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1144,9 +1152,9 @@ log to be generated)</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.num_beads">
-<span class="sig-name descname"><span class="pre">num_beads</span></span><a class="headerlink" href="#chromo.polymers.PolymerBase.num_beads" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.polymers.PolymerBase.num_beads">
+<code class="sig-name descname">num_beads</code><a class="headerlink" href="#chromo.polymers.PolymerBase.num_beads" title="Permalink to this definition">¶</a></dt>
 <dd><p>Number of monomeric units forming the polymer</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1155,9 +1163,9 @@ log to be generated)</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.configuration_tracker">
-<span class="sig-name descname"><span class="pre">configuration_tracker</span></span><a class="headerlink" href="#chromo.polymers.PolymerBase.configuration_tracker" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.polymers.PolymerBase.configuration_tracker">
+<code class="sig-name descname">configuration_tracker</code><a class="headerlink" href="#chromo.polymers.PolymerBase.configuration_tracker" title="Permalink to this definition">¶</a></dt>
 <dd><p>Object tracking configuration of the polymer over the course of the
 MC simulation, used for purposes of tracking simulation convergence</p>
 <dl class="field-list simple">
@@ -1167,9 +1175,9 @@ MC simulation, used for purposes of tracking simulation convergence</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.lp">
-<span class="sig-name descname"><span class="pre">lp</span></span><a class="headerlink" href="#chromo.polymers.PolymerBase.lp" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.polymers.PolymerBase.lp">
+<code class="sig-name descname">lp</code><a class="headerlink" href="#chromo.polymers.PolymerBase.lp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Persistence length of the polymer</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1178,10 +1186,10 @@ MC simulation, used for purposes of tracking simulation convergence</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.num_marks">
-<span class="sig-name descname"><span class="pre">num_marks</span></span><a class="headerlink" href="#chromo.polymers.PolymerBase.num_marks" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of chemical mark types bound to the polymer which are tracked
+<dl class="attribute">
+<dt id="chromo.polymers.PolymerBase.num_binders">
+<code class="sig-name descname">num_binders</code><a class="headerlink" href="#chromo.polymers.PolymerBase.num_binders" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of reader protein types bound to the polymer which are tracked
 by the simulator</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1190,10 +1198,10 @@ by the simulator</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.n_marks_p1">
-<span class="sig-name descname"><span class="pre">n_marks_p1</span></span><a class="headerlink" href="#chromo.polymers.PolymerBase.n_marks_p1" title="Permalink to this definition">¶</a></dt>
-<dd><p>One more than <cite>num_marks</cite> to avoid repeated calculation</p>
+<dl class="attribute">
+<dt id="chromo.polymers.PolymerBase.n_binders_p1">
+<code class="sig-name descname">n_binders_p1</code><a class="headerlink" href="#chromo.polymers.PolymerBase.n_binders_p1" title="Permalink to this definition">¶</a></dt>
+<dd><p>One more than <cite>num_binders</cite> to avoid repeated calculation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>long</p>
@@ -1201,11 +1209,11 @@ by the simulator</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.mark_names">
-<span class="sig-name descname"><span class="pre">mark_names</span></span><a class="headerlink" href="#chromo.polymers.PolymerBase.mark_names" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.polymers.PolymerBase.binder_names">
+<code class="sig-name descname">binder_names</code><a class="headerlink" href="#chromo.polymers.PolymerBase.binder_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of M bound chemical states tracked in <cite>states</cite>; length of
-<cite>mark_names</cite> must match number of columns in <cite>states</cite></p>
+<cite>binder_names</cite> must match number of columns in <cite>states</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>array_like (M,) of str</p>
@@ -1213,9 +1221,9 @@ by the simulator</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.all_inds">
-<span class="sig-name descname"><span class="pre">all_inds</span></span><a class="headerlink" href="#chromo.polymers.PolymerBase.all_inds" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.polymers.PolymerBase.all_inds">
+<code class="sig-name descname">all_inds</code><a class="headerlink" href="#chromo.polymers.PolymerBase.all_inds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Indices corresponding to each bead in the polymer</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1224,9 +1232,9 @@ by the simulator</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">r,</span> <span class="pre">t3,</span> <span class="pre">t2</span></span></dt>
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">r, t3, t2</code></dt>
 <dd><p>Current position (r), tangent vector (t3) and material normal (t2) in
 global coordinates (x, y, z) for each of N beads in the polymer</p>
 <dl class="field-list simple">
@@ -1236,9 +1244,9 @@ global coordinates (x, y, z) for each of N beads in the polymer</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">r_trial,</span> <span class="pre">t3_trial,</span> <span class="pre">t2_trial</span></span></dt>
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">r_trial, t3_trial, t2_trial</code></dt>
 <dd><p>Proposed position (r), tangent vector (t3) and material normal (t2) in
 global coordinates (x, y, z) for each of N beads in the polymer;
 evaluated for acceptance using energy change determined by <cite>compute_dE</cite></p>
@@ -1249,10 +1257,22 @@ evaluated for acceptance using energy change determined by <cite>compute_dE</cit
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.states">
-<span class="sig-name descname"><span class="pre">states</span></span><a class="headerlink" href="#chromo.polymers.PolymerBase.states" title="Permalink to this definition">¶</a></dt>
-<dd><p>Current state of each of the M chemical marks being tracked for each of
+<dl class="attribute">
+<dt id="chromo.polymers.PolymerBase.states">
+<code class="sig-name descname">states</code><a class="headerlink" href="#chromo.polymers.PolymerBase.states" title="Permalink to this definition">¶</a></dt>
+<dd><p>Current state of each of the M reader proteins being tracked for each
+of the N beads in the polymer</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array_like (N, M) of long</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="chromo.polymers.PolymerBase.states_trial">
+<code class="sig-name descname">states_trial</code><a class="headerlink" href="#chromo.polymers.PolymerBase.states_trial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trial state of each of the M reader proteins being tracked for each of
 the N beads in the polymer</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1261,21 +1281,9 @@ the N beads in the polymer</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.states_trial">
-<span class="sig-name descname"><span class="pre">states_trial</span></span><a class="headerlink" href="#chromo.polymers.PolymerBase.states_trial" title="Permalink to this definition">¶</a></dt>
-<dd><p>Trial state of each of the M chemical marks being tracked for each of
-the N beads in the polymer</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>array_like (N, M) of long</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.chemical_mods">
-<span class="sig-name descname"><span class="pre">chemical_mods</span></span><a class="headerlink" href="#chromo.polymers.PolymerBase.chemical_mods" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.polymers.PolymerBase.chemical_mods">
+<code class="sig-name descname">chemical_mods</code><a class="headerlink" href="#chromo.polymers.PolymerBase.chemical_mods" title="Permalink to this definition">¶</a></dt>
 <dd><p>States of M chemical modifications (e.g., counts of H3K9me3) on each
 of N beads in the polymer</p>
 <dl class="field-list simple">
@@ -1285,9 +1293,9 @@ of N beads in the polymer</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.chemical_mod_names">
-<span class="sig-name descname"><span class="pre">chemical_mod_names</span></span><a class="headerlink" href="#chromo.polymers.PolymerBase.chemical_mod_names" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.polymers.PolymerBase.chemical_mod_names">
+<code class="sig-name descname">chemical_mod_names</code><a class="headerlink" href="#chromo.polymers.PolymerBase.chemical_mod_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of M chemical modifications made to the polymer tracked for each
 bead, corresponding to columns in <cite>chemical_mods</cite></p>
 <dl class="field-list simple">
@@ -1297,9 +1305,9 @@ bead, corresponding to columns in <cite>chemical_mods</cite></p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.direction">
-<span class="sig-name descname"><span class="pre">direction</span></span><a class="headerlink" href="#chromo.polymers.PolymerBase.direction" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.polymers.PolymerBase.direction">
+<code class="sig-name descname">direction</code><a class="headerlink" href="#chromo.polymers.PolymerBase.direction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Vector describing the direction of a transformation during a move in
 the MC simulation; stored as attribute to avoid costly array generation
 during inner loop of simulation</p>
@@ -1310,9 +1318,9 @@ during inner loop of simulation</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.point">
-<span class="sig-name descname"><span class="pre">point</span></span><a class="headerlink" href="#chromo.polymers.PolymerBase.point" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.polymers.PolymerBase.point">
+<code class="sig-name descname">point</code><a class="headerlink" href="#chromo.polymers.PolymerBase.point" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to describe a reference point (typically a fulcrum) for a move
 in the MC simulation; stored as attribute to avoid costly array
 generation during inner loop of simulation</p>
@@ -1323,9 +1331,9 @@ generation during inner loop of simulation</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.last_amp_move">
-<span class="sig-name descname"><span class="pre">last_amp_move</span></span><a class="headerlink" href="#chromo.polymers.PolymerBase.last_amp_move" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.polymers.PolymerBase.last_amp_move">
+<code class="sig-name descname">last_amp_move</code><a class="headerlink" href="#chromo.polymers.PolymerBase.last_amp_move" title="Permalink to this definition">¶</a></dt>
 <dd><p>Most recent move amplitude during simulation step</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1334,9 +1342,9 @@ generation during inner loop of simulation</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.last_amp_bead">
-<span class="sig-name descname"><span class="pre">last_amp_bead</span></span><a class="headerlink" href="#chromo.polymers.PolymerBase.last_amp_bead" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.polymers.PolymerBase.last_amp_bead">
+<code class="sig-name descname">last_amp_bead</code><a class="headerlink" href="#chromo.polymers.PolymerBase.last_amp_bead" title="Permalink to this definition">¶</a></dt>
 <dd><p>Most recent bead amplitude during simulation step</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1345,9 +1353,9 @@ generation during inner loop of simulation</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">required_attrs,</span> <span class="pre">_arrays,</span> <span class="pre">_3d_arrays</span></span></dt>
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">required_attrs, _arrays, _3d_arrays</code></dt>
 <dd><p>Minimal required attributes (required_attrs), arrays tracked (_arrays),
 and multi-index arrays tracked (_3d_arrays) by the polymer</p>
 <dl class="field-list simple">
@@ -1357,9 +1365,9 @@ and multi-index arrays tracked (_3d_arrays) by the polymer</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">dr,</span> <span class="pre">dr_perp,</span> <span class="pre">bend</span></span></dt>
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">dr, dr_perp, bend</code></dt>
 <dd><p>Change in position (dr), perpendicular component of the change in
 position (dr_perp), and bend vector (bend) used to compute the
 elastic energy of a bond in a polymer; stored as attribute to avoid
@@ -1371,9 +1379,9 @@ costly array generation during inner loop of simulation</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">dr_test,</span> <span class="pre">dr_perp_test,</span> <span class="pre">bend_test</span></span></dt>
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">dr_test, dr_perp_test, bend_test</code></dt>
 <dd><p>Change in position (dr_test), perpendicular component of the change in
 position (dr_perp_test), and bend vector (bend_test) of proposed
 configuration used to compute the elastic energy of a bond in a
@@ -1386,18 +1394,18 @@ inner loop of simulation</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.densities_temp">
-<span class="sig-name descname"><span class="pre">densities_temp</span></span><a class="headerlink" href="#chromo.polymers.PolymerBase.densities_temp" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.polymers.PolymerBase.densities_temp">
+<code class="sig-name descname">densities_temp</code><a class="headerlink" href="#chromo.polymers.PolymerBase.densities_temp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Densities for current (dim0 = 0) and trial (dim0 = 1) bins containing
 bead during MC move; the densities are tracked for the bead itself
-and each bound mark (stored in dim1); the densities are tracked for 8
-bins containing the bead before and after the move (stored in dim2);
-stored as attribute to avoid costly array generation during inner
-loop of simulation</p>
+and each bound reader proteins (stored in dim1); the densities are
+tracked for 8 bins containing the bead before and after the move
+(stored in dim2); stored as attribute to avoid costly array generation
+during inner loop of simulation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>array_like (2, n_marks_p1, 8) of double</p>
+<dd class="field-odd"><p>array_like (2, n_binders_p1, 8) of double</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1407,9 +1415,9 @@ loop of simulation</p>
 cython equivalent of an abstract base class. <cite>PolymerBase</cite> specifies the
 attributes and methods required to define a new polymer class. The class
 also implements utility methods common to all polymer subclasses.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.check_attrs">
-<span class="sig-name descname"><span class="pre">check_attrs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.check_attrs" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.PolymerBase.check_attrs">
+<code class="sig-name descname">check_attrs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.check_attrs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check that the required attributes are specified in the class.</p>
 <p class="rubric">Notes</p>
 <p>The required attributes of any polymer are stored in <cite>required_attrs</cite>.
@@ -1418,17 +1426,17 @@ instantiated. This method is run during the initialization of the
 polymer to verify that all required attributes are specified.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.fill_missing_arguments">
-<span class="sig-name descname"><span class="pre">fill_missing_arguments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.fill_missing_arguments" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.PolymerBase.fill_missing_arguments">
+<code class="sig-name descname">fill_missing_arguments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.fill_missing_arguments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fill empty arguments in <cite>__init__</cite> call.</p>
-<p>Fills t3, t2, states, mark_names, chemical_mods, chemical_mod_names if
-not defined during polymer initialization.</p>
+<p>Fills t3, t2, states, binder_names, chemical_mods, chemical_mod_names
+if not defined during polymer initialization.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.from_csv">
-<span class="sig-name descname"><span class="pre">from_csv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.from_csv" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.PolymerBase.from_csv">
+<code class="sig-name descname">from_csv</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.from_csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct Polymer from CSV file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1443,9 +1451,9 @@ not defined during polymer initialization.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.from_dataframe">
-<span class="sig-name descname"><span class="pre">from_dataframe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.from_dataframe" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.PolymerBase.from_dataframe">
+<code class="sig-name descname">from_dataframe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.from_dataframe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct Polymer object from DataFrame; inverts <cite>.to_dataframe</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1463,9 +1471,9 @@ not defined during polymer initialization.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.from_file">
-<span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.from_file" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.PolymerBase.from_file">
+<code class="sig-name descname">from_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct Polymer object from string representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1483,9 +1491,9 @@ not defined during polymer initialization.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.get_all">
-<span class="sig-name descname"><span class="pre">get_all</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.get_all" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.PolymerBase.get_all">
+<code class="sig-name descname">get_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.get_all" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get some bead property value from all beads.</p>
 <p class="rubric">Notes</p>
 <p>Generates an array from a specified attribute separately stored in
@@ -1505,9 +1513,9 @@ objects and not aggregated in the polymer object.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.get_num_beads">
-<span class="sig-name descname"><span class="pre">get_num_beads</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.get_num_beads" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.PolymerBase.get_num_beads">
+<code class="sig-name descname">get_num_beads</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.get_num_beads" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return number of beads in the polymer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -1519,13 +1527,13 @@ objects and not aggregated in the polymer object.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.get_num_marks">
-<span class="sig-name descname"><span class="pre">get_num_marks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.get_num_marks" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.PolymerBase.get_num_binders">
+<code class="sig-name descname">get_num_binders</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.get_num_binders" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return number of states tracked per bead.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Number of mark types bound to the polymer</p>
+<dd class="field-odd"><p>Number of binder types bound to the polymer</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>long</p>
@@ -1533,9 +1541,9 @@ objects and not aggregated in the polymer object.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.get_prop">
-<span class="sig-name descname"><span class="pre">get_prop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.get_prop" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.PolymerBase.get_prop">
+<code class="sig-name descname">get_prop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.get_prop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get specified property of beads at listed indices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1554,13 +1562,13 @@ position, orientation) of the polymer</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.is_field_active">
-<span class="sig-name descname"><span class="pre">is_field_active</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.is_field_active" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.PolymerBase.is_field_active">
+<code class="sig-name descname">is_field_active</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.is_field_active" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate if the polymer is affected by a field.</p>
 <p class="rubric">Notes</p>
-<p>The field will not be active if there are no marks defined or if there
-are no marks bound.</p>
+<p>The field will not be active if there are no binders defined or if there
+are no binders bound.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Flag indicating whether the polymer is affected by the field (True)
@@ -1572,13 +1580,13 @@ or is agnostic to the field (False)</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.load_seqs">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_seqs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.load_seqs" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.PolymerBase.load_seqs">
+<em class="property">static </em><code class="sig-name descname">load_seqs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.load_seqs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load sequence of all chemical modifications on beads of polymer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>paths_to_seqs</strong> (<em>array_like</em><em> (</em><em>M</em><em>,</em><em>) </em><em>of str</em>) – Paths to the sequence of chemical modifications or mark on the
+<dd class="field-odd"><p><strong>paths_to_seqs</strong> (<em>array_like</em><em> (</em><em>M</em><em>,</em><em>) </em><em>of str</em>) – Paths to the sequence of chemical modifications or binders on the
 beads. A single path should be provided per epigenetic mark.</p>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1591,9 +1599,9 @@ each of N beads in the polymer</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.to_csv">
-<span class="sig-name descname"><span class="pre">to_csv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.to_csv" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.PolymerBase.to_csv">
+<code class="sig-name descname">to_csv</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.to_csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save Polymer object to CSV file as DataFrame.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1609,9 +1617,9 @@ file that was generated</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.to_dataframe">
-<span class="sig-name descname"><span class="pre">to_dataframe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.to_dataframe" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.PolymerBase.to_dataframe">
+<code class="sig-name descname">to_dataframe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.to_dataframe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write canonical CSV representation of the Polymer to file.</p>
 <p class="rubric">Notes</p>
 <p>The top-level multi-index values for the columns should correspond to
@@ -1623,7 +1631,7 @@ saved. These are defined in the class’s <cite>_arrays</cite> attribute.</p>
 composed of multiple columns (like r) and so we need to build a multi-
 index for putting them into the data frame correctly.</p>
 <p>All other arrays can be added as a single column to the data frame.</p>
-<p>Epigenmark names is a special case because it does not fit with with
+<p>ReaderProtein names is a special case because it does not fit with with
 dimensions of the other properties, which are saved per bead.</p>
 <p>Construct the parts of the DataFrame that need a multi-index.</p>
 <p>TODO: remove “list” after numpy fixes issue 17305:
@@ -1646,17 +1654,17 @@ file that was generated</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.to_file">
-<span class="sig-name descname"><span class="pre">to_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.to_file" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.PolymerBase.to_file">
+<code class="sig-name descname">to_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.to_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Synonym for <cite>to_csv</cite> to conform to <cite>make_reproducible</cite> spec.</p>
 <p class="rubric">Notes</p>
 <p>See documentation for <cite>to_csv</cite> for details.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.update_log_path">
-<span class="sig-name descname"><span class="pre">update_log_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.update_log_path" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.PolymerBase.update_log_path">
+<code class="sig-name descname">update_log_path</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.update_log_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the path to the configuration tracker log.</p>
 <p class="rubric">Notes</p>
 <p>The configuration tracker is used during the simulation to evaluate
@@ -1669,9 +1677,9 @@ tracker will be initialized. (default = None)</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.PolymerBase.update_prop">
-<span class="sig-name descname"><span class="pre">update_prop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.update_prop" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.PolymerBase.update_prop">
+<code class="sig-name descname">update_prop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.PolymerBase.update_prop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update bead property for each bead in polymer.</p>
 <p class="rubric">Notes</p>
 <p>This utility function copies an attribute of the polymer to each bead
@@ -1685,9 +1693,9 @@ forming the polymer.</p>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.polymers.Rouse">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.polymers.</span></span><span class="sig-name descname"><span class="pre">Rouse</span></span><a class="headerlink" href="#chromo.polymers.Rouse" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.polymers.Rouse">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.polymers.</code><code class="sig-name descname">Rouse</code><a class="headerlink" href="#chromo.polymers.Rouse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#chromo.polymers.PolymerBase" title="chromo.polymers.PolymerBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">chromo.polymers.PolymerBase</span></code></a></p>
 <p>Class representation of Rouse polymer.</p>
 <p class="rubric">Notes</p>
@@ -1697,9 +1705,9 @@ basic attributes and functionality shared by all polymers. Please see
 <cite>PolymerBase</cite> documentation for descriptions of attributes.</p>
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.polymers.SSTWLC">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.polymers.</span></span><span class="sig-name descname"><span class="pre">SSTWLC</span></span><a class="headerlink" href="#chromo.polymers.SSTWLC" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.polymers.SSTWLC">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.polymers.</code><code class="sig-name descname">SSTWLC</code><a class="headerlink" href="#chromo.polymers.SSTWLC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#chromo.polymers.SSWLC" title="chromo.polymers.SSWLC"><code class="xref py py-class docutils literal notranslate"><span class="pre">chromo.polymers.SSWLC</span></code></a></p>
 <p>Class representation of stretchable, shearable wormlike chain w/ twist.</p>
 <p class="rubric">Notes</p>
@@ -1718,15 +1726,15 @@ as appears in the equation for SSTWLC elastic energy (units of kbT)</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.polymers.SSWLC">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.polymers.</span></span><span class="sig-name descname"><span class="pre">SSWLC</span></span><a class="headerlink" href="#chromo.polymers.SSWLC" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.polymers.SSWLC">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.polymers.</code><code class="sig-name descname">SSWLC</code><a class="headerlink" href="#chromo.polymers.SSWLC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#chromo.polymers.PolymerBase" title="chromo.polymers.PolymerBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">chromo.polymers.PolymerBase</span></code></a></p>
 <p>Class representation of a stretchable, shearable wormlike chain.</p>
 <p class="rubric">Notes</p>
 <p>The <cite>SSWLC</cite> class describes a discrete, semiflexible polymer with
-attributes for position, orientation, chemical modification, and mark
-binding state.</p>
+attributes for position, orientation, chemical modification, and reader
+protein binding state.</p>
 <p>The polymer carries around a set of coordinates <cite>r</cite> of shape
 <cite>(num_beads, 3)</cite>, sets of material normals <cite>t3</cite> and <cite>t2</cite>, some number of
 chemical modifications, and some number of chemical binding states per
@@ -1737,8 +1745,8 @@ Each bead has a set of coordiantes <cite>r</cite> of length (3,). The beads also
 have material normals <cite>t3</cite> and <cite>t2</cite>. The beads optionally carry around
 some number of chemical modifications and binding states.</p>
 <p>If this codebase is used to simulate DNA, information about the chemical
-properties of each epigenetic mark are stored in <cite>Epigenmark</cite> objects. To
-model arbitrary SSWLC’s, the different types of <cite>Mark</cite> objects may be
+properties of each reader protein are stored in <cite>ReaderProtein</cite> objects. To
+model arbitrary SSWLC’s, the different types of <cite>Binder</cite> objects may be
 specified to characterize bound components.</p>
 <p>See documentation for <cite>PolymerBase</cite> class for additional paramete details.</p>
 <p>TODO: allow differential discretization, and decay to constant
@@ -1758,9 +1766,9 @@ persistence length</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.SSWLC.arbitrary_path_in_x_y">
-<span class="sig-name descname"><span class="pre">arbitrary_path_in_x_y</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.SSWLC.arbitrary_path_in_x_y" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.SSWLC.arbitrary_path_in_x_y">
+<code class="sig-name descname">arbitrary_path_in_x_y</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.SSWLC.arbitrary_path_in_x_y" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct a polymer initialized as y = f(x) from x = 0.</p>
 <p class="rubric">Notes</p>
 <p>As is, this code does not support variable linker lengths.</p>
@@ -1784,9 +1792,9 @@ building the polymer path</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.SSWLC.arbitrary_path_in_x_y_z">
-<span class="sig-name descname"><span class="pre">arbitrary_path_in_x_y_z</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.SSWLC.arbitrary_path_in_x_y_z" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.SSWLC.arbitrary_path_in_x_y_z">
+<code class="sig-name descname">arbitrary_path_in_x_y_z</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.SSWLC.arbitrary_path_in_x_y_z" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct a polymer initialized as y = f(x) from x = 0.</p>
 <p class="rubric">Notes</p>
 <p>As is, this code does not support variable linker lengths.</p>
@@ -1813,9 +1821,9 @@ z = Z(t)</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.SSWLC.compute_E">
-<span class="sig-name descname"><span class="pre">compute_E</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.SSWLC.compute_E" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.SSWLC.compute_E">
+<code class="sig-name descname">compute_E</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.SSWLC.compute_E" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the overall polymer energy at the current configuration.</p>
 <p class="rubric">Notes</p>
 <p>This method loops over each bond in the polymer and calculates the
@@ -1830,9 +1838,9 @@ energy change of that bond.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.SSWLC.confined_gaussian_walk">
-<span class="sig-name descname"><span class="pre">confined_gaussian_walk</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.SSWLC.confined_gaussian_walk" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.SSWLC.confined_gaussian_walk">
+<code class="sig-name descname">confined_gaussian_walk</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.SSWLC.confined_gaussian_walk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize a polymer to a confined Gaussian random walk.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1856,9 +1864,9 @@ random walk</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.SSWLC.gaussian_walk_polymer">
-<span class="sig-name descname"><span class="pre">gaussian_walk_polymer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.SSWLC.gaussian_walk_polymer" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.SSWLC.gaussian_walk_polymer">
+<code class="sig-name descname">gaussian_walk_polymer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.SSWLC.gaussian_walk_polymer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize a polymer to a Gaussian random walk.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1877,9 +1885,9 @@ random walk</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.polymers.SSWLC.straight_line_in_x">
-<span class="sig-name descname"><span class="pre">straight_line_in_x</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.SSWLC.straight_line_in_x" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.polymers.SSWLC.straight_line_in_x">
+<code class="sig-name descname">straight_line_in_x</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.SSWLC.straight_line_in_x" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct polymer initialized uniformly along the positve x-axis.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1901,9 +1909,9 @@ straight line</p>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.polymers.TransformedObject">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.polymers.</span></span><span class="sig-name descname"><span class="pre">TransformedObject</span></span><a class="headerlink" href="#chromo.polymers.TransformedObject" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.polymers.TransformedObject">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.polymers.</code><code class="sig-name descname">TransformedObject</code><a class="headerlink" href="#chromo.polymers.TransformedObject" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Represents any object undergoing physical transformations during MC sim.</p>
 <p class="rubric">Notes</p>
@@ -1911,9 +1919,9 @@ straight line</p>
 matrix is updated with each iteration of the MC simulation. It’s inclusion
 avoids costly matrix initialization with each iteration, drastically
 improving runtime.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.polymers.TransformedObject.transformation_mat">
-<span class="sig-name descname"><span class="pre">transformation_mat</span></span><a class="headerlink" href="#chromo.polymers.TransformedObject.transformation_mat" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.polymers.TransformedObject.transformation_mat">
+<code class="sig-name descname">transformation_mat</code><a class="headerlink" href="#chromo.polymers.TransformedObject.transformation_mat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Homogeneous transformation matrix for an arbitrary transformation in
 the MC simulation; stored as attribute to avoid costly array
 generation during inner loop of simulation</p>
@@ -1926,9 +1934,9 @@ generation during inner loop of simulation</p>
 
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.polymers.helix_parametric_x">
-<span class="sig-prename descclassname"><span class="pre">chromo.polymers.</span></span><span class="sig-name descname"><span class="pre">helix_parametric_x</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.helix_parametric_x" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.polymers.helix_parametric_x">
+<code class="sig-prename descclassname">chromo.polymers.</code><code class="sig-name descname">helix_parametric_x</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.helix_parametric_x" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parametric equation for x-coordinates of a helix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1943,9 +1951,9 @@ generation during inner loop of simulation</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.polymers.helix_parametric_y">
-<span class="sig-prename descclassname"><span class="pre">chromo.polymers.</span></span><span class="sig-name descname"><span class="pre">helix_parametric_y</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.helix_parametric_y" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.polymers.helix_parametric_y">
+<code class="sig-prename descclassname">chromo.polymers.</code><code class="sig-name descname">helix_parametric_y</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.helix_parametric_y" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parametric equation for y-coordinates of a helix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1960,9 +1968,9 @@ generation during inner loop of simulation</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.polymers.helix_parametric_z">
-<span class="sig-prename descclassname"><span class="pre">chromo.polymers.</span></span><span class="sig-name descname"><span class="pre">helix_parametric_z</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.helix_parametric_z" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.polymers.helix_parametric_z">
+<code class="sig-prename descclassname">chromo.polymers.</code><code class="sig-name descname">helix_parametric_z</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.helix_parametric_z" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parametric equation for z-coordinates of a helix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1977,9 +1985,9 @@ generation during inner loop of simulation</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.polymers.sin_func">
-<span class="sig-prename descclassname"><span class="pre">chromo.polymers.</span></span><span class="sig-name descname"><span class="pre">sin_func</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.sin_func" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.polymers.sin_func">
+<code class="sig-prename descclassname">chromo.polymers.</code><code class="sig-name descname">sin_func</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.polymers.sin_func" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sine function to which the polymer will be initialized.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1994,18 +2002,18 @@ generation during inner loop of simulation</p>
 </dl>
 </dd></dl>
 
-</section>
-<section id="module-chromo.beads">
+</div>
+<div class="section" id="module-chromo.beads">
 <span id="chromo-beads"></span><h2>chromo.beads<a class="headerlink" href="#module-chromo.beads" title="Permalink to this headline">¶</a></h2>
 <p>Beads represent monomeric units forming the polymer.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.beads.Bead">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.beads.</span></span><span class="sig-name descname"><span class="pre">Bead</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t3</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#Bead"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.beads.Bead" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.beads.Bead">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.beads.</code><code class="sig-name descname">Bead</code><span class="sig-paren">(</span><em class="sig-param">id_: int</em>, <em class="sig-param">r: numpy.ndarray</em>, <em class="sig-param">t3: Optional[numpy.ndarray] = None</em>, <em class="sig-param">t2: Optional[numpy.ndarray] = None</em>, <em class="sig-param">states: Optional[numpy.ndarray] = None</em>, <em class="sig-param">binder_names: Optional[Sequence[str]] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#Bead"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.beads.Bead" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Abstract class representation of a bead of a polymer.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.beads.Bead.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#chromo.beads.Bead.id" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.beads.Bead.id">
+<code class="sig-name descname">id</code><a class="headerlink" href="#chromo.beads.Bead.id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bead identifier; typically the beads index position in the chain</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -2014,9 +2022,9 @@ generation during inner loop of simulation</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.beads.Bead.r">
-<span class="sig-name descname"><span class="pre">r</span></span><a class="headerlink" href="#chromo.beads.Bead.r" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.beads.Bead.r">
+<code class="sig-name descname">r</code><a class="headerlink" href="#chromo.beads.Bead.r" title="Permalink to this definition">¶</a></dt>
 <dd><p>Position of the bead</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -2025,9 +2033,9 @@ generation during inner loop of simulation</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.beads.Bead.t3">
-<span class="sig-name descname"><span class="pre">t3</span></span><a class="headerlink" href="#chromo.beads.Bead.t3" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.beads.Bead.t3">
+<code class="sig-name descname">t3</code><a class="headerlink" href="#chromo.beads.Bead.t3" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tangential orientation vector defining the bead</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -2036,9 +2044,9 @@ generation during inner loop of simulation</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.beads.Bead.t2">
-<span class="sig-name descname"><span class="pre">t2</span></span><a class="headerlink" href="#chromo.beads.Bead.t2" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.beads.Bead.t2">
+<code class="sig-name descname">t2</code><a class="headerlink" href="#chromo.beads.Bead.t2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tangential orientation vector defining the bead; orthogonal to <cite>t3</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -2047,9 +2055,9 @@ generation during inner loop of simulation</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.beads.Bead.states">
-<span class="sig-name descname"><span class="pre">states</span></span><a class="headerlink" href="#chromo.beads.Bead.states" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.beads.Bead.states">
+<code class="sig-name descname">states</code><a class="headerlink" href="#chromo.beads.Bead.states" title="Permalink to this definition">¶</a></dt>
 <dd><p>State of each bound protein on the bead</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -2058,9 +2066,9 @@ generation during inner loop of simulation</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.beads.Bead.mark_names">
-<span class="sig-name descname"><span class="pre">mark_names</span></span><a class="headerlink" href="#chromo.beads.Bead.mark_names" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.beads.Bead.binder_names">
+<code class="sig-name descname">binder_names</code><a class="headerlink" href="#chromo.beads.Bead.binder_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of each bound protein on the bead</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -2069,30 +2077,30 @@ generation during inner loop of simulation</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.beads.Bead.print_properties">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">print_properties</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#Bead.print_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.beads.Bead.print_properties" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.beads.Bead.print_properties">
+<em class="property">abstract </em><code class="sig-name descname">print_properties</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#Bead.print_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.beads.Bead.print_properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print properties of the bead.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.beads.Bead.test_collision">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">test_collision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#Bead.test_collision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.beads.Bead.test_collision" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.beads.Bead.test_collision">
+<em class="property">abstract </em><code class="sig-name descname">test_collision</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#Bead.test_collision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.beads.Bead.test_collision" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test collisions with another bead or a confinement.</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.beads.GhostBead">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.beads.</span></span><span class="sig-name descname"><span class="pre">GhostBead</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t3</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rad</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#GhostBead"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.beads.GhostBead" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.beads.GhostBead">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.beads.</code><code class="sig-name descname">GhostBead</code><span class="sig-paren">(</span><em class="sig-param">id_: int</em>, <em class="sig-param">r: numpy.ndarray</em>, <em class="sig-param">*</em>, <em class="sig-param">t3: Optional[numpy.ndarray] = None</em>, <em class="sig-param">t2: Optional[numpy.ndarray] = None</em>, <em class="sig-param">states: Optional[numpy.ndarray] = None</em>, <em class="sig-param">binder_names: Optional[Sequence[str]] = None</em>, <em class="sig-param">rad: Optional[float] = 5</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#GhostBead"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.beads.GhostBead" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#chromo.beads.Bead" title="chromo.beads.Bead"><code class="xref py py-class docutils literal notranslate"><span class="pre">chromo.beads.Bead</span></code></a></p>
 <p>Class representation of a “ghost bead” for which collisions are ignored.</p>
 <p class="rubric">Notes</p>
 <p>See documentation for <cite>Bead</cite> class for additional attribute definitions.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.beads.GhostBead.rad">
-<span class="sig-name descname"><span class="pre">rad</span></span><a class="headerlink" href="#chromo.beads.GhostBead.rad" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.beads.GhostBead.rad">
+<code class="sig-name descname">rad</code><a class="headerlink" href="#chromo.beads.GhostBead.rad" title="Permalink to this definition">¶</a></dt>
 <dd><p>Radius of the spherical ghost bead</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -2101,9 +2109,9 @@ generation during inner loop of simulation</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.beads.GhostBead.vol">
-<span class="sig-name descname"><span class="pre">vol</span></span><a class="headerlink" href="#chromo.beads.GhostBead.vol" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.beads.GhostBead.vol">
+<code class="sig-name descname">vol</code><a class="headerlink" href="#chromo.beads.GhostBead.vol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Volume of the spherical ghost bead</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -2112,9 +2120,9 @@ generation during inner loop of simulation</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.beads.GhostBead.kwargs">
-<span class="sig-name descname"><span class="pre">kwargs</span></span><a class="headerlink" href="#chromo.beads.GhostBead.kwargs" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.beads.GhostBead.kwargs">
+<code class="sig-name descname">kwargs</code><a class="headerlink" href="#chromo.beads.GhostBead.kwargs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Additional named properties of the ghost bead (for later use)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -2123,30 +2131,30 @@ generation during inner loop of simulation</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.beads.GhostBead.print_properties">
-<span class="sig-name descname"><span class="pre">print_properties</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#GhostBead.print_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.beads.GhostBead.print_properties" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.beads.GhostBead.print_properties">
+<code class="sig-name descname">print_properties</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#GhostBead.print_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.beads.GhostBead.print_properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print properties of the ghost bead.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.beads.GhostBead.test_collision">
-<span class="sig-name descname"><span class="pre">test_collision</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#GhostBead.test_collision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.beads.GhostBead.test_collision" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.beads.GhostBead.test_collision">
+<code class="sig-name descname">test_collision</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#GhostBead.test_collision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.beads.GhostBead.test_collision" title="Permalink to this definition">¶</a></dt>
 <dd><p>Collisions are neglected for a ghost bead.</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.beads.Nucleosome">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.beads.</span></span><span class="sig-name descname"><span class="pre">Nucleosome</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t3</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bead_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rad</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#Nucleosome"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.beads.Nucleosome" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.beads.Nucleosome">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.beads.</code><code class="sig-name descname">Nucleosome</code><span class="sig-paren">(</span><em class="sig-param">id_: int</em>, <em class="sig-param">r: numpy.ndarray</em>, <em class="sig-param">*</em>, <em class="sig-param">t3: numpy.ndarray</em>, <em class="sig-param">t2: numpy.ndarray</em>, <em class="sig-param">bead_length: float</em>, <em class="sig-param">rad: Optional[float] = 5</em>, <em class="sig-param">states: Optional[numpy.ndarray] = None</em>, <em class="sig-param">binder_names: Optional[Sequence[str]] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#Nucleosome"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.beads.Nucleosome" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#chromo.beads.Bead" title="chromo.beads.Bead"><code class="xref py py-class docutils literal notranslate"><span class="pre">chromo.beads.Bead</span></code></a></p>
 <p>Class representation of a nucleosome bead.</p>
 <p class="rubric">Notes</p>
 <p>See documentation for <cite>Bead</cite> class for additional attribute definitions.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.beads.Nucleosome.bead_length">
-<span class="sig-name descname"><span class="pre">bead_length</span></span><a class="headerlink" href="#chromo.beads.Nucleosome.bead_length" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.beads.Nucleosome.bead_length">
+<code class="sig-name descname">bead_length</code><a class="headerlink" href="#chromo.beads.Nucleosome.bead_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Spacing between the nucleosome and its neighbor</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -2155,9 +2163,9 @@ generation during inner loop of simulation</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.beads.Nucleosome.rad">
-<span class="sig-name descname"><span class="pre">rad</span></span><a class="headerlink" href="#chromo.beads.Nucleosome.rad" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.beads.Nucleosome.rad">
+<code class="sig-name descname">rad</code><a class="headerlink" href="#chromo.beads.Nucleosome.rad" title="Permalink to this definition">¶</a></dt>
 <dd><p>Radius of spherical excluded volume around nucleosome</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -2166,9 +2174,9 @@ generation during inner loop of simulation</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.beads.Nucleosome.vol">
-<span class="sig-name descname"><span class="pre">vol</span></span><a class="headerlink" href="#chromo.beads.Nucleosome.vol" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.beads.Nucleosome.vol">
+<code class="sig-name descname">vol</code><a class="headerlink" href="#chromo.beads.Nucleosome.vol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Volume of spherical excluded volume around nucleosome</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -2177,15 +2185,15 @@ generation during inner loop of simulation</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.beads.Nucleosome.print_properties">
-<span class="sig-name descname"><span class="pre">print_properties</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#Nucleosome.print_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.beads.Nucleosome.print_properties" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.beads.Nucleosome.print_properties">
+<code class="sig-name descname">print_properties</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#Nucleosome.print_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.beads.Nucleosome.print_properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print properties of the current nucleosome.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.beads.Nucleosome.test_collision">
-<span class="sig-name descname"><span class="pre">test_collision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/chromo/beads.html#Nucleosome.test_collision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.beads.Nucleosome.test_collision" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.beads.Nucleosome.test_collision">
+<code class="sig-name descname">test_collision</code><span class="sig-paren">(</span><em class="sig-param">point: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/chromo/beads.html#Nucleosome.test_collision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.beads.Nucleosome.test_collision" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test collision with the nucleosome bead.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2203,9 +2211,9 @@ no collision)</p>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.beads.Prism">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.beads.</span></span><span class="sig-name descname"><span class="pre">Prism</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t3</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#Prism"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.beads.Prism" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.beads.Prism">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.beads.</code><code class="sig-name descname">Prism</code><span class="sig-paren">(</span><em class="sig-param">id_: int</em>, <em class="sig-param">r: numpy.ndarray</em>, <em class="sig-param">*</em>, <em class="sig-param">t3: numpy.ndarray</em>, <em class="sig-param">t2: numpy.ndarray</em>, <em class="sig-param">vertices: numpy.ndarray</em>, <em class="sig-param">states: Optional[numpy.ndarray] = None</em>, <em class="sig-param">binder_names: Optional[Sequence[str]] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#Prism"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.beads.Prism" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#chromo.beads.Bead" title="chromo.beads.Bead"><code class="xref py py-class docutils literal notranslate"><span class="pre">chromo.beads.Bead</span></code></a></p>
 <p>Class representation of prism-shaped monomer, like a detailed nucleosome.</p>
 <p class="rubric">Notes</p>
@@ -2213,9 +2221,9 @@ no collision)</p>
 nucleosome beads.</p>
 <p>This class is not yet tested.</p>
 <p>See documentation for <cite>Bead</cite> class for additional attribute definitions.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.beads.Prism.vertices">
-<span class="sig-name descname"><span class="pre">vertices</span></span><a class="headerlink" href="#chromo.beads.Prism.vertices" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="chromo.beads.Prism.vertices">
+<code class="sig-name descname">vertices</code><a class="headerlink" href="#chromo.beads.Prism.vertices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Vertices representing a mesh of the nucleosome bead. The verticies
 are defined around the origin, with orientations such that t3
 coincides with the positive x axis and t2 coincides with the
@@ -2227,14 +2235,14 @@ positive z axis.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.beads.Prism.construct_nucleosome">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">construct_nucleosome</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t3</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_sides</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mark_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#Prism.construct_nucleosome"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.beads.Prism.construct_nucleosome" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.beads.Prism.construct_nucleosome">
+<em class="property">classmethod </em><code class="sig-name descname">construct_nucleosome</code><span class="sig-paren">(</span><em class="sig-param">id_: int</em>, <em class="sig-param">r: numpy.ndarray</em>, <em class="sig-param">*</em>, <em class="sig-param">t3: numpy.ndarray</em>, <em class="sig-param">t2: numpy.ndarray</em>, <em class="sig-param">num_sides: int</em>, <em class="sig-param">width: float</em>, <em class="sig-param">height: float</em>, <em class="sig-param">states: Optional[numpy.ndarray] = None</em>, <em class="sig-param">binder_names: Optional[Sequence[str]] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#Prism.construct_nucleosome"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.beads.Prism.construct_nucleosome" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct nucleosome as a prism w/ specified position &amp; orientation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>id</strong> (<em>int</em>) – Identifier for the nucleosome</p></li>
+<li><p><strong>id_</strong> (<em>int</em>) – Identifier for the nucleosome</p></li>
 <li><p><strong>r</strong> (<em>np.ndarray</em><em> (</em><em>3</em><em>,</em><em>)</em>) – Coordinates of the nucleosome in form (x, y, z)</p></li>
 <li><p><strong>t3</strong> (<em>np.ndarray</em><em> (</em><em>3</em><em>,</em><em>)</em>) – Tangent vector defining orientation of nucleosome</p></li>
 <li><p><strong>t2</strong> (<em>np.ndarray</em><em> (</em><em>3</em><em>,</em><em>)</em>) – Tangent vector orthogonal to <cite>t3</cite> defining orientation of
@@ -2250,9 +2258,9 @@ distance units.</p></li>
 <li><p><strong>height</strong> (<em>float</em>) – Determines the shape of the prism defining the location of the
 nucleosome’s verticies. The <cite>height</cite> gives the height of the prism
 in the simulation’s distance units.</p></li>
-<li><p><strong>states</strong> (<em>Optional</em><em>[</em><em>np.ndarray</em><em>] </em><em>(</em><em>M</em><em>,</em><em>) </em><em>of int</em>) – State of each of the M epigenetic marks being tracked</p></li>
-<li><p><strong>mark_names</strong> (<em>Optional</em><em>[</em><em>Sequence</em><em>[</em><em>str</em><em>]</em><em>] </em><em>(</em><em>M</em><em>,</em><em>)</em>) – The name of each chemical modification tracked in <cite>states</cite>, for
-each of tracking which mark is which.</p></li>
+<li><p><strong>states</strong> (<em>Optional</em><em>[</em><em>np.ndarray</em><em>] </em><em>(</em><em>M</em><em>,</em><em>) </em><em>of int</em>) – State of each of the M epigenetic binders being tracked</p></li>
+<li><p><strong>binder_names</strong> (<em>Optional</em><em>[</em><em>Sequence</em><em>[</em><em>str</em><em>]</em><em>] </em><em>(</em><em>M</em><em>, </em><em>)</em>) – The name of each bound component tracked in <cite>states</cite>; binder names
+are how the properties of the binders are loaded, default = None</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -2264,9 +2272,9 @@ each of tracking which mark is which.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.beads.Prism.get_verticies_rot_mat">
-<span class="sig-name descname"><span class="pre">get_verticies_rot_mat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fulcrum</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#Prism.get_verticies_rot_mat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.beads.Prism.get_verticies_rot_mat" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.beads.Prism.get_verticies_rot_mat">
+<code class="sig-name descname">get_verticies_rot_mat</code><span class="sig-paren">(</span><em class="sig-param">current_vec</em>, <em class="sig-param">target_vec</em>, <em class="sig-param">fulcrum</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#Prism.get_verticies_rot_mat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.beads.Prism.get_verticies_rot_mat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rotate verticies defined relative to <cite>current_vec</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2285,15 +2293,15 @@ each of tracking which mark is which.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.beads.Prism.print_properties">
-<span class="sig-name descname"><span class="pre">print_properties</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#Prism.print_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.beads.Prism.print_properties" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.beads.Prism.print_properties">
+<code class="sig-name descname">print_properties</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/beads.html#Prism.print_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.beads.Prism.print_properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print properties of the current nucleosome.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.beads.Prism.test_collision">
-<span class="sig-name descname"><span class="pre">test_collision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/chromo/beads.html#Prism.test_collision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.beads.Prism.test_collision" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.beads.Prism.test_collision">
+<code class="sig-name descname">test_collision</code><span class="sig-paren">(</span><em class="sig-param">vertices: numpy.ndarray</em>, <em class="sig-param">max_iters: int</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/chromo/beads.html#Prism.test_collision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.beads.Prism.test_collision" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test collision with the current nucleosome.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2313,9 +2321,9 @@ no collision)</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.beads.Prism.transform_vertices">
-<span class="sig-name descname"><span class="pre">transform_vertices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="_modules/chromo/beads.html#Prism.transform_vertices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.beads.Prism.transform_vertices" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.beads.Prism.transform_vertices">
+<code class="sig-name descname">transform_vertices</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/chromo/beads.html#Prism.transform_vertices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.beads.Prism.transform_vertices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform the verticies of the nucleosome based on <cite>r</cite>, <cite>t2</cite>, &amp; <cite>t3</cite>.</p>
 <p class="rubric">Notes</p>
 <p>Begin by translating the position of the verticies to match the
@@ -2337,49 +2345,27 @@ positioned and oriented in space.</p>
 
 </dd></dl>
 
-</section>
-<section id="module-chromo.marks">
-<span id="chromo-marks"></span><h2>chromo.marks<a class="headerlink" href="#module-chromo.marks" title="Permalink to this headline">¶</a></h2>
-<p>Modifications to the polymer’s chemical state that affect the energy.</p>
+</div>
+<div class="section" id="module-chromo.binders">
+<span id="chromo-binders"></span><h2>chromo.binders<a class="headerlink" href="#module-chromo.binders" title="Permalink to this headline">¶</a></h2>
+<p>Modifications to polymer’s reader protein binding state that affect energy.</p>
 <p class="rubric">Notes</p>
-<p>Each simulation type will typically require a particular type of Mark, for
-which there will be a class defined here. In addition, for common, physically
-derived marks, such as known epigenetic modifications to DNA or
-well-characterized modifications to other real polymers, the best-known
-parameters for that mark should be documented here, as instances of the
-appropriate <cite>.Mark</cite> subclass.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.marks.Epigenmark">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.marks.</span></span><span class="sig-name descname"><span class="pre">Epigenmark</span></span><a class="headerlink" href="#chromo.marks.Epigenmark" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#chromo.marks.Mark" title="chromo.marks.Mark"><code class="xref py py-class docutils literal notranslate"><span class="pre">chromo.marks.Mark</span></code></a></p>
-<p>Information about the chemical properties of an epigenetic mark.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.marks.Epigenmark.dict">
-<span class="sig-name descname"><span class="pre">dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.marks.Epigenmark.dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Represent a class instance as a dictionary (exclude derived values).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Dictionary with key attributes representing the marks</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.marks.Mark">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.marks.</span></span><span class="sig-name descname"><span class="pre">Mark</span></span><a class="headerlink" href="#chromo.marks.Mark" title="Permalink to this definition">¶</a></dt>
+<p>Each simulation will typically involve a polymer bound by some <cite>Binder</cite>.</p>
+<p>For common, physically characterized binding components, such as those bound to
+known epigenetic modifications or well-characterized modifications on other real
+polymers, the best known parameters for that binder should be documented here as
+instances of the appropriate <cite>Binder</cite> subclass.</p>
+<dl class="class">
+<dt id="chromo.binders.Binder">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.binders.</code><code class="sig-name descname">Binder</code><a class="headerlink" href="#chromo.binders.Binder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Class representation of an arbitrary mark binding to a polymer.</p>
+<p>Class representation of an arbitrary components binding to a polymer.</p>
 <p class="rubric">Notes</p>
-<p>For this code to work, all marks need a string name.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.marks.Mark.name">
-<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#chromo.marks.Mark.name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Name of the chemical mark</p>
+<p>For this code to work, all binders need a string name.</p>
+<dl class="attribute">
+<dt id="chromo.binders.Binder.name">
+<code class="sig-name descname">name</code><a class="headerlink" href="#chromo.binders.Binder.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the binding component</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>str</p>
@@ -2387,11 +2373,11 @@ appropriate <cite>.Mark</cite> subclass.</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="chromo.marks.Mark.sites_per_bead">
-<span class="sig-name descname"><span class="pre">sites_per_bead</span></span><a class="headerlink" href="#chromo.marks.Mark.sites_per_bead" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of sites to which the chemical mark can bind on each monomeric
-unit of the polymer</p>
+<dl class="attribute">
+<dt id="chromo.binders.Binder.sites_per_bead">
+<code class="sig-name descname">sites_per_bead</code><a class="headerlink" href="#chromo.binders.Binder.sites_per_bead" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of sites to which the binding component can bind on each
+monomeric unit of the polymer</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>int</p>
@@ -2401,33 +2387,54 @@ unit of the polymer</p>
 
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.marks.get_by_name">
-<span class="sig-prename descclassname"><span class="pre">chromo.marks.</span></span><span class="sig-name descname"><span class="pre">get_by_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.marks.get_by_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Look up saved mark by name.</p>
+<dl class="class">
+<dt id="chromo.binders.ReaderProtein">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.binders.</code><code class="sig-name descname">ReaderProtein</code><a class="headerlink" href="#chromo.binders.ReaderProtein" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#chromo.binders.Binder" title="chromo.binders.Binder"><code class="xref py py-class docutils literal notranslate"><span class="pre">chromo.binders.Binder</span></code></a></p>
+<p>Information about the chemical properties of a reader protein.</p>
+<dl class="method">
+<dt id="chromo.binders.ReaderProtein.dict">
+<code class="sig-name descname">dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.binders.ReaderProtein.dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represent a class instance as a dictionary (exclude derived values).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Name of the pre-defined mark to retrieve</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dictionary with key attributes representing the reader protein</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Object representing the mark that was queried.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#chromo.marks.Mark" title="chromo.marks.Mark">Mark</a></p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.marks.make_mark_collection">
-<span class="sig-prename descclassname"><span class="pre">chromo.marks.</span></span><span class="sig-name descname"><span class="pre">make_mark_collection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.marks.make_mark_collection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Construct summary DataFrame from sequence of marks.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="chromo.binders.get_by_name">
+<code class="sig-prename descclassname">chromo.binders.</code><code class="sig-name descname">get_by_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.binders.get_by_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Look up saved reader protein by name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>marks</strong> (<a class="reference internal" href="#chromo.marks.Mark" title="chromo.marks.Mark"><em>Mark</em></a><em> or </em><em>str</em><em> or </em><em>Sequence</em><em>[</em><a class="reference internal" href="#chromo.marks.Mark" title="chromo.marks.Mark"><em>Mark</em></a><em>] or </em><em>Sequence</em><em>[</em><em>str</em><em>]</em>) – The marks to be summarized by the DataFrame.</p>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Name of the pre-defined reader protein to retrieve</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Columns are the properties of each Mark.</p>
+<dd class="field-even"><p>Object representing the reader protein that was queried.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#chromo.binders.Binder" title="chromo.binders.Binder">Binder</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="chromo.binders.make_binder_collection">
+<code class="sig-prename descclassname">chromo.binders.</code><code class="sig-name descname">make_binder_collection</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.binders.make_binder_collection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct summary DataFrame from sequence of binders.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>binders</strong> (<a class="reference internal" href="#chromo.binders.Binder" title="chromo.binders.Binder"><em>Binder</em></a><em> or </em><em>str</em><em> or </em><em>Sequence</em><em>[</em><a class="reference internal" href="#chromo.binders.Binder" title="chromo.binders.Binder"><em>Binder</em></a><em>] or </em><em>Sequence</em><em>[</em><em>str</em><em>]</em>) – The binders to be summarized by the DataFrame.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Columns are the properties of each Binders.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>pd.DataFrame</p>
@@ -2435,11 +2442,11 @@ unit of the polymer</p>
 </dl>
 </dd></dl>
 
-</section>
-<section id="module-chromo">
+</div>
+<div class="section" id="module-chromo">
 <span id="chromo-init"></span><h2>chromo.__init__<a class="headerlink" href="#module-chromo" title="Permalink to this headline">¶</a></h2>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>
@@ -2489,11 +2496,13 @@ unit of the polymer</p>
             SOURCELINK_SUFFIX: '.txt'
         };
     </script>
-      <script type="text/javascript" src="_static/documentation_options.js"></script>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/language_data.js"></script>
       <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="None"></script>
 
   
 

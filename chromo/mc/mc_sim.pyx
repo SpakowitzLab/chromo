@@ -20,7 +20,7 @@ import numpy as np
 # Custom Modules
 from chromo.polymers import PolymerBase
 from chromo.polymers cimport PolymerBase
-from chromo.marks import Epigenmark
+from chromo.binders import ReaderProtein
 from chromo.mc.moves import MCAdapter
 from chromo.mc.moves cimport MCAdapter
 from chromo.mc.mc_controller import Controller
@@ -28,7 +28,7 @@ from chromo.fields cimport UniformDensityField as UDF
 
 
 cpdef void mc_sim(
-    list polymers, epigenmarks, long num_mc_steps,
+    list polymers, readerproteins, long num_mc_steps,
     list mc_move_controllers, UDF field, long random_seed
 ):
     """Perform Monte Carlo simulation.
@@ -43,8 +43,8 @@ cpdef void mc_sim(
     ----------
     polymers : List[SSWLC]
         Polymers affected by Monte Carlo simulation
-    epigenmarks : List[Epigenmark]
-        Specification of epigenetic marks on polymer
+    readerproteins : List[ReaderProteins]
+        Specification of reader proteins on polymer
     num_mc_steps : int
         Number of Monte Carlo steps to take between save points
     mc_move_controllers : List[Controller]
@@ -86,14 +86,14 @@ cpdef void mc_sim(
                         poly = polymers[i]
                         active_field = active_fields[i]
                         mc_step(
-                            controller.move, poly, epigenmarks, field,
+                            controller.move, poly, readerproteins, field,
                             active_field
                         )
                         controller.update_amplitudes()
 
 
 cdef void mc_step(
-    MCAdapter adaptible_move, PolymerBase poly, epigenmarks,
+    MCAdapter adaptible_move, PolymerBase poly, readerproteins,
     UDF field, bint active_field
 ):
     """Compute energy change and determine move acceptance.
@@ -114,8 +114,8 @@ cdef void mc_step(
         Move applied at particular Monte Carlo step
     poly: PolymerBase
         Polymer affected by move at particular Monte Carlo step
-    epigenmarks: List[Epigenmark]
-        Epigenetic marks affecting polymer configuration
+    readerproteins: List[ReaderProteins]
+        Reader proteins affecting polymer configuration
     field: UniformDensityField
         Field affecting polymer in Monte Carlo step
     active_field: bool
@@ -135,8 +135,7 @@ cdef void mc_step(
         return
 
     dE = 0
-    if adaptible_move.name != "change_binding_state":
-        dE += poly.compute_dE(adaptible_move.name, inds, n_inds)
+    dE += poly.compute_dE(adaptible_move.name, inds, n_inds)
     
     if poly in field and active_field:
         if adaptible_move.name != "tangent_rotation":

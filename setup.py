@@ -15,7 +15,7 @@ if __name__ == "__main__":
         "chromo/mc/move_funcs.pyx",
         "chromo/polymers.pyx",
         "chromo/fields.pyx",
-        "chromo/marks.pyx",
+        "chromo/binders.pyx",
         "chromo/util/bead_selection.pyx",
         "chromo/util/linalg.pyx",
         "chromo/mc/mc_sim.pyx",

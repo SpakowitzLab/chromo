@@ -5,8 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>chromo.util package &mdash; chromo  documentation</title>
@@ -28,10 +27,6 @@
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   
 
-  
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   
 
   
@@ -87,25 +82,26 @@
           
             
             
-                <p class="caption" role="heading"><span class="caption-text">Introduction</span></p>
+                <p class="caption"><span class="caption-text">Introduction</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="abstract.html">Abstract</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code_structure.html">Code Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mc_sim.html">Monte Carlo Simulations</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Theory</span></p>
+<p class="caption"><span class="caption-text">Theory</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="poly_models.html">Polymer Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="field.html">Field Theoretic Treatment of Interactions</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<p class="caption"><span class="caption-text">Examples</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="semiflexible_homopolymer_OUT.html">Semiflexible, Unconfined Homopolymer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="flexible_confined_homopolymer_OUT.html">Flexible, Confined Homopolymer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="one_mark_chromatin_OUT.html">Chromatin + HP1</a></li>
 <li class="toctree-l1"><a class="reference internal" href="two_mark_chromatin_OUT.html">Chromatin + HP1 + PRC1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="looped_loosely_confined_OUT.html">Ring Polymer</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Additional Resources</span></p>
+<p class="caption"><span class="caption-text">Additional Resources</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">Modules</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="chromo.html">Chromo</a></li>
@@ -189,14 +185,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <section id="chromo-util-package">
+  <div class="section" id="chromo-util-package">
 <h1>chromo.util package<a class="headerlink" href="#chromo-util-package" title="Permalink to this headline">¶</a></h1>
-<section id="module-chromo.util.linalg">
+<div class="section" id="module-chromo.util.linalg">
 <span id="chromo-util-linalg"></span><h2>chromo.util.linalg<a class="headerlink" href="#module-chromo.util.linalg" title="Permalink to this headline">¶</a></h2>
 <p>Utility functions for linear algebra calculations.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.linalg.arbitrary_axis_rotation">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.linalg.</span></span><span class="sig-name descname"><span class="pre">arbitrary_axis_rotation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.util.linalg.arbitrary_axis_rotation" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.linalg.arbitrary_axis_rotation">
+<code class="sig-prename descclassname">chromo.util.linalg.</code><code class="sig-name descname">arbitrary_axis_rotation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.util.linalg.arbitrary_axis_rotation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rotate about an axis defined by two points.</p>
 <p class="rubric">Notes</p>
 <p>Generate a transformation matrix for counterclockwise (right handed
@@ -216,9 +212,9 @@ rotation axis is pointing directly out of the screen</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.linalg.generate_translation_mat">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.linalg.</span></span><span class="sig-name descname"><span class="pre">generate_translation_mat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.util.linalg.generate_translation_mat" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.linalg.generate_translation_mat">
+<code class="sig-prename descclassname">chromo.util.linalg.</code><code class="sig-name descname">generate_translation_mat</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.util.linalg.generate_translation_mat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate translation matrix.</p>
 <p class="rubric">Notes</p>
 <p>Generate the homogeneous transformation matrix for a translation
@@ -235,9 +231,9 @@ respectively.</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.linalg.get_prism_verticies">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.linalg.</span></span><span class="sig-name descname"><span class="pre">get_prism_verticies</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.util.linalg.get_prism_verticies" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.linalg.get_prism_verticies">
+<code class="sig-prename descclassname">chromo.util.linalg.</code><code class="sig-name descname">get_prism_verticies</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.util.linalg.get_prism_verticies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the cartesian coordinates of verticies for specified prism geometry.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -263,9 +259,9 @@ in the simulation’s distance units.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.linalg.return_arbitrary_axis_rotation">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.linalg.</span></span><span class="sig-name descname"><span class="pre">return_arbitrary_axis_rotation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.util.linalg.return_arbitrary_axis_rotation" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.linalg.return_arbitrary_axis_rotation">
+<code class="sig-prename descclassname">chromo.util.linalg.</code><code class="sig-name descname">return_arbitrary_axis_rotation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.util.linalg.return_arbitrary_axis_rotation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate &amp; return homogeneous transform matrix of arbitrary axis rot.</p>
 <p class="rubric">Notes</p>
 <p>Use this function when you want to return a transformation matrix, not just
@@ -289,8 +285,8 @@ rotation axis is pointing directly out of the screen</p></li>
 </dl>
 </dd></dl>
 
-</section>
-<section id="module-chromo.util.reproducibility">
+</div>
+<div class="section" id="module-chromo.util.reproducibility">
 <span id="chromo-util-reproducibility"></span><h2>chromo.util.reproducibility<a class="headerlink" href="#module-chromo.util.reproducibility" title="Permalink to this headline">¶</a></h2>
 <p>A module with routines designed to make code “automatically” reproducible.</p>
 <p class="rubric">Notes</p>
@@ -308,9 +304,9 @@ the output of our simulation, always be able to</p>
 </ol>
 <p>If in doubt, you probably want to simply wrap any simulation function you write
 with <cite>make_reproducible</cite>.</p>
-<dl class="py data">
-<dt class="sig sig-object py" id="chromo.util.reproducibility.builtin_types">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.reproducibility.</span></span><span class="sig-name descname"><span class="pre">builtin_types</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bool'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bytes'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bytearray'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'complex'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'float'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'str'&gt;]</span></em><a class="headerlink" href="#chromo.util.reproducibility.builtin_types" title="Permalink to this definition">¶</a></dt>
+<dl class="data">
+<dt id="chromo.util.reproducibility.builtin_types">
+<code class="sig-prename descclassname">chromo.util.reproducibility.</code><code class="sig-name descname">builtin_types</code><em class="property"> = [&lt;class 'bool'&gt;, &lt;class 'bytes'&gt;, &lt;class 'bytearray'&gt;, &lt;class 'complex'&gt;, &lt;class 'float'&gt;, &lt;class 'int'&gt;, &lt;class 'str'&gt;]</em><a class="headerlink" href="#chromo.util.reproducibility.builtin_types" title="Permalink to this definition">¶</a></dt>
 <dd><p>Types to be saved as CSV entries by default.</p>
 <p class="rubric">Notes</p>
 <p>These are basically just the built-ins that permit simple save/load cycling via
@@ -325,9 +321,9 @@ the CSV a little trickier:
 …, frozenset, tuple]</p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.reproducibility.get_unique_subfolder">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.reproducibility.</span></span><span class="sig-name descname"><span class="pre">get_unique_subfolder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/reproducibility.html#get_unique_subfolder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.reproducibility.get_unique_subfolder" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.reproducibility.get_unique_subfolder">
+<code class="sig-prename descclassname">chromo.util.reproducibility.</code><code class="sig-name descname">get_unique_subfolder</code><span class="sig-paren">(</span><em class="sig-param">root</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/reproducibility.html#get_unique_subfolder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.reproducibility.get_unique_subfolder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create and return a thread-safe unique folder.</p>
 <p class="rubric">Notes</p>
 <p>Uses the fact that mkdir is required to be atomic on POSIX-compliant system
@@ -346,9 +342,9 @@ we find a number which doesn’t already exist.</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.reproducibility.get_unique_subfolder_name">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.reproducibility.</span></span><span class="sig-name descname"><span class="pre">get_unique_subfolder_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/reproducibility.html#get_unique_subfolder_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.reproducibility.get_unique_subfolder_name" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.reproducibility.get_unique_subfolder_name">
+<code class="sig-prename descclassname">chromo.util.reproducibility.</code><code class="sig-name descname">get_unique_subfolder_name</code><span class="sig-paren">(</span><em class="sig-param">root</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/reproducibility.html#get_unique_subfolder_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.reproducibility.get_unique_subfolder_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return name of a thread-safe unique folder.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -364,9 +360,9 @@ we find a number which doesn’t already exist.</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.reproducibility.parse_type">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.reproducibility.</span></span><span class="sig-name descname"><span class="pre">parse_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/chromo/util/reproducibility.html#parse_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.reproducibility.parse_type" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.reproducibility.parse_type">
+<code class="sig-prename descclassname">chromo.util.reproducibility.</code><code class="sig-name descname">parse_type</code><span class="sig-paren">(</span><em class="sig-param">arg_name: str</em>, <em class="sig-param">value: Any</em><span class="sig-paren">)</span> &#x2192; Tuple[List[str], List[Any]]<a class="reference internal" href="_modules/chromo/util/reproducibility.html#parse_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.reproducibility.parse_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse argument data types (for handling kwargs)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -385,9 +381,9 @@ we find a number which doesn’t already exist.</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.reproducibility.split_builtin_params">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.reproducibility.</span></span><span class="sig-name descname"><span class="pre">split_builtin_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/chromo/util/reproducibility.html#split_builtin_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.reproducibility.split_builtin_params" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.reproducibility.split_builtin_params">
+<code class="sig-prename descclassname">chromo.util.reproducibility.</code><code class="sig-name descname">split_builtin_params</code><span class="sig-paren">(</span><em class="sig-param">sim: Callable[[Any], Any], *args, **kwargs</em><span class="sig-paren">)</span> &#x2192; Tuple[Dict[str, Any], Dict[str, Any]]<a class="reference internal" href="_modules/chromo/util/reproducibility.html#split_builtin_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.reproducibility.split_builtin_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Split parameters between built in and non-built in data types.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -403,9 +399,9 @@ we find a number which doesn’t already exist.</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.reproducibility.to_file_params">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.reproducibility.</span></span><span class="sig-name descname"><span class="pre">to_file_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">non_builtins_kwargs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/reproducibility.html#to_file_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.reproducibility.to_file_params" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.reproducibility.to_file_params">
+<code class="sig-prename descclassname">chromo.util.reproducibility.</code><code class="sig-name descname">to_file_params</code><span class="sig-paren">(</span><em class="sig-param">non_builtins_kwargs</em>, <em class="sig-param">folder</em>, <em class="sig-param">suffix=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/reproducibility.html#to_file_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.reproducibility.to_file_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call <code class="docutils literal notranslate"><span class="pre">.to_file</span></code> for each parameter, handling sequences.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -419,28 +415,28 @@ such as a numpy array or a DataFrame.</p></li>
 </dl>
 </dd></dl>
 
-</section>
-<section id="module-chromo.util">
+</div>
+<div class="section" id="module-chromo.util">
 <span id="chromo-util-init"></span><h2>chromo.util.__init__<a class="headerlink" href="#module-chromo.util" title="Permalink to this headline">¶</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.combine_repeat">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.</span></span><span class="sig-name descname"><span class="pre">combine_repeat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util.html#combine_repeat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.combine_repeat" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.combine_repeat">
+<code class="sig-prename descclassname">chromo.util.</code><code class="sig-name descname">combine_repeat</code><span class="sig-paren">(</span><em class="sig-param">a</em>, <em class="sig-param">idx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util.html#combine_repeat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.combine_repeat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Combine the repeat entries in an array of bin densities.</p>
 <p>Flatten one dimension of the value array <cite>a</cite> so each column represents a
-different epigenetic mark, but densities in all bins are combined into the
+different reader protein, but densities in all bins are combined into the
 same column.</p>
 <p>Flatten the index array <cite>idx</cite> so that indices for each of the eight bins
 representing the density distribution of a bead are in the same column.</p>
 <p>Sort the index array <cite>idx</cite> and the value array <cite>a</cite> by the values in <cite>idx</cite></p>
 <p>Identify the unique bins and the indices where they are first encountered
 in the sourted index array.</p>
-<p>Add the density within each bin (separately for each epigenetic mark).</p>
+<p>Add the density within each bin (separately for each reader protein).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>a</strong> (<em>double</em><em>[</em><em>:</em><em>, </em><em>:</em><em>, </em><em>::1</em><em>]</em>) – 3D memoryview representing the distribution of densities for each bead
 (dimension 0) in the nearest eight neighboring bins (dimension 2) for
-each epigenetic mark (dimension 1)</p></li>
+each reader protein (dimension 1)</p></li>
 <li><p><strong>idx</strong> (<em>long</em><em>[</em><em>:</em><em>, </em><em>::1</em><em>]</em>) – 2D memoryview of bin indices; the first dimension represents each bead
 affected, and the second dimension contains the indices of the eight
 bins containing the bead</p></li>
@@ -448,7 +444,7 @@ bins containing the bead</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>a_combine</strong> – 2D memoryview of total density in each affected bin (dimension 0) of
-the polymer and each epigenetic mark (dimension 1)</p>
+the polymer and each reader protein (dimension 1)</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>double[:, ::1]</p>
@@ -456,13 +452,13 @@ the polymer and each epigenetic mark (dimension 1)</p>
 </dl>
 </dd></dl>
 
-</section>
-<section id="module-chromo.util.poly_paths">
+</div>
+<div class="section" id="module-chromo.util.poly_paths">
 <span id="chromo-util-poly-paths"></span><h2>chromo.util.poly_paths<a class="headerlink" href="#module-chromo.util.poly_paths" title="Permalink to this headline">¶</a></h2>
 <p>Functions for specification of initial polymer paths.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.poly_paths.confined_gaussian_walk">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.poly_paths.</span></span><span class="sig-name descname"><span class="pre">confined_gaussian_walk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confine_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confine_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="_modules/chromo/util/poly_paths.html#confined_gaussian_walk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_paths.confined_gaussian_walk" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.poly_paths.confined_gaussian_walk">
+<code class="sig-prename descclassname">chromo.util.poly_paths.</code><code class="sig-name descname">confined_gaussian_walk</code><span class="sig-paren">(</span><em class="sig-param">num_points: int</em>, <em class="sig-param">step_size: float</em>, <em class="sig-param">confine_type: str</em>, <em class="sig-param">confine_length: float</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/chromo/util/poly_paths.html#confined_gaussian_walk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_paths.confined_gaussian_walk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate coordinates for Gaussian random walk w/ fixed path length.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -485,9 +481,9 @@ represent individual points and columns give x, y, z coordinates</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.poly_paths.coordinates_in_x_y">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.poly_paths.</span></span><span class="sig-name descname"><span class="pre">coordinates_in_x_y</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_beads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bead_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="_modules/chromo/util/poly_paths.html#coordinates_in_x_y"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_paths.coordinates_in_x_y" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.poly_paths.coordinates_in_x_y">
+<code class="sig-prename descclassname">chromo.util.poly_paths.</code><code class="sig-name descname">coordinates_in_x_y</code><span class="sig-paren">(</span><em class="sig-param">num_beads: int, bead_length: float, shape_func: Callable[[float], float], step_size: float</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/chromo/util/poly_paths.html#coordinates_in_x_y"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_paths.coordinates_in_x_y" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find bead coordiantes about path in x, y plane w/ fixed contour length.</p>
 <p class="rubric">Notes</p>
 <p>Get coordinates in the x, y plane which splits the path of the polymer into
@@ -516,9 +512,9 @@ domain of the shape function used to initialize polymer</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.poly_paths.coordinates_in_x_y_z">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.poly_paths.</span></span><span class="sig-name descname"><span class="pre">coordinates_in_x_y_z</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_beads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bead_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_func_x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_func_y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_func_z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/chromo/util/poly_paths.html#coordinates_in_x_y_z"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_paths.coordinates_in_x_y_z" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.poly_paths.coordinates_in_x_y_z">
+<code class="sig-prename descclassname">chromo.util.poly_paths.</code><code class="sig-name descname">coordinates_in_x_y_z</code><span class="sig-paren">(</span><em class="sig-param">num_beads: int, bead_length: float, shape_func_x: Callable[[float], float], shape_func_y: Callable[[float], float], shape_func_z: Callable[[float], float], step_size: float</em><span class="sig-paren">)</span> &#x2192; Tuple[numpy.ndarray, List[float]]<a class="reference internal" href="_modules/chromo/util/poly_paths.html#coordinates_in_x_y_z"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_paths.coordinates_in_x_y_z" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate coordinates for 3D initialization of a polymer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -545,9 +541,9 @@ functions</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.poly_paths.estimate_tangents_from_coordinates">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.poly_paths.</span></span><span class="sig-name descname"><span class="pre">estimate_tangents_from_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/chromo/util/poly_paths.html#estimate_tangents_from_coordinates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_paths.estimate_tangents_from_coordinates" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.poly_paths.estimate_tangents_from_coordinates">
+<code class="sig-prename descclassname">chromo.util.poly_paths.</code><code class="sig-name descname">estimate_tangents_from_coordinates</code><span class="sig-paren">(</span><em class="sig-param">coordinates: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; Tuple[numpy.ndarray, numpy.ndarray]<a class="reference internal" href="_modules/chromo/util/poly_paths.html#estimate_tangents_from_coordinates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_paths.estimate_tangents_from_coordinates" title="Permalink to this definition">¶</a></dt>
 <dd><p>Estimate t3 and t2 tangent vectors from array of coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -565,9 +561,9 @@ coordinates of tangent vector at each point</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.poly_paths.gaussian_walk">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.poly_paths.</span></span><span class="sig-name descname"><span class="pre">gaussian_walk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="_modules/chromo/util/poly_paths.html#gaussian_walk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_paths.gaussian_walk" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.poly_paths.gaussian_walk">
+<code class="sig-prename descclassname">chromo.util.poly_paths.</code><code class="sig-name descname">gaussian_walk</code><span class="sig-paren">(</span><em class="sig-param">num_steps: int</em>, <em class="sig-param">step_size: float</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/chromo/util/poly_paths.html#gaussian_walk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_paths.gaussian_walk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate coordinates for Gaussian random walk w/ fixed path length.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -586,9 +582,9 @@ represent individual points and columns give x, y, z coordinates</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.poly_paths.get_tangent_vals_x_y">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.poly_paths.</span></span><span class="sig-name descname"><span class="pre">get_tangent_vals_x_y</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/chromo/util/poly_paths.html#get_tangent_vals_x_y"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_paths.get_tangent_vals_x_y" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.poly_paths.get_tangent_vals_x_y">
+<code class="sig-prename descclassname">chromo.util.poly_paths.</code><code class="sig-name descname">get_tangent_vals_x_y</code><span class="sig-paren">(</span><em class="sig-param">x: numpy.ndarray, shape_func: Callable[[float], float], step_size: float</em><span class="sig-paren">)</span> &#x2192; Tuple[numpy.ndarray, numpy.ndarray]<a class="reference internal" href="_modules/chromo/util/poly_paths.html#get_tangent_vals_x_y"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_paths.get_tangent_vals_x_y" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the t3 and t2 vectors at a fixed position along shape_func.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -610,9 +606,9 @@ coordinates of tangent vector at each point</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.poly_paths.get_tangent_vals_x_y_z">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.poly_paths.</span></span><span class="sig-name descname"><span class="pre">get_tangent_vals_x_y_z</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_func_x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_func_y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_func_z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/chromo/util/poly_paths.html#get_tangent_vals_x_y_z"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_paths.get_tangent_vals_x_y_z" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.poly_paths.get_tangent_vals_x_y_z">
+<code class="sig-prename descclassname">chromo.util.poly_paths.</code><code class="sig-name descname">get_tangent_vals_x_y_z</code><span class="sig-paren">(</span><em class="sig-param">t: numpy.ndarray, shape_func_x: Callable[[float], float], shape_func_y: Callable[[float], float], shape_func_z: Callable[[float], float], step_size: float, r: Optional[numpy.ndarray] = None</em><span class="sig-paren">)</span> &#x2192; Tuple[numpy.ndarray, numpy.ndarray]<a class="reference internal" href="_modules/chromo/util/poly_paths.html#get_tangent_vals_x_y_z"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_paths.get_tangent_vals_x_y_z" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the t3 and t2 vectors at a fixed position along shape_func.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -637,9 +633,9 @@ coordinates of tangent vector at each point</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.poly_paths.in_confinement">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.poly_paths.</span></span><span class="sig-name descname"><span class="pre">in_confinement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confine_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confine_length</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/poly_paths.html#in_confinement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_paths.in_confinement" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.poly_paths.in_confinement">
+<code class="sig-prename descclassname">chromo.util.poly_paths.</code><code class="sig-name descname">in_confinement</code><span class="sig-paren">(</span><em class="sig-param">point</em>, <em class="sig-param">confine_type</em>, <em class="sig-param">confine_length</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/poly_paths.html#in_confinement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_paths.in_confinement" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if a proposed point lies inside a specified confinement.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -661,9 +657,9 @@ outside the confinement (False)</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.poly_paths.in_spherical_confinement">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.poly_paths.</span></span><span class="sig-name descname"><span class="pre">in_spherical_confinement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_radius</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/poly_paths.html#in_spherical_confinement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_paths.in_spherical_confinement" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.poly_paths.in_spherical_confinement">
+<code class="sig-prename descclassname">chromo.util.poly_paths.</code><code class="sig-name descname">in_spherical_confinement</code><span class="sig-paren">(</span><em class="sig-param">point</em>, <em class="sig-param">boundary_radius</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/poly_paths.html#in_spherical_confinement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_paths.in_spherical_confinement" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if a proposed point lies inside a spherical confinement.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -682,9 +678,9 @@ outside the confinement (False)</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.poly_paths.looped_confined_gaussian_walk">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.poly_paths.</span></span><span class="sig-name descname"><span class="pre">looped_confined_gaussian_walk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confine_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confine_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="_modules/chromo/util/poly_paths.html#looped_confined_gaussian_walk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_paths.looped_confined_gaussian_walk" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.poly_paths.looped_confined_gaussian_walk">
+<code class="sig-prename descclassname">chromo.util.poly_paths.</code><code class="sig-name descname">looped_confined_gaussian_walk</code><span class="sig-paren">(</span><em class="sig-param">num_points: int</em>, <em class="sig-param">step_size: float</em>, <em class="sig-param">confine_type: str</em>, <em class="sig-param">confine_length: float</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/chromo/util/poly_paths.html#looped_confined_gaussian_walk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_paths.looped_confined_gaussian_walk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate looped, confined Gaussian random walk w/ fixed path length.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -707,9 +703,9 @@ represent individual points and columns give x, y, z coordinates</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.poly_paths.numerical_derivative">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.poly_paths.</span></span><span class="sig-name descname"><span class="pre">numerical_derivative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/chromo/util/poly_paths.html#numerical_derivative"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_paths.numerical_derivative" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.poly_paths.numerical_derivative">
+<code class="sig-prename descclassname">chromo.util.poly_paths.</code><code class="sig-name descname">numerical_derivative</code><span class="sig-paren">(</span><em class="sig-param">shape_func: Callable[[float], float], point: float, step_size: float</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/chromo/util/poly_paths.html#numerical_derivative"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_paths.numerical_derivative" title="Permalink to this definition">¶</a></dt>
 <dd><p>Numerically evaluate the derivative of <cite>shape_func</cite> at a point.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -728,13 +724,13 @@ represent individual points and columns give x, y, z coordinates</p>
 </dl>
 </dd></dl>
 
-</section>
-<section id="module-chromo.util.bead_selection">
+</div>
+<div class="section" id="module-chromo.util.bead_selection">
 <span id="chromo-util-bead-selection"></span><h2>chromo.util.bead_selection<a class="headerlink" href="#module-chromo.util.bead_selection" title="Permalink to this headline">¶</a></h2>
 <p>Utility functions for random bead selection.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.bead_selection.from_left">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.bead_selection.</span></span><span class="sig-name descname"><span class="pre">from_left</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.util.bead_selection.from_left" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.bead_selection.from_left">
+<code class="sig-prename descclassname">chromo.util.bead_selection.</code><code class="sig-name descname">from_left</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.util.bead_selection.from_left" title="Permalink to this definition">¶</a></dt>
 <dd><p>Randomly select index exponentially decaying from left.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -754,9 +750,9 @@ first position in the chain.</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.bead_selection.from_point">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.bead_selection.</span></span><span class="sig-name descname"><span class="pre">from_point</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.util.bead_selection.from_point" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.bead_selection.from_point">
+<code class="sig-prename descclassname">chromo.util.bead_selection.</code><code class="sig-name descname">from_point</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.util.bead_selection.from_point" title="Permalink to this definition">¶</a></dt>
 <dd><p>Randomly select index w/ exponentially decaying probability from point.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -777,9 +773,9 @@ with distance</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.bead_selection.from_right">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.bead_selection.</span></span><span class="sig-name descname"><span class="pre">from_right</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.util.bead_selection.from_right" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.bead_selection.from_right">
+<code class="sig-prename descclassname">chromo.util.bead_selection.</code><code class="sig-name descname">from_right</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chromo.util.bead_selection.from_right" title="Permalink to this definition">¶</a></dt>
 <dd><p>Randomly select index exponentially decaying from right.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -799,8 +795,8 @@ last position in the chain.</p>
 </dl>
 </dd></dl>
 
-</section>
-<section id="module-chromo.util.poly_stat">
+</div>
+<div class="section" id="module-chromo.util.poly_stat">
 <span id="chromo-util-poly-stat"></span><h2>chromo.util.poly_stat<a class="headerlink" href="#module-chromo.util.poly_stat" title="Permalink to this headline">¶</a></h2>
 <p>Average Polymer Statistics</p>
 <p>Generate average polymer statistics from Monte Carlo simulation output. This
@@ -816,14 +812,14 @@ results, but include fewer samples in the average.</p>
 <p>Joseph Wakim
 Spakowitz Lab
 Modified: June 17, 2021</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.util.poly_stat.PolyStats">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.util.poly_stat.</span></span><span class="sig-name descname"><span class="pre">PolyStats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/poly_stat.html#PolyStats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_stat.PolyStats" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.util.poly_stat.PolyStats">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.util.poly_stat.</code><code class="sig-name descname">PolyStats</code><span class="sig-paren">(</span><em class="sig-param">r</em>, <em class="sig-param">lp</em>, <em class="sig-param">sampling_method: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/poly_stat.html#PolyStats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_stat.PolyStats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class representation of the polymer statistics analysis toolkit.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.util.poly_stat.PolyStats.calc_r2">
-<span class="sig-name descname"><span class="pre">calc_r2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">windows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/chromo/util/poly_stat.html#PolyStats.calc_r2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_stat.PolyStats.calc_r2" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.util.poly_stat.PolyStats.calc_r2">
+<code class="sig-name descname">calc_r2</code><span class="sig-paren">(</span><em class="sig-param">windows: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/chromo/util/poly_stat.html#PolyStats.calc_r2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_stat.PolyStats.calc_r2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the average squared end-to-end distance of the polymer.</p>
 <p>Mean squared end-to-end distance is non-dimensionalized by the
 persistence length of the polymer, dividing the dimensional quantity by
@@ -842,9 +838,9 @@ distance will be calculated</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.util.poly_stat.PolyStats.calc_r4">
-<span class="sig-name descname"><span class="pre">calc_r4</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">windows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/chromo/util/poly_stat.html#PolyStats.calc_r4"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_stat.PolyStats.calc_r4" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.util.poly_stat.PolyStats.calc_r4">
+<code class="sig-name descname">calc_r4</code><span class="sig-paren">(</span><em class="sig-param">windows: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/chromo/util/poly_stat.html#PolyStats.calc_r4"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_stat.PolyStats.calc_r4" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the average 4th power end-to-end distance of the polymer.</p>
 <p>Mean 4th power end-to-end distance is non-dimensionalized by the
 persistence length of the polymer, dividing the dimensional quantity by
@@ -863,9 +859,9 @@ distance will be calculated</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.util.poly_stat.PolyStats.load_indices">
-<span class="sig-name descname"><span class="pre">load_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bead_separation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="_modules/chromo/util/poly_stat.html#PolyStats.load_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_stat.PolyStats.load_indices" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.util.poly_stat.PolyStats.load_indices">
+<code class="sig-name descname">load_indices</code><span class="sig-paren">(</span><em class="sig-param">bead_separation: int</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/chromo/util/poly_stat.html#PolyStats.load_indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_stat.PolyStats.load_indices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load bead indices for windows in the average.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -882,9 +878,9 @@ distance will be calculated</p>
 
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.poly_stat.calc_mean_r2">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.poly_stat.</span></span><span class="sig-name descname"><span class="pre">calc_mean_r2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/chromo/util/poly_stat.html#calc_mean_r2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_stat.calc_mean_r2" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.poly_stat.calc_mean_r2">
+<code class="sig-prename descclassname">chromo.util.poly_stat.</code><code class="sig-name descname">calc_mean_r2</code><span class="sig-paren">(</span><em class="sig-param">output_dir: str, output_files: List[str], window_size: int</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/chromo/util/poly_stat.html#calc_mean_r2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_stat.calc_mean_r2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the mean squared end-to-end distance from configuration files.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -899,9 +895,9 @@ distance</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.poly_stat.find_polymers_in_output_dir">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.poly_stat.</span></span><span class="sig-name descname"><span class="pre">find_polymers_in_output_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/chromo/util/poly_stat.html#find_polymers_in_output_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_stat.find_polymers_in_output_dir" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.poly_stat.find_polymers_in_output_dir">
+<code class="sig-prename descclassname">chromo.util.poly_stat.</code><code class="sig-name descname">find_polymers_in_output_dir</code><span class="sig-paren">(</span><em class="sig-param">directory: Optional[str] = '.'</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="reference internal" href="_modules/chromo/util/poly_stat.html#find_polymers_in_output_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_stat.find_polymers_in_output_dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Obtain the number of polymers in <cite>directory</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -916,9 +912,9 @@ distance</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.poly_stat.get_latest_configuration">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.poly_stat.</span></span><span class="sig-name descname"><span class="pre">get_latest_configuration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">polymer_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Chr-1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/chromo/util/poly_stat.html#get_latest_configuration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_stat.get_latest_configuration" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.poly_stat.get_latest_configuration">
+<code class="sig-prename descclassname">chromo.util.poly_stat.</code><code class="sig-name descname">get_latest_configuration</code><span class="sig-paren">(</span><em class="sig-param">polymer_prefix: Optional[str] = 'Chr-1'</em>, <em class="sig-param">directory: Optional[str] = '.'</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/chromo/util/poly_stat.html#get_latest_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_stat.get_latest_configuration" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identify file path to latest polymer configuration in output directory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -936,9 +932,9 @@ distance</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.poly_stat.get_latest_simulation">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.poly_stat.</span></span><span class="sig-name descname"><span class="pre">get_latest_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/poly_stat.html#get_latest_simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_stat.get_latest_simulation" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.poly_stat.get_latest_simulation">
+<code class="sig-prename descclassname">chromo.util.poly_stat.</code><code class="sig-name descname">get_latest_simulation</code><span class="sig-paren">(</span><em class="sig-param">directory: Optional[str] = '.'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/poly_stat.html#get_latest_simulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_stat.get_latest_simulation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the latest simulation file from directory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -953,9 +949,9 @@ distance</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.poly_stat.jump_sample">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.poly_stat.</span></span><span class="sig-name descname"><span class="pre">jump_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bead_separation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_beads</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/poly_stat.html#jump_sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_stat.jump_sample" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.poly_stat.jump_sample">
+<code class="sig-prename descclassname">chromo.util.poly_stat.</code><code class="sig-name descname">jump_sample</code><span class="sig-paren">(</span><em class="sig-param">bead_separation</em>, <em class="sig-param">num_beads</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/poly_stat.html#jump_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_stat.jump_sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate list of bead index pairs for non-overlaping sampling scheme.</p>
 <p>If the end of the polymer does not complete a bin, it is excluded from the
 average.</p>
@@ -975,9 +971,9 @@ average.</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.poly_stat.list_output_files">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.poly_stat.</span></span><span class="sig-name descname"><span class="pre">list_output_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equilibration_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/chromo/util/poly_stat.html#list_output_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_stat.list_output_files" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.poly_stat.list_output_files">
+<code class="sig-prename descclassname">chromo.util.poly_stat.</code><code class="sig-name descname">list_output_files</code><span class="sig-paren">(</span><em class="sig-param">output_dir: str</em>, <em class="sig-param">equilibration_steps: int</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="reference internal" href="_modules/chromo/util/poly_stat.html#list_output_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_stat.list_output_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>List configuration files in output directory following equilibration.</p>
 <p>Begins by listing all files in the output directory, then filters list to
 configuration files, and finally selects configuration snapshots following
@@ -999,9 +995,9 @@ following equilibration.</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.poly_stat.overlap_sample">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.poly_stat.</span></span><span class="sig-name descname"><span class="pre">overlap_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bead_separation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_beads</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/poly_stat.html#overlap_sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_stat.overlap_sample" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.poly_stat.overlap_sample">
+<code class="sig-prename descclassname">chromo.util.poly_stat.</code><code class="sig-name descname">overlap_sample</code><span class="sig-paren">(</span><em class="sig-param">bead_separation</em>, <em class="sig-param">num_beads</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/poly_stat.html#overlap_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_stat.overlap_sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate list of bead index pairs for sliding window sampling scheme.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1019,9 +1015,9 @@ following equilibration.</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.poly_stat.save_summary_statistics">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.poly_stat.</span></span><span class="sig-name descname"><span class="pre">save_summary_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">window_sizes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polymer_stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/poly_stat.html#save_summary_statistics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.poly_stat.save_summary_statistics" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.poly_stat.save_summary_statistics">
+<code class="sig-prename descclassname">chromo.util.poly_stat.</code><code class="sig-name descname">save_summary_statistics</code><span class="sig-paren">(</span><em class="sig-param">window_sizes: List[int], polymer_stats: List[float], save_path: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/poly_stat.html#save_summary_statistics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.poly_stat.save_summary_statistics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save summary polymer statistics to an output file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1034,13 +1030,13 @@ following equilibration.</p>
 </dl>
 </dd></dl>
 
-</section>
-<section id="module-chromo.util.mc_stat">
+</div>
+<div class="section" id="module-chromo.util.mc_stat">
 <span id="chromo-util-mc-stat"></span><h2>chromo.util.mc_stat<a class="headerlink" href="#module-chromo.util.mc_stat" title="Permalink to this headline">¶</a></h2>
 <p>Utilities for tracking MC move acceptance rates.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.util.mc_stat.AcceptanceTracker">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.util.mc_stat.</span></span><span class="sig-name descname"><span class="pre">AcceptanceTracker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_file_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moves_in_average</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#AcceptanceTracker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.mc_stat.AcceptanceTracker" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.util.mc_stat.AcceptanceTracker">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.util.mc_stat.</code><code class="sig-name descname">AcceptanceTracker</code><span class="sig-paren">(</span><em class="sig-param">log_dir: str</em>, <em class="sig-param">log_file_prefix: str</em>, <em class="sig-param">moves_in_average: float</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#AcceptanceTracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.mc_stat.AcceptanceTracker" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#chromo.util.mc_stat.Tracker" title="chromo.util.mc_stat.Tracker"><code class="xref py py-class docutils literal notranslate"><span class="pre">chromo.util.mc_stat.Tracker</span></code></a></p>
 <p>Class representation of MC acceptance rate tracker.</p>
 <p>Tracks acceptance rate of attempted MC moves of a particular type.
@@ -1049,9 +1045,9 @@ consider recent acceptance rates. Logs the acceptance rate, move amplitude,
 and bead selection amplitude with each step.</p>
 <p>This class will provide metrics to the MC adapter, which will dynamically
 adjust move and bead amplitudes.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.util.mc_stat.AcceptanceTracker.create_log_file">
-<span class="sig-name descname"><span class="pre">create_log_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#AcceptanceTracker.create_log_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.mc_stat.AcceptanceTracker.create_log_file" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.util.mc_stat.AcceptanceTracker.create_log_file">
+<code class="sig-name descname">create_log_file</code><span class="sig-paren">(</span><em class="sig-param">ind: int</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#AcceptanceTracker.create_log_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.mc_stat.AcceptanceTracker.create_log_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create the log file tracking amplitudes and acceptance rates.</p>
 <p>The log file will have five columns: snapshot count, iteration count
 bead selection amplitude, move amplitude, and move acceptance rate.</p>
@@ -1069,9 +1065,9 @@ this method, and output them using the <cite>save_move_log</cite> method.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.util.mc_stat.AcceptanceTracker.log_move">
-<span class="sig-name descname"><span class="pre">log_move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">amp_move_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amp_bead_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amp_move</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amp_bead</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dE</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#AcceptanceTracker.log_move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.mc_stat.AcceptanceTracker.log_move" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.util.mc_stat.AcceptanceTracker.log_move">
+<code class="sig-name descname">log_move</code><span class="sig-paren">(</span><em class="sig-param">amp_move_limit: float</em>, <em class="sig-param">amp_bead_limit: int</em>, <em class="sig-param">amp_move: float</em>, <em class="sig-param">amp_bead: int</em>, <em class="sig-param">dE: float</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#AcceptanceTracker.log_move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.mc_stat.AcceptanceTracker.log_move" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a proposed move and current acceptance rate to the log.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1086,9 +1082,9 @@ this method, and output them using the <cite>save_move_log</cite> method.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.util.mc_stat.AcceptanceTracker.save_move_log">
-<span class="sig-name descname"><span class="pre">save_move_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snapshot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#AcceptanceTracker.save_move_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.mc_stat.AcceptanceTracker.save_move_log" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.util.mc_stat.AcceptanceTracker.save_move_log">
+<code class="sig-name descname">save_move_log</code><span class="sig-paren">(</span><em class="sig-param">snapshot: int</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#AcceptanceTracker.save_move_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.mc_stat.AcceptanceTracker.save_move_log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the move and bead amplitude log to a file and clear lists.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1097,9 +1093,9 @@ this method, and output them using the <cite>save_move_log</cite> method.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.util.mc_stat.AcceptanceTracker.update_acceptance_rate">
-<span class="sig-name descname"><span class="pre">update_acceptance_rate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">accept</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_update</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#AcceptanceTracker.update_acceptance_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.mc_stat.AcceptanceTracker.update_acceptance_rate" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.util.mc_stat.AcceptanceTracker.update_acceptance_rate">
+<code class="sig-name descname">update_acceptance_rate</code><span class="sig-paren">(</span><em class="sig-param">accept: float</em>, <em class="sig-param">log_update: int</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#AcceptanceTracker.update_acceptance_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.mc_stat.AcceptanceTracker.update_acceptance_rate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Incrementally update acceptance rate based on move acceptance.</p>
 <p>Apply an exponentially weighted moving average to maintain a running
 measure of move acceptance weight.</p>
@@ -1116,20 +1112,20 @@ acceptance rate after the MC move</p></li>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.util.mc_stat.ConfigurationTracker">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.util.mc_stat.</span></span><span class="sig-name descname"><span class="pre">ConfigurationTracker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#ConfigurationTracker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.mc_stat.ConfigurationTracker" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.util.mc_stat.ConfigurationTracker">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.util.mc_stat.</code><code class="sig-name descname">ConfigurationTracker</code><span class="sig-paren">(</span><em class="sig-param">log_path: str</em>, <em class="sig-param">initial_config: numpy.ndarray</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#ConfigurationTracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.mc_stat.ConfigurationTracker" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#chromo.util.mc_stat.Tracker" title="chromo.util.mc_stat.Tracker"><code class="xref py py-class docutils literal notranslate"><span class="pre">chromo.util.mc_stat.Tracker</span></code></a></p>
 <p>Track progressive reconfiguraion of the polymer.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.util.mc_stat.ConfigurationTracker.create_log_file">
-<span class="sig-name descname"><span class="pre">create_log_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#ConfigurationTracker.create_log_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.mc_stat.ConfigurationTracker.create_log_file" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.util.mc_stat.ConfigurationTracker.create_log_file">
+<code class="sig-name descname">create_log_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#ConfigurationTracker.create_log_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.mc_stat.ConfigurationTracker.create_log_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an output file for the tracker.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.util.mc_stat.ConfigurationTracker.log_move">
-<span class="sig-name descname"><span class="pre">log_move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#ConfigurationTracker.log_move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.mc_stat.ConfigurationTracker.log_move" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.util.mc_stat.ConfigurationTracker.log_move">
+<code class="sig-name descname">log_move</code><span class="sig-paren">(</span><em class="sig-param">config: numpy.ndarray</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#ConfigurationTracker.log_move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.mc_stat.ConfigurationTracker.log_move" title="Permalink to this definition">¶</a></dt>
 <dd><p>Log the change in polymer configuration.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1139,9 +1135,9 @@ columns represent (x, y, z) coordinates</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.util.mc_stat.ConfigurationTracker.save_move_log">
-<span class="sig-name descname"><span class="pre">save_move_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">snapshot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#ConfigurationTracker.save_move_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.mc_stat.ConfigurationTracker.save_move_log" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.util.mc_stat.ConfigurationTracker.save_move_log">
+<code class="sig-name descname">save_move_log</code><span class="sig-paren">(</span><em class="sig-param">snapshot: int</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#ConfigurationTracker.save_move_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.mc_stat.ConfigurationTracker.save_move_log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save to the <cite>ConfigurationTracker</cite> output file and reset log.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1152,34 +1148,34 @@ columns represent (x, y, z) coordinates</p>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="chromo.util.mc_stat.Tracker">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chromo.util.mc_stat.</span></span><span class="sig-name descname"><span class="pre">Tracker</span></span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#Tracker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.mc_stat.Tracker" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="chromo.util.mc_stat.Tracker">
+<em class="property">class </em><code class="sig-prename descclassname">chromo.util.mc_stat.</code><code class="sig-name descname">Tracker</code><a class="reference internal" href="_modules/chromo/util/mc_stat.html#Tracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.mc_stat.Tracker" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Abstract class representation of a MC performance tracker.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.util.mc_stat.Tracker.create_log_file">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_log_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#Tracker.create_log_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.mc_stat.Tracker.create_log_file" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.util.mc_stat.Tracker.create_log_file">
+<em class="property">abstract </em><code class="sig-name descname">create_log_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#Tracker.create_log_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.mc_stat.Tracker.create_log_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an output file for the tracker.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.util.mc_stat.Tracker.log_move">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">log_move</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#Tracker.log_move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.mc_stat.Tracker.log_move" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.util.mc_stat.Tracker.log_move">
+<em class="property">abstract </em><code class="sig-name descname">log_move</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#Tracker.log_move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.mc_stat.Tracker.log_move" title="Permalink to this definition">¶</a></dt>
 <dd><p>Log performance after an MC move.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="chromo.util.mc_stat.Tracker.save_move_log">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">save_move_log</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#Tracker.save_move_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.mc_stat.Tracker.save_move_log" title="Permalink to this definition">¶</a></dt>
+<dl class="method">
+<dt id="chromo.util.mc_stat.Tracker.save_move_log">
+<em class="property">abstract </em><code class="sig-name descname">save_move_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#Tracker.save_move_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.mc_stat.Tracker.save_move_log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the log to the output file, then reset log.</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.mc_stat.initialize_table">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.mc_stat.</span></span><span class="sig-name descname"><span class="pre">initialize_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#initialize_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.mc_stat.initialize_table" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.mc_stat.initialize_table">
+<code class="sig-prename descclassname">chromo.util.mc_stat.</code><code class="sig-name descname">initialize_table</code><span class="sig-paren">(</span><em class="sig-param">path: str, columns: List[str]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/mc_stat.html#initialize_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.mc_stat.initialize_table" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize a log file with empty columns.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1191,8 +1187,8 @@ columns represent (x, y, z) coordinates</p>
 </dl>
 </dd></dl>
 
-</section>
-<section id="module-chromo.util.gjk">
+</div>
+<div class="section" id="module-chromo.util.gjk">
 <span id="chromo-util-gjk"></span><h2>chromo.util.gjk<a class="headerlink" href="#module-chromo.util.gjk" title="Permalink to this headline">¶</a></h2>
 <p>Gilbert-Johnson-Keerthi (GJK) Collision Detection</p>
 <p class="rubric">Notes</p>
@@ -1201,15 +1197,15 @@ columns represent (x, y, z) coordinates</p>
 <p>In our implementation of the GJK algorithm, point c will be the oldest support
 point selected, followed by point b, and lastly point a. This way, between
 iterations, point a will become point b and point b will become point c.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.gjk.get_furthest_in_dir">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.gjk.</span></span><span class="sig-name descname"><span class="pre">get_furthest_in_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="_modules/chromo/util/gjk.html#get_furthest_in_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.gjk.get_furthest_in_dir" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.gjk.get_furthest_in_dir">
+<code class="sig-prename descclassname">chromo.util.gjk.</code><code class="sig-name descname">get_furthest_in_dir</code><span class="sig-paren">(</span><em class="sig-param">vertices: numpy.ndarray</em>, <em class="sig-param">dir_: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/chromo/util/gjk.html#get_furthest_in_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.gjk.get_furthest_in_dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the furthest point of a shape from its center in a given direction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vertices</strong> (<em>np.ndarray</em><em> (</em><em>M</em><em>, </em><em>3</em><em>)</em>) – Verticies of shape</p></li>
-<li><p><strong>dir</strong> (<em>np.ndarray</em><em> (</em><em>3</em><em>, </em><em>)</em>) – Direction in which to get the furthest point</p></li>
+<li><p><strong>dir_</strong> (<em>np.ndarray</em><em> (</em><em>3</em><em>, </em><em>)</em>) – Direction in which to get the furthest point</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1222,9 +1218,9 @@ direction.</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.gjk.gjk_collision">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.gjk.</span></span><span class="sig-name descname"><span class="pre">gjk_collision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertices_1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertices_2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/chromo/util/gjk.html#gjk_collision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.gjk.gjk_collision" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.gjk.gjk_collision">
+<code class="sig-prename descclassname">chromo.util.gjk.</code><code class="sig-name descname">gjk_collision</code><span class="sig-paren">(</span><em class="sig-param">vertices_1: numpy.ndarray</em>, <em class="sig-param">vertices_2: numpy.ndarray</em>, <em class="sig-param">max_iters: int</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/chromo/util/gjk.html#gjk_collision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.gjk.gjk_collision" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test for collision by GJK algorithm given arrays of vertex coordinates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1246,9 +1242,9 @@ collision)</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.gjk.pick_line">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.gjk.</span></span><span class="sig-name descname"><span class="pre">pick_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertices_1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertices_2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/chromo/util/gjk.html#pick_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.gjk.pick_line" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.gjk.pick_line">
+<code class="sig-prename descclassname">chromo.util.gjk.</code><code class="sig-name descname">pick_line</code><span class="sig-paren">(</span><em class="sig-param">vertices_1: numpy.ndarray</em>, <em class="sig-param">vertices_2: numpy.ndarray</em>, <em class="sig-param">dir_: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; Tuple[numpy.ndarray, numpy.ndarray]<a class="reference internal" href="_modules/chromo/util/gjk.html#pick_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.gjk.pick_line" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pick an initial line along the Minkowski difference between the two shapes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1257,7 +1253,7 @@ collision)</p>
 vertices and columns represent cartesian (x, y, z) coordinates for the
 corresponding vertices</p></li>
 <li><p><strong>vertices_2</strong> (<em>array_like</em><em> (</em><em>M</em><em>, </em><em>3</em><em>) </em><em>of double</em>) – Array of vertices for second object</p></li>
-<li><p><strong>dir</strong> (<em>np.ndarray</em><em> (</em><em>3</em><em>, </em><em>)</em>) – Initial direction with which to select support points</p></li>
+<li><p><strong>dir_</strong> (<em>np.ndarray</em><em> (</em><em>3</em><em>, </em><em>)</em>) – Initial direction with which to select support points</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1269,9 +1265,9 @@ corresponding vertices</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.gjk.pick_tetrahedron">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.gjk.</span></span><span class="sig-name descname"><span class="pre">pick_tetrahedron</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertices_1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertices_2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/chromo/util/gjk.html#pick_tetrahedron"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.gjk.pick_tetrahedron" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.gjk.pick_tetrahedron">
+<code class="sig-prename descclassname">chromo.util.gjk.</code><code class="sig-name descname">pick_tetrahedron</code><span class="sig-paren">(</span><em class="sig-param">a: numpy.ndarray</em>, <em class="sig-param">b: numpy.ndarray</em>, <em class="sig-param">c: numpy.ndarray</em>, <em class="sig-param">vertices_1: numpy.ndarray</em>, <em class="sig-param">vertices_2: numpy.ndarray</em>, <em class="sig-param">max_iters: int</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/chromo/util/gjk.html#pick_tetrahedron"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.gjk.pick_tetrahedron" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if 3D simplex (tetrahedron) contains origin, indicating collision.</p>
 <p>If two 3D, convex shapes collide, then a 3D simplex can be drawn between
 the Minkowski difference of the two shapes which contains the origin. This
@@ -1299,9 +1295,9 @@ does not contain origin) -&gt; indicator of whether 3D collision occured</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.gjk.pick_triangle">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.gjk.</span></span><span class="sig-name descname"><span class="pre">pick_triangle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertices_1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertices_2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/chromo/util/gjk.html#pick_triangle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.gjk.pick_triangle" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.gjk.pick_triangle">
+<code class="sig-prename descclassname">chromo.util.gjk.</code><code class="sig-name descname">pick_triangle</code><span class="sig-paren">(</span><em class="sig-param">a: numpy.ndarray</em>, <em class="sig-param">b: numpy.ndarray</em>, <em class="sig-param">vertices_1: numpy.ndarray</em>, <em class="sig-param">vertices_2: numpy.ndarray</em>, <em class="sig-param">max_iters: int</em><span class="sig-paren">)</span> &#x2192; Tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray, bool]<a class="reference internal" href="_modules/chromo/util/gjk.html#pick_triangle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.gjk.pick_triangle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if 2D simplex (triangle) contains origin.</p>
 <p class="rubric">Notes</p>
 <p>If two convex shapes collide, then there exists a triangle formed from
@@ -1346,9 +1342,9 @@ does not contain origin)</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.gjk.shape_overlap">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.gjk.</span></span><span class="sig-name descname"><span class="pre">shape_overlap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/chromo/util/gjk.html#shape_overlap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.gjk.shape_overlap" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.gjk.shape_overlap">
+<code class="sig-prename descclassname">chromo.util.gjk.</code><code class="sig-name descname">shape_overlap</code><span class="sig-paren">(</span><em class="sig-param">s1: numpy.ndarray</em>, <em class="sig-param">s2: numpy.ndarray</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/chromo/util/gjk.html#shape_overlap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.gjk.shape_overlap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if any two vertices of the two shapes overlap</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1369,9 +1365,9 @@ collision, False = non-overlapping vertices -&gt; more analysis needed)</p>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="chromo.util.gjk.support_function">
-<span class="sig-prename descclassname"><span class="pre">chromo.util.gjk.</span></span><span class="sig-name descname"><span class="pre">support_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertices_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertices_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir_</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/gjk.html#support_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chromo.util.gjk.support_function" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="chromo.util.gjk.support_function">
+<code class="sig-prename descclassname">chromo.util.gjk.</code><code class="sig-name descname">support_function</code><span class="sig-paren">(</span><em class="sig-param">vertices_1</em>, <em class="sig-param">vertices_2</em>, <em class="sig-param">dir_</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chromo/util/gjk.html#support_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#chromo.util.gjk.support_function" title="Permalink to this definition">¶</a></dt>
 <dd><p>Support function for obtaining support points on Minkowski difference.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1380,7 +1376,7 @@ collision, False = non-overlapping vertices -&gt; more analysis needed)</p>
 vertices and columns represent cartesian (x, y, z) coordinates for the
 corresponding vertices</p></li>
 <li><p><strong>vertices_2</strong> (<em>array_like</em><em> (</em><em>M</em><em>, </em><em>3</em><em>) </em><em>of double</em>) – Array of vertices for second object</p></li>
-<li><p><strong>dir</strong> (<em>np.ndarray</em><em> (</em><em>3</em><em>, </em><em>)</em>) – Initial direction with which to select support points</p></li>
+<li><p><strong>dir_</strong> (<em>np.ndarray</em><em> (</em><em>3</em><em>, </em><em>)</em>) – Initial direction with which to select support points</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1392,8 +1388,8 @@ corresponding vertices</p></li>
 </dl>
 </dd></dl>
 
-</section>
-</section>
+</div>
+</div>
 
 
            </div>
@@ -1443,11 +1439,13 @@ corresponding vertices</p></li>
             SOURCELINK_SUFFIX: '.txt'
         };
     </script>
-      <script type="text/javascript" src="_static/documentation_options.js"></script>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/language_data.js"></script>
       <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="None"></script>
 
   
 

@@ -48,21 +48,23 @@ Quickstart
    $ cd doc/examples
    $ jupyter nbconvert --ExecutePreprocessor.timeout=-1 --to notebook --output <Output_Notebook_Name> --execute <Example_Notebook_Name>
 
+.. Tip:: To recompile the Sphinx documentation, you will also need to run :code:`conda install pandoc`.
+
 |
 
 Examples
 --------
 
-**Specify Epigenetic Marks.**
-Default properties for HP1 and PRC1 are implemented; these marks can be called by name.
-New epigenetic marks can be defined by specifying their physical properties.
+**Specify Reader Proteins.**
+Default properties for HP1 and PRC1 are implemented; these binders can be called by name.
+New reader proteins can be defined by specifying their physical properties.
 
 .. parsed-literal::
 
-   hp1 = chromo.marks.get_by_name('HP1')
-   prc1 = chromo.marks.get_by_name('PRC1')
-   custom_mark = Epigenmark(
-      name="new_mark",
+   hp1 = chromo.binders.get_by_name('HP1')
+   prc1 = chromo.binders.get_by_name('PRC1')
+   custom_binder = ReaderProtein(
+      name="new_binder",
       sites_per_bead=2,
       bind_energy_mod=-1,
       bind_energy_no_mod=1,
@@ -70,14 +72,14 @@ New epigenetic marks can be defined by specifying their physical properties.
       chemical_potential=-1.5,
       interaction_radius=3
    )
-   marks = chromo.marks.make_mark_collection([hp1, prc1, custom_mark])
+   binders = chromo.binders.make_binder_collection([hp1, prc1, custom_binder])
 
 |
 
 **Specify Chemical Modifications & Initial Binding States.**
-Each epigeneic mark requires a pattern of histone modifications dictating binding.
+Each reader protein requires a pattern of histone modifications dictating binding.
 These patterns can be specified directly or read from a file.
-Initial mark binding states may be trivially defined to match the chemical modifications.
+Initial reader protein binding states may be trivially defined to match the chemical modifications.
 
 .. parsed-literal::
 
@@ -108,7 +110,7 @@ The polymer is initialized along a Gaussian random walk.
 
 To instantiate chromatin, specify basic dimensions, histone modification patterns, and an initial configuration.
 The polymer below is confined to a sphere with a 900-unit radius.
-Each bead is modified at three sites, and initial mark binding states match the initial modifications.
+Each bead is modified at three sites, and initial reader proptein binding states match the initial modifications.
 
 .. parsed-literal::
 
@@ -119,7 +121,7 @@ Each bead is modified at three sites, and initial mark binding states match the 
        states=states,
        confine_type="Sphere",
        confine_length=900,
-       mark_names=np.array(['HP1', 'PRC1', 'Custom']),
+       binder_names=np.array(['HP1', 'PRC1', 'Custom']),
        chemical_mods=chemical_mods,
        chemical_mod_names=np.array(['H3K9me3', 'H3K27me3', 'custom_mod'])
    )
@@ -127,7 +129,7 @@ Each bead is modified at three sites, and initial mark binding states match the 
 |
 
 **Define Uniform Density Field.**
-The density field for the polymer and its marks is instantiated as a grid of discrete voxels.
+The density field for the polymer and its binders is instantiated as a grid of discrete voxels.
 The width and number of voxels in each dimension of the field must be specified.
 
 .. parsed-literal::
@@ -142,7 +144,7 @@ The width and number of voxels in each dimension of the field must be specified.
 
    udf = UniformDensityField(
        polymers = [polymer],
-       marks = marks,
+       binders = binders,
        x_width = x_width,
        nx = n_bins_x,
        y_width = y_width,

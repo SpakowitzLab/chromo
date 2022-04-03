@@ -17,6 +17,7 @@ import pandas as pd
 
 # Custom Modules
 import chromo.beads as beads
+import chromo.binders as binds
 import chromo.util.mc_stat as mc_stat
 from chromo.util.linalg cimport (vec_sub3, vec_dot3, vec_scale3)
 from .util import dss_params
@@ -76,14 +77,14 @@ cdef class PolymerBase(TransformedObject):
         MC simulation, used for purposes of tracking simulation convergence
     lp : double
         Persistence length of the polymer
-    num_marks : long
-        Number of chemical mark types bound to the polymer which are tracked
+    num_binders : long
+        Number of reader protein types bound to the polymer which are tracked
         by the simulator
-    n_marks_p1 : long
-        One more than `num_marks` to avoid repeated calculation
-    mark_names : array_like (M,) of str
+    n_binders_p1 : long
+        One more than `num_binders` to avoid repeated calculation
+    binder_names : array_like (M,) of str
         Name of M bound chemical states tracked in `states`; length of
-        `mark_names` must match number of columns in `states`
+        `binder_names` must match number of columns in `states`
     all_inds : array_like (N,) of long
         Indices corresponding to each bead in the polymer
     r, t3, t2 : array_like (N, 3) of double
@@ -94,10 +95,10 @@ cdef class PolymerBase(TransformedObject):
         global coordinates (x, y, z) for each of N beads in the polymer;
         evaluated for acceptance using energy change determined by `compute_dE`
     states : array_like (N, M) of long
-        Current state of each of the M chemical marks being tracked for each of
-        the N beads in the polymer
+        Current state of each of the M reader proteins being tracked for each
+        of the N beads in the polymer
     states_trial : array_like (N, M) of long
-        Trial state of each of the M chemical marks being tracked for each of
+        Trial state of each of the M reader proteins being tracked for each of
         the N beads in the polymer
     chemical_mods : array_like (N, M) of long
         States of M chemical modifications (e.g., counts of H3K9me3) on each
@@ -131,13 +132,13 @@ cdef class PolymerBase(TransformedObject):
         configuration used to compute the elastic energy of a bond in a
         polymer; stored as attribute to avoid costly array generation during
         inner loop of simulation
-    densities_temp : array_like (2, n_marks_p1, 8) of double
+    densities_temp : array_like (2, n_binders_p1, 8) of double
         Densities for current (dim0 = 0) and trial (dim0 = 1) bins containing
         bead during MC move; the densities are tracked for the bead itself
-        and each bound mark (stored in dim1); the densities are tracked for 8
-        bins containing the bead before and after the move (stored in dim2);
-        stored as attribute to avoid costly array generation during inner
-        loop of simulation
+        and each bound reader proteins (stored in dim1); the densities are
+        tracked for 8 bins containing the bead before and after the move
+        (stored in dim2); stored as attribute to avoid costly array generation
+        during inner loop of simulation
 
     Notes
     -----
@@ -150,7 +151,7 @@ cdef class PolymerBase(TransformedObject):
     def __init__(
         self, str name, double[:, ::1] r = empty_2d, *, str log_path = "",
         double[:, ::1] t3 = empty_2d, double[:, ::1] t2 = empty_2d,
-        long[:, ::1] states = mty_2d_int, np.ndarray mark_names = empty_1d,
+        long[:, ::1] states = mty_2d_int, np.ndarray binder_names = empty_1d,
         long[:, ::1] chemical_mods = mty_2d_int,
         np.ndarray chemical_mod_names = empty_1d_str
     ):
@@ -181,11 +182,11 @@ cdef class PolymerBase(TransformedObject):
             Material normal to each bead in the global coordinate system; this
             vector should be orthogonal to t2 (default is empty array)
         states : Optional array_like (N, M) of int
-            State of each of the M chemical marks being tracked for each of
+            State of each of the M reader proteins being tracked for each of
             the N beads (default is empty array)
-        mark_names : Optional array_like (M,) of str
+        binder_names : Optional array_like (M,) of str
             Name of M bound chemical states tracked in `states`; length of
-            `mark_names` must match number of columns in `states` (default is
+            `binder_names` must match number of columns in `states` (default is
             empty array)
         chemical_mods : Optional array_like (N, M) of long
             States of M chemical modifications (e.g., counts of H3K9me3) on
@@ -198,7 +199,7 @@ cdef class PolymerBase(TransformedObject):
             Path to configuration tracker log (default is empty string,
             flagging for no configuration log to be generated)
         """
-        cdef long num_marks, num_beads
+        cdef long num_binders, num_beads
         cdef double lp
         cdef np.ndarray required_attrs, _arrays, _3d_arrays
 
@@ -207,21 +208,21 @@ cdef class PolymerBase(TransformedObject):
         self.t3 = t3
         self.t2 = t2
         self.states = states
-        self.mark_names = mark_names
+        self.binder_names = binder_names
         self.chemical_mods = chemical_mods
         self.chemical_mod_names = chemical_mod_names
         self.num_beads = self.get_num_beads()
         self.fill_missing_arguments()
         self.all_inds = np.arange(0, self.num_beads, 1)
-        self.num_marks = self.get_num_marks()
-        self.n_marks_p1 = self.num_marks + 1
+        self.num_binders = self.get_num_binders()
+        self.n_binders_p1 = self.num_binders + 1
         self.log_path = log_path
-        self.check_marks(states, mark_names)
+        self.check_binders(states, binder_names)
         self.construct_beads()
         self.update_log_path(log_path)
         self.lp = 0
         self.required_attrs = np.array([
-            "name", "r", "t3", "t2", "states", "mark_names", "num_marks",
+            "name", "r", "t3", "t2", "states", "binder_names", "num_binders",
             "beads", "num_beads", "lp"
         ])
         self._arrays = np.array(['r', 't3', 't2', 'states', 'chemical_mods'])
@@ -244,13 +245,13 @@ cdef class PolymerBase(TransformedObject):
         self.bend = np.zeros((3,), dtype='d')
         self.bend_test = np.zeros((3,), dtype='d')
         # For field energy calculation
-        self.densities_temp = np.zeros((2, self.n_marks_p1, 8), dtype='d')
+        self.densities_temp = np.zeros((2, self.n_binders_p1, 8), dtype='d')
 
     def fill_missing_arguments(self):
         """Fill empty arguments in `__init__` call.
 
-        Fills t3, t2, states, mark_names, chemical_mods, chemical_mod_names if
-        not defined during polymer initialization.
+        Fills t3, t2, states, binder_names, chemical_mods, chemical_mod_names
+        if not defined during polymer initialization.
         """
         if np.size(self.t3) == 0:
             print("No t3 tangent vectors defined.")
@@ -261,8 +262,8 @@ cdef class PolymerBase(TransformedObject):
         if np.size(self.states) == 0:
             print("No states defined.")
             self.states = np.zeros((self.num_beads, 1), dtype=int)
-        if np.size(self.mark_names) == 0:
-            self.mark_names = np.array(["null_mark"])
+        if np.size(self.binder_names) == 0:
+            self.binder_names = np.array(["null_binder"])
         if np.size(self.chemical_mods) == 0:
             print("No chemical modifications defined.")
             self.chemical_mods = np.zeros((self.num_beads, 1), dtype=int)
@@ -320,7 +321,7 @@ cdef class PolymerBase(TransformedObject):
             String representation listing key attributes of the polymer
         """
         rep = f"Polymer<{self.name}, nbeads={self.num_beads}, " \
-            f"nmarks={self.num_marks}>"
+            f"nbinder={self.num_binders}>"
         return rep
 
     def check_attrs(self):
@@ -346,23 +347,22 @@ cdef class PolymerBase(TransformedObject):
                 "Specify the persistence length in the subclass of Polymer"
             )
 
-    cdef void check_marks(self, long[:, ::1] states, np.ndarray mark_names):
-        """Verify that specified mark states and names are valid.
+    cdef void check_binders(self, long[:, ::1] states, np.ndarray binder_names):
+        """Verify that specified binder states and names are valid.
 
         Parameters
         ----------
         states : array_like (N, M) of long
-            State of each of the M chemical marks being tracked for each of the
-            N bead
-        mark_names : array_like (M,) of str
+            State of each of the M binders being tracked for each of the N bead
+        binder_names : array_like (M,) of str
             Name of M bound chemical states tracked in `states`; the number of
-            `mark_names` specified must match number of columns in `states`
+            `binder_names` specified must match number of columns in `states`
         """
-        cdef long n_beads, num_marks
+        cdef long n_beads, num_binders
         if states.shape[1] is not 0:
             num_beads = states.shape[0]
-            num_marks = states.shape[1]
-            if num_marks != len(mark_names):
+            num_binders = states.shape[1]
+            if num_binders != len(binder_names):
                 raise ValueError("Each chemical state must be given a name.")
             if num_beads != len(self.r):
                 raise ValueError("Initial epigenetic state of wrong length.")
@@ -376,7 +376,7 @@ cdef class PolymerBase(TransformedObject):
         
         Notes
         -----
-        There must be a sequence of chemical modifications per epigenetic mark
+        There must be a sequence of chemical modifications per reader protein
         included in the model. The sequence of chemical modifications must be
         of length `self.num_beads`, meaning there is a chemical modification
         status specified for each bead of the polymer.
@@ -390,9 +390,9 @@ cdef class PolymerBase(TransformedObject):
             Name of chemical modifications made to the polymer tracked for each
             bead in `chemical_mods` attribute
         """
-        if self.num_marks != chemical_mods.shape[1]:
+        if self.num_binders != chemical_mods.shape[1]:
             raise ValueError(
-                "Number of chemical modificationsand marks must match."
+                "Number of chemical modifications and binders must match."
             )
         if self.num_beads != chemical_mods.shape[0]:
             raise ValueError(
@@ -410,7 +410,7 @@ cdef class PolymerBase(TransformedObject):
         Parameters
         ----------
         paths_to_seqs : array_like (M,) of str
-            Paths to the sequence of chemical modifications or mark on the
+            Paths to the sequence of chemical modifications or binders on the
             beads. A single path should be provided per epigenetic mark.
 
         Returns
@@ -536,7 +536,7 @@ cdef class PolymerBase(TransformedObject):
 
         All other arrays can be added as a single column to the data frame.
 
-        Epigenmark names is a special case because it does not fit with with
+        ReaderProtein names is a special case because it does not fit with with
         dimensions of the other properties, which are saved per bead.
 
         Construct the parts of the DataFrame that need a multi-index.
@@ -574,7 +574,7 @@ cdef class PolymerBase(TransformedObject):
         vector_df = pd.DataFrame(vector_arr, columns=vector_index)
         if len(self.chemical_mod_names) > 0:
             states_index = pd.MultiIndex.from_tuples(
-                [('states', name) for name in self.mark_names]
+                [('states', name) for name in self.binder_names]
             )
             chem_mod_index = pd.MultiIndex.from_tuples(
                 [('chemical_mods', name) for name in self.chemical_mod_names]
@@ -657,8 +657,8 @@ cdef class PolymerBase(TransformedObject):
         kwargs = {name: np.ascontiguousarray(df[name].to_numpy()) for name in kwnames}
         # extract names of each epigenetic state from multi-index
         if 'states' in df:
-            mark_names = df['states'].columns.to_numpy()
-            kwargs['mark_names'] = mark_names
+            binder_names = df['states'].columns.to_numpy()
+            kwargs['binder_names'] = binder_names
         if 'chemical_mods' in df:
             chemical_mod_names = df['chemical_mods'].columns.to_numpy()
             kwargs['chemical_mod_names'] = chemical_mod_names
@@ -687,13 +687,13 @@ cdef class PolymerBase(TransformedObject):
         df = pd.read_csv(path, header=[0, 1], index_col=0)
         return cls.from_dataframe(df, name)
 
-    cpdef long get_num_marks(self):
+    cpdef long get_num_binders(self):
         """Return number of states tracked per bead.
         
         Returns
         -------
         long
-            Number of mark types bound to the polymer
+            Number of binder types bound to the polymer
         """
         return self.states.shape[1]
 
@@ -712,8 +712,8 @@ cdef class PolymerBase(TransformedObject):
         
         Notes
         -----
-        The field will not be active if there are no marks defined or if there
-        are no marks bound.
+        The field will not be active if there are no binders defined or if there
+        are no binders bound.
 
         Returns
         -------
@@ -721,11 +721,11 @@ cdef class PolymerBase(TransformedObject):
             Flag indicating whether the polymer is affected by the field (True)
             or is agnostic to the field (False)
         """
-        cdef long marks_bound
+        cdef long binders_bound
         if self.states.shape[1] == 0:
             return 0
-        marks_bound = np.sum(self.states, dtype=long)
-        if marks_bound == 0:
+        binders_bound = np.sum(self.states, dtype=long)
+        if binders_bound == 0:
             return 0
         return 1
 
@@ -748,7 +748,7 @@ cdef class Rouse(PolymerBase):
         *,
         double lp,
         np.ndarray[long, ndim=2] states = mty_2d_int,
-        np.ndarray mark_names = empty_1d,
+        np.ndarray binder_names = empty_1d,
         np.ndarray[long, ndim=2] chemical_mods = mty_2d_int,
         np.ndarray chemical_mod_names = empty_1d_str,
         str log_path = ""
@@ -770,7 +770,7 @@ cdef class Rouse(PolymerBase):
             Persistence length of the polymer
         """
         super(Rouse, self).__init__(
-            name, r, states=states, mark_names=mark_names,
+            name, r, states=states, binder_names=binder_names,
             log_path=log_path, chemical_mods=chemical_mods,
             chemical_mod_names=chemical_mod_names
         )
@@ -814,8 +814,8 @@ cdef class SSWLC(PolymerBase):
     Notes
     -----
     The `SSWLC` class describes a discrete, semiflexible polymer with
-    attributes for position, orientation, chemical modification, and mark
-    binding state.
+    attributes for position, orientation, chemical modification, and reader
+    protein binding state.
 
     The polymer carries around a set of coordinates `r` of shape
     `(num_beads, 3)`, sets of material normals `t3` and `t2`, some number of
@@ -829,8 +829,8 @@ cdef class SSWLC(PolymerBase):
     some number of chemical modifications and binding states.
 
     If this codebase is used to simulate DNA, information about the chemical
-    properties of each epigenetic mark are stored in `Epigenmark` objects. To
-    model arbitrary SSWLC's, the different types of `Mark` objects may be
+    properties of each reader protein are stored in `ReaderProtein` objects. To
+    model arbitrary SSWLC's, the different types of `Binder` objects may be
     specified to characterize bound components.
 
     See documentation for `PolymerBase` class for additional paramete details.
@@ -863,7 +863,7 @@ cdef class SSWLC(PolymerBase):
         self, str name, double[:,::1] r, *, double bead_length, double lp,
         double bead_rad=5, double[:,::1] t3=empty_2d,
         double[:,::1] t2=empty_2d, long[:,::1] states=mty_2d_int,
-        np.ndarray mark_names=empty_1d, long[:,::1] chemical_mods=mty_2d_int,
+        np.ndarray binder_names=empty_1d, long[:,::1] chemical_mods=mty_2d_int,
         np.ndarray chemical_mod_names=empty_1d, str log_path = ""
     ):
         """Construct a `SSWLC` polymer object as a subclass of `PolymerBase`.
@@ -885,7 +885,7 @@ cdef class SSWLC(PolymerBase):
         cdef np.ndarray _arrays
         self.bead_length = bead_length
         super(SSWLC, self).__init__(
-            name, r, t3=t3, t2=t2, states=states, mark_names=mark_names,
+            name, r, t3=t3, t2=t2, states=states, binder_names=binder_names,
             log_path=log_path, chemical_mods=chemical_mods,
             chemical_mod_names=chemical_mod_names
         )
@@ -894,7 +894,7 @@ cdef class SSWLC(PolymerBase):
         self.lp = lp
         self._find_parameters(self.bead_length)
         self.required_attrs = np.array([
-            "name", "r", "t3", "t2", "states", "mark_names", "num_marks",
+            "name", "r", "t3", "t2", "states", "binder_names", "num_binders",
             "beads", "num_beads", "lp", "bead_rad"
         ])
         self._arrays = np.array(
@@ -913,7 +913,7 @@ cdef class SSWLC(PolymerBase):
                 t2=self.t2[i],
                 bead_length=self.bead_length,
                 states=self.states[i],
-                mark_names=self.mark_names,
+                binder_names=self.binder_names,
                 rad=self.bead_rad
             ) for i in range(len(self.r))
         }
@@ -1313,31 +1313,31 @@ cdef class SSWLC(PolymerBase):
         mod_states = self.chemical_mods[ind]
         states_ind = self.states[ind].copy()
         dE = 0
-        for i in range(self.num_marks):
-            num_tails = self.beads[ind].marks[i].sites_per_bead
+        for i in range(self.num_binders):
+            num_tails = self.beads[ind].binders[i].sites_per_bead
             modified_tails = mod_states[i]
             unmodified_tails = num_tails - modified_tails
             for j in range(states_trial_ind[i]):
                 if j+1 <= modified_tails:
                     dE += (
-                        self.beads[ind].marks[i].bind_energy_mod -
-                        self.beads[ind].marks[i].chemical_potential
+                        self.beads[ind].binders[i].bind_energy_mod -
+                        self.beads[ind].binders[i].chemical_potential
                     )
                 else:
                     dE += (
-                        self.beads[ind].marks[i].bind_energy_no_mod -
-                        self.beads[ind].marks[i].chemical_potential
+                        self.beads[ind].binders[i].bind_energy_no_mod -
+                        self.beads[ind].binders[i].chemical_potential
                     )
             for j in range(states_ind[i]):
                 if j+1 <= modified_tails:
                     dE -= (
-                        self.beads[ind].marks[i].bind_energy_mod -
-                        self.beads[ind].marks[i].chemical_potential
+                        self.beads[ind].binders[i].bind_energy_mod -
+                        self.beads[ind].binders[i].chemical_potential
                     )
                 else:
                     dE -= (
-                        self.beads[ind].marks[i].bind_energy_no_mod -
-                        self.beads[ind].marks[i].chemical_potential
+                        self.beads[ind].binders[i].bind_energy_no_mod -
+                        self.beads[ind].binders[i].chemical_potential
                     )
         return dE
 
@@ -1602,7 +1602,7 @@ cdef class Chromatin(SSWLC):
         np.ndarray[double, ndim=2] t3 = empty_2d,
         np.ndarray[double, ndim=2] t2 = empty_2d,
         np.ndarray[long, ndim=2] states = mty_2d_int,
-        np.ndarray mark_names = empty_1d,
+        np.ndarray binder_names = empty_1d,
         np.ndarray[long, ndim=2] chemical_mods = mty_2d_int,
         np.ndarray chemical_mod_names = empty_1d_str,
         str log_path = ""
@@ -1620,7 +1620,7 @@ cdef class Chromatin(SSWLC):
         cdef double lp = 53
         super(Chromatin, self).__init__(
             name, r, bead_length=bead_length, bead_rad=bead_rad, lp=lp, t3=t3,
-            t2=t2, states=states, mark_names=mark_names, log_path=log_path,
+            t2=t2, states=states, binder_names=binder_names, log_path=log_path,
             chemical_mods=chemical_mods, chemical_mod_names=chemical_mod_names
         )
         self.construct_beads()
@@ -1637,7 +1637,7 @@ cdef class Chromatin(SSWLC):
                 bead_length=self.bead_length,
                 rad=self.bead_rad,
                 states=self.states[i],
-                mark_names=self.mark_names
+                binder_names=self.binder_names
             ) for i in range(self.r.shape[0])
         }
 
@@ -1673,9 +1673,9 @@ cdef class SSTWLC(SSWLC):
         double bead_rad = 5,
         double[:, ::1] t3 = empty_2d,
         double[:, ::1] t2 = empty_2d,
-        np.ndarray[long, ndim=2] states = mty_2d_int,
-        np.ndarray mark_names = empty_1d,
-        np.ndarray[long, ndim=2] chemical_mods = mty_2d_int,
+        long[:, ::1] states = mty_2d_int,
+        np.ndarray binder_names = empty_1d,
+        long[:, ::1] chemical_mods = mty_2d_int,
         np.ndarray chemical_mod_names = empty_1d_str,
         str log_path = ""
     ):
@@ -1694,7 +1694,7 @@ cdef class SSTWLC(SSWLC):
 
         self.bead_length = bead_length
         super(SSWLC, self).__init__(
-            name, r, t3=t3, t2=t2, states=states, mark_names=mark_names,
+            name, r, t3=t3, t2=t2, states=states, binder_names=binder_names,
             log_path=log_path, chemical_mods=chemical_mods,
             chemical_mod_names=chemical_mod_names
         )
@@ -1704,7 +1704,7 @@ cdef class SSTWLC(SSWLC):
         self.lt = lt
         self._find_parameters(self.bead_length)
         self.required_attrs = np.array([
-            "name", "r", "t3", "t2", "states", "mark_names", "num_marks",
+            "name", "r", "t3", "t2", "states", "binder_names", "num_binders",
             "beads", "num_beads", "lp", "lt", "bead_rad"
         ])
         self._arrays = np.array(
@@ -2022,7 +2022,7 @@ cdef class LoopedSSTWLC(SSTWLC):
         str name, double[:,::1] r, *, double bead_length, double lp=53,
         double lt=46.37, double bead_rad=5, double[:,::1] t3=empty_2d,
         double[:,::1] t2=empty_2d, long[:,::1] states=mty_2d_int,
-        np.ndarray mark_names=empty_1d, long[:,::1] chemical_mods=mty_2d_int,
+        np.ndarray binder_names=empty_1d, long[:,::1] chemical_mods=mty_2d_int,
         np.ndarray chemical_mod_names=empty_1d, str log_path = ""
     ):
         """Construct a looped SSTWLC object as a subclass of `SSTWLC`.
@@ -2035,7 +2035,7 @@ cdef class LoopedSSTWLC(SSTWLC):
         """
         super(LoopedSSTWLC, self).__init__(
             name, r, bead_length=bead_length, lp=lp, lt=lt, bead_rad=bead_rad,
-            t3=t3, t2=t2, states=states, mark_names=mark_names,
+            t3=t3, t2=t2, states=states, binder_names=binder_names,
             log_path=log_path, chemical_mods=chemical_mods,
             chemical_mod_names=chemical_mod_names
         )
@@ -2093,7 +2093,7 @@ cdef class LoopedSSTWLC(SSTWLC):
                 bead_length=self.bead_length,
                 rad=self.bead_rad,
                 states=self.states[i],
-                mark_names=self.mark_names
+                binder_names=self.binder_names
             ) for i in range(self.r.shape[0])
         }
 

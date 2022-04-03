@@ -9,7 +9,7 @@ from typing import (Sequence, Optional, List)
 import numpy as np
 
 # Custom Modules
-from .marks import Mark, get_by_name
+from .binders import Binder, get_by_name
 from .util import linalg as la
 from .util.gjk import gjk_collision
 
@@ -29,14 +29,14 @@ class Bead(ABC):
         Tangential orientation vector defining the bead; orthogonal to `t3`
     states : array_like (M,) of int
         State of each bound protein on the bead
-    mark_names : array_like (M,) of str
+    binder_names : array_like (M,) of str
         Name of each bound protein on the bead
     """
 
     def __init__(
         self, id_: int, r: np.ndarray, t3: Optional[np.ndarray] = None,
         t2: Optional[np.ndarray] = None, states: Optional[np.ndarray] = None,
-        mark_names: Optional[Sequence[str]] = None
+        binder_names: Optional[Sequence[str]] = None
     ):
         """Initialize the bead object.
 
@@ -58,23 +58,22 @@ class Bead(ABC):
             nucleosome; a third orthogonal tangent vector can be obtained
             from the cross product of `t2` and `t3`, default = `None`
         states : Optional[np.ndarray] (M, ) of int
-            State of each of the M marks being tracked, default = None
-        mark_names : Optional[Sequence[str]] (M, )
-            The name of each chemical modification tracked in `states`, for
-            each of tracking which mark is which. Mark names are how the
-            properties of the mark are obtained, default = None
+            State of each of the M binders being tracked, default = None
+        binder_names : Optional[Sequence[str]] (M, )
+            The name of each bound component tracked in `states`; binder names
+            are how the properties of the binders are loaded, default = None
         """
         self.id = id_
         self.r = r
         self.t3 = t3
         self.t2 = t2
         self.states = states
-        self.mark_names = mark_names
-        if mark_names is not None:
-            self.marks: Optional[List[Mark]] =\
-                [get_by_name(name) for name in mark_names]
+        self.binder_names = binder_names
+        if binder_names is not None:
+            self.binders: Optional[List[Binder]] =\
+                [get_by_name(name) for name in binder_names]
         else:
-            self.marks = None
+            self.binders = None
 
     @abstractmethod
     def test_collision(self, **kwargs):
@@ -109,7 +108,7 @@ class GhostBead(Bead):
     def __init__(
         self, id_: int, r: np.ndarray, *, t3: Optional[np.ndarray] = None,
         t2: Optional[np.ndarray] = None, states: Optional[np.ndarray] = None,
-        mark_names: Optional[Sequence[str]] = None, rad: Optional[float] = 5,
+        binder_names: Optional[Sequence[str]] = None, rad: Optional[float] = 5,
         **kwargs
     ):
         """Initialize the non-interacting ghost bead object.
@@ -127,16 +126,15 @@ class GhostBead(Bead):
             nucleosome; a third orthogonal tangent vector can be obtained
             from the cross product of `t2` and `t3`, default = `None`
         states : Optional[np.ndarray] (M, ) of int
-            State of each of the M marks being tracked, default = None
-        mark_names : Optional[Sequence[str]] (M, )
-            The name of each chemical modification tracked in `states`, for
-            each of tracking which mark is which. Mark names are how the
-            properties of the mark are obtained, default = None
+            State of each of the M binders being tracked, default = None
+        binder_names : Optional[Sequence[str]] (M, )
+            The name of each bound component tracked in `states`; binder names
+            are how the properties of the binders are loaded, default = None
         rad : Optional[float]
             Radius of the spherical ghost particle.
         """
         super(GhostBead, self).__init__(
-            id_, r, t3, t2, states, mark_names
+            id_, r, t3, t2, states, binder_names
         )
         self.rad = rad
         self.vol = (4/3) * np.pi * rad ** 3
@@ -183,7 +181,7 @@ class Prism(Bead):
     def __init__(
         self, id_: int, r: np.ndarray, *, t3: np.ndarray, t2: np.ndarray,
         vertices: np.ndarray, states: Optional[np.ndarray] = None,
-        mark_names: Optional[Sequence[str]] = None
+        binder_names: Optional[Sequence[str]] = None
     ):
         """Initialize detailed nucleosome object.
 
@@ -205,13 +203,13 @@ class Prism(Bead):
             coincides with the positive x-axis and t2 coincides with the
             positive z-axis.
         states : Optional[np.ndarray] (M, ) of int
-            State of each of the M epigenetic marks being tracked
-        mark_names : Optional[Sequence[str]] (M, )
-            The name of each chemical modification tracked in `states`, for
-            each of tracking which mark is which.
+            State of each of the M epigenetic binders being tracked
+        binder_names : Optional[Sequence[str]] (M, )
+            The name of each bound component tracked in `states`; binder names
+            are how the properties of the binders are loaded, default = None
         """
         super(Prism, self).__init__(
-            id_, r, t3, t2, states, mark_names
+            id_, r, t3, t2, states, binder_names
         )
         self.vertices = vertices
 
@@ -220,7 +218,7 @@ class Prism(Bead):
         cls, id_: int, r: np.ndarray, *, t3: np.ndarray, t2: np.ndarray,
         num_sides: int, width: float, height: float,
         states: Optional[np.ndarray] = None,
-        mark_names: Optional[Sequence[str]] = None
+        binder_names: Optional[Sequence[str]] = None
     ):
         """Construct nucleosome as a prism w/ specified position & orientation.
 
@@ -250,10 +248,10 @@ class Prism(Bead):
             nucleosome's verticies. The `height` gives the height of the prism
             in the simulation's distance units.
         states : Optional[np.ndarray] (M,) of int
-            State of each of the M epigenetic marks being tracked
-        mark_names : Optional[Sequence[str]] (M,)
-            The name of each chemical modification tracked in `states`, for
-            each of tracking which mark is which.
+            State of each of the M epigenetic binders being tracked
+        binder_names : Optional[Sequence[str]] (M, )
+            The name of each bound component tracked in `states`; binder names
+            are how the properties of the binders are loaded, default = None
 
         Returns
         -------
@@ -263,7 +261,7 @@ class Prism(Bead):
         verticies = la.get_prism_verticies(num_sides, width, height)
         return cls(
             id_, r, t3=t3, t2=t2, vertices=verticies, states=states,
-            mark_names=mark_names
+            binder_names=binder_names
         )
 
     def test_collision(self, vertices: np.ndarray, max_iters: int) -> bool:
@@ -386,7 +384,7 @@ class Nucleosome(Bead):
         self, id_: int, r: np.ndarray, *, t3: np.ndarray, t2: np.ndarray,
         bead_length: float, rad: Optional[float] = 5,
         states: Optional[np.ndarray] = None,
-        mark_names: Optional[Sequence[str]] = None
+        binder_names: Optional[Sequence[str]] = None
     ):
         """Initialize nucleosome object.
 
@@ -408,15 +406,13 @@ class Nucleosome(Bead):
             Radius of spherical excluded volume around nucleosome in simulation
             units of distance; default is 5
         states : Optional array_like (M,) of int
-            State of each of the M epigenetic marks being tracked; default is
+            State of each of the M epigenetic binders being tracked; default is
             None
-        mark_names : Optional array_like (M,) of str
-            The name of each chemical modification tracked in `states`, for
-            each of tracking which mark is which; must have same lenght as
-            `states` so that each state is associated with a mark; default is
-            None
+        binder_names : Optional[Sequence[str]] (M, )
+            The name of each bound component tracked in `states`; binder names
+            are how the properties of the binders are loaded, default = None
         """
-        super(Nucleosome, self).__init__(id_, r, t3, t2, states, mark_names)
+        super(Nucleosome, self).__init__(id_, r, t3, t2, states, binder_names)
         self.bead_length = bead_length
         self.rad = rad
         self.vol = (4/3) * np.pi * rad ** 3
