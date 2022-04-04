@@ -86,7 +86,6 @@ def _polymer_in_field(
     if mc_move_controllers is None:
         mc_move_controllers = all_moves(
             log_dir=output_dir,
-            polymers=polymers,
             bead_amp_bounds=bead_amp_bounds.bounds,
             move_amp_bounds=move_amp_bounds.bounds,
             controller=SimpleControl
