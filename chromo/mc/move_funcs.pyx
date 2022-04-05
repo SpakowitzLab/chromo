@@ -808,7 +808,8 @@ cdef void conduct_change_binding_states(
 
     for i in range(n_inds):
         polymer.states_trial[inds[i], binder_ind] = get_new_state(
-            polymer.beads[0].binders[binder_ind], polymer.states[i, binder_ind],
+            polymer.beads[0].binders[binder_ind],
+            polymer.states[inds[i], binder_ind],
             num_tails, num_tails_flipped
         )
 
