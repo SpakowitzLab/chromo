@@ -13,6 +13,7 @@ pyximport.install()
 # Built-in Modules
 from libc.stdlib cimport rand, RAND_MAX
 from libc.math cimport sqrt
+import sys
 
 # External Modules
 import numpy as np
@@ -849,7 +850,7 @@ cdef long get_new_state(
         binder.binding_seq[i] = (binder.binding_seq[i] + 1) % 2
 
     new_binding_state = 0
-    for i in range(num_tails_flipped):
+    for i in range(num_tails):
         new_binding_state += binder.binding_seq[i]
 
     return new_binding_state
