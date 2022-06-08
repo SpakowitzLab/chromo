@@ -1,4 +1,4 @@
-"""Fields discretize space to efficiently track changes in reader protein energy.
+"""Fields discretize space to efficiently calculate change in binder energy.
 
 Notes
 -----
@@ -95,7 +95,9 @@ cdef class FieldBase:
         """
         return self.polymers.__contains__(poly)
 
-    def compute_dE(self, poly, inds, n_inds, packet_size) -> float:
+    def compute_dE(
+        self, poly, inds, n_inds, packet_size, state_change
+    ) -> float:
         """Compute the change in field energy due to a proposed move.
 
         Parameters
@@ -110,6 +112,10 @@ cdef class FieldBase:
             Number of points to average together when calculating the field
             energy change of a move; done to reduce the computational expense
             of the field energy calculation (at the expense of precision)
+        state_change : bint
+            Indicator for whether the MC move involved a change in binding state
+            (1) or not (0; default)
+
 
         Returns
         -------
@@ -364,7 +370,9 @@ cdef class UniformDensityField(FieldBase):
         self.doubly_bound = np.zeros((self.num_binders,), dtype=int)
         self.doubly_bound_trial = np.zeros((self.num_binders,), dtype=int)
         self.init_field_energy_prefactors()
-        self.density = np.zeros((self.n_bins, self.num_binders + 1), 'd')
+        self.density = np.zeros(
+            (self.n_bins, self.num_binders + 1), dtype=float
+        )
         self.density_trial = self.density.copy()
         self.confine_type = confine_type
         self.confine_length = confine_length
@@ -373,6 +381,7 @@ cdef class UniformDensityField(FieldBase):
         self.dict_ = self.get_dict()
         self.binder_dict = self.binders.to_dict(orient='records')
         self.update_all_densities_for_all_polymers()
+        self.affected_bins_last_move = np.zeros((self.n_bins,), dtype=int)
     
     def init_grid(self):
         """Initialize the discrete grid containing the field.
@@ -406,12 +415,12 @@ cdef class UniformDensityField(FieldBase):
         self.precompute_ind_xyz_to_super()
         self.nbr_inds = np.empty((8,), dtype=int)
         self.nbr_inds_with_trial = np.empty((2, 8), dtype=int)
-        self.wt_vec = np.empty((8,), dtype='d')
-        self.wt_vec_with_trial = np.empty((2, 8), dtype='d')
-        self.xyz = np.empty((3,), dtype='d')
-        self.xyz_with_trial = np.empty((2, 3), dtype='d')
-        self.weight_xyz = np.empty((3,), dtype='d')
-        self.weight_xyz_with_trial = np.empty((2, 3), dtype='d')
+        self.wt_vec = np.empty((8,), dtype=float)
+        self.wt_vec_with_trial = np.empty((2, 8), dtype=float)
+        self.xyz = np.empty((3,), dtype=float)
+        self.xyz_with_trial = np.empty((2, 3), dtype=float)
+        self.weight_xyz = np.empty((3,), dtype=float)
+        self.weight_xyz_with_trial = np.empty((2, 3), dtype=float)
         self.index_xyz = np.empty((3,), dtype=int)
         self.index_xyz_with_trial = np.empty((2, 3), dtype=int)
 
@@ -845,7 +854,7 @@ cdef class UniformDensityField(FieldBase):
 
     cdef double compute_dE(
         self, poly.PolymerBase poly, long[:] inds, long n_inds,
-        long packet_size
+        long packet_size, bint state_change
     ):
         """Compute field contribution of energy change for proposed MC move.
 
@@ -887,7 +896,10 @@ cdef class UniformDensityField(FieldBase):
             energy change of a move; done to reduce the computational expense
             of the field energy calculation (at the expense of precision).
             Currently this does nothing. Packet size is a consideration for
-            later on if the simulation is too slow. 
+            later on if the simulation is too slow.
+        state_change : bint
+            Indicator for whether the MC move involved a change in binding state
+            (1) or not (0)
 
         Returns
         -------
@@ -905,10 +917,17 @@ cdef class UniformDensityField(FieldBase):
             return dE_confine
 
         # Find changes in polymer density in affected voxels
-        bin_inds = self.get_change_in_density(poly, inds, n_inds)
+        bin_inds = self.get_change_in_density(poly, inds, n_inds, state_change)
+
+        for i in range(self.n_bins):
+            self.affected_bins_last_move[i] = 0
+        for bin in bin_inds:
+            self.affected_bins_last_move[bin] = 1
 
         # Get change in energy based on differences in bead and binder densities
-        dE = self.get_dE_binders_and_beads(poly, inds, n_inds, bin_inds)
+        dE = self.get_dE_binders_and_beads(
+            poly, inds, n_inds, bin_inds, state_change
+        )
 
         return dE
 
@@ -968,12 +987,32 @@ cdef class UniformDensityField(FieldBase):
                 raise ValueError("Trial flag " + str(trial) + " not found.")
             return 0.
 
+        # Cubical confinement
+        elif self.confine_type == "Cubical":
+            if trial == 1:
+                for i in range(n_beads):
+                    for j in range(3):
+                        if np.abs(poly.r_trial[inds[i], j]) > self.confine_length / 2:
+                            return E_HUGE
+            elif trial == 0:
+                if trial == 1:
+                    for i in range(n_beads):
+                        for j in range(3):
+                            if np.abs(poly.r[inds[i], j]) > self.confine_length / 2:
+                                return E_HUGE
+            else:
+                raise ValueError("Trial flag " + str(trial) + " not found.")
+            return 0
+
         # Confinement type not found
         else:
-            raise ValueError("Confinement type " + self.confine_type + " not found.")
+            raise ValueError(
+                "Confinement type " + self.confine_type + " not found."
+            )
 
     cdef long[:] get_change_in_density(
-        self, poly.PolymerBase poly, long[:] inds, long n_inds
+        self, poly.PolymerBase poly, long[:] inds, long n_inds,
+        bint state_change
     ):
         """Calculate the density in bins affected by the MC move.
 
@@ -1015,6 +1054,9 @@ cdef class UniformDensityField(FieldBase):
             Ordered indices of N beads involved in the move
         n_inds : long
             Number of bead indices affected by a move
+        state_change : bint
+            Indicator for whether the MC move involved a change in binding state
+            (1) or not (0)
 
         Returns
         -------
@@ -1031,6 +1073,10 @@ cdef class UniformDensityField(FieldBase):
         for i in range(n_inds):
             # Shift positions so all positive, apply periodic boundaries
             # Get the lower neighboring bin index
+
+            # Temp Debugging
+            poly.r[inds[i], :] = self.dxyz.copy()
+
             for j in range(3):
                 # Load current and trial configuration of the polymer (current
                 # in row 0; trial in row 1)
@@ -1045,15 +1091,18 @@ cdef class UniformDensityField(FieldBase):
 
                 # Get the lower neighboring bin index
                 for k in range(2):
-                    ind = <long>floor((self.xyz_with_trial[k, j]) / self.dxyz[j])
+                    ind = <long>floor(
+                        (self.xyz_with_trial[k, j]) / self.dxyz[j]
+                    )
                     if ind == -1:
                         self.index_xyz_with_trial[k, j] = self.n_xyz_m1[j]
                     else:
                         self.index_xyz_with_trial[k, j] = ind
                 
                     # Get weight in the lower bin index
-                    self.weight_xyz_with_trial[k, j] =\
-                        (1 - (self.xyz_with_trial[k, j] / self.dxyz[j] - ind))
+                    self.weight_xyz_with_trial[k, j] = (
+                        1 - (self.xyz_with_trial[k, j] / self.dxyz[j] - ind)
+                    )
 
             # Get weights and superindices of eight bins containing beads
             self._generate_weight_vector_with_trial()
@@ -1066,18 +1115,20 @@ cdef class UniformDensityField(FieldBase):
             for k in range(2):
                 for l in range(8):
                     poly.densities_temp[k, 0, l] = (
-                        self.wt_vec_with_trial[k, l] /
-                        self.access_vols[self.nbr_inds_with_trial[k, l]]
+                            self.wt_vec_with_trial[k, l] /
+                            self.access_vols[self.nbr_inds_with_trial[k, l]]
                     )
                     for m in range(1, poly.n_binders_p1):
-                        if k == 0:
+                        # Current Configuration
+                        if k == 0 or state_change == 0:
                             poly.densities_temp[k, m, l] =\
                                 poly.densities_temp[k, 0, l] *\
-                                poly.states[inds[i], m-1]
+                                float(poly.states[inds[i], m-1])
+                        # Trial Configuration of State Change
                         else:
                             poly.densities_temp[k, m, l] =\
                                 poly.densities_temp[k, 0, l] *\
-                                poly.states_trial[inds[i], m-1]
+                                float(poly.states_trial[inds[i], m-1])
 
             # Combine repeating elements, stored in poly.density_trial
             for k in range(2):
@@ -1091,13 +1142,25 @@ cdef class UniformDensityField(FieldBase):
                 for l in range(8):
                     if self.nbr_inds_with_trial[k, l] in bins_found:
                         for m in range(poly.n_binders_p1):
-                            self.density_trial[self.nbr_inds_with_trial[k, l], m] +=\
-                                prefactor * poly.densities_temp[k, m, l]
+                            temp = prefactor * poly.densities_temp[k, m, l]
+                            # Fix rounding error
+                            if np.abs(temp) > 1E-18:
+                                self.density_trial[
+                                    self.nbr_inds_with_trial[k, l], m
+                                ] += temp
                     else:
                         bins_found.add(self.nbr_inds_with_trial[k, l])
                         for m in range(poly.n_binders_p1):
-                            self.density_trial[self.nbr_inds_with_trial[k, l], m] =\
-                                prefactor * poly.densities_temp[k, m, l]
+                            temp = prefactor * poly.densities_temp[k, m, l]
+                            # Fix rounding error
+                            if np.abs(temp) > 1E-18:
+                                self.density_trial[
+                                    self.nbr_inds_with_trial[k, l], m
+                                ] = temp
+                            else:
+                                self.density_trial[
+                                    self.nbr_inds_with_trial[k, l], m
+                                ] = 0
 
         return np.array(list(bins_found))
 
@@ -1107,44 +1170,44 @@ cdef class UniformDensityField(FieldBase):
         cdef int i
         for i in range(2):
             self.wt_vec_with_trial[i, 0] = (
-                self.weight_xyz_with_trial[i,0] *
-                self.weight_xyz_with_trial[i,1] *
-                self.weight_xyz_with_trial[i,2]
+                self.weight_xyz_with_trial[i, 0] *
+                self.weight_xyz_with_trial[i, 1] *
+                self.weight_xyz_with_trial[i, 2]
             )
             self.wt_vec_with_trial[i, 1] = (
-                (1-self.weight_xyz_with_trial[i,0]) *
-                self.weight_xyz_with_trial[i,1] *
-                self.weight_xyz_with_trial[i,2]
+                (1-self.weight_xyz_with_trial[i, 0]) *
+                self.weight_xyz_with_trial[i, 1] *
+                self.weight_xyz_with_trial[i, 2]
             )
             self.wt_vec_with_trial[i, 2] = (
-                self.weight_xyz_with_trial[i,0] *
-                (1-self.weight_xyz_with_trial[i,1]) *
-                self.weight_xyz_with_trial[i,2]
+                self.weight_xyz_with_trial[i, 0] *
+                (1-self.weight_xyz_with_trial[i, 1]) *
+                self.weight_xyz_with_trial[i, 2]
             )
             self.wt_vec_with_trial[i, 3] = (
-                (1-self.weight_xyz_with_trial[i,0]) *
-                (1-self.weight_xyz_with_trial[i,1]) *
-                self.weight_xyz_with_trial[i,2]
+                (1-self.weight_xyz_with_trial[i, 0]) *
+                (1-self.weight_xyz_with_trial[i, 1]) *
+                self.weight_xyz_with_trial[i, 2]
             )
             self.wt_vec_with_trial[i, 4] = (
-                self.weight_xyz_with_trial[i,0] *
-                self.weight_xyz_with_trial[i,1] *
-                (1-self.weight_xyz_with_trial[i,2])
+                self.weight_xyz_with_trial[i, 0] *
+                self.weight_xyz_with_trial[i, 1] *
+                (1-self.weight_xyz_with_trial[i, 2])
             )
             self.wt_vec_with_trial[i, 5] = (
-                (1-self.weight_xyz_with_trial[i,0]) *
-                self.weight_xyz_with_trial[i,1] *
-                (1-self.weight_xyz_with_trial[i,2])
+                (1-self.weight_xyz_with_trial[i, 0]) *
+                self.weight_xyz_with_trial[i, 1] *
+                (1-self.weight_xyz_with_trial[i, 2])
             )
             self.wt_vec_with_trial[i, 6] = (
-                self.weight_xyz_with_trial[i,0] *
-                (1-self.weight_xyz_with_trial[i,1]) *
-                (1-self.weight_xyz_with_trial[i,2])
+                self.weight_xyz_with_trial[i, 0] *
+                (1-self.weight_xyz_with_trial[i, 1]) *
+                (1-self.weight_xyz_with_trial[i, 2])
             )
             self.wt_vec_with_trial[i, 7] = (
-                (1-self.weight_xyz_with_trial[i,0]) *
-                (1-self.weight_xyz_with_trial[i,1]) *
-                (1-self.weight_xyz_with_trial[i,2])
+                (1-self.weight_xyz_with_trial[i, 0]) *
+                (1-self.weight_xyz_with_trial[i, 1]) *
+                (1-self.weight_xyz_with_trial[i, 2])
             )
 
     cdef void _generate_index_vector_with_trial(self):
@@ -1207,7 +1270,8 @@ cdef class UniformDensityField(FieldBase):
             ]
 
     cdef double get_dE_binders_and_beads(
-        self, poly.PolymerBase poly, long[:] inds, long n_inds, long[:] bin_inds
+        self, poly.PolymerBase poly, long[:] inds, long n_inds,
+        long[:] bin_inds, bint state_change
     ):
         """Get the change in energy associated with reconfiguration of binders.
 
@@ -1217,7 +1281,7 @@ cdef class UniformDensityField(FieldBase):
         protein. While it does not affect runtime too much, this method can be
         optimized by precomputing the scale.
 
-        TODO: Remove enumerate call -- that carries overhead
+        TODO: Remove enumerate call -- that carries ogverhead
 
         Parameters
         ----------
@@ -1230,6 +1294,9 @@ cdef class UniformDensityField(FieldBase):
         bin_inds : long[:]
             Bin indices affected by the MC move either through loss or addition
             of density
+        state_change : bint
+            Indicator for whether the MC move involved a change in binding state
+            (1) or not (0)
 
         Returns
         -------
@@ -1240,47 +1307,59 @@ cdef class UniformDensityField(FieldBase):
         """
         cdef long n_bins, i, j, kn_double_bound
         cdef double tot_density_change, dE_binders_beads
-        cdef double[:, ::1] delta_rho_squared, rho_change
+        cdef double[:, ::1] delta_rho_squared
         cdef double[:, :, ::1] delta_rho_interact_squared
         cdef dict binder_info
 
         # Change in squared density for each binder
         n_bins = len(bin_inds)
-        rho_change = np.zeros((n_bins, poly.n_binders_p1), dtype='d')
-        delta_rho_squared = np.zeros((n_bins, poly.n_binders_p1), dtype='d')
-        delta_rho_interact_squared = \
-            np.zeros((n_bins, poly.n_binders_p1, poly.n_binders_p1), dtype='d')
+        delta_rho_squared = np.zeros((n_bins, poly.num_binders), dtype=float)
+        delta_rho_interact_squared = np.zeros(
+            (n_bins, poly.num_binders, poly.num_binders), dtype=float
+        )
         for i in range(n_bins):
-            for j in range(poly.n_binders_p1):
-                rho_change[i, j] = (self.density_trial[bin_inds[i], j])
+            for j in range(poly.num_binders):
 
                 delta_rho_squared[i, j] = (
-                    self.density[bin_inds[i], j] +
-                    self.density_trial[bin_inds[i], j]
-                ) ** 2 - self.density[bin_inds[i], j] ** 2
+                    self.density[bin_inds[i], j+1] +
+                    self.density_trial[bin_inds[i], j+1]
+                ) ** 2 - self.density[bin_inds[i], j+1] ** 2
 
-                for k in range(poly.n_binders_p1):
+                for k in range(poly.num_binders):
                     delta_rho_interact_squared[i, j, k] = ((
-                        self.density[bin_inds[i], j] +
-                        self.density_trial[bin_inds[i], j]
+                        self.density[bin_inds[i], j+1] +
+                        self.density_trial[bin_inds[i], j+1]
                     ) * (
-                        self.density[bin_inds[i], k] +
-                        self.density_trial[bin_inds[i], k]
+                        self.density[bin_inds[i], k+1] +
+                        self.density_trial[bin_inds[i], k+1]
                     )) - (
-                        self.density[bin_inds[i], j] *
-                        self.density[bin_inds[i], k]
+                        self.density[bin_inds[i], j+1] *
+                        self.density[bin_inds[i], k+1]
                     )
 
-        # Count num. nucleosomes bound by reader proteins at both histone tails
-        self.count_doubly_bound(poly, inds, n_inds, trial=1)
-        self.count_doubly_bound(poly, inds, n_inds, trial=0)
+        # Fix rounding error
+        for i in range(n_bins):
+            for j in range(poly.num_binders):
+                if np.abs(delta_rho_squared[i, j]) < 1E-18:
+                    delta_rho_squared[i, j] = 0
+                for k in range(poly.num_binders):
+                    if np.abs(delta_rho_interact_squared[i, j, k]) < 1E-18:
+                        delta_rho_interact_squared[i, j, k] = 0
 
-        dE_binders_beads = 0
+        # Count num. nucleosomes bound by reader proteins at both histone tails
+        self.count_doubly_bound(
+            poly, inds, n_inds, trial=1, state_change=state_change
+        )
+        self.count_doubly_bound(
+            poly, inds, n_inds, trial=0, state_change=state_change
+        )
+
+        dE_binders_beads = 0.0
         for i, binder_info in enumerate(self.binder_dict):
             # Calculate total density change
-            tot_density_change = 0
+            tot_density_change = 0.0
             for j in range(n_bins):
-                tot_density_change += delta_rho_squared[j, i+1]
+                tot_density_change += delta_rho_squared[j, i]
 
             # Oligomerization
             dE_binders_beads +=\
@@ -1297,12 +1376,14 @@ cdef class UniformDensityField(FieldBase):
                 tot_density_change_interact = 0
                 for k in range(n_bins):
                     tot_density_change_interact += delta_rho_interact_squared[k, i, j]
+
                 dE_binders_beads +=\
                     binder_info["cross_talk_field_energy_prefactor"][next_binder_info["name"]] *\
                     tot_density_change_interact
 
         # Nonspecific bead interaction energy
         dE_binders_beads += self.nonspecific_interact_dE(poly, bin_inds, n_bins)
+
         return dE_binders_beads
 
     cdef double nonspecific_interact_dE(
@@ -1377,7 +1458,7 @@ cdef class UniformDensityField(FieldBase):
         """
         cdef long i, j
         cdef double access_vol, density, change_in_density, bead_to_voxel_vol
-        cdef double[:, ::1] vol_fracs = np.empty((2, n_bins), dtype='d')
+        cdef double[:, ::1] vol_fracs = np.empty((2, n_bins), dtype=float)
 
         for j in range(n_bins):
             access_vol = self.access_vols[bin_inds[j]]
@@ -1391,7 +1472,8 @@ cdef class UniformDensityField(FieldBase):
         return vol_fracs
 
     cdef void count_doubly_bound(
-        self, poly.PolymerBase poly, long[:] inds, long n_inds, bint trial
+        self, poly.PolymerBase poly, long[:] inds, long n_inds, bint trial,
+        bint state_change
     ):
         """For each reader protein, count the number of doubly bound beads.
 
@@ -1418,6 +1500,9 @@ cdef class UniformDensityField(FieldBase):
         trial : bint
             Indicator for whether to count doubly bound beads for the current
             configuration (0) or trial configuration (0)
+        state_change : bint
+            Indicator for whether the MC move involved a change in binding state
+            (1) or not (0)
         """
         cdef long i, j
 
@@ -1429,13 +1514,20 @@ cdef class UniformDensityField(FieldBase):
                     if poly.states[inds[i], j] == 2:
                         self.doubly_bound[j] += 1
 
-        # Count doubly-bound beads for current configuration
+        # Count doubly-bound beads for trial configuration
         elif trial == 1:
-            for j in range(poly.num_binders):
-                self.doubly_bound_trial[j] = 0
-                for i in range(n_inds):
-                    if poly.states_trial[inds[i], j] == 2:
-                        self.doubly_bound_trial[j] += 1
+            if state_change == 1:
+                for j in range(poly.num_binders):
+                    self.doubly_bound_trial[j] = 0
+                    for i in range(n_inds):
+                        if poly.states_trial[inds[i], j] == 2:
+                            self.doubly_bound_trial[j] += 1
+            else:
+                for j in range(poly.num_binders):
+                    self.doubly_bound_trial[j] = 0
+                    for i in range(n_inds):
+                        if poly.states[inds[i], j] == 2:
+                            self.doubly_bound_trial[j] += 1
 
         # Raise error if invalid `trial` flag is passed
         else:
@@ -1470,7 +1562,15 @@ cdef class UniformDensityField(FieldBase):
         E = self.get_E_binders_and_beads(poly, inds, n_inds)
         return E
 
-    cdef void update_all_densities(
+    cdef void update_affected_densities(self):
+        """Update densities in affected bins when a move is accepted.
+        """
+        for i in range(self.n_bins):
+            for j in range(self.num_binders+1):
+                if self.affected_bins_last_move[i] == 1:
+                    self.density[i, j] += self.density_trial[i, j]
+
+    cpdef void update_all_densities(
         self, poly.PolymerBase poly, long[:]& inds, long n_inds
     ):
         """Update the density of the field for a single polymer.
@@ -1530,7 +1630,7 @@ cdef class UniformDensityField(FieldBase):
                 self.density[self.nbr_inds[l], 0] += density
                 for m in range(1, poly.n_binders_p1):
                     self.density[self.nbr_inds[l], m] += density *\
-                        poly.states[inds[i], m-1]
+                        float(poly.states[inds[i], m-1])
 
     cpdef void update_all_densities_for_all_polymers(self):
         """Update the density map for every polymer in the field.
@@ -1540,8 +1640,8 @@ cdef class UniformDensityField(FieldBase):
         Updates the voxel densities stored in the field object.
         """
         cdef double density
-        cdef long h, i, j, l, m, ind, n_binders_p1, n_inds
-        cdef long[:] superindices, inds
+        cdef long h, i, j, l, m, ind, n_binders_p1, n_inds, max_binder_count
+        cdef long[:] superindices, inds, binder_counts
         cdef poly.PolymerBase poly
 
         for h in range(self.n_polymers):
@@ -1587,7 +1687,16 @@ cdef class UniformDensityField(FieldBase):
                     self.density[self.nbr_inds[l], 0] += density
                     for m in range(1, n_binders_p1):
                         self.density[self.nbr_inds[l], m] += density *\
-                            poly.states[inds[i], m-1]
+                            float(poly.states[inds[i], m-1])
+
+        # Fix rounding error
+        binder_counts = np.array([poly.num_binders for poly in self.polymers])
+        max_binder_count = np.max(binder_counts)
+        for i in range(self.n_bins):
+            for j in range(max_binder_count+1):
+                if np.abs(self.density[i, j]) < 1E-18:
+                    self.density[i, j] = 0
+
         
     cdef void _generate_weight_vector(self):
         """Generate weight array for eight bins containing the bead.
@@ -1650,14 +1759,14 @@ cdef class UniformDensityField(FieldBase):
         cdef dict binder_info
 
         # Count num. nucleosomes bound by reader proteins at both histone tails
-        self.count_doubly_bound(poly, inds, n_inds, trial=0)
+        self.count_doubly_bound(poly, inds, n_inds, trial=0, state_change=0)
 
         E_binders_beads = 0
         for i, binder_info in enumerate(self.binder_dict):
             # Calculate the total density
             tot_density = 0
             for j in range(self.n_bins):
-                tot_density += self.density[j, i]
+                tot_density += self.density[j, i+1]**2
             # Oligomerization
             E_binders_beads +=\
                 binder_info['field_energy_prefactor'] * tot_density
@@ -1717,7 +1826,7 @@ cdef class UniformDensityField(FieldBase):
         """
         cdef long j
         cdef double access_vol, density
-        cdef double[:] vol_fracs = np.empty((self.n_bins,), dtype='d')
+        cdef double[:] vol_fracs = np.empty((self.n_bins,), dtype=float)
 
         for j in range(self.n_bins):
             access_vol = self.access_vols[j]
@@ -1751,7 +1860,7 @@ cdef class UniformDensityField(FieldBase):
         """
         cdef long i, j
         cdef double[:, ::1] r_new
-        r_new = np.empty((n_inds, 3), dtype='d')
+        r_new = np.empty((n_inds, 3), dtype=float)
         for i in range(n_inds):
             for j in range(3):
                 r_new[i, j] = r[inds[i], j]
@@ -1760,8 +1869,7 @@ cdef class UniformDensityField(FieldBase):
     cdef long[:, ::1] get_states_at_inds(
         self, poly.PolymerBase poly, long[:] inds, long n_inds
     ):
-        """
-        Get binding states of specified beads from current polymer configuration.
+        """Get binding states of specified beads from current polymer config.
 
         Parameters
         ----------

@@ -7,12 +7,12 @@ import pyximport
 pyximport.install()
 
 # Built-in Modules
-#from time import process_time
 from typing import List, TypeVar, Optional
-#import warnings
-#import sys
 from libc.stdlib cimport rand, RAND_MAX
 from libc.math cimport exp
+#from time import process_time
+#import warnings
+#import sys
 
 # External Modules
 import numpy as np
@@ -24,24 +24,38 @@ from chromo.binders import ReaderProtein
 from chromo.mc.moves import MCAdapter
 from chromo.mc.moves cimport MCAdapter
 from chromo.mc.mc_controller import Controller
-from chromo.fields cimport UniformDensityField as UDF
+from chromo.fields cimport UniformDensityField as Udf
 
 
 cpdef void mc_sim(
     list polymers, readerproteins, long num_mc_steps,
-    list mc_move_controllers, UDF field, long random_seed
+    list mc_move_controllers, Udf field, double mu_adjust_factor,
+    long random_seed
 ):
     """Perform Monte Carlo simulation.
 
-    Notes
-    -----
+    Pseudocode
+    ----------
     Repeat for each Monte Carlo step:
         Repeat for each adaptable move:
             If active, apply move to each polymer
+            
+    Notes
+    -----
+    To report process time for each interval of MC steps, add the following:
+    
+    if (k+1) % 50000 == 0:
+        print("MC Step " + str(k+1) + " of " + str(num_mc_steps))
+        print(
+            "Time for previous 50000 MC Steps (in seconds): ", round(
+                process_time()-t1_start, 2
+            )
+        )
+        t1_start = process_time()
 
     Parameters
     ----------
-    polymers : List[SSWLC]
+    polymers : List[Polymer]
         Polymers affected by Monte Carlo simulation
     readerproteins : List[ReaderProteins]
         Specification of reader proteins on polymer
@@ -51,8 +65,11 @@ cpdef void mc_sim(
         List of controllers for active MC moves in simulation
     field: UniformDensityField
         Field affecting polymer in Monte Carlo simulation
+    mu_adjust_factor : double
+        Adjustment factor applied to the chemical potential in response to
+        simulated annealing
     random_seed : Optional[int]
-        Randoms seed with which to initialize simulation
+        Randoms seed with which to initialize simulation 
     """
     cdef bint active_field
     cdef long i, j, k, n_polymers
@@ -61,40 +78,29 @@ cpdef void mc_sim(
 
     np.random.seed(random_seed)
     n_polymers = len(polymers)
-
     if field.confine_type == "":
         active_fields = [poly.is_field_active() for poly in polymers]
     else:
         active_fields = [1 for _ in polymers]
 
-    #t1_start = process_time()
     for k in range(num_mc_steps):
-        
-        #if (k+1) % 50000 == 0:
-        #    print("MC Step " + str(k+1) + " of " + str(num_mc_steps))
-        #    print(
-        #        "Time for previous 50000 MC Steps (in seconds): ", round(
-        #            process_time()-t1_start, 2
-        #        )
-        #    )
-        #    t1_start = process_time()
-
         for controller in mc_move_controllers:
             if controller.move.move_on == 1:
                 for j in range(controller.move.num_per_cycle):
                     for i in range(len(polymers)):
                         poly = polymers[i]
+                        poly.mu_adjust_factor = mu_adjust_factor
                         active_field = active_fields[i]
                         mc_step(
                             controller.move, poly, readerproteins, field,
                             active_field
                         )
-                        controller.update_amplitudes()
+            controller.update_amplitudes()
 
 
 cdef void mc_step(
     MCAdapter adaptible_move, PolymerBase poly, readerproteins,
-    UDF field, bint active_field
+    Udf field, bint active_field
 ):
     """Compute energy change and determine move acceptance.
 
@@ -122,11 +128,15 @@ cdef void mc_step(
         Indicator of whether or not the field is active for the polymer
     """
     cdef double dE, exp_dE
+    cdef int check_field = 0
     cdef long packet_size, n_inds
     cdef long[:] inds
 
-    packet_size = 20
+    if poly in field and active_field:
+        if adaptible_move.name != "tangent_rotation":
+            check_field = 1
 
+    packet_size = 20
     inds = adaptible_move.propose(poly)
     n_inds = len(inds)
 
@@ -136,10 +146,9 @@ cdef void mc_step(
 
     dE = 0
     dE += poly.compute_dE(adaptible_move.name, inds, n_inds)
-    
-    if poly in field and active_field:
-        if adaptible_move.name != "tangent_rotation":
-            dE += field.compute_dE(poly, inds, n_inds, packet_size)
+
+    if check_field == 1:
+        dE += field.compute_dE(poly, inds, n_inds, packet_size, state_change=0)
 
     # warnings.filterwarnings("error")
     try:
@@ -154,6 +163,8 @@ cdef void mc_step(
         adaptible_move.accept(
             poly, dE, inds, n_inds, log_move=False, log_update=False
         )
+        if check_field == 1:
+            field.update_affected_densities()
     else:
         adaptible_move.reject(
             poly, dE, log_move=False, log_update=False

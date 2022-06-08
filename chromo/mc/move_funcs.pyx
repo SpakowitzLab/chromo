@@ -154,7 +154,6 @@ cpdef void transform_r_t3_t2(
             polymer.t2_trial[inds[i], j] = ele_t2
 
 
-
 cdef void get_crank_shaft_axis(
     poly.PolymerBase polymer, long ind0, long indf
 ):
@@ -545,7 +544,7 @@ cdef void rotate_select_beads(
                 ele_t2 += polymer.transformation_mat[j, k] *\
                     polymer.t2[inds[i], k]
             polymer.t3_trial[inds[i], j] = ele_t3
-            polymer.t3_trial[inds[i], j] = ele_t2
+            polymer.t2_trial[inds[i], j] = ele_t2
 
 
 cdef long[:] get_inds(long num_beads, long num_inds):

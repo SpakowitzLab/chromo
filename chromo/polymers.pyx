@@ -17,7 +17,6 @@ import pandas as pd
 
 # Custom Modules
 import chromo.beads as beads
-import chromo.binders as binds
 import chromo.util.mc_stat as mc_stat
 from chromo.util.linalg cimport (vec_sub3, vec_dot3, vec_scale3)
 from .util import dss_params
@@ -901,6 +900,7 @@ cdef class SSWLC(PolymerBase):
             ['r', 't3', 't2', 'states', 'bead_length', 'chemical_mods']
         )
         self.check_attrs()
+        self.mu_adjust_factor = 1
 
     cdef void construct_beads(self):
         """Construct `GhostBead` objects forming beads of the polymer.
@@ -1317,27 +1317,40 @@ cdef class SSWLC(PolymerBase):
             num_tails = self.beads[ind].binders[i].sites_per_bead
             modified_tails = mod_states[i]
             unmodified_tails = num_tails - modified_tails
+
             for j in range(states_trial_ind[i]):
                 if j+1 <= modified_tails:
                     dE += (
                         self.beads[ind].binders[i].bind_energy_mod -
-                        self.beads[ind].binders[i].chemical_potential
+                        (
+                                self.beads[ind].binders[i].chemical_potential *
+                                self.mu_adjust_factor
+                        )
                     )
                 else:
                     dE += (
                         self.beads[ind].binders[i].bind_energy_no_mod -
-                        self.beads[ind].binders[i].chemical_potential
+                        (
+                                self.beads[ind].binders[i].chemical_potential *
+                                self.mu_adjust_factor
+                        )
                     )
             for j in range(states_ind[i]):
                 if j+1 <= modified_tails:
                     dE -= (
                         self.beads[ind].binders[i].bind_energy_mod -
-                        self.beads[ind].binders[i].chemical_potential
+                        (
+                                self.beads[ind].binders[i].chemical_potential *
+                                self.mu_adjust_factor
+                        )
                     )
                 else:
                     dE -= (
                         self.beads[ind].binders[i].bind_energy_no_mod -
-                        self.beads[ind].binders[i].chemical_potential
+                        (
+                                self.beads[ind].binders[i].chemical_potential *
+                                self.mu_adjust_factor
+                        )
                     )
         return dE
 
