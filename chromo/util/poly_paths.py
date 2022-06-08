@@ -411,6 +411,8 @@ def in_confinement(point, confine_type, confine_length):
         return True
     elif confine_type == "Spherical":
         return in_spherical_confinement(point, confine_length)
+    elif confine_type == "Cubical":
+        return in_cubical_confinement(point, confine_length)
     else:
         raise ValueError("Confinement type not found.")
 
@@ -434,6 +436,28 @@ def in_spherical_confinement(point, boundary_radius):
     if np.linalg.norm(point) <= boundary_radius:
         return True
     return False
+
+
+def in_cubical_confinement(point, confine_length):
+    """Check if a proposed point lies inside a spherical confinement.
+
+    Parameters
+    ----------
+    point : array_like (1, 3)
+        Point for which to evaluate position in confinement.
+    confine_length : double
+        Edge length of cubical confimement.
+
+    Returns
+    -------
+    bool
+        Indicator for whether the point lies in the confinement (True) or
+        outside the confinement (False)
+    """
+    for i in range(point.shape[1]):
+        if np.abs(point[0, i]) > confine_length / 2:
+            return False
+    return True
 
 
 def estimate_tangents_from_coordinates(

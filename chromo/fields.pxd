@@ -38,7 +38,7 @@ cdef class UniformDensityField(FieldBase):
     cdef public list binder_dict
     cdef public double[:] half_width_xyz
     cdef public double[:] half_step_xyz
-    cdef public long[:] n_xyz_m1
+    cdef public long[:] n_xyz_m1, affected_bins_last_move
     cdef public long[:, :, ::1] inds_xyz_to_super
 
     cdef void precompute_ind_xyz_to_super(self)
@@ -53,7 +53,7 @@ cdef class UniformDensityField(FieldBase):
     )
     cdef double compute_dE(
         self, poly.PolymerBase poly, long[:] inds, long n_inds,
-        long packet_size
+        long packet_size, bint state_change
     )
     cdef double get_confinement_dE(
         self,
@@ -63,12 +63,14 @@ cdef class UniformDensityField(FieldBase):
         int trial
     )
     cdef long[:] get_change_in_density(
-        self, poly.PolymerBase poly, long[:] inds, long n_inds
+        self, poly.PolymerBase poly, long[:] inds, long n_inds,
+        bint state_change
     )
     cdef void _generate_weight_vector_with_trial(self)
     cdef void _generate_index_vector_with_trial(self)
     cdef double get_dE_binders_and_beads(
-        self, poly.PolymerBase poly, long[:] inds, long n_inds, long[:] bin_inds
+        self, poly.PolymerBase poly, long[:] inds, long n_inds,
+        long[:] bin_inds, bint state_change
     )
     cdef double nonspecific_interact_dE(
         self, poly.PolymerBase poly, long[:] bin_inds, long n_bins
@@ -77,10 +79,12 @@ cdef class UniformDensityField(FieldBase):
         self, double bead_V, long[:] bin_inds, long n_bins
     )
     cdef void count_doubly_bound(
-        self, poly.PolymerBase poly, long[:] inds, long n_inds, bint trial
+        self, poly.PolymerBase poly, long[:] inds, long n_inds, bint trial,
+        bint state_change
     )
     cpdef double compute_E(self, poly.PolymerBase poly)
-    cdef void update_all_densities(
+    cdef void update_affected_densities(self)
+    cpdef void update_all_densities(
         self, poly.PolymerBase poly, long[:]& inds, long n_inds
     )
     cpdef void update_all_densities_for_all_polymers(self)

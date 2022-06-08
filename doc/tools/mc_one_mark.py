@@ -7,6 +7,8 @@ a remote tower.
 # Built-in Modules
 import os
 import sys
+from multiprocessing import Pool
+from inspect import getmembers, isfunction
 
 cwd = os.getcwd()
 parent_dir = cwd + "/../.."
@@ -23,6 +25,7 @@ import chromo.binders
 from chromo.fields import UniformDensityField
 import chromo.mc.mc_controller as ctrl
 from chromo.util.reproducibility import get_unique_subfolder_name
+import doc.tools.mu_schedules as ms
 
 # Change working directory
 os.chdir("../..")
@@ -53,47 +56,68 @@ print("Constructing polymer...")
 num_beads = 25000          # 393217
 bead_spacing = 16.5        # About 50 bp linker length
 
+# Scale down the confinement so the density matches that of a chromosome
+# inside a chromosome territory
+frac_full_chromo = num_beads / 393217
+confine_length *= np.cbrt(frac_full_chromo)
+
 chem_mods_path = np.array(
-    ["chromo/chemical_mods/HNCFF683HCZ_H3K9me3_methyl_25000.txt"]
-)
-chemical_mods = Chromatin.load_seqs(chem_mods_path)
-
-p = Chromatin.confined_gaussian_walk(
-    'Chr-1',
-    num_beads,
-    bead_spacing,
-    states=chemical_mods.copy(),
-    confine_type=confine_type,
-    confine_length=confine_length,
-    binder_names=np.array(['HP1']),
-    chemical_mods=chemical_mods,
-    chemical_mod_names=np.array(['H3K9me3'])
+#     ["chromo/chemical_mods/HNCFF683HCZ_H3K9me3_methyl_25000.txt"]
+    ["chromo/chemical_mods/meth"]
 )
 
-# Specify the field containing the polymers
-n_bins_x = 63
-x_width = 2 * confine_length
-n_bins_y = n_bins_x
-y_width = x_width
-n_bins_z = n_bins_x
-z_width = x_width
-udf = UniformDensityField(
-    [p], binders, x_width, n_bins_x, y_width,
-    n_bins_y, z_width, n_bins_z, confine_type=confine_type,
-    confine_length=confine_length
-)
+chemical_mods_all = Chromatin.load_seqs(chem_mods_path)
 
-# Specify the bead selection and move amplitude bounds
-polymers = [p]
-amp_bead_bounds, amp_move_bounds = mc.get_amplitude_bounds(polymers)
+# Create a list of 12 mu schedules, which will be defined in another file.
+schedules = [func[0] for func in getmembers(ms, isfunction)]
+mu_schedules = [ms.Schedule(getattr(ms, func_name)) for func_name in schedules]
 
 
-if __name__ == "__main__":
-    """Run the simulation.
+def run_sim(mu_schedule):
+    """Run a simulation
     """
+    start_ind=0
+    chemical_mods = np.take(
+        chemical_mods_all,
+        np.arange(start_ind, start_ind + num_beads),
+        mode="wrap",
+        axis=0
+    )
+
+    p = Chromatin.confined_gaussian_walk(
+        'Chr-1',
+        num_beads,
+        bead_spacing,
+        states=np.zeros(chemical_mods.shape, dtype=int),
+        confine_type=confine_type,
+        confine_length=confine_length,
+        binder_names=np.array(['HP1']),
+        chemical_mods=chemical_mods,
+        chemical_mod_names=np.array(['H3K9me3'])
+    )
+
+    # Specify the field containing the polymers
+    n_bins_x = 63
+    x_width = 2 * confine_length
+    n_bins_y = n_bins_x
+    y_width = x_width
+    n_bins_z = n_bins_x
+    z_width = x_width
+    udf = UniformDensityField(
+        [p], binders, x_width, n_bins_x, y_width,
+        n_bins_y, z_width, n_bins_z, confine_type=confine_type,
+        confine_length=confine_length
+    )
+
+    # Specify the bead selection and move amplitude bounds
+    polymers = [p]
+    amp_bead_bounds, amp_move_bounds = mc.get_amplitude_bounds(polymers)
+
+    # Specify the temperature schedule
+
     print("Starting new simulation...")
     num_snapshots = 200
-    mc_steps_per_snapshot = 500000
+    mc_steps_per_snapshot = 50000
     mc.polymer_in_field(
         [p],
         binders,
@@ -103,5 +127,10 @@ if __name__ == "__main__":
         amp_bead_bounds,
         amp_move_bounds,
         output_dir='output',
+        mu_schedule=mu_schedule
         # mc_move_controllers=moves_to_use
     )
+
+
+pool = Pool(12)
+pool.map(run_sim, mu_schedules)
