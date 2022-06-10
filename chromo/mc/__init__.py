@@ -43,6 +43,7 @@ def _polymer_in_field(
     move_amp_bounds: Dict[str, Tuple[int, int]],
     mc_move_controllers: Optional[List[Controller]] = None,
     random_seed: Optional[int] = 0,
+    mu_schedule: Optional[Callable[[float], float]] = None,
     output_dir: Optional[DIR] = '.',
     **kwargs
 ):
@@ -78,6 +79,12 @@ def _polymer_in_field(
         `SimpleControl` for all MC moves
     random_seed : Optional[int]
         Random seed for replication of simulation (default = 0)
+    mu_schedule : Optional[Callable[[int, int], float]]
+        Function returning factor adjustment to chemical potential defining
+        simulated annealing; the function takes two arguments: the first is the
+        current snapshot of the simulation, and the second is the total number
+        number of snapshots run during the simulation (default = None;
+        indicating no simulated annealing will be applied)
     output_dir : Optional[Path]
         Path to output directory in which polymer configurations will be saved
         (default = '.')
@@ -93,9 +100,16 @@ def _polymer_in_field(
 
     t1_start = process_time()
     for mc_count in range(num_saves):
+
+        # Simulated annealing
+        if mu_schedule is not None:
+            mu_adjust_factor = mu_schedule.function(mc_count, num_saves)
+        else:
+            mu_adjust_factor = 1
+
         decorator_timed_path(output_dir)(mc_sim)(
             polymers, binders, num_save_mc, mc_move_controllers, field,
-            random_seed
+            mu_adjust_factor, random_seed
         )
         for poly in polymers:
             poly.to_csv(
@@ -160,7 +174,7 @@ def continue_polymer_in_field_simulation(
     polymer_names = find_polymers_in_output_dir(latest_output_subdir_path)
     latest_config_paths = [
         get_latest_configuration(
-            polymer_prefix=polymer_name, dir_=latest_output_subdir_path
+            polymer_prefix=polymer_name, directory=latest_output_subdir_path
         ) for polymer_name in polymer_names
     ]
     latest_config_names = [
@@ -227,8 +241,8 @@ def simple_mc(
 
     Returns
     -------
-    Callable[[List[Chromtin], List[ReaderProteins], FieldBase, STEPS, SAVES, int,
-    DIR], None]
+    Callable[[List[Chromtin], List[ReaderProteins], FieldBase, STEPS, SAVES,
+    int, DIR], None]
         Monte Carlo simulation of a tssWLC in a field
     """
     polymers = [
@@ -238,14 +252,16 @@ def simple_mc(
             binder_names=num_binders*['HP1']
         ) for i in range(num_polymers)
     ]
-    binders = [get_by_name('HP1') for i in range(num_binders)]
+    binders = [get_by_name('HP1') for _ in range(num_binders)]
     binders = make_binder_collection(binders)
     field = UniformDensityField(
         polymers, binders, x_width, nx, y_width, ny, z_width, nz
     )
+    bead_amp_bounds, move_amp_bounds = get_amplitude_bounds(polymers)
     return _polymer_in_field(
         polymers, binders, field, num_save_mc, num_saves,
-        random_seed=random_seed, output_dir=output_dir
+        random_seed=random_seed, output_dir=output_dir,
+        bead_amp_bounds=bead_amp_bounds, move_amp_bounds=move_amp_bounds
     )
 
 
@@ -277,17 +293,13 @@ def get_amplitude_bounds(
         "slide": (min(10, poly_len), min(150, poly_len)),
         "end_pivot": (min(50, poly_len/4), min(150, int(poly_len/2))),
         "tangent_rotation": (1, poly_len),
-        "change_binding_state": (min(10, poly_len), min(150, poly_len)),
-        "full_chain_rotation": (0, poly_len),
-        "full_chain_translation": (0, poly_len)
+        "change_binding_state": (1, 1)
     })
     move_amp_bounds = Bounds("move_amp_bounds", {
-        "crank_shaft": (0.1 * np.pi, np.pi),
-        "slide": (0.2 * min_spacing, min_spacing),
-        "end_pivot": (0.2 * np.pi, np.pi),
-        "tangent_rotation": (0.2 * np.pi, np.pi),
-        "change_binding_state": (0, 0),
-        "full_chain_rotation": (0.2 * np.pi, np.pi),
-        "full_chain_translation": (0.2 * min_spacing, min_spacing)
+        "crank_shaft": (0.1 * np.pi, 0.25 * np.pi),
+        "slide": (0.2 * min_spacing, 0.3 * min_spacing),
+        "end_pivot": (0.2 * np.pi, 0.25 * np.pi),
+        "tangent_rotation": (0.05 * np.pi, 0.2 * np.pi),
+        "change_binding_state": (0, 0)
     })
     return bead_amp_bounds, move_amp_bounds

@@ -244,7 +244,6 @@ cdef class MCAdapter:
                 self.amp_move, self.amp_bead, poly.last_amp_move,
                 poly.last_amp_bead, dE
             )
-        
 
 
 cdef class Bounds:

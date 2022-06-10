@@ -58,8 +58,8 @@ bead_spacing = 16.5        # About 50 bp linker length
 
 # Scale down the confinement so the density matches that of a chromosome
 # inside a chromosome territory
-frac_full_chromo = num_beads / 393217
-confine_length *= np.cbrt(frac_full_chromo)
+# frac_full_chromo = num_beads / 393217
+# confine_length *= np.cbrt(frac_full_chromo)
 
 chem_mods_path = np.array(
 #     ["chromo/chemical_mods/HNCFF683HCZ_H3K9me3_methyl_25000.txt"]
@@ -73,7 +73,7 @@ schedules = [func[0] for func in getmembers(ms, isfunction)]
 mu_schedules = [ms.Schedule(getattr(ms, func_name)) for func_name in schedules]
 
 
-def run_sim(mu_schedule):
+def run_sim(args):
     """Run a simulation
     """
     start_ind=0
@@ -97,7 +97,7 @@ def run_sim(mu_schedule):
     )
 
     # Specify the field containing the polymers
-    n_bins_x = 63
+    n_bins_x = 63   # * frac_full_chromo
     x_width = 2 * confine_length
     n_bins_y = n_bins_x
     y_width = x_width
@@ -113,11 +113,9 @@ def run_sim(mu_schedule):
     polymers = [p]
     amp_bead_bounds, amp_move_bounds = mc.get_amplitude_bounds(polymers)
 
-    # Specify the temperature schedule
-
     print("Starting new simulation...")
     num_snapshots = 200
-    mc_steps_per_snapshot = 50000
+    mc_steps_per_snapshot = 1000
     mc.polymer_in_field(
         [p],
         binders,
@@ -127,10 +125,12 @@ def run_sim(mu_schedule):
         amp_bead_bounds,
         amp_move_bounds,
         output_dir='output',
-        mu_schedule=mu_schedule
-        # mc_move_controllers=moves_to_use
+        mu_schedule=args[0],
+        random_seed=args[1]
     )
 
 
-pool = Pool(12)
-pool.map(run_sim, mu_schedules)
+seeds = np.random.randint(0, 1E5, len(mu_schedules))
+args = [(mu_schedules[i], seeds[i]) for i in range(len(seeds))]
+pool = Pool(1)
+pool.map(run_sim, args)

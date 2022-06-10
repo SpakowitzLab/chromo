@@ -11,7 +11,6 @@ instances of the appropriate `Binder` subclass.
 """
 import inspect
 import sys
-import json
 
 import pandas as pd
 import numpy as np
@@ -47,34 +46,6 @@ cdef class Binder:
         self.name = name
         self.sites_per_bead = sites_per_bead
         self.binding_seq = np.zeros((sites_per_bead,), dtype=int)
-
-    @classmethod
-    def from_file(cls, fname: str, binder_name: str):
-        """Load binders from file.
-
-        TODO: This needs to be tested.
-
-        Parameters
-        ----------
-        fname : str
-            Name of the file containing the binder specifications
-        binder_name : str
-            Name of the binder to load from the file
-
-        Returns
-        -------
-        Binder
-            Object representation of the binder
-        """
-        binder_df = pd.read_csv(
-            fname, header=0, index_col=0, sep=",", dtype=str
-        )
-        binder_specs = \
-            binder_df[binder_df["name"] == binder_name].to_dict("records")[0]
-        return cls(
-            name=str(binder_specs["name"]),
-            sites_per_bead=int(binder_specs["sites_per_bead"])
-        )
 
 
 cdef class ReaderProtein(Binder):
@@ -158,41 +129,6 @@ cdef class ReaderProtein(Binder):
                 self.cross_talk_field_energy_prefactor
         }
 
-    @classmethod
-    def from_file(cls, fname: str, binder_name: str):
-        """Load binders from file.
-
-        TODO: This needs to be tested.
-
-        Parameters
-        ----------
-        fname : str
-            Name of the file containing the binder specifications
-        binder_name : str
-            Name of the binder to load from the file
-
-        Returns
-        -------
-        Binder
-            Object representation of the binder
-        """
-        binder_df = pd.read_csv(
-            fname, header=0, index_col=0, sep=",", dtype=str
-        )
-        binder_specs = \
-            binder_df[binder_df["name"] == binder_name].to_dict("records")[0]
-        return cls(
-            name = str(binder_specs["name"]),
-            sites_per_bead = int(binder_specs["sites_per_bead"]),
-            bind_energy_mod = float(binder_specs["bind_energy_mod"]),
-            bind_energy_no_mod = float(binder_specs["bind_energy_no_mod"]),
-            interaction_energy = float(binder_specs["interaction_energy"]),
-            chemical_potential = float(binder_specs["chemical_potential"]),
-            interaction_radius = float(binder_specs["interaction_radius"]),
-            cross_talk_interaction_energy =\
-                json.loads(binder_specs["cross_talk_interaction_energy"])
-        )
-
 
 null_reader = ReaderProtein(
     'null_reader', sites_per_bead=0, bind_energy_mod=0, bind_energy_no_mod=0,
@@ -264,14 +200,7 @@ def get_by_name(name):
     ]
     matching_binders = [binder for binder in all_binders if binder.name == name]
     if not matching_binders:
-        print(f"No binders found in {__name__} with name: {name}. "
-              f"Checking global scope...")
-        matching_binders = [
-            binder for binder in all_binders if
-            binder.name in dict(globals()).keys()
-        ]
-        if not matching_binders:
-            raise ValueError(f"Binder {name} not defined.")
+        raise ValueError(f"No binders found in {__name__} with name: {name}")
     if len(matching_binders) > 1:
         raise ValueError(f"More than one binder has the name requested: {name}")
     return matching_binders[0]
@@ -306,23 +235,3 @@ def make_binder_collection(binders):
             binder = get_by_name(binder)
         df = df.append(binder.dict(), ignore_index=True)
     return df
-
-
-def load_all_binders(binder_cls, fname):
-    """Load all binder objects in a binder specification file.
-
-    TODO: This needs to be tested.
-
-    Parameters
-    ----------
-    binder_cls : cls
-        Binder class from which to create binders
-    fname : str
-        File containing binder specifications
-
-    Returns
-    -------
-    List[Binder]
-        List of binder objects
-    """
-    pass
