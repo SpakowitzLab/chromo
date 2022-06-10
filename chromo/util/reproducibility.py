@@ -347,7 +347,7 @@ def get_unique_subfolder_name(root):
 
     Returns
     -------
-    str
+    Path
         The path which would provide a unique subfolder
     """
     i = 1
@@ -382,6 +382,9 @@ def to_file_params(non_builtins_kwargs, folder, suffix=''):
             value.to_csv(str(folder / Path(arg_name + suffix)))
         elif issubclass(dtype, np.ndarray):
             np.savetxt(folder / Path(arg_name + suffix), value)
+        elif issubclass(dtype, np.integer) or issubclass(dtype, np.floating):
+            with open(folder / Path(arg_name + suffix), 'w') as f:
+                f.write(str(value))
         else:
             raise ValueError(f"Argument not understood: {arg_name}={value}.\n"
                              "This simulation cannot be made reproducible.\n"

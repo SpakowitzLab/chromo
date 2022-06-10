@@ -95,6 +95,8 @@ cpdef void mc_sim(
                             controller.move, poly, readerproteins, field,
                             active_field
                         )
+
+
             controller.update_amplitudes()
 
 
@@ -148,7 +150,14 @@ cdef void mc_step(
     dE += poly.compute_dE(adaptible_move.name, inds, n_inds)
 
     if check_field == 1:
-        dE += field.compute_dE(poly, inds, n_inds, packet_size, state_change=0)
+        if adaptible_move.name != "change_binding_state":
+            dE += field.compute_dE(
+                poly, inds, n_inds, packet_size, state_change=0
+            )
+        else:
+            dE += field.compute_dE(
+                poly, inds, n_inds, packet_size, state_change=1
+            )
 
     # warnings.filterwarnings("error")
     try:
@@ -165,6 +174,7 @@ cdef void mc_step(
         )
         if check_field == 1:
             field.update_affected_densities()
+
     else:
         adaptible_move.reject(
             poly, dE, log_move=False, log_update=False

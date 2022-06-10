@@ -909,12 +909,11 @@ cdef class UniformDensityField(FieldBase):
         """
         cdef long i, ind
         cdef long[:] delta_ind_xyz, bin_inds
-        cdef double dE_confine, dE
+        cdef double dE = 0
 
         # Verify that move does not violate the hard confinement
-        dE_confine = self.get_confinement_dE(poly, inds, n_inds, trial=1)
-        if dE_confine > 0:
-            return dE_confine
+        dE += self.get_confinement_dE(poly, inds, n_inds, trial=1)
+        dE -= self.get_confinement_dE(poly, inds, n_inds, trial=0)
 
         # Find changes in polymer density in affected voxels
         bin_inds = self.get_change_in_density(poly, inds, n_inds, state_change)
@@ -925,7 +924,7 @@ cdef class UniformDensityField(FieldBase):
             self.affected_bins_last_move[bin] = 1
 
         # Get change in energy based on differences in bead and binder densities
-        dE = self.get_dE_binders_and_beads(
+        dE += self.get_dE_binders_and_beads(
             poly, inds, n_inds, bin_inds, state_change
         )
 
@@ -963,6 +962,7 @@ cdef class UniformDensityField(FieldBase):
             gets rejected if any point lies outside the confinement
         """
         cdef long i
+        cdef long num_out_of_bounds = 0
         cdef double dist
 
         # No Confinement
@@ -977,15 +977,15 @@ cdef class UniformDensityField(FieldBase):
                         vec_dot3(poly.r_trial[inds[i]], poly.r_trial[inds[i]])
                     )
                     if dist > self.confine_length:
-                        return E_HUGE
+                        num_out_of_bounds += 1
             elif trial == 0:
                 for i in range(n_beads):
                     dist = sqrt(vec_dot3(poly.r[inds[i]], poly.r[inds[i]]))
                     if dist > self.confine_length:
-                        return E_HUGE
+                        num_out_of_bounds += 1
             else:
                 raise ValueError("Trial flag " + str(trial) + " not found.")
-            return 0.
+            return num_out_of_bounds * E_HUGE
 
         # Cubical confinement
         elif self.confine_type == "Cubical":
@@ -993,16 +993,16 @@ cdef class UniformDensityField(FieldBase):
                 for i in range(n_beads):
                     for j in range(3):
                         if np.abs(poly.r_trial[inds[i], j]) > self.confine_length / 2:
-                            return E_HUGE
+                            num_out_of_bounds += 1
             elif trial == 0:
                 if trial == 1:
                     for i in range(n_beads):
                         for j in range(3):
                             if np.abs(poly.r[inds[i], j]) > self.confine_length / 2:
-                                return E_HUGE
+                                num_out_of_bounds += 1
             else:
                 raise ValueError("Trial flag " + str(trial) + " not found.")
-            return 0
+            return num_out_of_bounds * E_HUGE
 
         # Confinement type not found
         else:
@@ -1073,9 +1073,6 @@ cdef class UniformDensityField(FieldBase):
         for i in range(n_inds):
             # Shift positions so all positive, apply periodic boundaries
             # Get the lower neighboring bin index
-
-            # Temp Debugging
-            poly.r[inds[i], :] = self.dxyz.copy()
 
             for j in range(3):
                 # Load current and trial configuration of the polymer (current
@@ -1777,6 +1774,7 @@ cdef class UniformDensityField(FieldBase):
 
         # Nonspecific bead interaction energy
         E_binders_beads += self.nonspecific_interact_E(poly)
+
         return E_binders_beads
 
     cdef double nonspecific_interact_E(self, poly.PolymerBase poly):
