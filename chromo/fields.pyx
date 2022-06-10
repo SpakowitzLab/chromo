@@ -1454,18 +1454,14 @@ cdef class UniformDensityField(FieldBase):
             corresponds to the trial configuration of the polymer
         """
         cdef long i, j
-        cdef double access_vol, density, change_in_density, bead_to_voxel_vol
+        cdef double density, change_in_density
         cdef double[:, ::1] vol_fracs = np.empty((2, n_bins), dtype=float)
 
         for j in range(n_bins):
-            access_vol = self.access_vols[bin_inds[j]]
             density = self.density[bin_inds[j], 0]
             change_in_density = self.density_trial[bin_inds[j], 0]
-            bead_to_voxel_vol = bead_V / access_vol
-            vol_fracs[0, j] = density * bead_to_voxel_vol
-            vol_fracs[1, j] = vol_fracs[0, j] + (
-                change_in_density * bead_to_voxel_vol
-            )
+            vol_fracs[0, j] = density * bead_V
+            vol_fracs[1, j] = vol_fracs[0, j] + (change_in_density * bead_V)
         return vol_fracs
 
     cdef void count_doubly_bound(
@@ -1811,6 +1807,16 @@ cdef class UniformDensityField(FieldBase):
 
     cdef double[:] get_volume_fractions(self, double bead_V):
         """Calculate all volume fractions of beads in bins.
+        
+        Notes
+        -----
+        We can obtain a count of beads in a voxel from the density of the voxel
+        multiplied by accessible volume. Using this count of beads in the voxel
+        and the volume of each bead, we can get the total volume of the beads
+        in the voxel. Then, dividing the total volume of the beads by the total
+        volume of the voxel gives us the volume fraction of the beads in the
+        voxel. This is equivalent to multiplying the density of the beads by the
+        volume of each bead.
 
         Parameters
         ----------
@@ -1823,13 +1829,9 @@ cdef class UniformDensityField(FieldBase):
             Array of bead volume fractions for each bin
         """
         cdef long j
-        cdef double access_vol, density
         cdef double[:] vol_fracs = np.empty((self.n_bins,), dtype=float)
-
         for j in range(self.n_bins):
-            access_vol = self.access_vols[j]
-            density = self.density[j, 0]
-            vol_fracs[j] = density * bead_V / access_vol
+            vol_fracs[j] = self.density[j, 0] * bead_V
         return vol_fracs
 
     cdef double[:, ::1] get_coordinates_at_inds(
