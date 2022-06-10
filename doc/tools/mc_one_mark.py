@@ -58,8 +58,8 @@ bead_spacing = 16.5        # About 50 bp linker length
 
 # Scale down the confinement so the density matches that of a chromosome
 # inside a chromosome territory
-# frac_full_chromo = num_beads / 393217
-# confine_length *= np.cbrt(frac_full_chromo)
+frac_full_chromo = num_beads / 393217
+confine_length *= np.cbrt(frac_full_chromo)
 
 chem_mods_path = np.array(
 #     ["chromo/chemical_mods/HNCFF683HCZ_H3K9me3_methyl_25000.txt"]
@@ -97,7 +97,7 @@ def run_sim(args):
     )
 
     # Specify the field containing the polymers
-    n_bins_x = 63   # * frac_full_chromo
+    n_bins_x = int(round(63 * np.cbrt(frac_full_chromo)))
     x_width = 2 * confine_length
     n_bins_y = n_bins_x
     y_width = x_width
@@ -114,8 +114,8 @@ def run_sim(args):
     amp_bead_bounds, amp_move_bounds = mc.get_amplitude_bounds(polymers)
 
     print("Starting new simulation...")
-    num_snapshots = 200
-    mc_steps_per_snapshot = 1000
+    num_snapshots = 250
+    mc_steps_per_snapshot = 25000
     mc.polymer_in_field(
         [p],
         binders,
@@ -132,5 +132,5 @@ def run_sim(args):
 
 seeds = np.random.randint(0, 1E5, len(mu_schedules))
 args = [(mu_schedules[i], seeds[i]) for i in range(len(seeds))]
-pool = Pool(1)
+pool = Pool(12)
 pool.map(run_sim, args)
