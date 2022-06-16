@@ -95,8 +95,6 @@ cpdef void mc_sim(
                             controller.move, poly, readerproteins, field,
                             active_field
                         )
-
-
             controller.update_amplitudes()
 
 
@@ -168,7 +166,7 @@ cdef void mc_step(
         elif dE < 0:
             exp_dE = 1
 
-    if (<double>rand() / RAND_MAX) <= exp_dE:
+    if (<double>rand() / RAND_MAX) < exp_dE:
         adaptible_move.accept(
             poly, dE, inds, n_inds, log_move=False, log_update=False
         )

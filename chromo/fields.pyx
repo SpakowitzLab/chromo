@@ -60,8 +60,8 @@ cdef class FieldBase:
     n_polymers : long
         Number of polymers in the field
     binders : pd.DataFrame
-        Table containing reader proteins bound to the polymer and their relevant
-        properties
+        Table containing reader proteins bound to the polymer and their
+        relevant properties
     """
 
     @property
@@ -113,9 +113,8 @@ cdef class FieldBase:
             energy change of a move; done to reduce the computational expense
             of the field energy calculation (at the expense of precision)
         state_change : bint
-            Indicator for whether the MC move involved a change in binding state
-            (1) or not (0; default)
-
+            Indicator for whether the MC move involved a change in binding
+            state (1) or not (0; default)
 
         Returns
         -------
@@ -127,7 +126,7 @@ cdef class FieldBase:
 
 
 class Reconstructor:
-    """Defer construction of `Field` until after `PolymerBase`/`Binder` instances.
+    """Defer defining `Field` until after `PolymerBase`/`Binder` instances.
 
     Notes
     -----
@@ -254,7 +253,7 @@ cdef class UniformDensityField(FieldBase):
         (dim1) for the polymer's current configuration (dim0=0) and trial
         configuration (dim0=1); TEMP
     index_xyz : long[:]
-        Vector containing a bead's bin index in the x, y, and z directions; TEMP
+        Vector containing a bead's bin index in the x, y, z directions; TEMP
     wt_vec_with_trial : double [:]
         Bead's weight linearly interpolated between the eight nearest voxels
         surrounding it (dim1) for a polymer's current configuration (dim0=0)
@@ -270,13 +269,13 @@ cdef class UniformDensityField(FieldBase):
         Position of the bead in the x, y, z directions, shifted during linear
         interpolation of voxel weights; TEMP
     weight_xyz_with_trial : double[:, ::1]
-        Vector of a bead's linearly interpolated weights in a voxel in the x, y,
-        and z directions as determined for the voxel surrounding the bead with
+        Vector of a bead's linearly interpolated weights in a voxel in the x,
+        y, z directions as determined for the voxel surrounding the bead with
         the lowest x, y, z indices (dim1) for the polymer's current
         configuration (dim0=0) and tiral configuration (dim0=1); TEMP
     weight_xyz : double[:]
-        Vector of a bead's linearly interpolated weights in a voxel in the x, y,
-        and z directions as determined for the voxel surrounding the bead with
+        Vector of a bead's linearly interpolated weights in a voxel in the x,
+        y, z directions as determined for the voxel surrounding the bead with
         the lowest x, y, z indices; TEMP
     num_binders : long
         Number of reader proteins bound to the polymer in the simulation
@@ -302,7 +301,7 @@ cdef class UniformDensityField(FieldBase):
         confining boundary (values).
     chi : double
         Negative local Flory-Huggins parameter dictating non-specific bead
-        interaction
+        interaction, in units of (kT / bead vol. nondim. by bin vol.)
     dict_ : dict
         Dictionary of key attributes defining the field and their values
     binder_dict : dict
@@ -334,8 +333,8 @@ cdef class UniformDensityField(FieldBase):
         polymers : List[PolymerBase]
             List of polymers contained in the field
         binders : pd.DataFrame
-            Output of `chromo.binders.make_binder_collection` applied to the list
-            of `Binder` objects contained in the field
+            Output of `chromo.binders.make_binder_collection` applied to the
+            list of `Binder` objects contained in the field
         x_width, y_width, z_width : double
             Width of the box containing the field in the x, y, and z-directions
         nx, ny, nz : long
@@ -370,9 +369,7 @@ cdef class UniformDensityField(FieldBase):
         self.doubly_bound = np.zeros((self.num_binders,), dtype=int)
         self.doubly_bound_trial = np.zeros((self.num_binders,), dtype=int)
         self.init_field_energy_prefactors()
-        self.density = np.zeros(
-            (self.n_bins, self.num_binders + 1), dtype=float
-        )
+        self.density = np.zeros((self.n_bins, self.num_binders+1), dtype=float)
         self.density_trial = self.density.copy()
         self.confine_type = confine_type
         self.confine_length = confine_length
@@ -428,7 +425,6 @@ cdef class UniformDensityField(FieldBase):
         """Precompute how voxel (x, y, z) indices translate to superindices.
         """
         cdef long i, j, k
-
         self.inds_xyz_to_super = np.empty(
             (self.nx+1, self.ny+1, self.nz+1), dtype=int
         )
@@ -438,7 +434,7 @@ cdef class UniformDensityField(FieldBase):
                     self.inds_xyz_to_super[i, j, k] = inds_to_super_ind(
                     i % self.nx, j % self.ny, k % self.nz, self.nx, self.ny
                 )
-    
+
     def init_field_energy_prefactors(self):
         """Initialize the field energy prefactor for each reader protein.
         """
@@ -446,19 +442,16 @@ cdef class UniformDensityField(FieldBase):
         for i in range(self.num_binders):
             binder_name = self.binders.loc[i, "name"]
             binder_names.append(binder_name)
-
         for i in range(self.num_binders):
             self.binders.at[i, 'field_energy_prefactor'] = (
                 0.5 * self.binders.iloc[i].interaction_energy
                 * self.binders.iloc[i].interaction_volume
                 * self.vol_bin
             )
-
             self.binders.at[i, 'interaction_energy_intranucleosome'] = (
                 self.binders.iloc[i].interaction_energy
                 * (1 - self.binders.iloc[i].interaction_volume / self.vol_bin)
             )
-
             for next_binder in binder_names:
                 if next_binder in self.binders.iloc[i].cross_talk_interaction_energy.keys():
                     self.binders.at[i, 'cross_talk_field_energy_prefactor'][next_binder] = (
@@ -468,7 +461,6 @@ cdef class UniformDensityField(FieldBase):
                     )
                 else:
                     self.binders.at[i, 'cross_talk_field_energy_prefactor'][next_binder] = 0
-
 
     cpdef dict get_accessible_volumes(self, long n_side):
         """Numerically find accessible volume of voxels at confinement edge.
@@ -496,7 +488,6 @@ cdef class UniformDensityField(FieldBase):
         cdef long[:, ::1] xyz_inds
         cdef double[:, ::1] xyz_coords, dxyz_point
         cdef dict access_vols
-        
         access_vols = {i : self.vol_bin for i in range(self.n_bins)}
         if self.confine_type != "":
             xyz_inds = np.zeros((self.n_bins, 3), dtype=int)
@@ -508,11 +499,12 @@ cdef class UniformDensityField(FieldBase):
             dxyz_point = self.define_voxel_subgrid(n_side)
             for i in range(self.n_bins):
                 if split_voxels[i] == 1:
-                    access_vols[i] = \
-                        self.get_frac_accessible(xyz_coords[i], dxyz_point) *\
-                        self.vol_bin
+                    access_vols[i] = (
+                        self.vol_bin *
+                        self.get_frac_accessible(xyz_coords[i], dxyz_point)
+                    )
         return access_vols
-            
+
     cdef double[:, ::1] get_voxel_coords(self, long[:, ::1] xyz_inds):
         """Get voxel coordinates from xyz bin indices.
 
@@ -533,7 +525,6 @@ cdef class UniformDensityField(FieldBase):
         cdef long i, j
         cdef long[:] nxyz
         cdef double[:, ::1] dxyz, centralized_inds, xyz_coords
-        
         nxyz = np.array([self.nx, self.ny, self.nz])
         dxyz = np.array([
                 [self.dx, 0, 0],
@@ -1112,8 +1103,8 @@ cdef class UniformDensityField(FieldBase):
             for k in range(2):
                 for l in range(8):
                     poly.densities_temp[k, 0, l] = (
-                            self.wt_vec_with_trial[k, l] /
-                            self.access_vols[self.nbr_inds_with_trial[k, l]]
+                        self.wt_vec_with_trial[k, l] /
+                        self.access_vols[self.nbr_inds_with_trial[k, l]]
                     )
                     for m in range(1, poly.n_binders_p1):
                         # Current Configuration
@@ -1412,7 +1403,9 @@ cdef class UniformDensityField(FieldBase):
         cdef double[:, ::1] vol_fracs
 
         bead_V = poly.beads[0].vol
-        vol_fracs = self.get_volume_fractions_with_trial(bead_V, bin_inds, n_bins)
+        vol_fracs = self.get_volume_fractions_with_trial(
+            bead_V, bin_inds, n_bins
+        )
 
         nonspecific_dE = 0
         for i in range(n_bins):
@@ -1420,14 +1413,17 @@ cdef class UniformDensityField(FieldBase):
             
             # Trial Volume Fractions
             if vol_fracs[1, i] > 0.5:
-                nonspecific_dE += E_HUGE
+                nonspecific_dE += E_HUGE * vol_fracs[1, i]
             else:
-                nonspecific_dE += self.chi * access_vol * vol_fracs[1, i] ** 2
+                nonspecific_dE += self.chi * (access_vol / bead_V) *\
+                                  vol_fracs[1, i] ** 2
+
             # Current volume fractions
             if vol_fracs[0, i] > 0.5:
-                nonspecific_dE -= E_HUGE
+                nonspecific_dE -= E_HUGE * vol_fracs[0, i]
             else:
-                nonspecific_dE -= self.chi * access_vol * vol_fracs[0, i] ** 2
+                nonspecific_dE -= self.chi * (access_vol / bead_V) *\
+                                  vol_fracs[0, i] ** 2
 
         return nonspecific_dE
 
@@ -1559,8 +1555,8 @@ cdef class UniformDensityField(FieldBase):
         """Update densities in affected bins when a move is accepted.
         """
         for i in range(self.n_bins):
-            for j in range(self.num_binders+1):
-                if self.affected_bins_last_move[i] == 1:
+            if self.affected_bins_last_move[i] == 1:
+                for j in range(self.num_binders+1):
                     self.density[i, j] += self.density_trial[i, j]
 
     cpdef void update_all_densities(
@@ -1590,6 +1586,7 @@ cdef class UniformDensityField(FieldBase):
         for i in range(self.n_bins):
             for j in range(poly.num_binders+1):
                 self.density[i, j] = 0
+                self.density_trial[i, j] = 0
         
         # Iterate through beads and add their densities to corresponding bins
         for i in range(n_inds):
@@ -1631,22 +1628,26 @@ cdef class UniformDensityField(FieldBase):
         Notes
         -----
         Updates the voxel densities stored in the field object.
+        
+        Requires that binders are listed in the same order on each polymer, as
+        listed in `self.binders`.
         """
         cdef double density
         cdef long h, i, j, l, m, ind, n_binders_p1, n_inds, max_binder_count
         cdef long[:] superindices, inds, binder_counts
         cdef poly.PolymerBase poly
 
+        # Re-initialize all densities
+        for i in range(self.n_bins):
+            for j in range(self.num_binders):
+                self.density[i, j] = 0
+                self.density_trial[i, j] = 0
+
         for h in range(self.n_polymers):
             poly = self.polymers[h]
             inds = np.arange(0, poly.num_beads, 1)
             n_inds = poly.num_beads
             n_binders_p1 = poly.n_binders_p1
-
-            # Re-initialize all densities
-            for i in range(self.n_bins):
-                for j in range(poly.num_binders+1):
-                    self.density[i, j] = 0
             
             # Iterate through beads and add densities to corresponding bins
             for i in range(n_inds):
@@ -1683,13 +1684,10 @@ cdef class UniformDensityField(FieldBase):
                             float(poly.states[inds[i], m-1])
 
         # Fix rounding error
-        binder_counts = np.array([poly.num_binders for poly in self.polymers])
-        max_binder_count = np.max(binder_counts)
         for i in range(self.n_bins):
-            for j in range(max_binder_count+1):
+            for j in range(self.num_binders + 1):
                 if np.abs(self.density[i, j]) < 1E-18:
                     self.density[i, j] = 0
-
         
     cdef void _generate_weight_vector(self):
         """Generate weight array for eight bins containing the bead.
@@ -1773,7 +1771,7 @@ cdef class UniformDensityField(FieldBase):
 
         return E_binders_beads
 
-    cdef double nonspecific_interact_E(self, poly.PolymerBase poly):
+    cpdef double nonspecific_interact_E(self, poly.PolymerBase poly):
         """Get nonspecific interaction energy for the full polymer.
 
         Notes
@@ -1800,9 +1798,10 @@ cdef class UniformDensityField(FieldBase):
         for i in range(self.n_bins):
             access_vol = self.access_vols[i]
             if vol_fracs[i] > 0.5:
-                nonspecific_E += E_HUGE
+                nonspecific_E += E_HUGE * vol_fracs[i]
             else:
-                nonspecific_E += self.chi * access_vol * vol_fracs[i] ** 2
+                nonspecific_E += self.chi * (access_vol / bead_V) *\
+                                 vol_fracs[i] * (1 - vol_fracs[i])
         return nonspecific_E
 
     cdef double[:] get_volume_fractions(self, double bead_V):

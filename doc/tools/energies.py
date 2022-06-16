@@ -26,7 +26,7 @@ os.chdir(cwd + '/../../output')
 
 # Specify simulation to evaluate
 # sim = ps.get_latest_simulation()
-sim = "sim_57"
+sim = "sim_39"
 delta = 50
 lp = 53
 print("Sim: " + sim)
@@ -72,7 +72,9 @@ polymer = poly.Chromatin(
 
 # Instantiate Field Object
 confine_length = 900
-n_bins_x = 63
+frac_full_chromo = n_beads / 393217
+confine_length *= np.cbrt(frac_full_chromo)
+n_bins_x = int(round(63 * np.cbrt(frac_full_chromo)))
 x_width = 2 * confine_length
 n_bins_y = n_bins_x
 y_width = x_width
@@ -125,12 +127,36 @@ for i, f in enumerate(output_files):
     field_energies.append(field_energy)
     all_energies.append(polymer_energy + field_energy)
 
+# Remove high energy indices
+"""
+high_energy_inds = set([
+    ind for ind in range(len(all_energies))
+    if all_energies[ind] >= 1E90
+])
+sorted_snap = np.array([
+    sorted_snap[ind] for ind in range(len(sorted_snap))
+    if ind not in high_energy_inds
+])
+field_energies = np.array([
+    field_energies[ind] for ind in range(len(field_energies))
+    if ind not in high_energy_inds
+])
+polymer_energies = np.array([
+    polymer_energies[ind] for ind in range(len(polymer_energies))
+    if ind not in high_energy_inds
+])
+all_energies = np.array([
+    all_energies[ind] for ind in range(len(all_energies))
+    if ind not in high_energy_inds
+])
+"""
+
 plt.figure()
 plt.plot(sorted_snap, all_energies, color='k', label='Total')
 plt.plot(sorted_snap, field_energies, color='r', label='Field')
 plt.plot(sorted_snap, polymer_energies, color='b', label='Polymer')
 plt.xlabel("Snapshot number")
-plt.ylabel("Polymer Energy")
+plt.ylabel(r"Energy ($kT$)")
 plt.legend()
 plt.tight_layout()
 plt.savefig(sim + "/Energy_Evolution.png", dpi=600)
