@@ -93,7 +93,7 @@ cdef class UniformDensityField(FieldBase):
     cdef double get_E_binders_and_beads(
         self, poly.PolymerBase poly, long[:] inds, long n_inds
     )
-    cdef double nonspecific_interact_E(self, poly.PolymerBase poly)
+    cpdef double nonspecific_interact_E(self, poly.PolymerBase poly)
     cdef double[:] get_volume_fractions(self, double bead_V)
     cdef double[:, ::1] get_coordinates_at_inds(
         self,

@@ -106,7 +106,7 @@ def run_sim(args):
     udf = UniformDensityField(
         [p], binders, x_width, n_bins_x, y_width,
         n_bins_y, z_width, n_bins_z, confine_type=confine_type,
-        confine_length=confine_length
+        confine_length=confine_length, chi=1
     )
 
     # Specify the bead selection and move amplitude bounds
