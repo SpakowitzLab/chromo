@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9aea1adc-b967-4103-908e-8645da7ac170" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/chromo/mc/moves.py" beforeDir="false" afterPath="$PROJECT_DIR$/chromo/mc/moves.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/source/mc.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/doc/source/mc.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/source/poly_models.rst" beforeDir="false" afterPath="$PROJECT_DIR$/doc/source/poly_models.rst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
