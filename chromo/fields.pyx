@@ -32,7 +32,7 @@ cdef double E_HUGE = 1E99
 
 cdef list _field_descriptors = [
     'x_width', 'nx', 'y_width', 'ny', 'z_width', 'nz', 'confine_type',
-    'confine_length'
+    'confine_length', 'chi', 'assume_fully_accessible', 'vf_limit'
 ]
 cdef list _int_field_descriptors = ['nx', 'ny', 'nz']
 cdef list _str_field_descriptors = ['confine_type']
@@ -323,12 +323,14 @@ cdef class UniformDensityField(FieldBase):
         Array containing the super-index of each voxel (stored in the array
         values) for each combination of x-voxel position (dim0), y-voxel
         position (dim1) and z-voxel position (dim2).
+    vf_limit : float
+            Volume fraction limit in a voxel.
     """
 
     def __init__(
         self, polymers, binders, x_width, nx, y_width, ny, z_width, nz,
         confine_type = "", confine_length = 0.0, chi = 1.0,
-        assume_fully_accessible = 1
+        assume_fully_accessible = 1, vf_limit = 0.5
     ):
         """Construct a `UniformDensityField` containing polymers.
 
@@ -358,6 +360,8 @@ cdef class UniformDensityField(FieldBase):
             than the confinement volume. Value of `1` indicates that all voxels
             are assumed to be fully accessible, bypassing the calculation of
             accessible volume (default = 1).
+        vf_limit : Optional[float]
+            Volume fraction limit in a voxel (default = 0.5)
         """
         super(UniformDensityField, self).__init__(
             polymers = polymers, binders = binders
@@ -383,15 +387,17 @@ cdef class UniformDensityField(FieldBase):
         self.density_trial = self.density.copy()
         self.confine_type = confine_type
         self.confine_length = confine_length
+        self.assume_fully_accessible = assume_fully_accessible
         self.access_vols = self.get_accessible_volumes(
             n_side=20, assume_fully_accessible=assume_fully_accessible
         )
         self.chi = chi
+        self.vf_limit = vf_limit
         self.dict_ = self.get_dict()
         self.binder_dict = self.binders.to_dict(orient='records')
         self.update_all_densities_for_all_polymers()
         self.affected_bins_last_move = np.zeros((self.n_bins,), dtype=int)
-    
+
     def init_grid(self):
         """Initialize the discrete grid containing the field.
 
@@ -900,7 +906,9 @@ cdef class UniformDensityField(FieldBase):
             "density" : self.density,
             "confine_type" : self.confine_type,
             "confine_length" : self.confine_length,
-            "chi" : self.chi
+            "chi" : self.chi,
+            "assume_fully_accessible": self.assume_fully_accessible,
+            "vf_limit": self.vf_limit
         }
 
     cdef double compute_dE(
@@ -1524,14 +1532,14 @@ cdef class UniformDensityField(FieldBase):
             access_vol = self.access_vols[bin_inds[i]]
             
             # Trial Volume Fractions
-            if vol_fracs[1, i] > 0.5:
+            if vol_fracs[1, i] > self.vf_limit:
                 nonspecific_dE += E_HUGE * vol_fracs[1, i]
             else:
                 nonspecific_dE += self.chi * (access_vol / bead_V) *\
                                   vol_fracs[1, i] ** 2
 
             # Current volume fractions
-            if vol_fracs[0, i] > 0.5:
+            if vol_fracs[0, i] > self.vf_limit:
                 nonspecific_dE -= E_HUGE * vol_fracs[0, i]
             else:
                 nonspecific_dE -= self.chi * (access_vol / bead_V) *\
@@ -1977,7 +1985,7 @@ cdef class UniformDensityField(FieldBase):
         nonspecific_E = 0
         for i in range(self.n_bins):
             access_vol = self.access_vols[i]
-            if round(vol_fracs[i], 2) > 0.5:
+            if round(vol_fracs[i], 2) > self.vf_limit:
                 nonspecific_E += E_HUGE * vol_fracs[i]
             else:
                 nonspecific_E += self.chi * (access_vol / bead_V) *\

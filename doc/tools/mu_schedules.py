@@ -123,3 +123,16 @@ def linear_2_for_negative_cp(i, N):
         return 4.
     else:
         return -3. * (float(i - delay) / float(N - delay)) + 4
+
+
+def linear_step_for_negative_cp(i, N):
+    """Linear Schedule between 4 and 1, with delayed start and early end.
+    """
+    start = np.floor(N/5)
+    end = np.floor(N/5)
+    if i <= start:
+        return 4.
+    elif i >= (N - end):
+        return 1.
+    else:
+        return -3. * (float(i - start) / float(N - (start + end))) + 4
