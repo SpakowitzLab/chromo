@@ -332,6 +332,46 @@ def confined_gaussian_walk(
     return points
 
 
+def confined_uniform_random_walk(
+    num_points: int,
+    step_size: float,
+    confine_type: str,
+    confine_length: float
+) -> np.ndarray:
+    """Generate coordinates for uniform random walk w/ fixed path length.
+
+    Parameters
+    ----------
+    num_points : int
+        Number of points in the uniform random walk
+    step_size : float
+        Distance between each point in the random walk
+    confine_type : str
+        Name of the confining boundary. To indicate model w/o confinement,
+        enter a blank string for this argument
+    confine_length : double
+        The lengthscale associated with the confining boundary. Length
+        representation specified in function associated w/ `confine_type`
+
+    Returns
+    -------
+    np.ndarray (N, 3)
+        Coordinates of each point in the uniform random walk, where rows
+        represent individual points and columns give x, y, z coordinates
+    """
+    points = np.array([0, 0, 0])
+    for i in range(num_points-1):
+        pt_not_found = True
+        while pt_not_found:
+            step = np.random.uniform(size=(1, 3))
+            magnitude_step = np.linalg.norm(step)
+            point = points[i] + np.divide(step, magnitude_step) * step_size
+            if in_confinement(point, confine_type, confine_length):
+                points = np.vstack([points, point])
+                pt_not_found = False
+    return points
+
+
 def looped_confined_gaussian_walk(
     num_points: int,
     step_size: float,

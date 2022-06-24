@@ -18,7 +18,6 @@ import matplotlib.pyplot as plt
 import chromo.polymers as poly
 import chromo.fields as fld
 import chromo.binders
-import chromo.util.poly_stat as ps
 
 # Navigate to output directory
 cwd = os.path.dirname(os.path.abspath(__file__))
