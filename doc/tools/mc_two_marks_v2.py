@@ -65,7 +65,7 @@ confine_length = 900
 print("Constructing polymer...")
 
 # Specify polymers length
-num_beads = 5000
+num_beads = 25000
 bead_spacing = 16.5        # 50-bp linker length
 
 # Scale down the confinement so the density matches that of a chromosome
@@ -76,15 +76,15 @@ confine_length *= np.cbrt(frac_full_chromo)
 # Define pattern of epigenetic modifications
 chem_mods_path = np.array(
     [
-        "chromo/chemical_mods/HNCFF683HCZ_H3K9me3_methyl_5000.txt",
-        "chromo/chemical_mods/ENCFF919DOR_H3K27me3_methyl_5000.txt"
+        "chromo/chemical_mods/HNCFF683HCZ_H3K9me3_methyl_25000.txt",
+        "chromo/chemical_mods/ENCFF919DOR_H3K27me3_methyl_25000.txt"
     ]
 )
 chemical_mods = Chromatin.load_seqs(chem_mods_path)
 
 # Create a list of mu schedules, which will be defined in another file.
 schedules = [func[0] for func in getmembers(ms, isfunction)]
-select_schedule = "linear_2_for_negative_cp"
+select_schedule = "linear_step_for_negative_cp"
 mu_schedules = [
     ms.Schedule(getattr(ms, func_name)) for func_name in schedules
 ]
@@ -112,7 +112,7 @@ z_width = x_width
 udf = UniformDensityField(
     [p], binders, x_width, n_bins_x, y_width,
     n_bins_y, z_width, n_bins_z, confine_type=confine_type,
-    confine_length=confine_length, chi=1
+    confine_length=confine_length, chi=1, assume_fully_accessible=1
 )
 
 # Specify the bead selection and move amplitude bounds
@@ -125,8 +125,8 @@ if __name__ == "__main__":
     """Run the simulation.
     """
     print("Starting new simulation...")
-    num_snapshots = 200
-    mc_steps_per_snapshot = 20000
+    num_snapshots = 300
+    mc_steps_per_snapshot = 100000
     mc.polymer_in_field(
         [p],
         binders,
