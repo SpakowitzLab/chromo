@@ -35,6 +35,8 @@ cdef class UniformDensityField(FieldBase):
     cdef public dict access_vols    
     cdef public double chi
     cdef public dict dict_
+    cdef public float vf_limit
+    cdef public bint assume_fully_accessible
     cdef public list binder_dict
     cdef public double[:] half_width_xyz
     cdef public double[:] half_step_xyz
