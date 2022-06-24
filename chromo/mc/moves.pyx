@@ -2,7 +2,7 @@
 
 """Utilities for proposing Monte Carlo moves.
 
-This module include an MC adapter class which will drive move adaption and
+This module includes an MC adapter class which will drive move adaption and
 functions applying transformations made by each move.
 """
 

@@ -1319,38 +1319,43 @@ cdef class SSWLC(PolymerBase):
             unmodified_tails = num_tails - modified_tails
 
             for j in range(states_trial_ind[i]):
-                if j+1 <= modified_tails:
-                    dE += (
+                dE += (
                         self.beads[ind].binders[i].bind_energy_mod -
-                        (
-                                self.beads[ind].binders[i].chemical_potential *
-                                self.mu_adjust_factor
-                        )
-                    )
+                        (min(
+                            self.beads[ind].binders[i].chemical_potential,
+                            self.beads[ind].binders[i].chemical_potential *
+                            self.mu_adjust_factor
+                        ))
+                )
+                if j+1 <= modified_tails:
+                    pass
                 else:
                     dE += (
-                        self.beads[ind].binders[i].bind_energy_no_mod -
-                        (
+                            self.beads[ind].binders[i].bind_energy_no_mod -
+                            (min(
+                                self.beads[ind].binders[i].chemical_potential,
                                 self.beads[ind].binders[i].chemical_potential *
                                 self.mu_adjust_factor
-                        )
+                            ))
                     )
             for j in range(states_ind[i]):
                 if j+1 <= modified_tails:
                     dE -= (
                         self.beads[ind].binders[i].bind_energy_mod -
-                        (
-                                self.beads[ind].binders[i].chemical_potential *
-                                self.mu_adjust_factor
-                        )
+                        (min(
+                            self.beads[ind].binders[i].chemical_potential,
+                            self.beads[ind].binders[i].chemical_potential *
+                            self.mu_adjust_factor
+                        ))
                     )
                 else:
                     dE -= (
                         self.beads[ind].binders[i].bind_energy_no_mod -
-                        (
-                                self.beads[ind].binders[i].chemical_potential *
-                                self.mu_adjust_factor
-                        )
+                        (min(
+                            self.beads[ind].binders[i].chemical_potential,
+                            self.beads[ind].binders[i].chemical_potential *
+                            self.mu_adjust_factor
+                        ))
                     )
         return dE
 
@@ -1581,6 +1586,40 @@ cdef class SSWLC(PolymerBase):
             random walk
         """
         r = paths.confined_gaussian_walk(
+            num_beads, bead_length, confine_type, confine_length
+        )
+        t3, t2 = paths.estimate_tangents_from_coordinates(r)
+        return cls(name, r, t3=t3, t2=t2, bead_length=bead_length, **kwargs)
+
+    @classmethod
+    def confined_uniform_random_walk(
+            cls, name: str, num_beads: int, bead_length: float, confine_type: str,
+            confine_length: float, **kwargs
+    ):
+        """Initialize a polymer to a confined uniform random walk.
+
+        Parameters
+        ----------
+        name : str
+            Name of the polymer
+        num_beads : int
+            Number of monomer units on the polymer
+        bead_length : float
+            Dimensional distance between subsequent beads of the polymer (in nm)
+        confine_type : str
+            Name of the confining boundary; to indicate model w/o confinement,
+            enter a blank string for this argument
+        confine_length : double
+            The lengthscale associated with the confining boundary. Length
+            representation specified in function associated w/ `confine_type`
+
+        Returns
+        -------
+        Polymer
+            Object representing a polymer initialized as a confined uniform
+            random walk
+        """
+        r = paths.confined_uniform_random_walk(
             num_beads, bead_length, confine_type, confine_length
         )
         t3, t2 = paths.estimate_tangents_from_coordinates(r)

@@ -16,7 +16,6 @@ pyximport.install()
 
 # Built-in Modules
 from pathlib import Path
-import sys
 from libc.math cimport floor, sqrt
 
 # External Modules
@@ -26,7 +25,6 @@ import pandas as pd
 
 # Custom Modules
 import chromo.polymers as poly
-cimport chromo.polymers as poly
 from chromo.util.linalg cimport vec_dot3
 
 
@@ -74,12 +72,20 @@ cdef class FieldBase:
         """
         return self.__class__.__name__
 
-    def __init__(self):
+    def __init__(self, polymers, binders):
         """Construct a field holding no polymers, tracking no reader proteins.
+
+        Parameters
+        ----------
+         polymers : List[PolymerBase]
+            List of polymers contained in the field
+        binders : pd.DataFrame
+            Output of `chromo.binders.make_binder_collection` applied to the
+            list of `Binder` objects contained in the field
         """
-        self.polymers = []
-        self.n_polymers = 0
-        self.binders = pd.DataFrame()
+        self.polymers = polymers
+        self.n_polymers = len(polymers)
+        self.binders = binders
 
     def __str__(self):
         """Print representation of empty field.
@@ -289,13 +295,10 @@ cdef class UniformDensityField(FieldBase):
     confine_length : double
         Length scale of the confining boundary
     density, density_trial : double[:, ::1]
-        Current (`density`) and proposed (`density_trials`) density of beads
-        (column 0) and each reader protein (columns 1...) in each voxel of the
-        discretized space; voxels are sorted by super-index and arranged down
-        the rows the the density arrays
-    total_binder_densities : dict[str, double]
-        Total density of each reader protein in all voxels affected by an MC
-        move
+        Current (`density`) and proposed change (`density_trial`) in density
+        of beads (column 0) and each reader protein (columns 1...) in each
+        voxel of the discretized space; voxels are sorted by super-index and
+        arranged down the rows the the density arrays
     access_vols : Dict[long, double]
         Mapping of voxel super-index (keys) to volume of the voxel inside the
         confining boundary (values).
@@ -324,7 +327,8 @@ cdef class UniformDensityField(FieldBase):
 
     def __init__(
         self, polymers, binders, x_width, nx, y_width, ny, z_width, nz,
-        confine_type = "", confine_length = 0.0, chi = 1.0
+        confine_type = "", confine_length = 0.0, chi = 1.0,
+        assume_fully_accessible = 1
     ):
         """Construct a `UniformDensityField` containing polymers.
 
@@ -348,11 +352,17 @@ cdef class UniformDensityField(FieldBase):
         chi : double
             Negative local Flory-Huggins parameter dictating non-specific bead
             interaction (default = 1)
+        assume_fully_accessible : bint
+            Flag indicating whether to assume all voxels are fully accessible.
+            Assume voxels are fully accessible if the voxel volumes are far less
+            than the confinement volume. Value of `1` indicates that all voxels
+            are assumed to be fully accessible, bypassing the calculation of
+            accessible volume (default = 1).
         """
+        super(UniformDensityField, self).__init__(
+            polymers = polymers, binders = binders
+        )
         self._field_descriptors = _field_descriptors
-        self.polymers = polymers
-        self.n_polymers = len(polymers)
-        self.binders = binders
         for poly in polymers:
             if poly.num_binders != len(binders):
                 raise NotImplementedError(
@@ -373,7 +383,9 @@ cdef class UniformDensityField(FieldBase):
         self.density_trial = self.density.copy()
         self.confine_type = confine_type
         self.confine_length = confine_length
-        self.access_vols = self.get_accessible_volumes(n_side=20)
+        self.access_vols = self.get_accessible_volumes(
+            n_side=20, assume_fully_accessible=assume_fully_accessible
+        )
         self.chi = chi
         self.dict_ = self.get_dict()
         self.binder_dict = self.binders.to_dict(orient='records')
@@ -462,8 +474,15 @@ cdef class UniformDensityField(FieldBase):
                 else:
                     self.binders.at[i, 'cross_talk_field_energy_prefactor'][next_binder] = 0
 
-    cpdef dict get_accessible_volumes(self, long n_side):
+    cpdef dict get_accessible_volumes(
+            self, long n_side, bint assume_fully_accessible
+    ):
         """Numerically find accessible volume of voxels at confinement edge.
+        
+        Notes
+        -----
+        Right now, accessible volume calculations are only relevant to spherical
+        confinements.
 
         Parameters
         ----------
@@ -476,6 +495,12 @@ cdef class UniformDensityField(FieldBase):
             to include on each side of the cubic grid. For example, if n_side =
             10, then we will place a 10x10x10 grid of points in every partially
             contained voxel to determine the accessible volume of that voxel.
+        assume_fully_accessible : bint
+            Flag indicating whether to assume all voxels are fully accessible.
+            Assume voxels are fully accessible if the voxel volumes are far less
+            than the confinement volume. Value of `1` indicates that all voxels
+            are assumed to be fully accessible, bypassing the calculation of
+            accessible volume.
 
         Returns
         -------
@@ -489,7 +514,9 @@ cdef class UniformDensityField(FieldBase):
         cdef double[:, ::1] xyz_coords, dxyz_point
         cdef dict access_vols
         access_vols = {i : self.vol_bin for i in range(self.n_bins)}
-        if self.confine_type != "":
+        if assume_fully_accessible == 1:
+            return access_vols
+        if self.confine_type == "Spherical":
             xyz_inds = np.zeros((self.n_bins, 3), dtype=int)
             for i in range(self.n_bins):
                 xyz_inds[i, :] = super_ind_to_inds(i, self.nx, self.ny)
@@ -507,6 +534,13 @@ cdef class UniformDensityField(FieldBase):
 
     cdef double[:, ::1] get_voxel_coords(self, long[:, ::1] xyz_inds):
         """Get voxel coordinates from xyz bin indices.
+        
+        Notes
+        -----
+        Get the (x, y, z) coordinates at the center of each voxel. Start by
+        converting voxel super-indices to x, y, and z indices. Then, multiply
+        the x, y, and z indices by voxel widths dx, dy, and dz to get the
+        coordinates at the center of each voxel.
 
         Parameters
         ----------
@@ -542,6 +576,16 @@ cdef class UniformDensityField(FieldBase):
         self, double[:, ::1] xyz_coords, double buffer_dist
     ):
         """Identify voxels intersecting with the confinement boundary.
+        
+        Notes
+        -----
+        Flag each voxel as split to begin with. Then, for each voxel, calculate
+        the distance from the origin to the center of the voxel. For voxels
+        which fall within +/- one `buffer_dist` of the confining length, flag
+        that voxel as split.
+        
+        Accessible volumes are only relevant for spherical confinements. In a
+        cubical confinement, all voxels are entirely accessible.
 
         Parameters
         ----------
@@ -574,6 +618,18 @@ cdef class UniformDensityField(FieldBase):
     
     cdef double[:, ::1] define_voxel_subgrid(self, long n_pt_side):
         """Define voxel subgrid for accessible volume calculation.
+        
+        Notes
+        -----
+        When a voxel is split by a confining boundary, we determine the
+        accessible volume in that voxel using a numerical approach. We
+        initialize an cubical array of points of dimensions `n_pt_side` by
+        `n_pt_side` by `n_pt_side` inside the voxel. We then calculate the
+        radial distance of each point in this array. We determine the fraction
+        of points which fall inside the confinement, and we use this as an
+        estimate of the fraction voxel volume that is accessible. We multiply
+        this fraction by the full voxel volume to get the accessible volume in
+        the voxel.   
 
         Parameters
         ----------
@@ -617,6 +673,10 @@ cdef class UniformDensityField(FieldBase):
         self, double[:] coords, double[:, ::1] dxyz_point
     ):
         """Get the fraction of a bin which is accessible inside a confinement.
+        
+        Notes
+        -----
+        See notes in `self.define_voxel_subgrid()` for implementation details.
 
         Parameters
         ----------
@@ -898,21 +958,22 @@ cdef class UniformDensityField(FieldBase):
             Change in field energy assocaited with the change in polymer 
             configuration
         """
-        cdef long i, ind
+        cdef long i, ind, bin_ind
         cdef long[:] delta_ind_xyz, bin_inds
         cdef double dE = 0
 
         # Verify that move does not violate the hard confinement
-        dE += self.get_confinement_dE(poly, inds, n_inds, trial=1)
-        dE -= self.get_confinement_dE(poly, inds, n_inds, trial=0)
+        if state_change == 0:
+            dE += self.get_confinement_dE(poly, inds, n_inds, trial=1)
+            dE -= self.get_confinement_dE(poly, inds, n_inds, trial=0)
 
         # Find changes in polymer density in affected voxels
         bin_inds = self.get_change_in_density(poly, inds, n_inds, state_change)
 
         for i in range(self.n_bins):
             self.affected_bins_last_move[i] = 0
-        for bin in bin_inds:
-            self.affected_bins_last_move[bin] = 1
+        for bin_ind in bin_inds:
+            self.affected_bins_last_move[bin_ind] = 1
 
         # Get change in energy based on differences in bead and binder densities
         dE += self.get_dE_binders_and_beads(
@@ -928,10 +989,13 @@ cdef class UniformDensityField(FieldBase):
 
         Notes
         -----
-        A large energy is returned if any point lies outside the confinement;
+        A large energy is assigned to any point lies outside the confinement;
         otherwise, an energy contribution of zero is returned.
 
         This method is where different confinement types can be defined.
+        However, if a non-spherical confinement is defined, adjustments need
+        to be made to `self.get_accessible_volumes()`, which currently supports
+        spherical confinements.
 
         Parameters
         ----------
@@ -1072,10 +1136,13 @@ cdef class UniformDensityField(FieldBase):
                     (poly.r[inds[i], j] + self.half_width_xyz[j]) %
                     self.width_xyz[j]
                 ) - self.half_step_xyz[j]
-                self.xyz_with_trial[1, j] = (
-                    (poly.r_trial[inds[i], j] + self.half_width_xyz[j]) %
-                    self.width_xyz[j]
-                ) - self.half_step_xyz[j]
+                if state_change == 0:
+                    self.xyz_with_trial[1, j] = (
+                        (poly.r_trial[inds[i], j] + self.half_width_xyz[j]) %
+                        self.width_xyz[j]
+                    ) - self.half_step_xyz[j]
+                else:
+                    self.xyz_with_trial[1, j] = self.xyz_with_trial[0, j]
 
                 # Get the lower neighboring bin index
                 for k in range(2):
@@ -1154,44 +1221,74 @@ cdef class UniformDensityField(FieldBase):
 
     cdef void _generate_weight_vector_with_trial(self):
         """Generate weight array for eight bins containing the bead.
+        
+        Notes
+        -----
+        The weight vector contains the fraction of a point's weight distributed
+        to each of the eight voxels containing the point. To determine weights,
+        we calculating distances between a point and the centers of the two
+        nearest voxels containing it in each the x, y, and z directions. The
+        weight is determined from these distances using the lever rule.
+        
+        The values stored in `self.weight_xyz_with_trial` indicate the weights
+        in the *lower* voxels contianing the point, in each the x, y, and z
+        directions. The first dimension of `self.weight_xyz_with_trial`
+        indicates whether we are working with a current configuration (row 0)
+        or trial configuration (row 1).
+         
         """
         cdef int i
         for i in range(2):
+
+            # lower_x, lower_y, lower_z
             self.wt_vec_with_trial[i, 0] = (
                 self.weight_xyz_with_trial[i, 0] *
                 self.weight_xyz_with_trial[i, 1] *
                 self.weight_xyz_with_trial[i, 2]
             )
+
+            # upper_x, lower_y, lower_z
             self.wt_vec_with_trial[i, 1] = (
                 (1-self.weight_xyz_with_trial[i, 0]) *
                 self.weight_xyz_with_trial[i, 1] *
                 self.weight_xyz_with_trial[i, 2]
             )
+
+            # lower_x, upper_y, lower_z
             self.wt_vec_with_trial[i, 2] = (
                 self.weight_xyz_with_trial[i, 0] *
                 (1-self.weight_xyz_with_trial[i, 1]) *
                 self.weight_xyz_with_trial[i, 2]
             )
+
+            # upper_x, upper_y, lower_z
             self.wt_vec_with_trial[i, 3] = (
                 (1-self.weight_xyz_with_trial[i, 0]) *
                 (1-self.weight_xyz_with_trial[i, 1]) *
                 self.weight_xyz_with_trial[i, 2]
             )
+
+            # lower_x, lower_y, upper_z
             self.wt_vec_with_trial[i, 4] = (
                 self.weight_xyz_with_trial[i, 0] *
                 self.weight_xyz_with_trial[i, 1] *
                 (1-self.weight_xyz_with_trial[i, 2])
             )
+
+            # upper_x, lower_y, upper_z
             self.wt_vec_with_trial[i, 5] = (
                 (1-self.weight_xyz_with_trial[i, 0]) *
                 self.weight_xyz_with_trial[i, 1] *
                 (1-self.weight_xyz_with_trial[i, 2])
             )
+
+            # lower_x, upper_y, upper_z
             self.wt_vec_with_trial[i, 6] = (
                 self.weight_xyz_with_trial[i, 0] *
                 (1-self.weight_xyz_with_trial[i, 1]) *
                 (1-self.weight_xyz_with_trial[i, 2])
             )
+            # upper_x, upper_y, upper_z
             self.wt_vec_with_trial[i, 7] = (
                 (1-self.weight_xyz_with_trial[i, 0]) *
                 (1-self.weight_xyz_with_trial[i, 1]) *
@@ -1216,41 +1313,57 @@ cdef class UniformDensityField(FieldBase):
         """
         cdef int i
         for i in range(2):
+
+            # lower_x, lower_y, lower_z
             self.nbr_inds_with_trial[i, 0] = self.inds_xyz_to_super[
                 (self.index_xyz_with_trial[i, 0]),
                 (self.index_xyz_with_trial[i, 1]),
                 (self.index_xyz_with_trial[i, 2])
             ]
+
+            # upper_x, lower_y, lower_z
             self.nbr_inds_with_trial[i, 1] = self.inds_xyz_to_super[
                 (1 + self.index_xyz_with_trial[i, 0]),
                 (self.index_xyz_with_trial[i, 1]),
                 (self.index_xyz_with_trial[i, 2])
             ]
+
+            # lower_x, upper_y, lower_z
             self.nbr_inds_with_trial[i, 2] = self.inds_xyz_to_super[
                 (self.index_xyz_with_trial[i, 0]),
                 (1 + self.index_xyz_with_trial[i, 1]),
                 (self.index_xyz_with_trial[i, 2])
             ]
+
+            # upper_x, upper_y, lower_z
             self.nbr_inds_with_trial[i, 3] = self.inds_xyz_to_super[
                 (1 + self.index_xyz_with_trial[i, 0]),
                 (1 + self.index_xyz_with_trial[i, 1]),
                 (self.index_xyz_with_trial[i, 2])
             ]
+
+            # lower_x, lower_y, upper_z
             self.nbr_inds_with_trial[i, 4] = self.inds_xyz_to_super[
                 (self.index_xyz_with_trial[i, 0]),
                 (self.index_xyz_with_trial[i, 1]),
                 (1 + self.index_xyz_with_trial[i, 2])
             ]
+
+            # upper_x, lower_y, upper_z
             self.nbr_inds_with_trial[i, 5] = self.inds_xyz_to_super[
                 (1 + self.index_xyz_with_trial[i, 0]),
                 (self.index_xyz_with_trial[i, 1]),
                 (1 + self.index_xyz_with_trial[i, 2])
             ]
+
+            # lower_x, upper_y, upper_z
             self.nbr_inds_with_trial[i, 6] = self.inds_xyz_to_super[
                 (self.index_xyz_with_trial[i, 0]),
                 (1 + self.index_xyz_with_trial[i, 1]),
                 (1 + self.index_xyz_with_trial[i, 2])
             ]
+
+            # upper_x, upper_y, upper_z
             self.nbr_inds_with_trial[i, 7] = self.inds_xyz_to_super[
                 (1 + self.index_xyz_with_trial[i, 0]),
                 (1 + self.index_xyz_with_trial[i, 1]),
@@ -1406,7 +1519,6 @@ cdef class UniformDensityField(FieldBase):
         vol_fracs = self.get_volume_fractions_with_trial(
             bead_V, bin_inds, n_bins
         )
-
         nonspecific_dE = 0
         for i in range(n_bins):
             access_vol = self.access_vols[bin_inds[i]]
@@ -1558,6 +1670,7 @@ cdef class UniformDensityField(FieldBase):
             if self.affected_bins_last_move[i] == 1:
                 for j in range(self.num_binders+1):
                     self.density[i, j] += self.density_trial[i, j]
+                    self.density_trial[i, j] = 0
 
     cpdef void update_all_densities(
         self, poly.PolymerBase poly, long[:]& inds, long n_inds
@@ -1566,7 +1679,8 @@ cdef class UniformDensityField(FieldBase):
         
         Notes
         -----
-        Updates the voxel densities stored in the field object.
+        Updates the voxel densities stored in the field object. See notes for
+        `self.get_change_in_density()` for details on implementation.
 
         Parameters
         ----------
@@ -1627,7 +1741,8 @@ cdef class UniformDensityField(FieldBase):
 
         Notes
         -----
-        Updates the voxel densities stored in the field object.
+        Updates the voxel densities stored in the field object. See notes for
+        `self.get_change_in_density()` for details on implementation.
         
         Requires that binders are listed in the same order on each polymer, as
         listed in `self.binders`.
@@ -1637,7 +1752,7 @@ cdef class UniformDensityField(FieldBase):
         cdef long[:] superindices, inds, binder_counts
         cdef poly.PolymerBase poly
 
-        # Re-initialize all densities
+        # Re-initialize all densities and trial densities
         for i in range(self.n_bins):
             for j in range(self.num_binders):
                 self.density[i, j] = 0
@@ -1645,7 +1760,7 @@ cdef class UniformDensityField(FieldBase):
 
         for h in range(self.n_polymers):
             poly = self.polymers[h]
-            inds = np.arange(0, poly.num_beads, 1)
+            inds = np.arange(poly.num_beads)
             n_inds = poly.num_beads
             n_binders_p1 = poly.n_binders_p1
             
@@ -1691,32 +1806,56 @@ cdef class UniformDensityField(FieldBase):
         
     cdef void _generate_weight_vector(self):
         """Generate weight array for eight bins containing the bead.
+        
+        Notes
+        -----
+        See notes in `self.generate_weight_vector_with_trial` for details on
+        implementation.
         """
         self.wt_vec = np.array([
-            self.weight_xyz[0] * self.weight_xyz[1] *
-            self.weight_xyz[2],
+
+            # lower_x, lower_y, lower_z
+            self.weight_xyz[0] * self.weight_xyz[1] * self.weight_xyz[2],
+
+            # upper_x, lower_y, lower_z
             (1-self.weight_xyz[0]) * self.weight_xyz[1] *
             self.weight_xyz[2],
+
+            # lower_x, upper_y, lower_z
             self.weight_xyz[0] * (1-self.weight_xyz[1]) *
             self.weight_xyz[2],
+
+            # upper_x, upper_y, lower_z
             (1-self.weight_xyz[0]) * (1-self.weight_xyz[1]) *
             self.weight_xyz[2],
+
+            # lower_x, lower_y, upper_z
             self.weight_xyz[0] * self.weight_xyz[1] *
             (1-self.weight_xyz[2]),
+
+            # upper_x, lower_y, upper_z
             (1-self.weight_xyz[0]) * self.weight_xyz[1] *
             (1-self.weight_xyz[2]),
+
+            # lower_x, upper_y, upper_z
             self.weight_xyz[0] * (1-self.weight_xyz[1]) *
             (1-self.weight_xyz[2]),
+
+            # upper_x, upper_y, upper_z
             (1-self.weight_xyz[0]) * (1-self.weight_xyz[1]) *
             (1-self.weight_xyz[2])
+
         ])
 
     cdef void _generate_index_vector(self):
         """Generate vector of eight superindices containing a bead.
-        """
+        
+        Notes
+        -----
+        This is a cleaner implementation, but s about 70% slower:
+        
         cdef int j
         cdef long ind_x, ind_y, ind_z
-
         for j in range(8):
             ind_x = ((j % 2) + self.index_xyz[0]) % self.nx
             ind_y = (((int(floor(j/2))) % 2) + self.index_xyz[1]) % self.ny
@@ -1724,6 +1863,46 @@ cdef class UniformDensityField(FieldBase):
             self.nbr_inds[j] = inds_to_super_ind(
                 ind_x, ind_y, ind_z, self.nx, self.ny
             )
+        """
+        # lower_x, lower_y, lower_z
+        self.nbr_inds[0] = self.inds_xyz_to_super[
+            (self.index_xyz[0]), (self.index_xyz[1]), (self.index_xyz[2])
+        ]
+
+        # upper_x, lower_y, lower_z
+        self.nbr_inds[1] = self.inds_xyz_to_super[
+            (1+self.index_xyz[0]), (self.index_xyz[1]), (self.index_xyz[2])
+        ]
+
+        # lower_x, upper_y, lower_z
+        self.nbr_inds[2] = self.inds_xyz_to_super[
+            (self.index_xyz[0]), (1+self.index_xyz[1]), (self.index_xyz[2])
+        ]
+
+        # upper_x, upper_y, lower_z
+        self.nbr_inds[3] = self.inds_xyz_to_super[
+            (1+self.index_xyz[0]), (1+self.index_xyz[1]), (self.index_xyz[2])
+        ]
+
+        # lower_x, lower_y, upper_z
+        self.nbr_inds[4] = self.inds_xyz_to_super[
+            (self.index_xyz[0]), (self.index_xyz[1]), (1+self.index_xyz[2])
+        ]
+
+        # upper_x, lower_y, upper_z
+        self.nbr_inds[5] = self.inds_xyz_to_super[
+            (1+self.index_xyz[0]), (self.index_xyz[1]), (1+self.index_xyz[2])
+        ]
+
+        # lower_x, upper_y, upper_z
+        self.nbr_inds[6] = self.inds_xyz_to_super[
+            (self.index_xyz[0]), (1+self.index_xyz[1]), (1+self.index_xyz[2])
+        ]
+
+        # upper_x, upper_y, upper_z
+        self.nbr_inds[7] = self.inds_xyz_to_super[
+            (1+self.index_xyz[0]), (1+self.index_xyz[1]), (1+self.index_xyz[2])
+        ]
 
     cdef double get_E_binders_and_beads(
         self, poly.PolymerBase poly, long[:] inds, long n_inds
@@ -1764,7 +1943,8 @@ cdef class UniformDensityField(FieldBase):
             # Intranucleosome interaction
             n_double_bound = self.doubly_bound[i]
             E_binders_beads +=\
-                binder_info['interaction_energy_intranucleosome'] * n_double_bound
+                binder_info['interaction_energy_intranucleosome'] *\
+                n_double_bound
 
         # Nonspecific bead interaction energy
         E_binders_beads += self.nonspecific_interact_E(poly)
@@ -1797,7 +1977,7 @@ cdef class UniformDensityField(FieldBase):
         nonspecific_E = 0
         for i in range(self.n_bins):
             access_vol = self.access_vols[i]
-            if vol_fracs[i] > 0.5:
+            if round(vol_fracs[i], 2) > 0.5:
                 nonspecific_E += E_HUGE * vol_fracs[i]
             else:
                 nonspecific_E += self.chi * (access_vol / bead_V) *\
@@ -2007,7 +2187,7 @@ cpdef dict assign_beads_to_bins(
         y_poly_box[i] -= 0.5 * dy + y_width * y_poly_box_minus
         z_poly_box_minus = floor((r_poly[i, 2] - 0.5 * dz) / z_width)
         z_poly_box[i] -= 0.5 * dz + z_width * z_poly_box_minus
-    
+
     for i in range(n_inds):
         index_x = <long>floor(nx * x_poly_box[i] / x_width)
         index_y = <long>floor(ny * y_poly_box[i] / y_width)

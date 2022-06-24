@@ -42,7 +42,9 @@ cdef class UniformDensityField(FieldBase):
     cdef public long[:, :, ::1] inds_xyz_to_super
 
     cdef void precompute_ind_xyz_to_super(self)
-    cpdef dict get_accessible_volumes(self, long n_side)
+    cpdef dict get_accessible_volumes(
+            self, long n_side, bint assume_fully_accessible
+    )
     cdef double[:, ::1] get_voxel_coords(self, long[:, ::1] xyz_inds)
     cdef long[:] get_split_voxels(
         self, double[:, ::1] xyz_coords, double buffer_dist
