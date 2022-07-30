@@ -1,3 +1,4 @@
+# cython: profile=True
 """Fields discretize space to efficiently calculate change in binder energy.
 
 Notes
@@ -32,9 +33,9 @@ cdef double E_HUGE = 1E99
 
 cdef list _field_descriptors = [
     'x_width', 'nx', 'y_width', 'ny', 'z_width', 'nz', 'confine_type',
-    'confine_length', 'chi', 'assume_fully_accessible', 'vf_limit'
+    'confine_length', 'chi', 'assume_fully_accessible', 'vf_limit', "fast_field"
 ]
-cdef list _int_field_descriptors = ['nx', 'ny', 'nz']
+cdef list _int_field_descriptors = ['nx', 'ny', 'nz', "fast_field"]
 cdef list _str_field_descriptors = ['confine_type']
 cdef list _float_field_descriptors = [
     'x_width', 'y_width', 'z_width', 'confine_length'
@@ -325,12 +326,21 @@ cdef class UniformDensityField(FieldBase):
         position (dim1) and z-voxel position (dim2).
     vf_limit : float
             Volume fraction limit in a voxel.
+    fast_field : bint
+        If this value is `1`, a coarse-grained density field will be
+        evaluated using pre-computed sub-bin weightings; otherwise, bin
+        weightings will be interpolated from bead positions during each
+        iteration
+    n_points : long
+        Number of sub-bins to precompute in each dimension when the ``fast
+        field'' is active; should be an even number
     """
 
     def __init__(
         self, polymers, binders, x_width, nx, y_width, ny, z_width, nz,
         confine_type = "", confine_length = 0.0, chi = 1.0,
-        assume_fully_accessible = 1, vf_limit = 0.5
+        assume_fully_accessible = 1, vf_limit = 0.5, fast_field = 0,
+        n_points = 1000
     ):
         """Construct a `UniformDensityField` containing polymers.
 
@@ -362,6 +372,14 @@ cdef class UniformDensityField(FieldBase):
             accessible volume (default = 1).
         vf_limit : Optional[float]
             Volume fraction limit in a voxel (default = 0.5)
+        fast_field : Optional[bint]
+            If this value is `1`, a coarse-grained density field will be
+            evaluated using pre-computed sub-bin weightings; otherwise, bin
+            weightings will be interpolated from bead positions during each
+            iteration (default = 0)
+        n_points : Optional[long]
+            Number of sub-bins to precompute in each dimension when the ``fast
+            field'' is active; should be an even number (default = 1000)
         """
         super(UniformDensityField, self).__init__(
             polymers = polymers, binders = binders
@@ -395,6 +413,9 @@ cdef class UniformDensityField(FieldBase):
         self.vf_limit = vf_limit
         self.dict_ = self.get_dict()
         self.binder_dict = self.binders.to_dict(orient='records')
+        self.fast_field = fast_field
+        if fast_field == 1:
+            self.init_fast_field(n_points=n_points)
         self.update_all_densities_for_all_polymers()
         self.affected_bins_last_move = np.zeros((self.n_bins,), dtype=int)
 
@@ -438,6 +459,102 @@ cdef class UniformDensityField(FieldBase):
         self.weight_xyz_with_trial = np.empty((2, 3), dtype=float)
         self.index_xyz = np.empty((3,), dtype=int)
         self.index_xyz_with_trial = np.empty((2, 3), dtype=int)
+
+    cdef void init_fast_field(self, long n_points):
+        """Precompute grid of sub-bins for efficiently interpolating densities.
+        
+        Notes
+        -----
+        We will discretize the positions inside each voxel (forming "sub-bins") 
+        and precompute the voxel weightings inside each sub-bin. We will map
+        each sub-bin to a position in Cartesian space and to a pair of voxels
+        splitting weight.
+        
+        With this discrete approach, we will no longer need to identify voxels
+        containing beads and calculate associated weights from scratch during
+        the inner loop of the MC algorithm. We will identify the x, y, z
+        sub-bins containing a point and we will look up the pre-computed voxel
+        weightings. This is expected to reduce the runtime of the field energy
+        calculation, which accounts for the majority of the overall simulation
+        runtime.
+        
+        This approach is only active when `fast_field` is set equal to `1` when
+        initializing the uniform density field. It is recommended to use this
+        ``fast field'' approach when simulations involve more than one
+        epigenetic mark or full chromosomes.
+        
+        Parameters
+        ----------
+        n_points : long
+            Number of sub-bins to precompute in each dimension when the ``fast
+            field'' is active; should be an even number
+        """
+        cdef long i, j, k, ind
+        cdef long half_n_points, lower_bin_ind, upper_bin_ind
+        cdef double lower_weight, upper_weight
+
+        n_points = n_points + (n_points % 2)
+        self.n_points = n_points
+
+        self.sub_bin_width_x = self.dx / n_points
+        self.sub_bin_width_y = self.dy / n_points
+        self.sub_bin_width_z = self.dz / n_points
+        self.n_sub_bins_x = (n_points * self.nx)
+        self.n_sub_bins_y = (n_points * self.ny)
+        self.n_sub_bins_z = (n_points * self.nz)
+
+        # Map sub-bins to bins; map sub_bins to weights
+        self.sub_bins_to_bins_x = {}
+        self.sub_bins_to_bins_y = {}
+        self.sub_bins_to_bins_z = {}
+        self.sub_bins_to_weights_x = {}
+        self.sub_bins_to_weights_y = {}
+        self.sub_bins_to_weights_z = {}
+
+        for i in range(self.n_sub_bins_x):
+            ind = \
+                np.floor((i - n_points/2) * self.sub_bin_width_x / self.dxyz[0])
+            if ind == -1:
+                lower_bin_ind = self.nx - 1
+            else:
+                lower_bin_ind = ind
+            upper_bin_ind = (ind + 1) % self.nx
+            upper_weight = (
+                ((i - n_points/2) * self.sub_bin_width_x) / self.dxyz[0] - ind
+            )
+            lower_weight = 1 - upper_weight
+            self.sub_bins_to_bins_x[i] = [lower_bin_ind, upper_bin_ind]
+            self.sub_bins_to_weights_x[i] = [lower_weight, upper_weight]
+
+        for i in range(self.n_sub_bins_y):
+            ind = \
+                np.floor((i - n_points/2) * self.sub_bin_width_y / self.dxyz[1])
+            if ind == -1:
+                lower_bin_ind = self.ny - 1
+            else:
+                lower_bin_ind = ind
+            upper_bin_ind = (ind + 1) % self.ny
+            upper_weight = (
+                ((i - n_points/2) * self.sub_bin_width_y) / self.dxyz[1] - ind
+            )
+            lower_weight = 1 - upper_weight
+            self.sub_bins_to_bins_y[i] = [lower_bin_ind, upper_bin_ind]
+            self.sub_bins_to_weights_y[i] = [lower_weight, upper_weight]
+
+        for i in range(self.n_sub_bins_z):
+            ind = \
+                np.floor((i - n_points/2) * self.sub_bin_width_z / self.dxyz[2])
+            if ind == -1:
+                lower_bin_ind = self.nz - 1
+            else:
+                lower_bin_ind = ind
+            upper_bin_ind = (ind + 1) % self.nz
+            upper_weight = (
+                ((i - n_points/2) * self.sub_bin_width_z) / self.dxyz[2] - ind
+            )
+            lower_weight = 1 - upper_weight
+            self.sub_bins_to_bins_z[i] = [lower_bin_ind, upper_bin_ind]
+            self.sub_bins_to_weights_z[i] = [lower_weight, upper_weight]
 
     cdef void precompute_ind_xyz_to_super(self):
         """Precompute how voxel (x, y, z) indices translate to superindices.
@@ -908,7 +1025,8 @@ cdef class UniformDensityField(FieldBase):
             "confine_length" : self.confine_length,
             "chi" : self.chi,
             "assume_fully_accessible": self.assume_fully_accessible,
-            "vf_limit": self.vf_limit
+            "vf_limit": self.vf_limit,
+            "fast_field": self.fast_field
         }
 
     cdef double compute_dE(
@@ -976,7 +1094,14 @@ cdef class UniformDensityField(FieldBase):
             dE -= self.get_confinement_dE(poly, inds, n_inds, trial=0)
 
         # Find changes in polymer density in affected voxels
-        bin_inds = self.get_change_in_density(poly, inds, n_inds, state_change)
+        if self.fast_field == 1:
+            bin_inds = self.get_change_in_density_quickly(
+                poly, inds, n_inds, state_change
+            )
+        else:
+            bin_inds = self.get_change_in_density(
+                poly, inds, n_inds, state_change
+            )
 
         for i in range(self.n_bins):
             self.affected_bins_last_move[i] = 0
@@ -1073,6 +1198,141 @@ cdef class UniformDensityField(FieldBase):
                 "Confinement type " + self.confine_type + " not found."
             )
 
+    cdef long[:] get_change_in_density_quickly(
+        self, poly.PolymerBase poly, long[:] inds, long n_inds,
+        bint state_change
+    ):
+        """Calculate the density in bins affected by the MC move.
+        
+        Notes
+        -----
+        See notes for `self.get_change_in_density()`. Uses pre-computed sub-bin
+        weightings. 
+        """
+        cdef long i, j, k, l, m, sub_bin_x, sub_bin_y, sub_bin_z,
+        cdef long sub_bin_x_trial, sub_bin_y_trial, sub_bin_z_trial
+        cdef double prefactor
+        cdef double[:, :, ::1] densities
+        cdef set bins_found
+        bins_found = set()
+
+        for i in range(n_inds):
+
+            # Get sub-bin indices
+            sub_bin_x = np.floor(
+                (poly.r[inds[i], 0] + self.half_width_xyz[0]) /
+                self.sub_bin_width_x
+            ) % self.n_sub_bins_x
+            sub_bin_y = np.floor(
+                (poly.r[inds[i], 1] + self.half_width_xyz[1]) /
+                self.sub_bin_width_y
+            ) % self.n_sub_bins_y
+            sub_bin_z = np.floor(
+                (poly.r[inds[i], 2] + self.half_width_xyz[2]) /
+                self.sub_bin_width_z
+            ) % self.n_sub_bins_z
+
+            # Identify sub-bin weights in x, y, z directions
+            self.weight_xyz_with_trial[0, 0] = \
+                self.sub_bins_to_weights_x[sub_bin_x][0]
+            self.weight_xyz_with_trial[0, 1] = \
+                self.sub_bins_to_weights_y[sub_bin_y][0]
+            self.weight_xyz_with_trial[0, 2] = \
+                self.sub_bins_to_weights_z[sub_bin_z][0]
+
+            if state_change == 0:
+
+                sub_bin_x_trial = np.floor(
+                    (poly.r_trial[inds[i], 0] + self.half_width_xyz[0]) /
+                    self.sub_bin_width_x
+                ) % self.n_sub_bins_x
+                sub_bin_y_trial = np.floor(
+                    (poly.r_trial[inds[i], 1] + self.half_width_xyz[1]) /
+                    self.sub_bin_width_y
+                ) % self.n_sub_bins_y
+                sub_bin_z_trial = np.floor(
+                    (poly.r_trial[inds[i], 2] + self.half_width_xyz[2]) /
+                    self.sub_bin_width_z
+                ) % self.n_sub_bins_z
+
+            else:
+                sub_bin_x_trial = sub_bin_x
+                sub_bin_y_trial = sub_bin_y
+                sub_bin_z_trial = sub_bin_z
+                for j in range(3):
+                    self.xyz_with_trial[1, j] = self.xyz_with_trial[0, j]
+
+            self.weight_xyz_with_trial[1, 0] = \
+                self.sub_bins_to_weights_x[sub_bin_x_trial][0]
+            self.weight_xyz_with_trial[1, 1] = \
+                self.sub_bins_to_weights_y[sub_bin_y_trial][0]
+            self.weight_xyz_with_trial[1, 2] = \
+                self.sub_bins_to_weights_z[sub_bin_z_trial][0]
+
+            self.index_xyz_with_trial[0, 0] = \
+                self.sub_bins_to_bins_x[sub_bin_x][0]
+            self.index_xyz_with_trial[0, 1] = \
+                self.sub_bins_to_bins_y[sub_bin_y][0]
+            self.index_xyz_with_trial[0, 2] = \
+                self.sub_bins_to_bins_z[sub_bin_z][0]
+            self.index_xyz_with_trial[1, 0] = \
+                self.sub_bins_to_bins_x[sub_bin_x_trial][0]
+            self.index_xyz_with_trial[1, 1] = \
+                self.sub_bins_to_bins_y[sub_bin_y_trial][0]
+            self.index_xyz_with_trial[1, 2] = \
+                self.sub_bins_to_bins_z[sub_bin_z_trial][0]
+
+            # Get weights and super-indices of eight bins containing bead
+            self._generate_weight_vector_with_trial()
+            self._generate_index_vector_with_trial()
+
+            # Distribute weights into bins
+            # k indicates current (0) or trial (1) configuration
+            # l indicates for which of eight bins density is being calculated
+            # m indicates polymer (0) or which protein (1 to n_binders)
+            for k in range(2):
+                for l in range(8):
+                    poly.densities_temp[k, 0, l] = (
+                            self.wt_vec_with_trial[k, l] /
+                            self.access_vols[self.nbr_inds_with_trial[k, l]]
+                    )
+                    for m in range(1, poly.n_binders_p1):
+                        # Current Configuration
+                        if k == 0 or state_change == 0:
+                            poly.densities_temp[k, m, l] = \
+                                poly.densities_temp[k, 0, l] * \
+                                float(poly.states[inds[i], m-1])
+                        # Trial Configuration of State Change
+                        else:
+                            poly.densities_temp[k, m, l] = \
+                                poly.densities_temp[k, 0, l] * \
+                                float(poly.states_trial[inds[i], m-1])
+
+            # Combine repeating elements, stored in poly.density_trial
+            for k in range(2):
+                # Subtract if current configuration
+                if k == 0:
+                    prefactor = -1.
+                else:
+                    prefactor = 1.
+
+                # Accumulate densities
+                for l in range(8):
+                    if self.nbr_inds_with_trial[k, l] in bins_found:
+                        for m in range(poly.n_binders_p1):
+                            temp = prefactor * poly.densities_temp[k, m, l]
+                            self.density_trial[
+                                self.nbr_inds_with_trial[k, l], m
+                            ] += temp
+                    else:
+                        bins_found.add(self.nbr_inds_with_trial[k, l])
+                        for m in range(poly.n_binders_p1):
+                            temp = prefactor * poly.densities_temp[k, m, l]
+                            self.density_trial[
+                                self.nbr_inds_with_trial[k, l], m
+                            ] = temp
+        return np.array(list(bins_found))
+
     cdef long[:] get_change_in_density(
         self, poly.PolymerBase poly, long[:] inds, long n_inds,
         bint state_change
@@ -1167,7 +1427,7 @@ cdef class UniformDensityField(FieldBase):
                         1 - (self.xyz_with_trial[k, j] / self.dxyz[j] - ind)
                     )
 
-            # Get weights and superindices of eight bins containing beads
+            # Get weights and superindices of eight bins containing bead
             self._generate_weight_vector_with_trial()
             self._generate_index_vector_with_trial()
 
