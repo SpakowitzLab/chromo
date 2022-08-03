@@ -15,10 +15,10 @@ cdef class UniformDensityField(FieldBase):
     cdef public _field_descriptors
     cdef public double x_width, y_width, z_width
     cdef public double[:] width_xyz
-    cdef public long nx, ny, nz
+    cdef public long nx, ny, nz, n_sub_bins_x, n_sub_bins_y, n_sub_bins_z
     cdef public double dx, dy, dz
     cdef public double[:] dxyz
-    cdef public long n_bins
+    cdef public long n_bins, n_points
     cdef public double vol_bin
     cdef public long[:, ::1] bin_index
     cdef public long[:, ::1] nbr_inds_with_trial
@@ -32,11 +32,14 @@ cdef class UniformDensityField(FieldBase):
     cdef public str confine_type
     cdef public double confine_length
     cdef public double[:, ::1] density, density_trial
-    cdef public dict access_vols    
-    cdef public double chi
+    cdef public dict access_vols
+    cdef public double chi, sub_bin_width_x, sub_bin_width_y, sub_bin_width_z
+    cdef public dict sub_bins_to_weights_x, sub_bins_to_weights_y
+    cdef public dict sub_bins_to_weights_z, sub_bins_to_bins_x
+    cdef public dict sub_bins_to_bins_y, sub_bins_to_bins_z
     cdef public dict dict_
     cdef public float vf_limit
-    cdef public bint assume_fully_accessible
+    cdef public bint assume_fully_accessible, fast_field
     cdef public list binder_dict
     cdef public double[:] half_width_xyz
     cdef public double[:] half_step_xyz
@@ -44,6 +47,7 @@ cdef class UniformDensityField(FieldBase):
     cdef public long[:, :, ::1] inds_xyz_to_super
 
     cdef void precompute_ind_xyz_to_super(self)
+    cdef void init_fast_field(self, long n_points)
     cpdef dict get_accessible_volumes(
             self, long n_side, bint assume_fully_accessible
     )
@@ -67,6 +71,10 @@ cdef class UniformDensityField(FieldBase):
         int trial
     )
     cdef long[:] get_change_in_density(
+        self, poly.PolymerBase poly, long[:] inds, long n_inds,
+        bint state_change
+    )
+    cdef long[:] get_change_in_density_quickly(
         self, poly.PolymerBase poly, long[:] inds, long n_inds,
         bint state_change
     )
