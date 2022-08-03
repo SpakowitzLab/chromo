@@ -13,7 +13,7 @@ cpdef void mc_sim(
     long random_seed
 )
 
-cdef void mc_step(
+cpdef void mc_step(
     MCAdapter adaptible_move, PolymerBase poly, readerproteins,
     UDF field, bint active_field
 )

@@ -35,7 +35,7 @@ cdef list _field_descriptors = [
     'x_width', 'nx', 'y_width', 'ny', 'z_width', 'nz', 'confine_type',
     'confine_length', 'chi', 'assume_fully_accessible', 'vf_limit', "fast_field"
 ]
-cdef list _int_field_descriptors = ['nx', 'ny', 'nz', "fast_field"]
+cdef list _int_field_descriptors = ['nx', 'ny', 'nz', "fast_field", "n_points"]
 cdef list _str_field_descriptors = ['confine_type']
 cdef list _float_field_descriptors = [
     'x_width', 'y_width', 'z_width', 'confine_length'
@@ -411,13 +411,13 @@ cdef class UniformDensityField(FieldBase):
         )
         self.chi = chi
         self.vf_limit = vf_limit
-        self.dict_ = self.get_dict()
         self.binder_dict = self.binders.to_dict(orient='records')
         self.fast_field = fast_field
         if fast_field == 1:
             self.init_fast_field(n_points=n_points)
         self.update_all_densities_for_all_polymers()
         self.affected_bins_last_move = np.zeros((self.n_bins,), dtype=int)
+        self.dict_ = self.get_dict()
 
     def init_grid(self):
         """Initialize the discrete grid containing the field.
@@ -1026,7 +1026,8 @@ cdef class UniformDensityField(FieldBase):
             "chi" : self.chi,
             "assume_fully_accessible": self.assume_fully_accessible,
             "vf_limit": self.vf_limit,
-            "fast_field": self.fast_field
+            "fast_field": self.fast_field,
+            "n_points": self.n_points
         }
 
     cdef double compute_dE(
@@ -2051,7 +2052,6 @@ cdef class UniformDensityField(FieldBase):
 
                     # Get weight in the lower bin index
                     self.weight_xyz[j] = (1 - (self.xyz[j] / self.dxyz[j] - ind))
-                
                 # Get weights and superindices of eight bins containing beads
                 self._generate_weight_vector()
                 self._generate_index_vector()

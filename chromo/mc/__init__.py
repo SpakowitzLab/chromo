@@ -132,6 +132,7 @@ def _polymer_in_field(
              process_time()-t1_start, 2
         )
     )
+    return polymers
 
 
 polymer_in_field = make_reproducible(_polymer_in_field)

@@ -98,7 +98,7 @@ cpdef void mc_sim(
             controller.update_amplitudes()
 
 
-cdef void mc_step(
+cpdef void mc_step(
     MCAdapter adaptible_move, PolymerBase poly, readerproteins,
     Udf field, bint active_field
 ):
@@ -139,25 +139,20 @@ cdef void mc_step(
     packet_size = 20
     inds = adaptible_move.propose(poly)
     n_inds = len(inds)
-
-    # By chance, no beads may be selected for a move
     if n_inds == 0:
         return
 
     dE = 0
     dE += poly.compute_dE(adaptible_move.name, inds, n_inds)
-
     if check_field == 1:
-        if adaptible_move.name != "change_binding_state":
-            dE += field.compute_dE(
-                poly, inds, n_inds, packet_size, state_change=0
-            )
-        else:
+        if adaptible_move.name == "change_binding_state":
             dE += field.compute_dE(
                 poly, inds, n_inds, packet_size, state_change=1
             )
-
-    # warnings.filterwarnings("error")
+        else:
+            dE += field.compute_dE(
+                poly, inds, n_inds, packet_size, state_change=0
+            )
     try:
         exp_dE = exp(-dE)
     except RuntimeWarning:
