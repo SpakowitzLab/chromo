@@ -33,13 +33,14 @@ cdef double E_HUGE = 1E99
 
 cdef list _field_descriptors = [
     'x_width', 'nx', 'y_width', 'ny', 'z_width', 'nz', 'confine_type',
-    'confine_length', 'chi', 'assume_fully_accessible', 'vf_limit', "fast_field"
+    'confine_length', 'chi', 'assume_fully_accessible', 'vf_limit', 'fast_field'
 ]
-cdef list _int_field_descriptors = ['nx', 'ny', 'nz', "fast_field", "n_points"]
+cdef list _int_field_descriptors = ['nx', 'ny', 'nz', 'n_points']
 cdef list _str_field_descriptors = ['confine_type']
 cdef list _float_field_descriptors = [
-    'x_width', 'y_width', 'z_width', 'confine_length'
+    'x_width', 'y_width', 'z_width', 'confine_length', 'vf_limit', 'chi'
 ]
+cdef list _bool_field_descriptors = ['assume_fully_accessible', 'fast_field']
 
 
 cdef class FieldBase:
@@ -889,8 +890,10 @@ cdef class UniformDensityField(FieldBase):
                 kwargs[key] = int(kwargs[key])
             elif key in _float_field_descriptors:
                 kwargs[key] = float(kwargs[key])
-            elif key in _str_field_descriptors and np.isnan(kwargs[key]):
+            elif key in _str_field_descriptors and pd.isna(kwargs[key]):
                 kwargs[key] = ""
+            elif key in _bool_field_descriptors:
+                kwargs[key] = (key == 'True')
         polymer_names = field_series[field_series == 'polymer'].index.values
         binder_names = field_series[field_series == 'binder'].index.values
         err_prefix = f"Tried to instantiate class:{cls} from file:{path} with "

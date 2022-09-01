@@ -682,7 +682,8 @@ cdef class PolymerBase(TransformedObject):
             Polymer object reflecting the dataframe
         """
         if name is None:
-            name = path.name
+            name = path.name        # TODO: Fix this. Path is a string!
+            # TODO: Path does not have a `name` attribute!
         df = pd.read_csv(path, header=[0, 1], index_col=0)
         return cls.from_dataframe(df, name)
 
