@@ -80,9 +80,9 @@ num_equilibrate = 180
 polymer_prefix = "Chr"
 nbr_cutoff_dist = float(sys.argv[2])
 sim_dir = f"{output_dir}/sim_{sim_ind}"
-contact_map_path = f"{sim_dir}/detailed_contact_map.csv"
-log_contact_map_path = f"{sim_dir}/log_detailed_contact_map.csv"
-neighbor_graph_pickle_file = f'{sim_dir}/nbr_graph.pkl'
+contact_map_path = f"{sim_dir}/detailed_contact_map_{nbr_cutoff_dist}_cutoff.csv"
+log_contact_map_path = f"{sim_dir}/log_detailed_contact_map_{nbr_cutoff_dist}_cutoff.csv"
+neighbor_graph_pickle_file = f'{sim_dir}/nbr_graph_{nbr_cutoff_dist}_cutoff.pkl'
 neighbor_graph_found = os.path.exists(neighbor_graph_pickle_file)
 overwrite_neighbor_graph = False
 if overwrite_neighbor_graph:
