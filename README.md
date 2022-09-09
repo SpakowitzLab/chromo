@@ -36,7 +36,7 @@ minutes. Once the package has been installed, the simulator is ready for use. Na
 
 We use an object-oriented approach to organize components of our model. Components of the system are defined in a hierarchical manner, supporting efficiency and modularity. The class structure of the codebase is illustrated by the diagram below. The accompanying sphinx documentation includes descriptions of each class and their attributes.
 
-<img src="doc/source/figures/chromo_UML.png">
+<img src="docs/source/figures/chromo_UML.png">
 
 ## Examples
 We've prepared example simulations for a variety of polymer modeling scenarios, which are presented as jupyter notebooks at the `simulations/examples` subdirectory.
