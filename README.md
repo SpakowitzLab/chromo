@@ -17,12 +17,15 @@ Our physics-based chromatin simulator is publicly available in the [“Chromo”
 Install the package dependencies of the simulator, which are listed in requirements.txt; we recommend that you do so in a separate virtual environment using Python 3.9.12. We demonstrate how to do so using the Conda package manager.
 
 `conda create --name chromo python=3.9.12`
+
 `conda activate chromo`
+
 `pip install -r requirements.txt`
 
 Install our simulator package using pip by entering `pip install /path/to/root/directory` in the terminal, specifying the path to the root directory of the codebase on your local machine. If you would like to make changes to the codebase, use `pip install -e /path/to/root/directory` to install the simulator package in editable mode.
 
 `pip install /path/to/root/directory`
+
 `pip install -e /path/to/root/directory`
 
 During installation, all Cython code required by the Monte Carlo algorithm will be compiled. This may take several
