@@ -7,4 +7,5 @@ Chromo: Physics-based Simulator of Chromatin Architecture
    Chromo <chromo>
    Chromo MC <chromo.mc>
    Chromo Utils <chromo.util>
+   Analyses <analyses>
 

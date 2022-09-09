@@ -60,7 +60,10 @@ exclude_patterns = ['_build', '**.ipynb_checkpoints']
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
+
+# This would need a new package supporting the rtd theme
+# html_theme = 'sphinx_rtd_theme'
+
 html_theme = 'stanford_theme'
 html_theme_path = [sphinx_theme.get_html_theme_path('stanford-theme')]
 
