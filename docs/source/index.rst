@@ -12,43 +12,46 @@ Joseph Wakim, Bruno Beltran, Andrew Spakowitz
 Quickstart
 ----------
 
-1. **Download Chromo Source Code.** The Chromo source code can be downloaded from the `Spakowitz Lab GitHub <https://github.com/SpakowitzLab>`_.
-
-2. **Load Conda Environment.**
-   Using `Anaconda <https://docs.anaconda.com>`_, load and activate the :code:`chromo` virtual environment from :code:`environment.yml`.
+Our physics-based chromatin simulator is publicly available in the `“Chromo”
+repository <https://github.com/SpakowitzLab/chromo>`_ of the Spakowitz Lab
+GitHub account. Clone this repository to your local machine.
 
 .. parsed-literal::
+   $ git clone https://github.com/SpakowitzLab/chromo.git
 
-   $ conda env create -f environment.yml
+Install the package dependencies of the simulator, which are listed in
+:code:`requirements.txt`; we recommend that you do so in a separate virtual
+environment using Python 3.9.12. We demonstrate how to do so using the Conda
+package manager.
+
+.. parsed-literal::
+   $ conda create --name chromo python=3.9.12
+
    $ conda activate chromo
 
+   $ pip install -r requirements.txt
 
-3. **Install Chromo Package.**
-   We need to add Chromo to the site-packages of your Python installation.
-   Enter the command from the root directory of Chromo.
-
-.. parsed-literal::
-
-   $ pip install -e .
-
-4. **Compile Cython Modules.**
-   This codebase uses cython to improve runtime.
-   Use the command below from Chromo's root directory to compile the code.
+Install our simulator package locally using pip; we recommend that you do so in
+editable mode by adding the :code:`-e` flag.
 
 .. parsed-literal::
+   $ pip install -e /path/to/root/directory
 
-   $ python setup.py build_ext --inplace
-
-5. **Run an Example Simulation (Optional).**
-   To run an example simulation, navigate to the :code:`doc/example` and execute one of the example notebooks.
-   For more details behind executing a Jupyter notebook from the terminal, visit the `Nbconvert <https://nbconvert.readthedocs.io/en/latest/index.html#>`_ docs.
+During installation, all Cython code required by the Monte Carlo algorithm will
+be compiled. This may take several minutes. Once the package has been installed,
+the simulator is ready for use. Navigate to :code:`simulations/examples` from the root
+directory to find example simulations. Some examples are stored in Jupyter
+notebooks, which can be run from a GUI or from the terminal using
+:code:`nbconvert`.
 
 .. parsed-literal::
-
-   $ cd doc/examples
    $ jupyter nbconvert --ExecutePreprocessor.timeout=-1 --to notebook --output <Output_Notebook_Name> --execute <Example_Notebook_Name>
 
-.. Tip:: To recompile the Sphinx documentation, you will also need to run :code:`conda install pandoc`.
+.. Tip:: To recompile the Sphinx documentation, you will also need to install
+   pandoc, which you can do so using the :code:`conda` package manager:
+
+   .. parsed-literal::
+      $ conda install pandoc
 
 |
 
@@ -85,7 +88,7 @@ Initial reader protein binding states may be trivially defined to match the chem
 
    H3K9me3 = Chromatin.load_seqs(["path/to/H3K9me3/sequence"])
    H3K27me3 = Chromatin.load_seqs(["path/to/H3K27me3/sequence"])
-   custom_mod = np.zeros((len(H3K0me3))
+   custom_mod = np.zeros((len(H3K9me3))
    chemical_mods = np.column_stack((H3K9me3, H3K27me3, custom_mod))
    states = chemical_mods.copy()
 
@@ -121,7 +124,7 @@ Each bead is modified at three sites, and initial reader proptein binding states
        states=states,
        confine_type="Sphere",
        confine_length=900,
-       binder_names=np.array(['HP1', 'PRC1', 'Custom']),
+       binder_names=np.array(['hp1', 'prc1', 'custom_binder']),
        chemical_mods=chemical_mods,
        chemical_mod_names=np.array(['H3K9me3', 'H3K27me3', 'custom_mod'])
    )
@@ -153,7 +156,11 @@ The width and number of voxels in each dimension of the field must be specified.
        nz = n_bins_z
    )
 
-.. Tip:: See demos for setup, execution, and analysis of full simulations.
+.. Tip:: See example notebooks and validations for setup, execution, and
+   analysis of full simulations. Specific analyses, such as extracing physical
+   parameters from simulation outputs, analyzing average reader protein binding
+   states, and generating contact maps, are included in the :code:`analyses`
+   directory.
 
 |
 

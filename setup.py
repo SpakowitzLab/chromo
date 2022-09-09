@@ -65,7 +65,8 @@ if __name__ == "__main__":
             "scipy~=1.9.1",
             "setuptools~=61.2.0",
             "sphinx~=4.4.0",
-            "sphinx_theme~=1.0"
+            "sphinx_theme~=1.0",
+            "sphinx_rtd_theme~=1.0.0"
         ],
         extras_require = {
             "dev": [
