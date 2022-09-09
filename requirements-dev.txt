@@ -1,3 +1,4 @@
-sphinx
+pytest==6.0.1
+check-manifest==0.48
 notebook
 .
