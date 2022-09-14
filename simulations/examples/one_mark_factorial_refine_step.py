@@ -13,7 +13,6 @@ polymer model.
 import os
 import sys
 from inspect import getmembers, isfunction
-import json
 
 import numpy as np
 import pandas as pd
@@ -62,11 +61,13 @@ bead_spacing = 16.5
 num_snapshots = 200
 mc_steps_per_snapshot = 5000
 
-# Specify chemical modifications
-chem_mods_path = np.array([
-    "chromo/chemical_mods/HNCFF683HCZ_H3K9me3_methyl.txt",
-    "chromo/chemical_mods/ENCFF919DOR_H3K27me3_methyl.txt"
-])
+# Load previous run arguments
+with open(f"{output_dir}/sim_call.txt", "r") as f:
+    command = f.readline()
+prev_run_args = command.split(" ")
+binder_name = prev_run_args[2]
+modification_sequence = prev_run_args[4]
+chem_mods_path = np.array([modification_sequence])
 chem_mod_paths_abs = [f"{root_dir}/{path}" for path in chem_mods_path]
 chemical_mods = Chromatin.load_seqs(chem_mods_path)[:num_beads]
 
@@ -82,22 +83,13 @@ latest_snap = files[-1]
 latest_snap_path = f"{output_dir}/{latest_snap}"
 
 # Create binders
-hp1 = chromo.binders.get_by_name("HP1")
-prc1 = chromo.binders.get_by_name("PRC1")
-binders_list = [hp1, prc1]
+binder = chromo.binders.get_by_name(binder_name)
+binders_list = [binder]
 df_binders = pd.read_csv(binder_path, index_col="name")
-cp_HP1 = df_binders.loc["HP1", "chemical_potential"]
-cp_PRC1 = df_binders.loc["PRC1", "chemical_potential"]
-self_interact_HP1 = df_binders.loc["HP1", "interaction_energy"]
-self_interact_PRC1 = df_binders.loc["PRC1", "interaction_energy"]
-cross_interact = json.loads(
-    df_binders.loc["HP1", "cross_talk_interaction_energy"].replace("'", "\"")
-)["PRC1"]
-binders_list[0].chemical_potential = float(cp_HP1)
-binders_list[1].chemical_potential = float(cp_PRC1)
-binders_list[0].interaction_energy = float(self_interact_HP1)
-binders_list[1].interaction_energy = float(self_interact_PRC1)
-binders_list[0].cross_talk_interaction_energy["PRC1"] = float(cross_interact)
+cp_binder = df_binders.loc[binder_name, "chemical_potential"]
+self_interact_binder = df_binders.loc[binder_name, "interaction_energy"]
+binders_list[0].chemical_potential = float(cp_binder)
+binders_list[0].interaction_energy = float(self_interact_binder)
 binders = chromo.binders.make_binder_collection(binders_list)
 
 # Create coarse-grained polymer
