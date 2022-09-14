@@ -24,7 +24,7 @@ import chromo.mc.mc_controller as ctrl
 from chromo.util.reproducibility import get_unique_subfolder_name
 from chromo.util.poly_paths import gaussian_walk
 import chromo.util.rediscretize as rd
-import analyses.adsorption.mu_schedules as ms
+import chromo.util.mu_schedules as ms
 
 # Binders
 hp1 = chromo.binders.get_by_name("HP1")

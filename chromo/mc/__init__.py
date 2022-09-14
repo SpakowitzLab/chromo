@@ -11,19 +11,19 @@ from time import process_time
 
 import numpy as np
 
-from .mc_sim import mc_sim
-from .mc_controller import all_moves, Controller, SimpleControl
-from .moves import Bounds
-from ..util.reproducibility import make_reproducible
-from ..util.poly_stat import (
+from chromo.mc.mc_sim import mc_sim
+from chromo.mc.mc_controller import all_moves, Controller, SimpleControl
+from chromo.mc.moves import Bounds
+from chromo.util.reproducibility import make_reproducible
+from chromo.util.poly_stat import (
     find_polymers_in_output_dir, get_latest_configuration,
     get_latest_simulation
 )
-from ..util.timer import decorator_timed_path
-from ..polymers import PolymerBase, Chromatin
-from ..binders import ReaderProtein
-from ..binders import get_by_name, make_binder_collection
-from ..fields import UniformDensityField, FieldBase
+from chromo.util.timer import decorator_timed_path
+from chromo.polymers import PolymerBase, Chromatin
+from chromo.binders import ReaderProtein
+from chromo.binders import get_by_name, make_binder_collection
+from chromo.fields import UniformDensityField, FieldBase
 
 
 F = TypeVar("F")    # Represents an arbitrary field
@@ -45,6 +45,9 @@ def _polymer_in_field(
     random_seed: Optional[int] = 0,
     mu_schedule: Optional[Callable[[float], float]] = None,
     output_dir: Optional[DIR] = '.',
+    path_to_run_script: Optional[str] = None,
+    path_to_chem_mods: Optional[List[str]] = None,
+    run_command: Optional[str] = None,
     **kwargs
 ):
     """
@@ -88,6 +91,19 @@ def _polymer_in_field(
     output_dir : Optional[Path]
         Path to output directory in which polymer configurations will be saved
         (default = '.')
+    path_to_run_script : Optional[str]
+        Path to the python file called to run the simulation; if this argument
+        is provided, the python file will be copied to the output directory
+        (default = None).
+    path_to_chem_mods : Optional[List[str]]
+        Paths to the text files containing chemical modification patterns
+        associated with the simulation; if this argument is provided, the
+        chemical modification patterns will be copied to the output directory
+        (default = None)
+    run_command : Optional[str]
+        Command called in the console to run the simulation; if this argument is
+        provided, the run command will be copied to the output directory
+        (default = None)
     """
     np.random.seed(random_seed)
     if mc_move_controllers is None:
@@ -97,6 +113,16 @@ def _polymer_in_field(
             move_amp_bounds=move_amp_bounds.bounds,
             controller=SimpleControl
         )
+
+    if path_to_run_script is not None:
+        print(f"Running simulation from file: \n    {path_to_run_script}\n")
+    if run_command is not None:
+        print(f"Running simulation using command: \n    {run_command}\n")
+    if path_to_chem_mods is not None:
+        print("Loading chemical modification patterns from files: ")
+        for path in path_to_chem_mods:
+            print(path)
+        print()
 
     t1_start = process_time()
     for mc_count in range(num_saves):

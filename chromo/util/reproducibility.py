@@ -21,6 +21,7 @@ with `make_reproducible`.
 from pathlib import Path
 import inspect
 import collections
+import shutil
 from typing import List, Callable, Any, Tuple, Dict
 import os
 
@@ -40,6 +41,13 @@ output_dir_param_name = 'output_dir'
 sim_tracker_name = Path('simulations.csv')
 # the actual simulation output will go in
 sim_folder_prefix = Path('sim_')
+
+# The path to the simulation run script will go in
+run_script_kwarg = "path_to_run_script"
+# The paths to the chemical modification names will go in
+chem_mod_kwarg = "path_to_chem_mods"
+# The command used to run the simulation will go in
+run_command_kwarg = "run_command"
 
 
 class make_reproducible(object):
@@ -86,7 +94,15 @@ class make_reproducible(object):
     """
 
     def __init__(self, sim: Callable[[Any], Any]):
-        """Initialize the `make_reproducible` decorator object
+        """Initialize the `make_reproducible` decorator object.
+
+        Notes
+        -----
+        When `make_reproducible` is called on a simulation (e.g.,
+        `_polymer_in_field`) an object is created to track the simulation
+        parameters. During initialization, all the parameters called by the
+        simulation are stored in `self.params`. The output directory for
+        the simulation is stored in `self.outdir_param`.
 
         Parameters
         ----------
@@ -102,6 +118,9 @@ class make_reproducible(object):
 
         Notes
         -----
+        This method is evaluated when `make_reproducible` is called on a
+        simulation.
+
         Begins by checking that all the required parameters (a random seed and
         an output directory) are specified in the simulation function. Then it
         verifies that the output directory is either a kwarg or has a default
@@ -130,6 +149,7 @@ class make_reproducible(object):
         outdir.mkdir(parents=True, exist_ok=True)
         output_subfolder = get_unique_subfolder(outdir / sim_folder_prefix)
         kwargs[output_dir_param_name] = output_subfolder
+        kwargs = replicate_chromo_essentials(**kwargs)
 
         self.log_parameters(outdir, output_subfolder, *args, **kwargs)
 
@@ -196,8 +216,8 @@ class make_reproducible(object):
         """
         if "random_seed" not in self.params:
             raise ValueError(
-                "Requires the random seed to be passed in explicitly, even if the "
-                "random generator is passed to the function as well."
+                "Requires the random seed to be passed in explicitly, even if "
+                "the random generator is passed to the function as well."
             )
         if output_dir_param_name not in self.params:
             raise ValueError(
@@ -389,3 +409,102 @@ def to_file_params(non_builtins_kwargs, folder, suffix=''):
             raise ValueError(f"Argument not understood: {arg_name}={value}.\n"
                              "This simulation cannot be made reproducible.\n"
                              f"Please implement `.to_file` for type: {dtype}.")
+
+
+def store_run_script(duplicate_chromo_dir, **kwargs):
+    if run_script_kwarg not in kwargs:
+        return kwargs
+    if kwargs[run_script_kwarg] is not None:
+        original_path = kwargs[run_script_kwarg]
+        save_path = f"{duplicate_chromo_dir}/simulations/examples/" \
+                    f"{kwargs[run_script_kwarg].split('/')[-1]}"
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        shutil.copyfile(original_path, save_path)
+    kwargs.pop(run_script_kwarg, None)
+    return kwargs
+
+
+def store_mod_patterns(duplicate_chromo_dir, **kwargs):
+    if chem_mod_kwarg not in kwargs:
+        return kwargs
+    if kwargs[chem_mod_kwarg] is not None:
+        for path in kwargs[chem_mod_kwarg]:
+            original_path = path
+            save_path = \
+                f"{duplicate_chromo_dir}/chromo/chemical_mods/" \
+                f"{path.split('/')[-1]}"
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            shutil.copyfile(original_path, save_path)
+    kwargs.pop(chem_mod_kwarg, None)
+    return kwargs
+
+
+def store_run_command(duplicate_sim_dir, duplicate_chromo_dir, **kwargs):
+    if run_command_kwarg not in kwargs:
+        return kwargs
+    if kwargs[run_command_kwarg] is not None:
+        save_path = \
+            f"{duplicate_chromo_dir}/simulations/examples/run_command.sh"
+        save_path_2 = \
+            f"{kwargs[output_dir_param_name]}/sim_call.txt"
+        with open(save_path, "w") as f:
+            f.write(kwargs[run_command_kwarg])
+            f.write(f" {kwargs['random_seed']}")
+        with open(save_path_2, "w") as f:
+            f.write(kwargs[run_command_kwarg])
+        rerun_sim_path = f"{duplicate_sim_dir}/rerun_sim.sh"
+        with open(rerun_sim_path, "w") as f:
+            f.write("cd chromo\n")
+            f.write("bash make_essentials.sh\n")
+            f.write("cd simulations/examples\n")
+            f.write("bash run_command.sh\n")
+    kwargs.pop(run_command_kwarg, None)
+    return kwargs
+
+
+def replicate_chromo_essentials(**kwargs):
+    """Create a compressed copy of essential modules for running a simulation.
+
+    Notes
+    -----
+    Modules are not compiled; only the essential modules are included in the
+    copy; if a path to the modification patterns and simulation run script are
+    included, they will be stored in the copy; if the run command is specified,
+    a Bash file will be automatically generated for re-creating the chromo Conda
+    environment, reinstalling dependencies, recompiling the essential modules,
+    and re-running the simulation.
+
+    The function begins by loading the essential modules from `essentials.txt`.
+    Then, each essential module is copied to a folder in the output directory.
+    If provided, the run script, modification patterns, and run command will
+    be copied to the simulator copy. The copy of the simulator will then be
+    compressed. A Bash script for installing modules, compiling the simulator
+    code, and re-running the simulation will then be automatically generate.
+
+    With this level of reproducibility and acceptable runtimes of 1-3 days per
+    simulation, it will not be necessary to share exact results; we can simply
+    share code for reproducing results when we go to publish this material.
+    """
+    duplicate_sim_dir = f"{kwargs[output_dir_param_name]}/duplicate_sim"
+    duplicate_chromo_dir = f"{duplicate_sim_dir}/chromo"
+    os.mkdir(duplicate_sim_dir)
+    os.mkdir(duplicate_chromo_dir)
+    root_dir = "/".join(os.path.abspath(__file__).split("/")[:-3])
+    essential_modules = pd.read_csv(
+        f"{root_dir}/essentials.txt", header=None, index_col=None
+    ).to_numpy().flatten()
+    for essential in essential_modules:
+        src_fpath = f"{root_dir}/{essential}"
+        dest_fpath = f"{duplicate_chromo_dir}/{essential}"
+        os.makedirs(os.path.dirname(dest_fpath), exist_ok=True)
+        shutil.copy(src_fpath, dest_fpath)
+    kwargs = store_run_script(duplicate_chromo_dir, **kwargs)
+    kwargs = store_mod_patterns(duplicate_chromo_dir, **kwargs)
+    kwargs = store_run_command(
+        duplicate_sim_dir, duplicate_chromo_dir, **kwargs
+    )
+    shutil.make_archive(
+        duplicate_sim_dir, 'zip', root_dir=duplicate_sim_dir
+    )
+    shutil.rmtree(duplicate_sim_dir)
+    return kwargs
