@@ -590,6 +590,9 @@ def brownian_bridge(
     np.ndarray (N, 3) of float
         Path of N points connecting points `p0` and `p1`
     """
+    # Trivial case: single step
+    if N == 1:
+        return np.array([p0, p1])
     # Generate Brownian Bridge
     dt = 1.0 / (N - 1)
     dt_sqrt = np.sqrt(dt)
