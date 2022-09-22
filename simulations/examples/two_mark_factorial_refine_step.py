@@ -48,7 +48,7 @@ root_dir = "/".join(os.path.abspath(__file__).split("/")[:-3])
 # Load coarse-grained simulation
 sim_id = int(sys.argv[1])
 polymer_prefix = "Chr"
-output_dir = f"/scratch/users/jwakim/chromo_multi/output/sim_{sim_id}"
+output_dir = f"/scratch/users/jwakim/chromo_multi_lower_cp/output/sim_{sim_id}"
 binder_path = f"{output_dir}/binders"
 udf_path = f"{output_dir}/UniformDensityField"
 
