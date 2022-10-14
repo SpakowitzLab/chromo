@@ -4,12 +4,12 @@ Author:     Joseph Wakim
 Group:      Spakowitz Lab @ Stanford
 Date:       September 13, 2022
 
-Usage:      `python two_mark_refine.py <SIM_OUT_PATH> <SIM_ID> <REFINE_FACTOR>`
+Usage:      `python two_mark_refine.py <SIM_OUT_PATH> <SIM_ID> <REFINE_FACTOR> <OPTIONAL_RANDOM_SEED>`
 
-...where `<SIM_OUT_PATH>` is the path to the output directory of the simulation
+...where `<SIM_OUT_PATH>` is the path to the output directory of the simulation,
 `<SIM_ID>` denotes the integer simulation index of the coarse-grained polymer
-model and `<REFINE_FACTOR>` denotes the factor increase in beads in the refined
-model.
+model, `<REFINE_FACTOR>` denotes the factor increase in beads in the refined
+model, and <OPTIONAL_RANDOM_SEED> provides an optional random seed.
 
 The objective of this file is to enable multiple stages of simulation with
 progressively increasing levels of refinement. Before this file, the simulator
@@ -41,8 +41,8 @@ import chromo.util.rediscretize as rd
 import chromo.util.mu_schedules as ms
 
 # Set the random seed
-if len(sys.argv) == 3:
-    random_seed = int(sys.argv[2])
+if len(sys.argv) == 5:
+    random_seed = int(sys.argv[4])
 else:
     random_seed = np.random.randint(0, 1E5)
 np.random.seed(random_seed)
@@ -149,7 +149,7 @@ n_bind_eq = 1000000
 p_refine, udf_refine = rd.refine_chromatin(
     polymer_cg=p_cg,
     num_beads_refined=num_beads,
-    bead_spacing=bead_spacing,
+    bead_spacing=(bead_spacing / (new_cg_factor**3)),
     chemical_mods=chemical_mods,
     udf_cg=udf_cg,
     binding_equilibration=n_bind_eq,
