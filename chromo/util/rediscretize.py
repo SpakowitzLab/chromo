@@ -593,6 +593,8 @@ def brownian_bridge(
     # Trivial case: single step
     if N == 1:
         return np.array([p0, p1])
+    # If not trivial case, extend N by 1, since last index is not included
+    N += 1
     # Generate Brownian Bridge
     dt = 1.0 / (N - 1)
     dt_sqrt = np.sqrt(dt)
@@ -623,6 +625,9 @@ def brownian_bridge(
             print(
                 f"Points cannot be connected with steps of {avg_step_target}."
             )
+            print(f"The minimum step size required is {direct_step}")
+            print(f"Please re-run the refinement with a larger bead spacing.")
+            sys.exit()
         else:
             actual_to_direct = avg_step_size / direct_step
             target_to_direct = avg_step_target / direct_step
@@ -703,7 +708,7 @@ def enforce_spherical_confinement(r: np.ndarray, rad: float) -> np.ndarray:
 
 def get_refined_path(
     cg_r: np.ndarray, num_beads_refined: int,
-    bead_spacing: Optional[float] = (1/8) * np.pi
+    bead_spacing: Optional[float] = np.pi
 ) -> np.ndarray:
     """Get the path of a refined polymer.
 
@@ -719,7 +724,7 @@ def get_refined_path(
     num_beads_refined : int
         Number of beads in the refined chromatin fiber
     bead_spacing : Optional[float]
-        Average bead spacing in refined polymer configuration (default = (1/8) *
+        Average bead spacing in refined polymer configuration (default =
         np.pi; relevant when refining orientation vectors)
 
     Returns
