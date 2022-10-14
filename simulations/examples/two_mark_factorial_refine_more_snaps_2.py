@@ -4,7 +4,7 @@ Author:     Joseph Wakim
 Group:      Spakowitz Lab @ Stanford
 Date:       September 13, 2022
 
-Usage:      `python one_mark_factorial_refined_step.py <SIM_ID>`
+Usage:      `python two_mark_factorial_refined_step.py <SIM_ID>`
 
 ...where `<SIM_ID>` denotes the integer simulation index of the coarse-grained
 polymer model.
@@ -13,6 +13,7 @@ polymer model.
 import os
 import sys
 from inspect import getmembers, isfunction
+import json
 
 import numpy as np
 import pandas as pd
@@ -47,7 +48,7 @@ root_dir = "/".join(os.path.abspath(__file__).split("/")[:-3])
 # Load coarse-grained simulation
 sim_id = int(sys.argv[1])
 polymer_prefix = "Chr"
-output_dir = f"/scratch/users/jwakim/chromo_multi_lower_cp/output/sim_{sim_id}"
+output_dir = f"/scratch/users/jwakim/chromo_multi_lower_cp/output_more_steps/sim_{sim_id}"
 binder_path = f"{output_dir}/binders"
 udf_path = f"{output_dir}/UniformDensityField"
 
@@ -61,13 +62,11 @@ bead_spacing = 16.5
 num_snapshots = 200
 mc_steps_per_snapshot = 5000
 
-# Load previous run arguments
-with open(f"{output_dir}/sim_call.txt", "r") as f:
-    command = f.readline()
-prev_run_args = command.split(" ")
-binder_name = prev_run_args[2]
-modification_sequence = prev_run_args[4]
-chem_mods_path = np.array([modification_sequence])
+# Specify chemical modifications
+chem_mods_path = np.array([
+    "chromo/chemical_mods/HNCFF683HCZ_H3K9me3_methyl.txt",
+    "chromo/chemical_mods/ENCFF919DOR_H3K27me3_methyl.txt"
+])
 chem_mod_paths_abs = [f"{root_dir}/{path}" for path in chem_mods_path]
 chemical_mods = Chromatin.load_seqs(chem_mods_path)[:num_beads]
 
@@ -83,17 +82,26 @@ latest_snap = files[-1]
 latest_snap_path = f"{output_dir}/{latest_snap}"
 
 # Create binders
-binder = chromo.binders.get_by_name(binder_name)
-binders_list = [binder]
+hp1 = chromo.binders.get_by_name("HP1")
+prc1 = chromo.binders.get_by_name("PRC1")
+binders_list = [hp1, prc1]
 df_binders = pd.read_csv(binder_path, index_col="name")
-cp_binder = df_binders.loc[binder_name, "chemical_potential"]
-self_interact_binder = df_binders.loc[binder_name, "interaction_energy"]
-binders_list[0].chemical_potential = float(cp_binder)
-binders_list[0].interaction_energy = float(self_interact_binder)
+cp_HP1 = df_binders.loc["HP1", "chemical_potential"]
+cp_PRC1 = df_binders.loc["PRC1", "chemical_potential"]
+self_interact_HP1 = df_binders.loc["HP1", "interaction_energy"]
+self_interact_PRC1 = df_binders.loc["PRC1", "interaction_energy"]
+cross_interact = json.loads(
+    df_binders.loc["HP1", "cross_talk_interaction_energy"].replace("'", "\"")
+)["PRC1"]
+binders_list[0].chemical_potential = float(cp_HP1)
+binders_list[1].chemical_potential = float(cp_PRC1)
+binders_list[0].interaction_energy = float(self_interact_HP1)
+binders_list[1].interaction_energy = float(self_interact_PRC1)
+binders_list[0].cross_talk_interaction_energy["PRC1"] = float(cross_interact)
 binders = chromo.binders.make_binder_collection(binders_list)
 
 # Create coarse-grained polymer
-p_cg = Chromatin.from_file(latest_snap_path, name="Chr_CG")
+p = Chromatin.from_file(latest_snap_path, name="Chr_refine")
 
 # Load field parameters from coarse-grained simulation
 field_params = pd.read_csv(
@@ -114,48 +122,26 @@ assume_fully_accessible = (
 fast_field = int(field_params.loc["fast_field", "Value"] == "True")
 
 # Create coarse-grained field
-udf_cg = UniformDensityField(
-    [p_cg], binders, x_width, nx, y_width, ny, z_width, nz,
+udf = UniformDensityField(
+    [p], binders, x_width, nx, y_width, ny, z_width, nz,
     confine_type=confine_type_cg, confine_length=confine_length_cg,
     chi=chi, assume_fully_accessible=assume_fully_accessible,
     fast_field=fast_field
 )
 
-# Refine the polymer
-n_bind_eq = 1000000
-p_refine, udf_refine = rd.refine_chromatin(
-    polymer_cg=p_cg,
-    num_beads_refined=num_beads,
-    bead_spacing=bead_spacing,
-    chemical_mods=chemical_mods,
-    udf_cg=udf_cg,
-    binding_equilibration=n_bind_eq,
-    name_refine="Chr_refine",
-    output_dir="output"
-)
-
 # Specify move and bead amplitudes
-amp_bead_bounds, amp_move_bounds = mc.get_amplitude_bounds([p_refine])
-
-# Specify simulated annealing schedule
-schedules = [func[0] for func in getmembers(ms, isfunction)]
-select_schedule = "linear_step_for_negative_cp_mild"
-mu_schedules = [
-    ms.Schedule(getattr(ms, func_name)) for func_name in schedules
-]
-mu_schedules = [sch for sch in mu_schedules if sch.name == select_schedule]
+amp_bead_bounds, amp_move_bounds = mc.get_amplitude_bounds([p])
 
 # Run the refined simulation
 polymers_refined = mc.polymer_in_field(
-    [p_refine],
+    [p],
     binders,
-    udf_refine,
+    udf,
     mc_steps_per_snapshot,
     num_snapshots,
     amp_bead_bounds,
     amp_move_bounds,
-    output_dir='output',
-    mu_schedule=mu_schedules[0],
+    output_dir='output_more_steps_2',
     random_seed=random_seed,
     path_to_run_script=path_to_run_script,
     path_to_chem_mods=chem_mod_paths_abs,
