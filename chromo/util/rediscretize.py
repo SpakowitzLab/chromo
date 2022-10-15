@@ -625,8 +625,8 @@ def brownian_bridge(
             print(
                 f"Points cannot be connected with steps of {avg_step_target}."
             )
-            print(f"The minimum step size required is {direct_step}")
-            print(f"The bead spacing will be adjusted to {direct_step}")
+            print(f"The minimum step size required is {direct_step}.")
+            print(f"The bead spacing will be adjusted to {direct_step}.")
             avg_step_size = direct_step
         actual_to_direct = avg_step_size / direct_step
         target_to_direct = avg_step_target / direct_step
