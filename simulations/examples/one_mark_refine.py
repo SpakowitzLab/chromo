@@ -87,7 +87,7 @@ p_cg = Chromatin.from_file(latest_snap_path, name="Chr_CG")
 num_beads_cg = p_cg.num_beads
 refine_factor = float(sys.argv[4])
 new_cg_factor = int(np.floor(true_num_beads / num_beads_cg) / refine_factor)
-num_beads = true_num_beads / new_cg_factor
+num_beads = int(true_num_beads / new_cg_factor)
 
 # Specify chemical modifications
 chem_mods_path = np.array([sys.argv[3]])
@@ -95,7 +95,9 @@ chem_mod_paths_abs = [f"{root_dir}/{path}" for path in chem_mods_path]
 true_chemical_mods = Chromatin.load_seqs(chem_mods_path)[:true_num_beads]
 
 intervals = rd.get_cg_bead_intervals(true_num_beads, cg_factor=new_cg_factor)
-chemical_mods = rd.get_majority_state_in_interval(true_chemical_mods, intervals)
+chemical_mods = rd.get_majority_state_in_interval(
+    true_chemical_mods, intervals
+)[:num_beads]
 
 # Create binders
 df_binders = pd.read_csv(binder_path, index_col="name")
