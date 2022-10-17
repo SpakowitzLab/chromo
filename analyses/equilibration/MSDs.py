@@ -89,7 +89,7 @@ def plot_MSDs(
         Prefix of simulation output directory names (default = "sim_")
     """
     all_MSDs = get_MSDs(
-        output_dir, sim_ind, lp, seg_length, polymer_prefix, sim_prefix
+        output_dir, sim_ind, seg_length, lp, polymer_prefix, sim_prefix
     )
     sorted_snaps = np.arange(len(all_MSDs))
     plt.figure()
