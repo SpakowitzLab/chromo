@@ -109,7 +109,7 @@ binders_cg = rd.get_cg_binders(
 # Specify simulation hyperparameters
 amp_bead_bounds, amp_move_bounds = mc.get_amplitude_bounds([p_cg])
 num_snapshots = 200
-mc_steps_per_snapshot = 3000
+mc_steps_per_snapshot = 6000
 
 # Create a list of mu schedules, which are defined in another file
 schedules = [func[0] for func in getmembers(ms, isfunction)]
