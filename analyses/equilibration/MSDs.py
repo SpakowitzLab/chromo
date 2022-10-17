@@ -108,7 +108,7 @@ def main(output_dir, sim_ind, seg_lenght, lp, save_file):
     -----
     See documentation for `plot_MSDs`.
     """
-    plot_MSDs(output_dir, sim_ind, save_file)
+    plot_MSDs(output_dir, sim_ind, seg_length, lp, save_file)
 
 
 if __name__ == "__main__":
