@@ -91,13 +91,17 @@ def plot_MSDs(
     all_MSDs = get_MSDs(
         output_dir, sim_ind, seg_length, lp, polymer_prefix, sim_prefix
     )
+    np.savetxt(
+        f"{output_dir}/{sim_prefix}{sim_ind}/{save_file}.csv", all_MSDs,
+        delimiter=","
+    )
     sorted_snaps = np.arange(len(all_MSDs))
     plt.figure()
     plt.plot(sorted_snaps, all_MSDs)
     plt.xlabel("Snapshot number")
     plt.ylabel(r"$\langle R^2 \rangle /(2l_p)^2$")
     plt.tight_layout()
-    plt.savefig(f"{output_dir}/{sim_prefix}{sim_ind}/{save_file}", dpi=600)
+    plt.savefig(f"{output_dir}/{sim_prefix}{sim_ind}/{save_file}.png", dpi=600)
     plt.close()
 
 
