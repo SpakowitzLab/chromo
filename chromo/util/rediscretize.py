@@ -160,6 +160,42 @@ def get_majority_state_in_interval(
     return cg_states
 
 
+def get_random_state_in_interval(
+    states: np.ndarray, intervals: Dict[int, Tuple[int, int]]
+) -> np.ndarray:
+    """Get random chemical modification or binding state in polymer segments.
+
+    Parameters
+    ----------
+    states : np.ndarray (N, S) of int
+        Chemical modification or binding states in the original polymer, before
+        any coarse-graining; rows correspond to individual beads in the original
+        polymer, and columns correspond to chemical modifications or binders
+    intervals : Dict[int, Tuple[int, int]]
+        Dictionary of bead intervals associated with each bead in the coarse-
+        grained polymer; all intervals include the lower bound bead index, but
+        exclude the upper bound bead index, just as in numpy indexing
+
+    Returns
+    -------
+    np.ndarray (M, S) of int
+        Chemical modifications or binding states of each bead in the coarse-
+        grained polymer, where rows correspond to the coarse-grained beads
+        (associated with the intervals of the original polymer) and columns
+        corresponds to chemical modifications or binders
+    """
+    num_intervals = len(intervals)
+    cg_states = np.zeros((num_intervals, states.shape[1]), dtype=int)
+    for ind, bounds in intervals.items():
+        states_interval = states[bounds[0]:bounds[1]]
+        for i in range(states.shape[1]):
+            if bounds[1] - bounds[0] > 1:
+                cg_states[ind, i] = np.random.choice(states_interval[:, i])
+            else:
+                cg_states[ind, i] = states_interval[0, i]
+    return cg_states
+
+
 def get_cg_udf(
     udf_refined_dict: Dict, binders_refined: pd.DataFrame,
     cg_factor: float, polymers_cg: List[poly.Chromatin]
@@ -363,7 +399,8 @@ def get_cg_binders(
 
 
 def get_cg_chromatin(
-    polymer: poly.Chromatin, cg_factor: float, name_cg: Optional[str] = "Chr_CG"
+    polymer: poly.Chromatin, cg_factor: float,
+    name_cg: Optional[str] = "Chr_CG", random_states: Optional[bool] = False
 ) -> poly.Chromatin:
     """Generate a coarse-grained representation of a wormlike chain polymer.
 
@@ -385,6 +422,10 @@ def get_cg_chromatin(
         coarse-grained polymer
     name_cg : Optional[str]
         Name of coarse-grained polymer (default = "Chr_CG")
+    random_states : Optional[bool]
+        Indicator for whether to pick modification states randomly from bead
+        segments for each coarse-grained bead (True) or whether to pick the
+        majority modification state from each bead segment (False; default case)
 
     Returns
     -------
@@ -397,9 +438,14 @@ def get_cg_chromatin(
     r_cg = get_avg_in_intervals(polymer.r, intervals)
     t3_cg, t2_cg = get_orientations_in_intervals(polymer.t3, intervals)
     states_cg = get_majority_state_in_interval(polymer.states, intervals)
-    chem_mods_cg = get_majority_state_in_interval(
-        polymer.chemical_mods, intervals
-    )
+    if random_states:
+        chem_mods_cg = get_random_state_in_interval(
+            polymer.chemical_mods, intervals
+        )
+    else:
+        chem_mods_cg = get_majority_state_in_interval(
+            polymer.chemical_mods, intervals
+        )
     bead_length_cg = polymer.bead_length
     bead_rad_cg = polymer.bead_rad
 
