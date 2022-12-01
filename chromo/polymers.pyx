@@ -581,8 +581,10 @@ cdef class PolymerBase(TransformedObject):
             Data frame representation of the polymer, as recorded in the CSV
             file that was generated
         """
-        arrays = {name: getattr(self, name) for name in self._arrays
-                  if hasattr(self, name)}
+        arrays = {
+            name: getattr(self, name) for name in self._arrays
+            if hasattr(self, name)
+        }
         vector_arrs = {}
         regular_arrs = {}
 
@@ -612,7 +614,7 @@ cdef class PolymerBase(TransformedObject):
             df = vector_df
 
         for name, arr in regular_arrs.items():
-            if name == "bead_length":
+            if name == "bead_length" or name == "max_binders":
                 df[name] = np.broadcast_to(arr, (len(df.index), 1))
             else:
                 df[name] = arr
@@ -921,9 +923,10 @@ cdef class SSWLC(PolymerBase):
             "name", "r", "t3", "t2", "states", "binder_names", "num_binders",
             "beads", "num_beads", "lp", "bead_rad"
         ])
-        self._arrays = np.array(
-            ['r', 't3', 't2', 'states', 'bead_length', 'chemical_mods']
-        )
+        self._arrays = np.array([
+            'r', 't3', 't2', 'states', 'bead_length', 'chemical_mods',
+            'max_binders'
+        ])
         self.check_attrs()
         self.mu_adjust_factor = 1
 
