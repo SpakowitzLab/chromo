@@ -7,7 +7,7 @@ import pyximport
 pyximport.install()
 
 # Built-in Modules
-from typing import (Callable, Optional)
+from typing import Callable
 from libc.math cimport sin, cos
 
 # External Modules
@@ -28,6 +28,9 @@ cdef np.ndarray empty_2d = np.empty((0, 0))
 cdef np.ndarray mty_2d_int = np.empty((0, 0), dtype=int)
 cdef np.ndarray empty_1d = np.empty((0, ))
 cdef np.ndarray empty_1d_str = np.empty((0, ), dtype=str)
+
+
+cdef double E_HUGE = 1E99
 
 
 cdef class TransformedObject:
@@ -138,6 +141,14 @@ cdef class PolymerBase(TransformedObject):
         tracked for 8 bins containing the bead before and after the move
         (stored in dim2); stored as attribute to avoid costly array generation
         during inner loop of simulation
+    max_binders : long
+        Indicates the maximum number of total binders of any type that can bind
+        a single bead. This attribute accounts for steric limitations to the
+        total number of binders that can attach to any give bead in the polymer.
+        A value of `-1` is reserved for no limit to the total number of binders
+        bound to a bead. Any move which proposes more than the maximum number
+        of binders is assigned an energy cost of 1E99 kT per binder beyond the
+        limit.
 
     Notes
     -----
@@ -152,7 +163,7 @@ cdef class PolymerBase(TransformedObject):
         double[:, ::1] t3 = empty_2d, double[:, ::1] t2 = empty_2d,
         long[:, ::1] states = mty_2d_int, np.ndarray binder_names = empty_1d,
         long[:, ::1] chemical_mods = mty_2d_int,
-        np.ndarray chemical_mod_names = empty_1d_str
+        np.ndarray chemical_mod_names = empty_1d_str, long max_binders = -1
     ):
         """Any polymer class requires these key attributes.
 
@@ -197,16 +208,27 @@ cdef class PolymerBase(TransformedObject):
         log_path : Optional str
             Path to configuration tracker log (default is empty string,
             flagging for no configuration log to be generated)
+        max_binders : Optional long
+            Indicates the maximum number of total binders of any type that can
+            bind a single bead. This attribute accounts for steric limitations
+            to the total number of binders that can attach to any give bead in
+            the polymer. A value of `-1` is reserved for no limit to the total
+            number of binders bound to a bead. Any move which proposes more
+            than the maximum number of binders is assigned an energy cost of
+            1E99 kT per binder beyond the limit. (default = -1)
         """
         cdef long num_binders, num_beads
         cdef double lp
         cdef np.ndarray required_attrs, _arrays, _3d_arrays
+
+        super(PolymerBase, self).__init__()
 
         self.name = name
         self.r = r
         self.t3 = t3
         self.t2 = t2
         self.states = states
+        self.max_binders = max_binders
         self.binder_names = binder_names
         self.chemical_mods = chemical_mods
         self.chemical_mod_names = chemical_mod_names
@@ -226,6 +248,7 @@ cdef class PolymerBase(TransformedObject):
         ])
         self._arrays = np.array(['r', 't3', 't2', 'states', 'chemical_mods'])
         self._3d_arrays = np.array(['r', 't3', 't2'])
+
         # For move proposals
         self.r_trial = self.r.copy()
         self.t3_trial = self.t3.copy()
@@ -236,6 +259,7 @@ cdef class PolymerBase(TransformedObject):
         self.last_amp_move = 0
         self.direction = np.zeros((3,), dtype='d')
         self.point = np.zeros((3,), dtype='d')
+
         # For elastic energy calculation
         self.dr = np.zeros((3,), dtype='d')
         self.dr_test = np.zeros((3,), dtype='d')
@@ -243,6 +267,7 @@ cdef class PolymerBase(TransformedObject):
         self.dr_perp_test = np.zeros((3,), dtype='d')
         self.bend = np.zeros((3,), dtype='d')
         self.bend_test = np.zeros((3,), dtype='d')
+
         # For field energy calculation
         self.densities_temp = np.zeros((2, self.n_binders_p1, 8), dtype='d')
 
@@ -682,8 +707,7 @@ cdef class PolymerBase(TransformedObject):
             Polymer object reflecting the dataframe
         """
         if name is None:
-            name = path.name        # TODO: Fix this. Path is a string!
-            # TODO: Path does not have a `name` attribute!
+            name = path.split("/")[-1].split(".")[0]
         df = pd.read_csv(path, header=[0, 1], index_col=0)
         return cls.from_dataframe(df, name)
 
@@ -1294,6 +1318,14 @@ cdef class SSWLC(PolymerBase):
         modification state) is added to `dE` and the chemical potential is 
         subtracted from `dE`. Finally, using the same approach, subtract the 
         energy associated with the current binding state.
+        
+        `self.max_binders` indicates the maximum number of total binders of any
+        type that can bind a single bead. This attribute accounts for steric
+        limitations to the total number of binders that can attach to any give
+        bead in the polymer. A value of `-1` is reserved for no limit to the
+        total number of binders bound to a bead. Any move which proposes more
+        than the maximum number of binders is assigned an energy cost of 1E99
+        kT per binder beyond the limit.
 
         Parameters
         ----------
@@ -1308,49 +1340,52 @@ cdef class SSWLC(PolymerBase):
             The energy change from the single bead's change in binding state
         """
         cdef long i, num_tails, modified_tails, unmodified_tails
+        cdef long tot_bound, diff
         cdef double dE
         cdef long[:] mod_states, states_ind
 
         mod_states = self.chemical_mods[ind]
         states_ind = self.states[ind].copy()
         dE = 0
+
+        # Evaluate constraint on the total number of binders bound to a bead
+        if self.max_binders != -1:
+
+            # Trail configuration
+            tot_bound = 0
+            for i in range(self.num_binders):
+                tot_bound += states_trial_ind[i]
+            if tot_bound > self.max_binders:
+                diff = tot_bound - self.max_binders
+                dE += E_HUGE * diff
+
+            # Current configuration
+            tot_bound = 0
+            for i in range(self.num_binders):
+                tot_bound += states_ind[i]
+            if tot_bound > self.max_binders:
+                diff = tot_bound - self.max_binders
+                dE -= E_HUGE * diff
+
+        # Evaluate the change in binding energy
         for i in range(self.num_binders):
             num_tails = self.beads[ind].binders[i].sites_per_bead
             modified_tails = mod_states[i]
             unmodified_tails = num_tails - modified_tails
 
+            # Trial configuration
             for j in range(states_trial_ind[i]):
-                dE += (
+                if j+1 <= modified_tails:
+                    dE += (
                         self.beads[ind].binders[i].bind_energy_mod -
                         (min(
                             self.beads[ind].binders[i].chemical_potential,
                             self.beads[ind].binders[i].chemical_potential *
                             self.mu_adjust_factor
                         ))
-                )
-                if j+1 <= modified_tails:
-                    pass
+                    )
                 else:
                     dE += (
-                            self.beads[ind].binders[i].bind_energy_no_mod -
-                            (min(
-                                self.beads[ind].binders[i].chemical_potential,
-                                self.beads[ind].binders[i].chemical_potential *
-                                self.mu_adjust_factor
-                            ))
-                    )
-            for j in range(states_ind[i]):
-                if j+1 <= modified_tails:
-                    dE -= (
-                        self.beads[ind].binders[i].bind_energy_mod -
-                        (min(
-                            self.beads[ind].binders[i].chemical_potential,
-                            self.beads[ind].binders[i].chemical_potential *
-                            self.mu_adjust_factor
-                        ))
-                    )
-                else:
-                    dE -= (
                         self.beads[ind].binders[i].bind_energy_no_mod -
                         (min(
                             self.beads[ind].binders[i].chemical_potential,
@@ -1358,6 +1393,27 @@ cdef class SSWLC(PolymerBase):
                             self.mu_adjust_factor
                         ))
                     )
+
+        # Current configuration
+        for j in range(states_ind[i]):
+            if j+1 <= modified_tails:
+                dE -= (
+                    self.beads[ind].binders[i].bind_energy_mod -
+                    (min(
+                        self.beads[ind].binders[i].chemical_potential,
+                        self.beads[ind].binders[i].chemical_potential *
+                        self.mu_adjust_factor
+                    ))
+                )
+            else:
+                dE -= (
+                    self.beads[ind].binders[i].bind_energy_no_mod -
+                    (min(
+                        self.beads[ind].binders[i].chemical_potential,
+                        self.beads[ind].binders[i].chemical_potential *
+                        self.mu_adjust_factor
+                    ))
+                )
         return dE
 
     def __str__(self):

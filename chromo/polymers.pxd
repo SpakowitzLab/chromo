@@ -12,6 +12,7 @@ cdef class TransformedObject:
 cdef class PolymerBase(TransformedObject):
     cdef public str name, log_path
     cdef public beads
+    cdef public long max_binders
     cdef public configuration_tracker
     cdef public double lp
     cdef public long num_binders, num_beads, n_binders_p1
@@ -85,7 +86,9 @@ cdef class SSWLC(PolymerBase):
         double[:] t3_1
     )
     cdef double binding_dE(self, long ind0, long indf, long n_inds)
-    cdef double bead_binding_dE(self, long ind, long[:] states_trial_ind)
+    cdef double bead_binding_dE(
+        self, long ind, long[:] states_trial_ind
+    )
     cpdef void _find_parameters(self, double length_bead)
 
 cdef class Chromatin(SSWLC):
