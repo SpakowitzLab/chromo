@@ -890,7 +890,8 @@ cdef class SSWLC(PolymerBase):
         double bead_rad=5, double[:,::1] t3=empty_2d,
         double[:,::1] t2=empty_2d, long[:,::1] states=mty_2d_int,
         np.ndarray binder_names=empty_1d, long[:,::1] chemical_mods=mty_2d_int,
-        np.ndarray chemical_mod_names=empty_1d, str log_path = ""
+        np.ndarray chemical_mod_names=empty_1d, str log_path = "",
+        long max_binders = -1
     ):
         """Construct a `SSWLC` polymer object as a subclass of `PolymerBase`.
 
@@ -913,7 +914,7 @@ cdef class SSWLC(PolymerBase):
         super(SSWLC, self).__init__(
             name, r, t3=t3, t2=t2, states=states, binder_names=binder_names,
             log_path=log_path, chemical_mods=chemical_mods,
-            chemical_mod_names=chemical_mod_names
+            chemical_mod_names=chemical_mod_names, max_binders=max_binders
         )
         self.bead_rad = bead_rad
         self.construct_beads()
@@ -1717,7 +1718,7 @@ cdef class Chromatin(SSWLC):
         np.ndarray binder_names = empty_1d,
         np.ndarray[long, ndim=2] chemical_mods = mty_2d_int,
         np.ndarray chemical_mod_names = empty_1d_str,
-        str log_path = ""
+        str log_path = "", long max_binders = -1
     ):
         """Construct a `Chromatin` fiber object as a subclass of `SSWLC`.
 
@@ -1733,7 +1734,8 @@ cdef class Chromatin(SSWLC):
         super(Chromatin, self).__init__(
             name, r, bead_length=bead_length, bead_rad=bead_rad, lp=lp, t3=t3,
             t2=t2, states=states, binder_names=binder_names, log_path=log_path,
-            chemical_mods=chemical_mods, chemical_mod_names=chemical_mod_names
+            chemical_mods=chemical_mods, chemical_mod_names=chemical_mod_names,
+            max_binders=max_binders
         )
         self.construct_beads()
 
@@ -1789,7 +1791,7 @@ cdef class SSTWLC(SSWLC):
         np.ndarray binder_names = empty_1d,
         long[:, ::1] chemical_mods = mty_2d_int,
         np.ndarray chemical_mod_names = empty_1d_str,
-        str log_path = ""
+        str log_path = "", long max_binders = -1
     ):
         """Construct a `SSTWLC` polymer object as a subclass of `SSWLC`.
 
@@ -1808,7 +1810,7 @@ cdef class SSTWLC(SSWLC):
         super(SSWLC, self).__init__(
             name, r, t3=t3, t2=t2, states=states, binder_names=binder_names,
             log_path=log_path, chemical_mods=chemical_mods,
-            chemical_mod_names=chemical_mod_names
+            chemical_mod_names=chemical_mod_names, max_binders=max_binders
         )
         self.bead_rad = bead_rad
         self.construct_beads()
@@ -2135,7 +2137,8 @@ cdef class LoopedSSTWLC(SSTWLC):
         double lt=46.37, double bead_rad=5, double[:,::1] t3=empty_2d,
         double[:,::1] t2=empty_2d, long[:,::1] states=mty_2d_int,
         np.ndarray binder_names=empty_1d, long[:,::1] chemical_mods=mty_2d_int,
-        np.ndarray chemical_mod_names=empty_1d, str log_path = ""
+        np.ndarray chemical_mod_names=empty_1d, str log_path = "",
+        long max_binders = -1
     ):
         """Construct a looped SSTWLC object as a subclass of `SSTWLC`.
 
@@ -2149,7 +2152,7 @@ cdef class LoopedSSTWLC(SSTWLC):
             name, r, bead_length=bead_length, lp=lp, lt=lt, bead_rad=bead_rad,
             t3=t3, t2=t2, states=states, binder_names=binder_names,
             log_path=log_path, chemical_mods=chemical_mods,
-            chemical_mod_names=chemical_mod_names
+            chemical_mod_names=chemical_mod_names, max_binders=max_binders
         )
 
     @classmethod

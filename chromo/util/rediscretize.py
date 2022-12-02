@@ -463,7 +463,8 @@ def get_cg_chromatin(
         binder_names=polymer.binder_names,
         chemical_mods=chem_mods_cg,
         chemical_mod_names=polymer.chemical_mod_names,
-        log_path=polymer.log_path
+        log_path=polymer.log_path,
+        max_binders=polymer.max_binders
     )
     return polymer_cg
 
@@ -525,7 +526,8 @@ def get_cg_chromatin_old(
         binder_names=polymer.binder_names,
         chemical_mods=chem_mods_cg,
         chemical_mod_names=polymer.chemical_mod_names,
-        log_path=polymer.log_path
+        log_path=polymer.log_path,
+        max_binders=polymer.max_binders
     )
     return polymer_cg
 
@@ -1067,7 +1069,8 @@ def refine_chromatin(
         states=states_refine,
         binder_names=polymer_cg.binder_names,
         chemical_mods=chemical_mods,
-        chemical_mod_names=polymer_cg.chemical_mod_names
+        chemical_mod_names=polymer_cg.chemical_mod_names,
+        max_binders=polymer_cg.max_binders
     )
     udf = refine_udf(
         udf_cg, udf_cg.binders, num_beads_refined/num_beads_cg, [polymer]
@@ -1167,7 +1170,8 @@ def refine_chromatin_old(
         states=states_refine,
         binder_names=polymer_cg.binder_names,
         chemical_mods=chemical_mods,
-        chemical_mod_names=polymer_cg.chemical_mod_names
+        chemical_mod_names=polymer_cg.chemical_mod_names,
+        max_binders=polymer_cg.max_binders
     )
     udf = refine_udf_old(
         udf_cg, udf_cg.binders, num_beads_refined/num_beads_cg, [polymer]
