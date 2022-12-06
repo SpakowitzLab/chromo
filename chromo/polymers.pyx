@@ -1398,26 +1398,26 @@ cdef class SSWLC(PolymerBase):
                         ))
                     )
 
-        # Current configuration
-        for j in range(states_ind[i]):
-            if j+1 <= modified_tails:
-                dE -= (
-                    self.beads[ind].binders[i].bind_energy_mod -
-                    (min(
-                        self.beads[ind].binders[i].chemical_potential,
-                        self.beads[ind].binders[i].chemical_potential *
-                        self.mu_adjust_factor
-                    ))
-                )
-            else:
-                dE -= (
-                    self.beads[ind].binders[i].bind_energy_no_mod -
-                    (min(
-                        self.beads[ind].binders[i].chemical_potential,
-                        self.beads[ind].binders[i].chemical_potential *
-                        self.mu_adjust_factor
-                    ))
-                )
+            # Current configuration
+            for j in range(states_ind[i]):
+                if j+1 <= modified_tails:
+                    dE -= (
+                        self.beads[ind].binders[i].bind_energy_mod -
+                        (min(
+                            self.beads[ind].binders[i].chemical_potential,
+                            self.beads[ind].binders[i].chemical_potential *
+                            self.mu_adjust_factor
+                        ))
+                    )
+                else:
+                    dE -= (
+                        self.beads[ind].binders[i].bind_energy_no_mod -
+                        (min(
+                            self.beads[ind].binders[i].chemical_potential,
+                            self.beads[ind].binders[i].chemical_potential *
+                            self.mu_adjust_factor
+                        ))
+                    )
         return dE
 
     def __str__(self):
