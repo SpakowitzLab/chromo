@@ -95,7 +95,7 @@ moves_to_use = ctrl.all_moves_except_binding_state(
     move_amp_bounds=amp_moves.bounds,
     controller=ctrl.SimpleControl
 )
-num_snapshots = 200
+num_snapshots = 250
 mc_steps_per_snapshot = 10000
 mc.polymer_in_field(
     polymers=[polymer],
