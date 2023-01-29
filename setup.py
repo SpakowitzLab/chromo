@@ -68,6 +68,7 @@ if __name__ == "__main__":
             "sphinx_theme~=1.0",
             "sphinx_rtd_theme~=1.0.0"
         ],
+        include_package_data=True,
         extras_require = {
             "dev": [
                 "pytest~=6.0.1",
