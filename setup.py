@@ -50,8 +50,7 @@ if __name__ == "__main__":
             "Topic :: Scientific/Engineering :: Chemistry",
             "Topic :: Scientific/Engineering :: Physics",
         ],
-        packages=find_packages('chromo/'),
-        package_dir={'': 'chromo/'},
+        packages=find_packages(include=['chromo', 'chromo.mc', 'chromo.util']),
         install_requires=[
             "bioframe~=0.3.3",
             "Cython~=0.29.32",
