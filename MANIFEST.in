@@ -1,2 +1,2 @@
 include versioneer.py
-include chromo/_version.py
+recursive-include chromo/*
