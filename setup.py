@@ -52,27 +52,28 @@ if __name__ == "__main__":
         ],
         packages=find_packages(include=['chromo', 'chromo.mc', 'chromo.util']),
         install_requires=[
-            "bioframe~=0.3.3",
+            # "bioframe~=0.3.3",
             "Cython~=0.29.32",
             "IPython~=8.4.0",
-            "karma_sphinx_theme~=0.0.8",
             "matplotlib~=3.5.3",
-            "nbsphinx~=0.8.8",
             "numba~=0.56.0",
             "numpy~=1.22.4",
             "pandas~=1.4.3",
             "scikit_learn~=1.1.2",
             "scipy~=1.9.1",
             "setuptools~=61.2.0",
-            "sphinx~=4.4.0",
-            "sphinx_theme~=1.0",
-            "sphinx_rtd_theme~=1.0.0"
         ],
         include_package_data=True,
         extras_require = {
             "dev": [
                 "pytest~=6.0.1",
-                "check-manifest~=0.48"
+                "check-manifest~=0.48",
+                "karma_sphinx_theme~=0.0.8",
+                "sphinx~=4.4.0",
+                "nbsphinx~=0.8.8",
+                "sphinx_theme~=1.0",
+                "sphinx_rtd_theme~=1.0.0",
+                "notebook~=6.4.8"
             ]
         },
         include_dirs=[
