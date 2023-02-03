@@ -2502,13 +2502,6 @@ cpdef long[:] get_neighbors_at_ind(
     long nx, long ny, long nz, long ind, long num_bins
 ):
     """Identify the bin indices immediately neighboring a specific bin index.
-    
-    Notes
-    -----
-    This method is no longer in use -- it was determined that the method for 
-    applying periodic boundaries was invalid.
-    
-    TODO: To use this function, fix the method for applying periodic boundaries.
 
     Parameters
     ----------
@@ -2529,19 +2522,21 @@ cpdef long[:] get_neighbors_at_ind(
         Array of nine bin super-indices immediately neighboring and containing
         the bin specified by `ind`
     """
-    return np.array([
-        (ind - nx - 1), (ind - nx), (ind - nx + 1),
-        (ind - 1), ind, (ind + 1),
-        (ind + nx - 1), (ind + nx), (ind + nx + 1),
+    cdef long[:] nbr_bins_flat = np.zeros(27, dtype=int)
+    xyz = super_ind_to_inds(ind, nx, ny)
+    x = xyz[0]
+    y = xyz[1]
+    z = xyz[2]
 
-        (ind - (ny-1)*nx - 1), (ind - (ny-1)*nx), (ind - (ny-1)*nx + 1),
-        (ind - ny*nx - 1), (ind - ny*nx), (ind - ny*nx+ 1),
-        (ind - (ny+1)*nx - 1), (ind - (ny+1)*nx), (ind - (ny+1)*nx + 1),
-
-        (ind + (ny-1)*nx - 1), (ind + (ny-1)*nx), (ind + (ny-1)*nx + 1),
-        (ind + ny*nx - 1), (ind + ny*nx), (ind + ny*nx+ 1),
-        (ind + (ny+1)*nx - 1), (ind + (ny+1)*nx), (ind + (ny+1)*nx + 1),
-    ]) % num_bins
+    nbr_bins = np.zeros((3, 3, 3), dtype=int)
+    for i, dx in enumerate(range(-1, 2)):
+        for j, dy in enumerate(range(-1, 2)):
+            for k, dz in enumerate(range(-1, 2)):
+                nbr_bins[i, j, k] = inds_to_super_ind(
+                    (x + dx) % nx, (y + dy) % ny, (z + dz) % nz, nx, ny
+                )
+    nbr_bins_flat = nbr_bins.flatten()
+    return nbr_bins_flat
 
 
 cpdef dict get_blocks(long num_beads, long block_size):
