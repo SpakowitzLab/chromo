@@ -156,11 +156,9 @@ The width and number of voxels in each dimension of the field must be specified.
        nz = n_bins_z
    )
 
-.. Tip:: See example notebooks and validations for setup, execution, and
-   analysis of full simulations. Specific analyses, such as extracing physical
-   parameters from simulation outputs, analyzing average reader protein binding
-   states, and generating contact maps, are included in the :code:`analyses`
-   directory.
+.. Tip:: Preparation of inputs and analysis of outputs can be completed using
+	the ``chromo-analysis`` package available 
+	`here <https://github.com/JosephWakim/chromo-analysis>`_.
 
 |
 
