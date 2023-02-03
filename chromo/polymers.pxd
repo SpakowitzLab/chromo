@@ -26,6 +26,7 @@ cdef class PolymerBase(TransformedObject):
     cdef public long last_amp_bead
     cdef public double mu_adjust_factor
     cdef public np.ndarray binder_names, required_attrs, _arrays, _3d_arrays
+    cdef public np.ndarray _single_values
     cdef public double[:] dr, dr_test, dr_perp, dr_perp_test, bend, bend_test
     cdef public double[:, :, ::1] densities_temp
     cdef double compute_dE(

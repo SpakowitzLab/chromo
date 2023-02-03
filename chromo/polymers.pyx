@@ -159,11 +159,19 @@ cdef class PolymerBase(TransformedObject):
     """
 
     def __init__(
-        self, str name, double[:, ::1] r = empty_2d, *, str log_path = "",
-        double[:, ::1] t3 = empty_2d, double[:, ::1] t2 = empty_2d,
-        long[:, ::1] states = mty_2d_int, np.ndarray binder_names = empty_1d,
+        self,
+        str name,
+        double[:, ::1] r = empty_2d,
+        *,
+        str log_path = "",
+        double[:, ::1] t3 = empty_2d,
+        double[:, ::1] t2 = empty_2d,
+        double lp = 0,
+        long[:, ::1] states = mty_2d_int,
+        np.ndarray binder_names = empty_1d,
         long[:, ::1] chemical_mods = mty_2d_int,
-        np.ndarray chemical_mod_names = empty_1d_str, long max_binders = -1
+        np.ndarray chemical_mod_names = empty_1d_str,
+        long max_binders = -1
     ):
         """Any polymer class requires these key attributes.
 
@@ -176,7 +184,12 @@ cdef class PolymerBase(TransformedObject):
         `required_attrs` lists the required attributes of any polymer class,
         `_arrays` lists the attributes of the polymer class which are stored as
         arrays, and `_3d_arrays` lists arrays with multi-indexed (x, y, z)
-        values.
+        values. I recognize that these would be better implemented as class
+        attributes if we were working in pure Python, but for Cython, it is
+        easier to treat these as instance attributes. This is because there is
+        no `.__class__` attribute in Cython, and we need to be able to access
+        `required_attrs`, `_arrays`, and `_3d_arrays` from the C code for any
+        particular subclass using methods in the superclass.
 
         Parameters
         ----------
@@ -218,7 +231,6 @@ cdef class PolymerBase(TransformedObject):
             1E99 kT per binder beyond the limit. (default = -1)
         """
         cdef long num_binders, num_beads
-        cdef double lp
         cdef np.ndarray required_attrs, _arrays, _3d_arrays
 
         super(PolymerBase, self).__init__()
@@ -241,13 +253,14 @@ cdef class PolymerBase(TransformedObject):
         self.check_binders(states, binder_names)
         self.construct_beads()
         self.update_log_path(log_path)
-        self.lp = 0
+        self.lp = lp
         self.required_attrs = np.array([
             "name", "r", "t3", "t2", "states", "binder_names", "num_binders",
             "beads", "num_beads", "lp"
         ])
         self._arrays = np.array(['r', 't3', 't2', 'states', 'chemical_mods'])
         self._3d_arrays = np.array(['r', 't3', 't2'])
+        self._single_values = np.array(["name", "lp", "num_beads"])
 
         # For move proposals
         self.r_trial = self.r.copy()
@@ -560,7 +573,7 @@ cdef class PolymerBase(TransformedObject):
 
         All other arrays can be added as a single column to the data frame.
 
-        ReaderProtein names is a special case because it does not fit with with
+        ReaderProtein names is a special case because it does not fit with
         dimensions of the other properties, which are saved per bead.
 
         Construct the parts of the DataFrame that need a multi-index.
@@ -585,6 +598,10 @@ cdef class PolymerBase(TransformedObject):
             name: getattr(self, name) for name in self._arrays
             if hasattr(self, name)
         }
+        single_vals = {
+            name: getattr(self, name) for name in self._single_values
+            if hasattr(self, name)
+        }
         vector_arrs = {}
         regular_arrs = {}
 
@@ -605,19 +622,26 @@ cdef class PolymerBase(TransformedObject):
             chem_mod_index = pd.MultiIndex.from_tuples(
                 [('chemical_mods', name) for name in self.chemical_mod_names]
             )
-            states_df = pd.DataFrame(np.asarray(self.states), columns=states_index)
+            states_df = pd.DataFrame(
+                np.asarray(self.states), columns=states_index
+            )
             chemical_mods_df = pd.DataFrame(
-                np.asarray(self.chemical_mods), columns=chem_mod_index, dtype=int
+                np.asarray(self.chemical_mods), columns=chem_mod_index,
+                dtype=int
             )
             df = pd.concat([vector_df, states_df, chemical_mods_df], axis=1)
         else:
             df = vector_df
-
         for name, arr in regular_arrs.items():
             if name == "bead_length" or name == "max_binders":
                 df[name] = np.broadcast_to(arr, (len(df.index), 1))
             else:
                 df[name] = arr
+        for name, val in single_vals.items():
+            arr_temp = np.empty((len(df.index), 1), dtype=object)
+            arr_temp[0, 0] = str(val)
+            df[name] = arr_temp
+            df[name] = df[name].apply(lambda x: x if x is not None else "")
         return df
 
     def to_csv(self, str path) -> pd.DataFrame:
@@ -680,7 +704,9 @@ cdef class PolymerBase(TransformedObject):
         """
         # top-level multiindex values correspond to kwargs
         kwnames = np.unique(df.columns.get_level_values(0))
-        kwargs = {name: np.ascontiguousarray(df[name].to_numpy()) for name in kwnames}
+        kwargs = {
+            name: np.ascontiguousarray(df[name].to_numpy()) for name in kwnames
+        }
         # extract names of each epigenetic state from multi-index
         if 'states' in df:
             binder_names = df['states'].columns.to_numpy()
@@ -690,7 +716,17 @@ cdef class PolymerBase(TransformedObject):
             kwargs['chemical_mod_names'] = chemical_mod_names
         if 'bead_length' in df:
             kwargs['bead_length'] = kwargs['bead_length'][0]
-        return cls(name, **kwargs)
+        if 'max_binders' in df:
+            kwargs['max_binders'] = kwargs['max_binders'][0]
+        if "name" in df and name is None:
+            kwargs['name'] = df['name'][0]
+        elif name is None:
+            kwargs['name'] = "unnamed"
+        else:
+            kwargs['name'] = name
+        if "lp" in df:
+            kwargs['lp'] = float(kwargs['lp'][0])
+        return cls(**kwargs)
 
     @classmethod
     def from_file(cls, path, name=None):
@@ -1718,7 +1754,7 @@ cdef class Chromatin(SSWLC):
         np.ndarray binder_names = empty_1d,
         np.ndarray[long, ndim=2] chemical_mods = mty_2d_int,
         np.ndarray chemical_mod_names = empty_1d_str,
-        str log_path = "", long max_binders = -1
+        str log_path = "", long max_binders = -1, **kwargs
     ):
         """Construct a `Chromatin` fiber object as a subclass of `SSWLC`.
 
