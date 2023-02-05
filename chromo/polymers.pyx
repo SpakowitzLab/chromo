@@ -300,7 +300,7 @@ cdef class PolymerBase(TransformedObject):
             print("No states defined.")
             self.states = np.zeros((self.num_beads, 1), dtype=int)
         if np.size(self.binder_names) == 0:
-            self.binder_names = np.array(["null_binder"])
+            self.binder_names = np.array(["null_reader"])
         if np.size(self.chemical_mods) == 0:
             print("No chemical modifications defined.")
             self.chemical_mods = np.zeros((self.num_beads, 1), dtype=int)
