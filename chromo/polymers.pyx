@@ -487,6 +487,7 @@ cdef class PolymerBase(TransformedObject):
             Path to the configuration tracker log. If None, no configuration
             tracker will be initialized. (default = None)
         """
+
         if log_path != "":
             self.configuration_tracker = \
                 mc_stat.ConfigurationTracker(log_path, self.r)
@@ -590,10 +591,6 @@ cdef class PolymerBase(TransformedObject):
 
         Returns
         -------
-        pd.DataFrame
-            Data frame representation of the polymer, as recorded in the CSV
-            file that was generated
-        """
         arrays = {
             name: getattr(self, name) for name in self._arrays
             if hasattr(self, name)
@@ -629,11 +626,15 @@ cdef class PolymerBase(TransformedObject):
                 np.asarray(self.chemical_mods), columns=chem_mod_index,
                 dtype=int
             )
-            df = pd.concat([vector_df, states_df, chemical_mods_df], axis=1)
+            bead_length_df = pd.DataFrame(
+                np.asarray(self.bead_length),
+                dtype=float
+            )
+            df = pd.concat([vector_df, states_df, chemical_mods_df, bead_length_df], axis=1)
         else:
             df = vector_df
         for name, arr in regular_arrs.items():
-            if name == "bead_length" or name == "max_binders":
+            if name == "max_binders":
                 df[name] = np.broadcast_to(arr, (len(df.index), 1))
             else:
                 df[name] = arr
@@ -643,6 +644,48 @@ cdef class PolymerBase(TransformedObject):
             df[name] = arr_temp
             df[name] = df[name].apply(lambda x: x if x is not None else "")
         return df
+
+
+
+    @classmethod
+    def from_dataframe(cls, df, name=None):
+        """Construct Polymer object from DataFrame; inverts `.to_dataframe`.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Data frame representation of the polymer
+        name : Optional str
+            Name of the polymer to be formed (default is None)
+
+        Returns
+        -------
+        PolymerBase
+            Polymer object reflecting the dataframe
+        """
+        # top-level multiindex values correspond to kwargs
+        kwnames = np.unique(df.columns.get_level_values(0))
+        kwargs = {
+            name: np.ascontiguousarray(df[name].to_numpy()) for name in kwnames
+        }
+        # extract names of each epigenetic state from multi-index
+        if 'states' in df:
+            binder_names = df['states'].columns.to_numpy()
+            kwargs['binder_names'] = binder_names
+        if 'chemical_mods' in df:
+            chemical_mod_names = df['chemical_mods'].columns.to_numpy()
+            kwargs['chemical_mod_names'] = chemical_mod_names
+        if 'max_binders' in df:
+            kwargs['max_binders'] = kwargs['max_binders'][0]
+        if "name" in df and name is None:
+            kwargs['name'] = df['name'][0]
+        elif name is None:
+            kwargs['name'] = "unnamed"
+        else:
+            kwargs['name'] = name
+        if "lp" in df:
+            kwargs['lp'] = float(kwargs['lp'][0])
+        return cls(**kwargs)
 
     def to_csv(self, str path) -> pd.DataFrame:
         """Save Polymer object to CSV file as DataFrame.
@@ -685,48 +728,6 @@ cdef class PolymerBase(TransformedObject):
         """
         df = pd.read_csv(csv_file)
         return cls.from_dataframe(df)
-
-    @classmethod
-    def from_dataframe(cls, df, name=None):
-        """Construct Polymer object from DataFrame; inverts `.to_dataframe`.
-
-        Parameters
-        ----------
-        df : pd.DataFrame
-            Data frame representation of the polymer
-        name : Optional str
-            Name of the polymer to be formed (default is None)
-
-        Returns
-        -------
-        PolymerBase
-            Polymer object reflecting the dataframe
-        """
-        # top-level multiindex values correspond to kwargs
-        kwnames = np.unique(df.columns.get_level_values(0))
-        kwargs = {
-            name: np.ascontiguousarray(df[name].to_numpy()) for name in kwnames
-        }
-        # extract names of each epigenetic state from multi-index
-        if 'states' in df:
-            binder_names = df['states'].columns.to_numpy()
-            kwargs['binder_names'] = binder_names
-        if 'chemical_mods' in df:
-            chemical_mod_names = df['chemical_mods'].columns.to_numpy()
-            kwargs['chemical_mod_names'] = chemical_mod_names
-        if 'bead_length' in df:
-            kwargs['bead_length'] = kwargs['bead_length'][0]
-        if 'max_binders' in df:
-            kwargs['max_binders'] = kwargs['max_binders'][0]
-        if "name" in df and name is None:
-            kwargs['name'] = df['name'][0]
-        elif name is None:
-            kwargs['name'] = "unnamed"
-        else:
-            kwargs['name'] = name
-        if "lp" in df:
-            kwargs['lp'] = float(kwargs['lp'][0])
-        return cls(**kwargs)
 
     @classmethod
     def from_file(cls, path, name=None):
@@ -915,14 +916,14 @@ cdef class SSWLC(PolymerBase):
         Ground-state segment compression (obtained from `_find_parameters`)
     eta : double
         Bend-shear coupling (obtained from `_find_parameters`)
-    bead_length : double
+    bead_length : np.ndarray
         Dimensional spacing between beads of the discrete polymer (in nm)
     bead_rad : double
         Dimensional radius of each bead in the polymer (in nm)
     """
 
     def __init__(
-        self, str name, double[:,::1] r, *, double bead_length, double lp,
+        self, str name, double[:,::1] r, *, np.ndarray bead_length, double lp,
         double bead_rad=5, double[:,::1] t3=empty_2d,
         double[:,::1] t2=empty_2d, long[:,::1] states=mty_2d_int,
         np.ndarray binder_names=empty_1d, long[:,::1] chemical_mods=mty_2d_int,
@@ -938,7 +939,7 @@ cdef class SSWLC(PolymerBase):
 
         Parameters
         ----------
-        bead_length : double
+        bead_length : ndarray, now it is ndarray
             The amount of polymer path length between subsequent beads (in nm)
         lp : double
             Dimensional persistence length of the SSWLC (in nm)
@@ -1461,7 +1462,7 @@ cdef class SSWLC(PolymerBase):
         """
         return f"Polymer_Class<SSWLC>, {super(SSWLC, self).__str__()}"
 
-    cpdef void _find_parameters(self, double length_bead):
+    cpdef void _find_parameters(self, np.ndarray length_bead):
         """Look up elastic parameters of ssWLC for each bead_length.
         
         Interpolate from the parameter table to get the physical parameters of
@@ -1490,7 +1491,7 @@ cdef class SSWLC(PolymerBase):
 
         Parameters
         ----------
-        length_bead : double
+        length_bead : ndarray
             Dimensional distance between subsequent beads of the polymer (in nm)
         """
         self.delta = length_bead / self.lp
@@ -1512,7 +1513,7 @@ cdef class SSWLC(PolymerBase):
 
     @classmethod
     def straight_line_in_x(
-        cls, name: str, num_beads: int, bead_length: float, **kwargs
+        cls, name: str, num_beads: int, bead_length: np.ndarray, **kwargs
     ):
         """Construct polymer initialized uniformly along the positve x-axis.
 
@@ -1522,7 +1523,7 @@ cdef class SSWLC(PolymerBase):
             Name of polymer being constructed
         num_beads : int
             Number of monomeric units of polymer
-        bead_length : float
+        bead_length : ndarray
             Dimensional distance between subsequent beads of the polymer (in nm)
 
         Returns
@@ -1531,8 +1532,9 @@ cdef class SSWLC(PolymerBase):
             Object representation of a polymer currently configured as a
             straight line
         """
+
         r = np.zeros((num_beads, 3))
-        r[:, 0] = bead_length * np.arange(num_beads)
+        r[:, 1] = np.cumsum(bead_length)
         t3 = np.zeros((num_beads, 3))
         t3[:, 0] = 1
         t2 = np.zeros((num_beads, 3))
@@ -1541,7 +1543,7 @@ cdef class SSWLC(PolymerBase):
 
     @classmethod
     def arbitrary_path_in_x_y(
-        cls, name: str, num_beads: int, bead_length: float,
+        cls, name: str, num_beads: int, bead_length: np.ndarray,
         shape_func: Callable[[float], float], step_size: float = 0.001,
         **kwargs
     ):
@@ -1557,7 +1559,7 @@ cdef class SSWLC(PolymerBase):
             Name of the polymer
         num_beads : int
             Number of monomer units on the polymer
-        bead_length : float
+        bead_length : ndarray
             Dimensional distance between subsequent beads of the polymer (in nm)
         shape_func : Callable[[float], float]
             Shape of the polymer where z = 0 and y = f(x)
@@ -1583,7 +1585,7 @@ cdef class SSWLC(PolymerBase):
         cls,
         name: str,
         num_beads: int,
-        bead_length: float,
+        bead_length: np.ndarray,
         shape_func_x: Callable[[float], float],
         shape_func_y: Callable[[float], float],
         shape_func_z: Callable[[float], float],
@@ -1602,7 +1604,7 @@ cdef class SSWLC(PolymerBase):
             Name of the polymer
         num_beads : int
             Number of monomer units on the polymer
-        bead_length : float
+        bead_length : ndarray
             Dimensional distance between subsequent beads of the polymer (in nm)
         shape_func_x : Callable[[float], float]
             Parametric functions to obtain the x coordinates of the path
@@ -1632,7 +1634,7 @@ cdef class SSWLC(PolymerBase):
 
     @classmethod
     def gaussian_walk_polymer(
-        cls, name: str, num_beads: int, bead_length: float, **kwargs
+        cls, name: str, num_beads: int, bead_length: np.ndarray, **kwargs
     ):
         """Initialize a polymer to a Gaussian random walk.
 
@@ -1642,7 +1644,8 @@ cdef class SSWLC(PolymerBase):
             Name of the polymer
         num_beads : int
             Number of monomer units on the polymer
-        bead_length : float
+
+        bead_length : ndarray
             Dimensional distance between subsequent beads of the polymer (in nm)
 
         Returns
@@ -1656,7 +1659,7 @@ cdef class SSWLC(PolymerBase):
 
     @classmethod
     def confined_gaussian_walk(
-        cls, name: str, num_beads: int, bead_length: float, confine_type: str,
+        cls, name: str, num_beads: int, bead_length: np.ndarray, confine_type: str,
         confine_length: float, **kwargs
     ):
         """Initialize a polymer to a confined Gaussian random walk.
@@ -1667,7 +1670,7 @@ cdef class SSWLC(PolymerBase):
             Name of the polymer
         num_beads : int
             Number of monomer units on the polymer
-        bead_length : float
+        bead_length : ndarray
             Dimensional distance between subsequent beads of the polymer (in nm)
         confine_type : str
             Name of the confining boundary; to indicate model w/o confinement,
@@ -1690,7 +1693,7 @@ cdef class SSWLC(PolymerBase):
 
     @classmethod
     def confined_uniform_random_walk(
-            cls, name: str, num_beads: int, bead_length: float, confine_type: str,
+            cls, name: str, num_beads: int, bead_length: np.ndarray, confine_type: str,
             confine_length: float, **kwargs
     ):
         """Initialize a polymer to a confined uniform random walk.
@@ -1701,7 +1704,7 @@ cdef class SSWLC(PolymerBase):
             Name of the polymer
         num_beads : int
             Number of monomer units on the polymer
-        bead_length : float
+        bead_length : ndarray
             Dimensional distance between subsequent beads of the polymer (in nm)
         confine_type : str
             Name of the confining boundary; to indicate model w/o confinement,
@@ -1746,7 +1749,7 @@ cdef class Chromatin(SSWLC):
         str name,
         np.ndarray[double, ndim=2] r,
         *,
-        double bead_length,
+        np.ndarray bead_length,
         double bead_rad = 5,
         np.ndarray[double, ndim=2] t3 = empty_2d,
         np.ndarray[double, ndim=2] t2 = empty_2d,
@@ -1817,9 +1820,11 @@ cdef class SSTWLC(SSWLC):
         str name,
         double[:, ::1] r,
         *,
-        double bead_length,
+        np.ndarray bead_length,
         double lp,
         double lt,
+
+
         double bead_rad = 5,
         double[:, ::1] t3 = empty_2d,
         double[:, ::1] t2 = empty_2d,
@@ -1862,7 +1867,7 @@ cdef class SSTWLC(SSWLC):
         )
         self.check_attrs()
 
-    cpdef void _find_parameters(self, double length_bead):
+    cpdef void _find_parameters(self, np.ndarray length_bead):
         """Look up elastic parameters of ssWLC for each bead_length.
 
         Notes
@@ -1878,10 +1883,10 @@ cdef class SSTWLC(SSWLC):
 
         Parameters
         ----------
-        length_bead : double
+        length_bead : ndarray
             Number of base pairs represented by each bead of the polymer
         """
-        self.delta = length_bead / self.lp
+        self.delta = length_bead/ self.lp
         self.eps_bend = np.interp(
             self.delta, dss_params[:, 0], dss_params[:, 1]
         ) / self.delta
@@ -2169,7 +2174,7 @@ cdef class LoopedSSTWLC(SSTWLC):
 
     def __init__(
         self,
-        str name, double[:,::1] r, *, double bead_length, double lp=53,
+        str name, double[:,::1] r, *, np.ndarray bead_length, double lp=53,
         double lt=46.37, double bead_rad=5, double[:,::1] t3=empty_2d,
         double[:,::1] t2=empty_2d, long[:,::1] states=mty_2d_int,
         np.ndarray binder_names=empty_1d, long[:,::1] chemical_mods=mty_2d_int,
@@ -2196,7 +2201,7 @@ cdef class LoopedSSTWLC(SSTWLC):
         cls,
         name: str,
         num_beads: int,
-        bead_length: float,
+        bead_length: np.ndarray,
         confine_type: str,
         confine_length: float,
         **kwargs
@@ -2209,7 +2214,7 @@ cdef class LoopedSSTWLC(SSTWLC):
             Name of the polymer
         num_beads : int
             Number of monomer units on the polymer
-        bead_length : float
+        bead_length : ndarray
             The amount of polymer path length between this bead and the next
             bead. For now, a constant value is assumed (the first value if an
             array is passed).

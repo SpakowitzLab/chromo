@@ -1,0 +1,14 @@
+x_width,1300.0
+nx,50
+y_width,1300.0
+ny,50
+z_width,1300.0
+nz,50
+confine_type,Spherical
+confine_length,650.0
+chi,1.0
+assume_fully_accessible,True
+vf_limit,0.5
+fast_field,False
+Chr-1,polymer
+HP1,binder

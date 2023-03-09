@@ -1,0 +1,2 @@
+,name,sites_per_bead,bind_energy,interaction_energy,chemical_potential,bind_energy_mod,bind_energy_no_mod,cross_talk_field_energy_prefactor,cross_talk_interaction_energy,field_energy_prefactor,interaction_energy_intranucleosome,interaction_radius,interaction_volume
+0,null_reader,0,,0.0,0.0,0.0,0.0,{'null_reader': 0},{},0.0,0.0,0.0,0.0

@@ -52,8 +52,9 @@ cdef class Rouse(PolymerBase):
     cdef void construct_beads(self)
 
 cdef class SSWLC(PolymerBase):
-    cdef public double delta, eps_bend, eps_par, eps_perp, gamma, eta
-    cdef public double bead_length, bead_rad
+    cdef public np.ndarray delta, eps_bend, eps_par, eps_perp, gamma, eta
+    cdef public double bead_rad
+    cdef public np.ndarray bead_length
     cdef void construct_beads(self)
     cpdef double compute_E(self)
     cdef double compute_dE(
@@ -90,7 +91,7 @@ cdef class SSWLC(PolymerBase):
     cdef double bead_binding_dE(
         self, long ind, long[:] states_trial_ind
     )
-    cpdef void _find_parameters(self, double length_bead)
+    cpdef void _find_parameters(self, np.ndarray length_bead)
 
 cdef class Chromatin(SSWLC):
     cdef double compute_dE(

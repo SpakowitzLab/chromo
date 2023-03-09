@@ -372,7 +372,7 @@ class Nucleosome(Bead):
 
     Attributes
     ----------
-    bead_length : double
+    bead_length : double ....changed to np.ndarray
         Spacing between the nucleosome and its neighbor
     rad : double
         Radius of spherical excluded volume around nucleosome
@@ -382,7 +382,7 @@ class Nucleosome(Bead):
 
     def __init__(
         self, id_: int, r: np.ndarray, *, t3: np.ndarray, t2: np.ndarray,
-        bead_length: float, rad: Optional[float] = 5,
+        bead_length: np.array, rad: Optional[float] = 5,
         states: Optional[np.ndarray] = None,
         binder_names: Optional[Sequence[str]] = None
     ):

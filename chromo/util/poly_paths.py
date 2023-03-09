@@ -9,7 +9,7 @@ from numba import njit
 
 def coordinates_in_x_y(
     num_beads: int,
-    bead_length: float,
+    bead_length: np.ndarray,
     shape_func: Callable[[float], float],
     step_size: float
 ) -> np.ndarray:
@@ -65,7 +65,7 @@ def coordinates_in_x_y(
 
 def coordinates_in_x_y_z(
     num_beads: int,
-    bead_length: float,
+    bead_length: np.ndarray,
     shape_func_x: Callable[[float], float],
     shape_func_y: Callable[[float], float],
     shape_func_z: Callable[[float], float],
@@ -105,7 +105,29 @@ def coordinates_in_x_y_z(
     for i in range(num_beads):
         arc_length = 0
 
-        while arc_length < bead_length:
+        """while arc_length < bead_length:
+            previous_t = t
+            previous_arc_length = arc_length
+            dx_dt = numerical_derivative(shape_func_x, previous_t, step_size)
+            dy_dt = numerical_derivative(shape_func_y, previous_t, step_size)
+            dz_dt = numerical_derivative(shape_func_z, previous_t, step_size)
+            t += step_size
+            arc_length += np.sqrt(
+                dx_dt ** 2 + dy_dt ** 2 + dz_dt ** 2
+            ) * step_size"""
+
+        for individual_bead in bead_length:
+            if individual_bead > arc_length:
+                previous_t = t
+                previous_arc_length = arc_length
+                dx_dt = numerical_derivative(shape_func_x, previous_t, step_size)
+                dy_dt = numerical_derivative(shape_func_y, previous_t, step_size)
+                dz_dt = numerical_derivative(shape_func_z, previous_t, step_size)
+                t += step_size
+                arc_length += np.sqrt(
+                    dx_dt ** 2 + dy_dt ** 2 + dz_dt ** 2
+                ) * step_size
+
             previous_t = t
             previous_arc_length = arc_length
             dx_dt = numerical_derivative(shape_func_x, previous_t, step_size)
@@ -116,8 +138,9 @@ def coordinates_in_x_y_z(
                 dx_dt ** 2 + dy_dt ** 2 + dz_dt ** 2
             ) * step_size
 
+
         t_true = np.interp(
-            bead_length, [previous_arc_length, arc_length], [previous_t, t]
+            bead_length, [previous_arc_length, arc_length],ous_t, t
         )
         parameter_vals.append(t_true)
         r[i, 0] = shape_func_x(t_true)
@@ -268,7 +291,7 @@ def numerical_derivative(
 
 def gaussian_walk(
     num_steps: int,
-    step_size: float
+    step_size: np.ndarray
 ) -> np.ndarray:
     """Generate coordinates for Gaussian random walk w/ fixed path length.
 
@@ -287,8 +310,9 @@ def gaussian_walk(
     """
     steps = np.random.standard_normal((num_steps, 3))
     magnitude_steps = np.linalg.norm(steps, axis=1)
+
     return np.cumsum(
-        np.divide(steps, magnitude_steps[:, None]) * step_size, axis=0
+        np.divide(steps, magnitude_steps[:, None]) * np.reshape(step_size, (num_steps, 1)) , axis=0
     )
 
 
