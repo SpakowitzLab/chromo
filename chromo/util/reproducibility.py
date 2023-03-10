@@ -159,7 +159,7 @@ class make_reproducible(object):
         return sim_out
 
     def log_parameters(self, outdir, output_subfolder, *args, **kwargs):
-        """Log parameters used to call simulation.
+        '''Log parameters used to call simulation.
 
         Notes
         -----
@@ -180,8 +180,8 @@ class make_reproducible(object):
         outdir : Path
             Path to output directory for all simulations
         output_subfolder : Path
-            Path to the output directory for the specific simulation being run
-        """
+            Path to the output directory for the specific simulation being run'''
+        
         simple_params, hard_params = split_builtin_params(
             self.sim, *args, **kwargs
         )
@@ -239,7 +239,7 @@ class make_reproducible(object):
         return kwargs
 
 
-builtin_types = [bool, bytes, bytearray, complex, float, int, str]
+builtin_types = [bool, bytes, bytearray, complex, float, int, str] # np.ndarray is not included
 """Types to be saved as CSV entries by default.
 
 Notes
@@ -395,7 +395,7 @@ def to_file_params(non_builtins_kwargs, folder, suffix=''):
         dtype = type(value)
         if isinstance(value, collections.Sequence):
             for data in value:
-                to_file_params({arg_name: data}, folder, suffix)
+                to_file_params({arg_name: data}, folder, suffix) # recursion is happening here! But where is the base case?!
         elif hasattr(value, 'to_file'):
             value.to_file(str(folder / Path(value.name + suffix)))
         elif issubclass(dtype, pd.DataFrame) or issubclass(dtype, pd.Series):

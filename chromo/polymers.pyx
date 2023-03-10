@@ -258,7 +258,7 @@ cdef class PolymerBase(TransformedObject):
             "name", "r", "t3", "t2", "states", "binder_names", "num_binders",
             "beads", "num_beads", "lp"
         ])
-        self._arrays = np.array(['r', 't3', 't2', 'states', 'chemical_mods'])
+        self._arrays = np.array(['r', 't3', 't2', 'states', 'chemical_mods', 'bead_length'])
         self._3d_arrays = np.array(['r', 't3', 't2'])
         self._single_values = np.array(["name", "lp", "num_beads"])
 
@@ -591,6 +591,10 @@ cdef class PolymerBase(TransformedObject):
 
         Returns
         -------
+        pd.DataFrame
+            Data frame representation of the polymer, as recorded in the CSV
+            file that was generated
+        """
         arrays = {
             name: getattr(self, name) for name in self._arrays
             if hasattr(self, name)
@@ -627,8 +631,7 @@ cdef class PolymerBase(TransformedObject):
                 dtype=int
             )
             bead_length_df = pd.DataFrame(
-                np.asarray(self.bead_length),
-                dtype=float
+                self.bead_length, dtype=float
             )
             df = pd.concat([vector_df, states_df, chemical_mods_df, bead_length_df], axis=1)
         else:
@@ -644,8 +647,6 @@ cdef class PolymerBase(TransformedObject):
             df[name] = arr_temp
             df[name] = df[name].apply(lambda x: x if x is not None else "")
         return df
-
-
 
     @classmethod
     def from_dataframe(cls, df, name=None):
@@ -675,8 +676,10 @@ cdef class PolymerBase(TransformedObject):
         if 'chemical_mods' in df:
             chemical_mod_names = df['chemical_mods'].columns.to_numpy()
             kwargs['chemical_mod_names'] = chemical_mod_names
+        if 'bead_length' in df:
+            kwargs["bead_length"] = kwargs["bead_length"] #check on this modification
         if 'max_binders' in df:
-            kwargs['max_binders'] = kwargs['max_binders'][0]
+            kwargs['max_binders'] = kwargs['max_binders']
         if "name" in df and name is None:
             kwargs['name'] = df['name'][0]
         elif name is None:
@@ -2258,6 +2261,7 @@ cdef class LoopedSSTWLC(SSTWLC):
         long ind0,
         long indf,
     ):
+
         """Compute change in polymer energy for a continuous bead region.
 
         Notes
@@ -2296,6 +2300,7 @@ cdef class LoopedSSTWLC(SSTWLC):
         )
 
         return delta_energy_poly
+
 
 
 cpdef double sin_func(double x):
