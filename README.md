@@ -3,30 +3,24 @@
 Physics-based simulator of chromatin architecture.
 
 ## Authors
-Joseph Wakim, Bruno Beltran, Andrew Spakowitz
+Joseph Wakim, Bruno Beltran, Angelika Hirsch, Andrew Spakowitz
 
 ## Quickstart
 
-Our physics-based chromatin simulator is publicly available in the [“Chromo” repository](https://github.com/SpakowitzLab/chromo) of the Spakowitz Lab GitHub account. Clone this repository to your local machine.
+The physics-based chromatin simulator is available in the [“Chromo” repository](https://github.com/AngelikaH123/chromo) of the Spakowitz Lab GitHub account. Clone this repository to your local machine.
 
-`git clone https://github.com/SpakowitzLab/chromo.git`
+`git clone git@github.com:AngelikaH123/chromo.git`
 
-Install the package dependencies of the simulator, which are listed in requirements.txt; we recommend that you do so in a separate virtual environment using Python 3.9.12. We demonstrate how to do so using the Conda package manager.
+Install the package dependencies and environment of the simulator by running the command:
 
-`conda create --name chromo python=3.9.12`
-
-`conda activate chromo`
-
-`pip install -r requirements.txt`
-
-Install our simulator package using pip by entering `pip install /path/to/root/directory` in the terminal, specifying the path to the root directory of the codebase on your local machine. If you would like to make changes to the codebase, use `pip install -e /path/to/root/directory` to install the simulator package in editable mode.
-
-`pip install /path/to/root/directory`
-
-`pip install -e /path/to/root/directory`
+'bash make_all.sh'
 
 During installation, all Cython code required by the Monte Carlo algorithm will be compiled. This may take several
-minutes. Once the package has been installed, the simulator is ready for use. Navigate to `simulations/examples` from the root directory to find example simulations.
+minutes. Once the package has been installed, the simulator is ready for use. Navigate to `chromo` from the root directory to find the run_simulation.py file for intializing the polymer object. Use the following command to run the file:
+
+'python run_simulation.py'
+
+This will generate the polymer object and compare it to a reference image, so the user can assess if the generated polymer is sufficiently similar to the control. 
 
 
 ## Abstract
