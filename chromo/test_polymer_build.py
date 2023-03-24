@@ -22,7 +22,6 @@ def test_image(new_image_name, control_image_name):
     gray1 = cv2.cvtColor(new_image, cv2.COLOR_BGR2GRAY)
     gray2 = cv2.cvtColor(control_image, cv2.COLOR_BGR2GRAY)
 
-    # Find the difference between the two images
     # Calculate absolute difference between two arrays
     diff = cv2.absdiff(gray1, gray2)
     cv2.imshow("diff(new_image, control_image)", diff)
