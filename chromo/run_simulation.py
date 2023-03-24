@@ -66,18 +66,16 @@ ax.set_zlabel('z')
 
 
 # Tests if the plot shown is sufficiently similar to the reference image.
-
-#plt.savefig("control_image_configuration.png")
+control_image_configuration = "control_image_configuration"
+#plt.savefig(str("chromo/" + control_image_configuration)) # can be used to generate a new control image
 
 new_image_name = "testing_plot"
-plt.savefig(new_image_name)
+plt.savefig("chromo/" + str(new_image_name))
 plt.show()
-control_image_configuration = "control_image_configuration"
+
 plt.show()
 test_image(new_image_name, control_image_configuration)
 
-
-# plt.show()
 """ The code after this point sets up the other inputs into the simulation and runs the simulation. 
 It is still in the process of being debugged to be compatible with linker length variation.
 """

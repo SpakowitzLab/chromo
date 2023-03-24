@@ -7,8 +7,8 @@ import os
 def test_image(new_image_name, control_image_name):
     cwd = os.getcwd()  # get pathname of current working directory
     # Load the two images
-    new_location1 = cwd + "/" + new_image_name + ".png"
-    old_location1 = cwd + "/" + control_image_name + ".png"
+    new_location1 = cwd + "/chromo/" + new_image_name + ".png"
+    old_location1 = cwd + "/chromo/" + control_image_name + ".png"
 
     new_image = cv2.imread(new_location1)
     control_image = cv2.imread(old_location1)
