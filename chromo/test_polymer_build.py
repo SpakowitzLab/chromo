@@ -1,19 +1,14 @@
 import cv2
 import imutils
 import numpy as np
-from matplotlib import pyplot as plt
+import os
 
 
 def test_image(new_image_name, control_image_name):
+    cwd = os.getcwd()  # get pathname of current working directory
     # Load the two images
-    new_location1 = "/Users/angelikahirsch/Documents/chromo/" + new_image_name + ".png"
-    old_location1 = "/Users/angelikahirsch/Documents/chromo/" + control_image_name + ".png"
-    #new_location2 = cwd + "/" + new_image_name
-    #old_location2 = cwd + "/" + control_image_name
-
-    #print(new_location1)
-    #print(old_location2)
-    print("does anything work")
+    new_location1 = cwd + "/" + new_image_name + ".png"
+    old_location1 = cwd + "/" + control_image_name + ".png"
 
     new_image = cv2.imread(new_location1)
     control_image = cv2.imread(old_location1)
@@ -58,15 +53,11 @@ def test_image(new_image_name, control_image_name):
     result = np.hstack((new_image, x, control_image))
     cv2.imshow("Differences", result)
 
-
-    user_opinion = input("Does your output approximately match the reference image? Enter yes or no: ")
+    user_opinion = input("Does your output approximately match the reference image.  \n Note: the polymer may be in a different orientation ? Enter yes or no: ")
 
     if user_opinion == "yes":
         print("Test passed")
     if user_opinion == "no":
         print("Test not passed")
 
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-
+    quit()

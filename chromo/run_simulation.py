@@ -63,15 +63,19 @@ ax.set_xlabel('x')
 ax.set_ylabel('y')
 ax.set_zlabel('z')
 
-# plt.show()
+
 
 # Tests if the plot shown is sufficiently similar to the reference image.
+
+#plt.savefig("control_image_configuration.png")
+
 new_image_name = "testing_plot"
 plt.savefig(new_image_name)
-
+plt.show()
 control_image_configuration = "control_image_configuration"
-
+plt.show()
 test_image(new_image_name, control_image_configuration)
+
 
 # plt.show()
 """ The code after this point sets up the other inputs into the simulation and runs the simulation. 
