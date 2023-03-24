@@ -67,7 +67,7 @@ ax.set_zlabel('z')
 
 # Tests if the plot shown is sufficiently similar to the reference image.
 control_image_configuration = "control_image_configuration"
-#plt.savefig(str("chromo/" + control_image_configuration)) # can be used to generate a new control image
+# plt.savefig(str("chromo/" + control_image_configuration)) # can be used to generate a new control image
 
 new_image_name = "testing_plot"
 plt.savefig("chromo/" + str(new_image_name))

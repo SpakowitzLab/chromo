@@ -1,0 +1,5 @@
+This iteration of the project adds the ability to include variable linker lengths as a part of the project. The components of the simulator design have been documented through sphinx. 
+
+This includes a file called run_simulation.py that generates a polymer chromatin objects with the ability to add variable linker lengths. The file also automatically allows the user to compare the newly generated polymer against a control test image. 
+
+
