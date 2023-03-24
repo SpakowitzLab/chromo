@@ -30,7 +30,7 @@ def test_image(new_image_name, control_image_name):
     thresh = cv2.threshold(diff, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
     cv2.imshow("Threshold", thresh)
 
-    # Dilation
+    #    Dilation
     kernel = np.ones((5, 5), np.uint8)
     dilate = cv2.dilate(thresh, kernel, iterations=2)
     cv2.imshow("Dilate", dilate)
