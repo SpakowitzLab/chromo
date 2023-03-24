@@ -312,7 +312,7 @@ def gaussian_walk(
     magnitude_steps = np.linalg.norm(steps, axis=1)
 
     return np.cumsum(
-        np.divide(steps, magnitude_steps[:, None]) * np.reshape(step_size, (num_steps, 1)) , axis=0
+        np.divide(steps, magnitude_steps[:, None]) * np.reshape(step_size, (num_steps, 1)), axis=0
     )
 
 
@@ -347,9 +347,16 @@ def confined_gaussian_walk(
     for i in range(num_points-1):
         pt_not_found = True
         while pt_not_found:
-            step = np.random.standard_normal((1, 3))
-            magnitude_step = np.linalg.norm(step)
-            point = points[i] + np.divide(step, magnitude_step) * step_size
+            step = np.random.standard_normal((num_points, 3))
+            #magnitude_step = np.linalg.norm(step)
+            magnitude_steps = np.linalg.norm(step, axis=1)
+
+            point = points[i] + np.divide(step, magnitude_steps[:, None]) * np.reshape(step_size, (num_points, 1))
+            #np.cumsum(
+               # np.divide(step, magnitude_steps[:, None]) * np.reshape(step_size, (num_points, 1)), axis=0
+            #)
+
+            #point = points[i] + np.divide(step, magnitude_steps) * step_size
             if in_confinement(point, confine_type, confine_length):
                 points = np.vstack([points, point])
                 pt_not_found = False

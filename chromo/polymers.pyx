@@ -591,6 +591,10 @@ cdef class PolymerBase(TransformedObject):
 
         Returns
         -------
+        pd.DataFrame
+            Data frame representation of the polymer, as recorded in the CSV
+            file that was generated
+        """
         arrays = {
             name: getattr(self, name) for name in self._arrays
             if hasattr(self, name)
@@ -1147,7 +1151,7 @@ cdef class SSWLC(PolymerBase):
         -----
         For the current and proposed states of the polymer, calculate change in
         position, as well as the parallel magnitude and perpendicular component
-        of that change, of the bead pair. Calcualate the bend vectors for the
+        of that change, of the bead pair. Calculate the bend vectors for the
         existing and trial orientations. Calculate the change in energy given
         these properties using theory for a discretized worm-like chain.
         
