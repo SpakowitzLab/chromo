@@ -16,7 +16,7 @@ Install the package dependencies and environment of the simulator by running the
 'bash make_all.sh'
 
 During installation, all Cython code required by the Monte Carlo algorithm will be compiled. This may take several
-minutes. Once the package has been installed, the simulator is ready for use. Navigate to `chromo` from the root directory to find the run_simulation.py file for intializing the polymer object. Use the following command to run the file:
+minutes. Once the package has been installed, the simulator is ready for use. Navigate to `chromo` from the root directory to find the run_simulation.py file for initializing the polymer object. Use the following command to run the file:
 
 'python run_simulation.py'
 
