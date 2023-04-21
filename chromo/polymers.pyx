@@ -4,10 +4,13 @@
 """
 
 import pyximport
+#from Cython.Includes.numpy import ndarray
+#from numpy import ndarray
+
 pyximport.install()
 
 # Built-in Modules
-from typing import Callable
+from typing import Callable, Union
 from libc.math cimport sin, cos
 
 # External Modules
@@ -258,7 +261,7 @@ cdef class PolymerBase(TransformedObject):
             "name", "r", "t3", "t2", "states", "binder_names", "num_binders",
             "beads", "num_beads", "lp"
         ])
-        self._arrays = np.array(['r', 't3', 't2', 'states', 'chemical_mods'])
+        self._arrays = np.array(['r', 't3', 't2', 'states', 'chemical_mods', 'bead_length'])
         self._3d_arrays = np.array(['r', 't3', 't2'])
         self._single_values = np.array(["name", "lp", "num_beads"])
 
@@ -285,6 +288,7 @@ cdef class PolymerBase(TransformedObject):
         self.densities_temp = np.zeros((2, self.n_binders_p1, 8), dtype='d')
 
     def fill_missing_arguments(self):
+        # this definitely works. It just adds default values to things if there is no user input for them.
         """Fill empty arguments in `__init__` call.
 
         Fills t3, t2, states, binder_names, chemical_mods, chemical_mod_names
@@ -595,6 +599,7 @@ cdef class PolymerBase(TransformedObject):
             Data frame representation of the polymer, as recorded in the CSV
             file that was generated
         """
+        print("does anything happen here?")
         arrays = {
             name: getattr(self, name) for name in self._arrays
             if hasattr(self, name)
@@ -605,11 +610,15 @@ cdef class PolymerBase(TransformedObject):
         }
         vector_arrs = {}
         regular_arrs = {}
+        print("HERE")
+        print(np.asarray(self.states).shape)
+        print(np.asarray(self.bead_length).shape)
+        print("THERE")
 
         for name, arr in arrays.items():
             if name in self._3d_arrays:
                 vector_arrs[name] = arr
-            elif name != 'states' and name != 'chemical_mods':
+            elif name != 'states' and name != 'chemical_mods' and name != "bead_length":
                 regular_arrs[name] = arr
         vector_arr = np.concatenate(list(vector_arrs.values()), axis=1)
         vector_index = pd.MultiIndex.from_product(
@@ -641,10 +650,16 @@ cdef class PolymerBase(TransformedObject):
             if name == "max_binders":
                 df[name] = np.broadcast_to(arr, (len(df.index), 1))
             else:
-                df[name] = arr
+                print(name)
+                print(len(name))
+                print(arr)
+                print(len(arr))
+                #df[name] = np.broadcast_to(arr, (len(df.index), 1))
+                df[name] = arr.transpose()
         for name, val in single_vals.items():
             arr_temp = np.empty((len(df.index), 1), dtype=object)
             arr_temp[0, 0] = str(val)
+
             df[name] = arr_temp
             df[name] = df[name].apply(lambda x: x if x is not None else "")
         return df
@@ -668,6 +683,7 @@ cdef class PolymerBase(TransformedObject):
             Polymer object reflecting the dataframe
         """
         # top-level multiindex values correspond to kwargs
+        print("what about here")
         kwnames = np.unique(df.columns.get_level_values(0))
         kwargs = {
             name: np.ascontiguousarray(df[name].to_numpy()) for name in kwnames
@@ -705,6 +721,7 @@ cdef class PolymerBase(TransformedObject):
             Data frame representation of the polymer, as recorded in the CSV
             file that was generated
         """
+        print("does csv work")
         return self.to_dataframe().to_csv(path)
 
     def to_file(self, str path) -> pd.DataFrame:
@@ -714,6 +731,7 @@ cdef class PolymerBase(TransformedObject):
         -----
         See documentation for `to_csv` for details.
         """
+        print("does to_file work")
         return self.to_csv(path)
 
     @classmethod
@@ -735,6 +753,7 @@ cdef class PolymerBase(TransformedObject):
 
     @classmethod
     def from_file(cls, path, name=None):
+        print("does from_file work")
         """Construct Polymer object from string representation.
 
         Parameters
@@ -755,6 +774,7 @@ cdef class PolymerBase(TransformedObject):
         return cls.from_dataframe(df, name)
 
     cpdef long get_num_binders(self):
+        print("does get_num_binder work")
         """Return number of states tracked per bead.
         
         Returns
@@ -765,6 +785,7 @@ cdef class PolymerBase(TransformedObject):
         return self.states.shape[1]
 
     cpdef long get_num_beads(self):
+        print("does get_num_beads work")
         """Return number of beads in the polymer.
         
         Returns
@@ -775,6 +796,7 @@ cdef class PolymerBase(TransformedObject):
         return self.r.shape[0]
 
     cpdef bint is_field_active(self):
+        print ("does is_field_active work")
         """Evaluate if the polymer is affected by a field.
         
         Notes
@@ -967,7 +989,7 @@ cdef class SSWLC(PolymerBase):
         ])
         self._arrays = np.array([
             'r', 't3', 't2', 'states', 'bead_length', 'chemical_mods',
-            'max_binders'
+            'max_binders', 'bead_length'
         ])
         self.check_attrs()
         self.mu_adjust_factor = 1
@@ -975,6 +997,7 @@ cdef class SSWLC(PolymerBase):
     cdef void construct_beads(self):
         """Construct `GhostBead` objects forming beads of the polymer.
         """
+        print("does construct_beads work")
         self.beads = {
             i: beads.GhostBead(
                 id_=i,
@@ -1019,12 +1042,12 @@ cdef class SSWLC(PolymerBase):
         Returns
         -------
         delta_energy_poly : double
-            Change in polymer elastic energy assocaited with the trial move
+            Change in polymer elastic energy associated with the trial move
         """
         cdef double delta_energy_poly
         cdef long ind0, indf, ind, i
 
-        delta_energy_poly = 0
+        delta_energy_poly = 0 #zero change in energy
 
         if move_name == "change_binding_state":
             if self.is_field_active() == 1:
@@ -1040,7 +1063,7 @@ cdef class SSWLC(PolymerBase):
             indf = inds[n_inds-1] + 1
             delta_energy_poly += self.continuous_dE_poly(ind0, indf)
         
-        elif move_name == "tangent_rotation":
+        elif move_name == "tangent_rotation": # no changes
             for i in range(n_inds):
                 ind = inds[i]
                 ind0 = ind
@@ -1088,30 +1111,33 @@ cdef class SSWLC(PolymerBase):
 
         ind0_m_1 = ind0 - 1
         indf_m_1 = indf - 1
-
+        # for each pair of beads
         delta_energy_poly = 0
         if ind0 != 0:
-            delta_energy_poly += self.bead_pair_dE_poly_forward(
-                self.r[ind0_m_1, :],
+            delta_energy_poly += self.bead_pair_dE_poly_forward( # change in energy with segment before change
+                self.r[ind0_m_1, :],# evaluates change in energy
                 self.r[ind0, :],
                 self.r_trial[ind0, :],
                 self.t3[ind0_m_1, :],
                 self.t3[ind0, :],
-                self.t3_trial[ind0, :]
+                self.t3_trial[ind0, :],
+                ind0
             )
         if indf != self.num_beads:
-            delta_energy_poly += self.bead_pair_dE_poly_reverse(
+            delta_energy_poly += self.bead_pair_dE_poly_reverse( # change in energy with segment after change
                 self.r[indf_m_1, :],
                 self.r_trial[indf_m_1, :],
                 self.r[indf, :],
                 self.t3[indf_m_1, :],
                 self.t3_trial[indf_m_1, :],
-                self.t3[indf, :]
+                self.t3[indf, :],
+                #ind0_m_1 # potential bug
+                indf
             )
 
         return delta_energy_poly
 
-    cdef double E_pair(self, double[:] bend, double dr_par, double[:] dr_perp):
+    cdef double E_pair(self, double[:] bend, double dr_par, double[:] dr_perp, long ind):
         """Calculate elastic energy for a pair of beads.
 
         Parameters
@@ -1129,22 +1155,25 @@ cdef class SSWLC(PolymerBase):
             Elastic energy of bond between the bead pair
         """
         cdef double E
-        E = (
-            0.5 * self.eps_bend * vec_dot3(bend, bend) +
-            0.5 * self.eps_par * (dr_par - self.gamma) ** 2 +
-            0.5 * self.eps_perp * vec_dot3(dr_perp, dr_perp)
+        E = ( # call on specific values in bead index
+            0.5 * self.eps_bend[ind] * vec_dot3(bend, bend) + # change to be arrays calculated for each bond
+            0.5 * self.eps_par[ind] * (dr_par - self.gamma[ind]) ** 2 +
+            0.5 * self.eps_perp[ind] * vec_dot3(dr_perp, dr_perp)
         )
         return E
 
     cdef double bead_pair_dE_poly_forward(
         self,
-        double[:] r_0,
-        double[:] r_1,
+        double[:] r_0, #posoiton of first bead in move
+        double[:] r_1, # position of the escond bead in the move
         double[:] test_r_1,
         double[:] t3_0,
         double[:] t3_1,
-        double[:] test_t3_1
+        double[:] test_t3_1,
+        long ind #which bead pair currently working on
     ):
+
+        # each muclosome has
         """Compute change in polymer energy when affecting a single bead pair.
         
         Notes
@@ -1212,7 +1241,14 @@ cdef class SSWLC(PolymerBase):
         """
         cdef long i
         cdef double dr_par, dr_par_test
-        
+
+        """Adding code segment here to test adding energy from change of entry/exit angles to nucleosome"""
+        #Everytime you do a rotation calculation, calculate new entry/exit orientations
+        #take XYZ position of nucleosome and translate to position R
+        #Rotate by taking T3 and calling that Z, T2 and calling that Y, and TX should be T1
+
+
+        """End of test code segment"""
         for i in range(3):
             self.dr_test[i] = test_r_1[i] - r_0[i]
             self.dr[i] = r_1[i] - r_0[i]
@@ -1223,13 +1259,13 @@ cdef class SSWLC(PolymerBase):
             self.dr_perp_test[i] = self.dr_test[i] - t3_0[i] * dr_par_test
             self.dr_perp[i] = self.dr[i] - t3_0[i] * dr_par
             self.bend_test[i] = (
-                test_t3_1[i] - t3_0[i] - self.dr_perp_test[i] * self.eta
+                test_t3_1[i] - t3_0[i] - self.dr_perp_test[i] * self.eta[ind]
             )
             self.bend[i] = (
-                t3_1[i] - t3_0[i] - self.dr_perp[i] * self.eta
-            )
-        return self.E_pair(self.bend_test, dr_par_test, self.dr_perp_test) -\
-            self.E_pair(self.bend, dr_par, self.dr_perp)
+                t3_1[i] - t3_0[i] - self.dr_perp[i] * self.eta[ind]
+            ) # applying function to find energy in initial and final configuration
+        return self.E_pair(self.bend_test, dr_par_test, self.dr_perp_test, ind) -\
+            self.E_pair(self.bend, dr_par, self.dr_perp, ind)
 
     cdef double bead_pair_dE_poly_reverse(
         self,
@@ -1238,7 +1274,8 @@ cdef class SSWLC(PolymerBase):
         double[:] r_1,
         double[:] t3_0,
         double[:] test_t3_0,
-        double[:] t3_1
+        double[:] t3_1,
+        long ind
     ):
         """Compute change in polymer energy when affecting a single bead pair.
         
@@ -1285,13 +1322,13 @@ cdef class SSWLC(PolymerBase):
             self.dr_perp_test[i] = self.dr_test[i] - test_t3_0[i] * dr_par_test
             self.dr_perp[i] = self.dr[i] - t3_0[i] * dr_par
             self.bend_test[i] = (
-                t3_1[i] - test_t3_0[i] - self.dr_perp_test[i] * self.eta
+                t3_1[i] - test_t3_0[i] - self.dr_perp_test[i] * self.eta[ind]
             )
             self.bend[i] = (
-                t3_1[i] - t3_0[i] - self.dr_perp[i] * self.eta
+                t3_1[i] - t3_0[i] - self.dr_perp[i] * self.eta[ind]
             )
-        return self.E_pair(self.bend_test, dr_par_test, self.dr_perp_test) -\
-            self.E_pair(self.bend, dr_par, self.dr_perp)
+        return self.E_pair(self.bend_test, dr_par_test, self.dr_perp_test, ind) -\
+            self.E_pair(self.bend, dr_par, self.dr_perp, ind)
 
     cpdef double compute_E(self):
         """Compute the overall polymer energy at the current configuration.
@@ -1324,7 +1361,7 @@ cdef class SSWLC(PolymerBase):
             bend = t3_1.copy()
             for j in range(3):
                 bend[j] += -t3_0[j] - self.eta * dr_perp[j]
-            E += self.E_pair(bend, dr_par, dr_perp)
+            E += self.E_pair(bend, dr_par, dr_perp, i-1) # ind has been added for scenatiro
         return E
 
     cdef double binding_dE(self, long ind0, long indf, long n_inds):
@@ -1475,7 +1512,7 @@ cdef class SSWLC(PolymerBase):
         Notes
         -----
         The units of the WLC parameters must be consistent with those in the 
-        equation for elastic energy change. Lenght units are non-dimensionalized
+        equation for elastic energy change. Length units are non-dimensionalized
         using the persistence length of the polymer.
 
         All parameters in the equation for elastic energy change are divided 
@@ -1498,22 +1535,57 @@ cdef class SSWLC(PolymerBase):
         length_bead : ndarray
             Dimensional distance between subsequent beads of the polymer (in nm)
         """
-        self.delta = length_bead / self.lp
-        self.eps_bend = np.interp(
-            self.delta, dss_params[:, 0], dss_params[:, 1]
-        ) / self.delta
-        self.gamma = np.interp(
-            self.delta, dss_params[:, 0], dss_params[:, 2]
-        ) * self.delta * self.lp
-        self.eps_par = np.interp(
-            self.delta, dss_params[:, 0], dss_params[:, 3]
-        ) / (self.delta * self.lp**2)
-        self.eps_perp = np.interp(
-            self.delta, dss_params[:, 0], dss_params[:, 4]
-        ) / (self.delta * self.lp**2)
-        self.eta = np.interp(
-            self.delta, dss_params[:, 0], dss_params[:, 5]
-        ) / self.lp
+        print("does _find_parameters do anything")
+        self.delta = length_bead / self.lp # does not need to change b/c array operation
+        # initialized eps_bend as array
+        self.eps_bend = np.zeros(len(length_bead))
+        #self.gamma_bend = np.zeros(len(length_bead))
+        self.gamma = np.zeros(len(length_bead))
+        self.eps_par = np.zeros(len(length_bead))
+        self.eps_perp = np.zeros(len(length_bead))
+        self.eta = np.zeros(len(length_bead))
+        print("something works outside of the _find_parameters loop")
+        for i in range (0, len(length_bead)):
+            #updating vectors for each bond
+            #will only run once, do not need to recalculate every mc
+            print("beginning of loop for _find_parameters")
+            print(length_bead)
+            print("this is i")
+            print(i)
+            print("this is delta")
+            print(self.delta)
+            print("dss")
+            print(dss_params)
+            print("dss selected")
+            #print(dss_params[:, 1][i])
+            print("delta at i")
+            print(self.delta[i])
+            print("interpolation")
+            print(np.interp(
+                self.delta[i], dss_params[:, 0], dss_params[:, 1]
+            ))
+            print("shape of dss_params")
+            print(dss_params.shape)
+            self.eps_bend[i] = np.interp(
+                self.delta[i], dss_params[:, 0], dss_params[:, 1]
+            )/ self.delta[i] # interpolate value of physical parameter between two columns
+            print("eps_bend")
+            self.gamma[i] = np.interp(
+                self.delta[i], dss_params[:, 0], dss_params[:, 2]
+            ) * self.delta[i] * self.lp
+            print("delta")
+            self.eps_par[i] = np.interp(
+                self.delta[i], dss_params[:, 0], dss_params[:, 3]
+            ) / (self.delta[i] * self.lp**2)
+            print("eps_perp")
+            self.eps_perp[i] = np.interp(
+                self.delta[i], dss_params[:, 0], dss_params[:, 4]
+            )/ (self.delta[i] * self.lp**2)
+            print("eta")
+            self.eta[i] = np.interp(
+                self.delta[i], dss_params[:, 0], dss_params[:, 5]
+            ) / self.lp
+        print("end of _find_parameters")
 
     @classmethod
     def straight_line_in_x(
@@ -1538,8 +1610,9 @@ cdef class SSWLC(PolymerBase):
         """
 
         r = np.zeros((num_beads, 3))
+        print("what is happening")
         r[:, 1] = np.cumsum(bead_length)
-        t3 = np.zeros((num_beads, 3))
+        t3 = np.zeros((num_beads, 3)) # check if this solves anything
         t3[:, 0] = 1
         t2 = np.zeros((num_beads, 3))
         t2[:, 1] = 1
@@ -1658,6 +1731,7 @@ cdef class SSWLC(PolymerBase):
             Object representing a polymer initialized as Gaussian random walk
         """
         r = paths.gaussian_walk(num_beads, bead_length)
+        print("why is this here")
         t3, t2 = paths.estimate_tangents_from_coordinates(r)
         return cls(name, r, t3=t3, t2=t2, bead_length=bead_length, **kwargs)
 
@@ -1689,6 +1763,7 @@ cdef class SSWLC(PolymerBase):
             Object representing a polymer initialized as a confined Gaussian
             random walk
         """
+        print("does this work")
         r = paths.confined_gaussian_walk(
             num_beads, bead_length, confine_type, confine_length
         )
@@ -1890,7 +1965,7 @@ cdef class SSTWLC(SSWLC):
         length_bead : ndarray
             Number of base pairs represented by each bead of the polymer
         """
-        self.delta = length_bead/ self.lp
+        self.delta = np.array(length_bead/ self.lp)
         self.eps_bend = np.interp(
             self.delta, dss_params[:, 0], dss_params[:, 1]
         ) / self.delta
@@ -1906,7 +1981,7 @@ cdef class SSTWLC(SSWLC):
         self.eta = np.interp(
             self.delta, dss_params[:, 0], dss_params[:, 5]
         ) / self.lp
-        self.eps_twist = self.lt / (self.delta * self.lp)
+        self.eps_twist = np.array(self.lt / (self.delta * self.lp))
 
     cdef double continuous_dE_poly(
         self,
@@ -2090,7 +2165,7 @@ cdef class SSTWLC(SSWLC):
         double[:] t3_1,
         double[:] t2_0,
         double[:] test_t2_0,
-        double[:] t2_1
+        double[:] t2_1,
     ):
         """Compute change in polymer energy when affecting a single bead pair.
 
@@ -2235,6 +2310,7 @@ cdef class LoopedSSTWLC(SSTWLC):
             Object representing a SSTWLC initialized as a confined, looped
             Gaussian random walk
         """
+        print("here")
         r = paths.looped_confined_gaussian_walk(
             num_beads, bead_length, confine_type, confine_length
         )
@@ -2259,7 +2335,7 @@ cdef class LoopedSSTWLC(SSTWLC):
 
     cdef double continuous_dE_poly(
         self,
-        long ind0,
+        long ind0, #
         long indf,
     ):
         """Compute change in polymer energy for a continuous bead region.
@@ -2269,7 +2345,7 @@ cdef class LoopedSSTWLC(SSTWLC):
         See documentation for this method in `SSWLC` class for details and 
         parameter/return descriptions.
         """
-        cdef long ind0_m_1, indf_m_1
+        cdef long ind0_m_1, indf_m_1 # ind0 -1 , one after things affected by move
         cdef double delta_energy_poly
 
         # Elastic energy change from LHS of the move
@@ -2284,7 +2360,8 @@ cdef class LoopedSSTWLC(SSTWLC):
             self.r_trial[ind0, :],
             self.t3[ind0_m_1, :],
             self.t3[ind0, :],
-            self.t3_trial[ind0, :]
+            self.t3_trial[ind0, :],
+            ind0
         )
         # Elastic energy change from RHS of the move
         indf_m_1 = indf - 1
@@ -2296,7 +2373,9 @@ cdef class LoopedSSTWLC(SSTWLC):
             self.r[indf, :],
             self.t3[indf_m_1, :],
             self.t3_trial[indf_m_1, :],
-            self.t3[indf, :]
+            self.t3[indf, :],
+            #ind0_m_1 # suspected bug location
+            indf_m_1
         )
 
         return delta_energy_poly

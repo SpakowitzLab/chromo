@@ -68,7 +68,7 @@ cdef class SSWLC(PolymerBase):
         long ind0,
         long indf,
     )
-    cdef double E_pair(self, double[:] bend, double dr_par, double[:] dr_perp)
+    cdef double E_pair(self, double[:] bend, double dr_par, double[:] dr_perp, long ind)
     cdef double bead_pair_dE_poly_forward(
         self,
         double[:] r_0,
@@ -76,7 +76,8 @@ cdef class SSWLC(PolymerBase):
         double[:] test_r_1,
         double[:] t3_0,
         double[:] t3_1,
-        double[:] test_t3_1
+        double[:] test_t3_1,
+        long ind
     )
     cdef double bead_pair_dE_poly_reverse(
         self,
@@ -85,7 +86,8 @@ cdef class SSWLC(PolymerBase):
         double[:] r_1,
         double[:] t3_0,
         double[:] test_t3_0,
-        double[:] t3_1
+        double[:] t3_1,
+        long ind
     )
     cdef double binding_dE(self, long ind0, long indf, long n_inds)
     cdef double bead_binding_dE(
@@ -102,7 +104,8 @@ cdef class Chromatin(SSWLC):
     )
 
 cdef class SSTWLC(SSWLC):
-    cdef public double lt, eps_twist
+    cdef public double lt
+    cdef public np.ndarray eps_twist # potential bug
     cdef double E_pair_with_twist(
         self, double[:] bend, double dr_par, double[:] dr_perp, double omega
     )

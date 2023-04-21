@@ -140,7 +140,7 @@ def coordinates_in_x_y_z(
 
 
         t_true = np.interp(
-            bead_length, [previous_arc_length, arc_length],ous_t, t
+            bead_length, [previous_arc_length, arc_length],previous_t, t
         )
         parameter_vals.append(t_true)
         r[i, 0] = shape_func_x(t_true)
@@ -309,7 +309,7 @@ def gaussian_walk(
         represent individual points and columns give x, y, z coordinates
     """
     steps = np.random.standard_normal((num_steps, 3))
-    magnitude_steps = np.linalg.norm(steps, axis=1)
+    magnitude_steps = np.linalg.norm(steps, axis=1)#changed from 1 to 0
 
     return np.cumsum(
         np.divide(steps, magnitude_steps[:, None]) * np.reshape(step_size, (num_steps, 1)), axis=0

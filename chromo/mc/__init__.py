@@ -137,6 +137,7 @@ def _polymer_in_field(
             polymers, binders, num_save_mc, mc_move_controllers, field,
             mu_adjust_factor, random_seed
         )
+
         for poly in polymers:
             poly.to_csv(
                 str(output_dir / Path(f"{poly.name}-{mc_count}.csv"))

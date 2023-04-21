@@ -39,7 +39,7 @@ binders = chromo.binders.make_binder_collection([null_binder]) #gets relevant bi
 num_beads = 1000
 
 #bead_spacing = np.array(variable_linker)
-bead_spacing = 25.0 * np.ones((1, 1000)) # change to be real linker lengths later
+bead_spacing = 25.0 * np.ones((1000, 1)) # change to be real linker lengths later
 lp = 100
 
 #Generates the polymer object
@@ -50,7 +50,8 @@ polymer = SSWLC.gaussian_walk_polymer(
     lp=lp,
     binder_names=np.array(["null_reader"])
 )
-
+sys.exit()
+print("test")
 # shows a plot of the polymer object
 x = polymer.r[:, 0]
 y = polymer.r[:, 1]
@@ -63,23 +64,18 @@ ax.set_xlabel('x')
 ax.set_ylabel('y')
 ax.set_zlabel('z')
 
-
-
 # Tests if the plot shown is sufficiently similar to the reference image.
-control_image_configuration = "control_image_configuration"
+# control_image_configuration = "control_image_configuration"
 # plt.savefig(str("chromo/" + control_image_configuration)) # can be used to generate a new control image
 
-new_image_name = "testing_plot"
-plt.savefig("chromo/" + str(new_image_name))
-plt.show()
+# new_image_name = "testing_plot"
+# plt.savefig("chromo/" + str(new_image_name))
+# plt.show()
 
-plt.show()
-test_image(new_image_name, control_image_configuration)
+#plt.show()
+# test_image(new_image_name, control_image_configuration) # used for comparing image to reference
 
-""" The code after this point sets up the other inputs into the simulation and runs the simulation. 
-It is still in the process of being debugged to be compatible with linker length variation.
-"""
-"""
+
 n_bins_x = 63
 n_bins_y = n_bins_x
 n_bins_z = n_bins_x
@@ -124,4 +120,3 @@ mc.polymer_in_field(
     output_dir = 'output',
     mc_move_controllers = moves_to_use
 )
-"""
