@@ -50,8 +50,7 @@ polymer = SSWLC.gaussian_walk_polymer(
     lp=lp,
     binder_names=np.array(["null_reader"])
 )
-sys.exit()
-print("test")
+
 # shows a plot of the polymer object
 x = polymer.r[:, 0]
 y = polymer.r[:, 1]
@@ -63,7 +62,7 @@ ax.plot3D(np.asarray(x), np.asarray(y), np.asarray(z))
 ax.set_xlabel('x')
 ax.set_ylabel('y')
 ax.set_zlabel('z')
-
+plt.show()
 # Tests if the plot shown is sufficiently similar to the reference image.
 # control_image_configuration = "control_image_configuration"
 # plt.savefig(str("chromo/" + control_image_configuration)) # can be used to generate a new control image
@@ -107,6 +106,7 @@ moves_to_use = ctrl.all_moves_except_binding_state(
 )
 
 num_snapshots = 200
+#num_snapshots = 7
 mc_steps_per_snapshot = 40000
 
 mc.polymer_in_field(
@@ -120,3 +120,148 @@ mc.polymer_in_field(
     output_dir = 'output',
     mc_move_controllers = moves_to_use
 )
+
+# Load names of polymer configuration output files
+output_files = os.listdir(latest_sim)
+output_files = [
+    f for f in output_files if f.endswith(".csv") and f.startswith("poly_1")
+]
+snapshot = [int(f.split("-")[-1].split(".")[0]) for f in output_files]
+sorted_snap = np.sort(np.array(snapshot))
+output_files = [f for _, f in sorted(zip(snapshot, output_files))]
+
+
+all_energies = []
+polymer_energies = []
+
+for i, f in enumerate(output_files):
+    snap = sorted_snap[i]
+    output_path = str(latest_sim) + '/' + f
+
+    r = pd.read_csv(
+        output_path,
+        header=0,
+        skiprows=1,
+        usecols=[1, 2, 3],
+        dtype=float
+    ).to_numpy()
+
+    t3 = pd.read_csv(
+        output_path,
+        header=0,
+        skiprows=1,
+        usecols=[4, 5, 6],
+        dtype=float
+    ).to_numpy()
+
+    polymer.r = r.copy()
+    polymer.t3 = t3.copy()
+
+    polymer_energy = polymer.compute_E()
+    polymer_energies.append(polymer_energy)
+
+plt.figure(figsize=(8,6))
+plt.plot(sorted_snap, polymer_energies)
+plt.xlabel("Snapshot number")
+plt.ylabel("Polymer Energy")
+plt.tight_layout()
+plt.show()
+
+
+lp = 100    # Persistence length of DNA; in this example, `lp` has no effect
+delta = 50  # Monomer monomer separation at which to calculate mean squared distance.
+#delta = bead_length/lp
+
+all_dists = []
+for i, f in enumerate(output_files):
+    snap = sorted_snap[i]
+    output_path = str(latest_sim) + '/' + f
+    r = pd.read_csv(
+        output_path,
+        header=0,
+        skiprows=1,
+        usecols=[1, 2, 3],
+        dtype=float
+    ).to_numpy()
+    poly_stat = ps.PolyStats(r, lp, "overlap")
+    windows = poly_stat.load_indices(delta)
+    all_dists.append(poly_stat.calc_r2(windows))
+
+plt.figure(figsize=(8, 6))
+plt.plot(sorted_snap, all_dists)
+plt.xlabel("Snapshot number")
+plt.ylabel(r"$\langle R^2 \rangle /(2l_p)^2$")
+plt.tight_layout()
+plt.show()
+
+
+monomer_separation = 10 ** np.arange(-1, 2, 0.05)
+monomer_separation = monomer_separation.astype(int)
+monomer_separation = np.array(
+    [
+        monomer_separation[i] for i in range(len(monomer_separation))
+        if monomer_separation[i] > 0
+    ]
+)
+#monomer_separation_kuhn = monomer_separation * (bead_spacing / lp / 2)
+monomer_separation_kuhn = monomer_separation * (np.mean(bead_spacing) / lp / 2)
+
+
+lp = 100
+kuhn_length = 2 * lp
+num_equilibration = 70
+all_r2 = []
+
+for i, f in enumerate(output_files):
+    if i < num_equilibration:
+        continue
+    output_path = str(latest_sim) + "/" + f
+    r = pd.read_csv(
+        output_path,
+        header=0,
+        skiprows=1,
+        usecols=[1, 2, 3],
+        dtype=float
+    ).to_numpy()
+    poly_stat = ps.PolyStats(r, lp, "overlap")
+    r2 = []
+    for window_size in monomer_separation:
+        r2.append(
+            poly_stat.calc_r2(
+                windows=poly_stat.load_indices(window_size)
+            )
+        )
+    all_r2.append(r2)
+all_r2 = np.array(all_r2)
+average_squared_e2e = np.mean(all_r2, axis=0)
+print("now")
+print(all_r2)
+
+font = {'family': 'serif',
+        'weight': 'normal',
+        'size': 18}
+plt.rc('font', **font)
+
+print("testing value")
+print(average_squared_e2e) # why is this NaN
+print("length testing")
+print(len(average_squared_e2e))
+print("monomer kuhn")
+print(monomer_separation_kuhn)
+print("length monomer kuhn")
+print(len(monomer_separation_kuhn))
+
+
+
+plt.figure(figsize=(8,6), dpi=300)
+plt.scatter(np.log10(monomer_separation_kuhn), np.log10(average_squared_e2e), label="simulation")
+plt.xlabel(r"Log $L/(2l_p)$")
+plt.ylabel(r"Log $\langle R^2 \rangle /(2l_p)^2$")
+r2_theory = monomer_separation_kuhn - 1/2 + np.exp(-2 * monomer_separation_kuhn)/2
+plt.plot(np.log10(monomer_separation_kuhn), np.log10(r2_theory), label="theory")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+
+

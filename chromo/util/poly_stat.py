@@ -329,6 +329,9 @@ def calc_mean_r2(
                     windows=poly_stat.load_indices(window_size)
                 )
         )
+        print("calc_mean_r2")
+        print(len(r2))
+        print(r2)
     return np.average(r2)
 
 
