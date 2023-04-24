@@ -1226,9 +1226,9 @@ cdef class SSWLC(PolymerBase):
         cdef double dr_par, dr_par_test
 
         """Adding code segment here to test adding energy from change of entry/exit angles to nucleosome"""
-        #Everytime you do a rotation calculation, calculate new entry/exit orientations
-        #take XYZ position of nucleosome and translate to position R
-        #Rotate by taking T3 and calling that Z, T2 and calling that Y, and TX should be T1
+        # Everytime you do a rotation calculation, calculate new entry/exit orientations
+        # take XYZ position of nucleosome and translate to position R
+        # Rotate by taking T3 and calling that Z, T2 and calling that Y, and TX should be T1
 
 
         """End of test code segment"""
@@ -1333,57 +1333,23 @@ cdef class SSWLC(PolymerBase):
         cdef double[:] r_0, r_1, t3_0, t3_1 # position of first and second bead in bend, tangent vector of first and second bead in bend
 
         E = 0 # initialize energy
-        for i in range(1, self.num_beads - 1 ): #looping over every bead
+        for i in range(1, self.num_beads - 1 ): #switching to self.num_beads - 1 from self.num_beads fixed the problem
             #print("start of loop of compute_E")
-            r_0 = self.r[i-1, :] # this is worth checking again
-            #print("a")
+            r_0 = self.r[i-1, :]
             print(len(self.r))
-            print(i)
             r_1 = self.r[i, :]
-            #print("b")
             t3_0 = self.t3[i-1, :]
-            #print("c")
             t3_1 = self.t3[i, :]
-            #print("r_0")
             print(r_0)
-            #print("shape r_0")
             print(r_0.shape)
-            #print("t3_0")
             print(t3_0.shape)
-
             dr = vec_sub3(r_1, r_0)
-            #print("dr and then shape")
-            #print(dr)
-            #print(dr.shape)
-
-
             dr_par = vec_dot3(t3_0, dr)
-            #print("a")
             dr_perp = vec_sub3(dr, vec_scale3(t3_0, dr_par))
-            #print("b")
             bend = t3_1.copy()
-            #print("c")
             for j in range(3):
-                #print("d")
-                #print("-t3_0[j]")
-                #print(-t3_0[j])
-                #print("eta")
-                #print(self.eta[j])
-                #print("dr_perp")
-                #print(dr_perp[j])
-                bend[j] += -t3_0[j] - self.eta[j] * dr_perp[j] #change eta
-                #print("bend at j")
-                #print(bend[j])
-            #print("type of bend")
-            #print(type(bend))
-            #print("type of dr_[ar")
-            #print(type(dr_par))
-            #print("type of dr_perp")
-            #print(type(dr_perp))
-
-            E += self.E_pair(bend, dr_par, dr_perp, i-1) # ind has been added for scenario
-            #print("e")
-            #cdef double E_pair(self, double[:] bend, double dr_par, double[:] dr_perp, long ind):
+                bend[j] += -t3_0[j] - self.eta[j] * dr_perp[j]
+            E += self.E_pair(bend, dr_par, dr_perp, i-1)
         return E
 
     cdef double binding_dE(self, long ind0, long indf, long n_inds):

@@ -77,17 +77,12 @@ cpdef void mc_sim(
     cdef poly
 
     np.random.seed(random_seed)
-    print("length of polymers here")
-    print(len(polymers))
-    print("actual polymer")
-    print(polymers)
     n_polymers = len(polymers)
 
     if field.confine_type == "":
         active_fields = [poly.is_field_active() for poly in polymers]
     else:
         active_fields = [1 for _ in polymers]
-        print("print something please")
     for k in range(num_mc_steps):
         for controller in mc_move_controllers:
             if controller.move.move_on == 1:

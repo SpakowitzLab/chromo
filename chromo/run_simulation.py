@@ -204,7 +204,7 @@ monomer_separation = np.array(
     ]
 )
 #monomer_separation_kuhn = monomer_separation * (bead_spacing / lp / 2)
-monomer_separation_kuhn = monomer_separation * (np.mean(bead_spacing) / lp / 2)
+monomer_separation_kuhn = monomer_separation * (np.mean(bead_spacing) / lp / 2) #check that this is acceptable
 
 
 lp = 100
@@ -241,16 +241,6 @@ font = {'family': 'serif',
         'weight': 'normal',
         'size': 18}
 plt.rc('font', **font)
-
-print("testing value")
-print(average_squared_e2e) # why is this NaN
-print("length testing")
-print(len(average_squared_e2e))
-print("monomer kuhn")
-print(monomer_separation_kuhn)
-print("length monomer kuhn")
-print(len(monomer_separation_kuhn))
-
 
 
 plt.figure(figsize=(8,6), dpi=300)
