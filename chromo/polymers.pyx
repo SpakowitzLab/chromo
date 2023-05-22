@@ -933,7 +933,7 @@ cdef class SSWLC(PolymerBase):
     """
 
     def __init__(
-        self, str name, double[:,::1] r, *, np.ndarray bead_length, double lp,
+        self, str name, double[:,::1] r, np.ndarray bead_length, *, double lp, # moved bead_length to positional (5/22)
         double bead_rad=5, double[:,::1] t3=empty_2d,
         double[:,::1] t2=empty_2d, long[:,::1] states=mty_2d_int,
         np.ndarray binder_names=empty_1d, long[:,::1] chemical_mods=mty_2d_int,
@@ -1326,23 +1326,16 @@ cdef class SSWLC(PolymerBase):
         double
             Configurational energy of the polymer.
         """
-        #print("start of compute_E function")
         cdef double E, dr_par # energy and magnitude of the parallel component of the displacement vector
         cdef long i, j # initializing the iterators: why is this even necessary
         cdef double[:] dr, dr_perp, bend # magnitude of displacement vector
         cdef double[:] r_0, r_1, t3_0, t3_1 # position of first and second bead in bend, tangent vector of first and second bead in bend
-
         E = 0 # initialize energy
         for i in range(1, self.num_beads - 1 ): #switching to self.num_beads - 1 from self.num_beads fixed the problem
-            #print("start of loop of compute_E")
             r_0 = self.r[i-1, :]
-            print(len(self.r))
             r_1 = self.r[i, :]
             t3_0 = self.t3[i-1, :]
             t3_1 = self.t3[i, :]
-            print(r_0)
-            print(r_0.shape)
-            print(t3_0.shape)
             dr = vec_sub3(r_1, r_0)
             dr_par = vec_dot3(t3_0, dr)
             dr_perp = vec_sub3(dr, vec_scale3(t3_0, dr_par))
@@ -1673,8 +1666,8 @@ cdef class SSWLC(PolymerBase):
 
     @classmethod
     def gaussian_walk_polymer(
-        cls, name: str, num_beads: int, bead_length: np.ndarray, **kwargs
-    ):
+        cls, name: str, num_beads: int, bead_length: np.ndarray, **kwargs #, lp: double, **kwargs
+    ): # added lp
         """Initialize a polymer to a Gaussian random walk.
 
         Parameters
@@ -1694,7 +1687,7 @@ cdef class SSWLC(PolymerBase):
         """
         r = paths.gaussian_walk(num_beads, bead_length)
         t3, t2 = paths.estimate_tangents_from_coordinates(r)
-        return cls(name, r, t3=t3, t2=t2, bead_length=bead_length, **kwargs)
+        return cls(name, r, t3=t3, t2=t2, bead_length=bead_length, **kwargs) # is this 5 positional arguments?
 
     @classmethod
     def confined_gaussian_walk(
@@ -1853,26 +1846,25 @@ cdef class SSTWLC(SSWLC):
         Twist modulus of the polymer, divided by dimensionless `delta`,
         as appears in the equation for SSTWLC elastic energy (units of kbT)
     """
+    #cls(name, r, t3=t3, t2=t2, bead_length=bead_length, **kwargs)
 
     def __init__(
-        self,
-        str name,
-        double[:, ::1] r,
-        *,
-        np.ndarray bead_length,
-        double lp,
-        double lt,
-
-
-        double bead_rad = 5,
-        double[:, ::1] t3 = empty_2d,
-        double[:, ::1] t2 = empty_2d,
-        long[:, ::1] states = mty_2d_int,
-        np.ndarray binder_names = empty_1d,
-        long[:, ::1] chemical_mods = mty_2d_int,
-        np.ndarray chemical_mod_names = empty_1d_str,
-        str log_path = "", long max_binders = -1
-    ):
+            self,
+            str name,
+            double[:, ::1] r,
+            np.ndarray bead_length,
+            *,
+            double lp,
+            double lt,
+            double bead_rad = 5,
+            double[:, ::1] t3 = empty_2d,
+            double[:, ::1] t2 = empty_2d,
+            long[:, ::1] states = mty_2d_int,
+            np.ndarray binder_names = empty_1d,
+            long[:, ::1] chemical_mods = mty_2d_int,
+            np.ndarray chemical_mod_names = empty_1d_str,
+            str log_path = "", long max_binders = -1,
+        ):
         """Construct a `SSTWLC` polymer object as a subclass of `SSWLC`.
 
         Notes
@@ -2020,6 +2012,7 @@ cdef class SSTWLC(SSWLC):
             0.5 * self.eps_perp * vec_dot3(dr_perp, dr_perp) +
             0.5 * self.eps_twist * omega**2
         )
+        print("does E_pair_with_twist get used")
         return E
 
     cdef double bead_pair_dE_poly_forward_with_twist(
@@ -2117,15 +2110,15 @@ cdef class SSTWLC(SSWLC):
 
     cdef double bead_pair_dE_poly_reverse_with_twist(
         self,
-        double[:] r_0,
-        double[:] test_r_0,
-        double[:] r_1,
-        double[:] t3_0,
-        double[:] test_t3_0,
-        double[:] t3_1,
-        double[:] t2_0,
-        double[:] test_t2_0,
-        double[:] t2_1,
+        double[:] r_0, # Position vector of first bead in bend
+        double[:] test_r_0, # Position vector of first bead in bend (TRIAL MOVE)
+        double[:] r_1, # Position vector of second bead in bend
+        double[:] t3_0, # tangent vector of first bead in bend
+        double[:] test_t3_0, #tangent vector of first bead in bend
+        double[:] t3_1, #tangent vector of second bead in bend
+        double[:] t2_0, # new variable for twist # tangent vector of first bead in bend
+        double[:] test_t2_0, # new variable for twist #tangent vector of first bead in bend
+        double[:] t2_1, # new variable for twist # tangent vector of second bead in bend
     ):
         """Compute change in polymer energy when affecting a single bead pair.
 

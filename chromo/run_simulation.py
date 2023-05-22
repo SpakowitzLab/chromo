@@ -18,12 +18,14 @@ import matplotlib.pyplot as plt
 # Package modules
 import chromo.mc as mc
 from chromo.polymers import SSWLC
+from chromo.polymers import SSTWLC
 import chromo.binders
 from chromo.fields import UniformDensityField
 import chromo.mc.mc_controller as ctrl
 from chromo.util.reproducibility import get_unique_subfolder_name
 import chromo.util.poly_stat as ps
 from chromo.test_polymer_build import test_image
+
 
 # Change working directory to package root
 os.chdir(parent_dir)
@@ -34,20 +36,32 @@ print(os.getcwd())
 null_binder = chromo.binders.get_by_name('null_reader') # must include null binder to make the rest of the code work
 
 # Create the binder collection
-binders = chromo.binders.make_binder_collection([null_binder]) #gets relevant binder information from binder specified
+binders = chromo.binders.make_binder_collection([null_binder]) # gets relevant binder information from binder specified
 
 num_beads = 1000
 
-#bead_spacing = np.array(variable_linker)
-bead_spacing = 25.0 * np.ones((1000, 1)) # change to be real linker lengths later
-lp = 100
 
-#Generates the polymer object
-polymer = SSWLC.gaussian_walk_polymer(
+bead_spacing = np.array([15, 25] * 500)
+print(len(bead_spacing))
+# bead_spacing = 15.0 * np.ones((1000, 1)) # change to be real linker lengths later
+lp = 100
+lt=100
+
+# Generates the polymer object
+"""polymer = SSWLC.gaussian_walk_polymer(
     'poly_1',
     num_beads,
     bead_spacing,
     lp=lp,
+    binder_names=np.array(["null_reader"])
+)"""
+
+polymer = SSTWLC.gaussian_walk_polymer(
+    'poly_1',
+    num_beads,
+    bead_spacing,
+    lp=lp,
+    lt=lt,
     binder_names=np.array(["null_reader"])
 )
 
@@ -105,8 +119,8 @@ moves_to_use = ctrl.all_moves_except_binding_state(
     controller=ctrl.SimpleControl
 )
 
-num_snapshots = 200
-#num_snapshots = 7
+num_snapshots = 5
+#num_snapshots = 200
 mc_steps_per_snapshot = 40000
 
 mc.polymer_in_field(
@@ -227,15 +241,13 @@ for i, f in enumerate(output_files):
     r2 = []
     for window_size in monomer_separation:
         r2.append(
-            poly_stat.calc_r2(
+            poly_stat.calc_r2( # within polystat without kinks
                 windows=poly_stat.load_indices(window_size)
             )
         )
     all_r2.append(r2)
 all_r2 = np.array(all_r2)
 average_squared_e2e = np.mean(all_r2, axis=0)
-print("now")
-print(all_r2)
 
 font = {'family': 'serif',
         'weight': 'normal',
