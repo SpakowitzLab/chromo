@@ -42,7 +42,7 @@ num_beads = 1000
 
 
 bead_spacing = np.array([15, 25] * 500)
-print(len(bead_spacing))
+# print(len(bead_spacing))
 # bead_spacing = 15.0 * np.ones((1000, 1)) # change to be real linker lengths later
 lp = 100
 lt=100
@@ -119,8 +119,8 @@ moves_to_use = ctrl.all_moves_except_binding_state(
     controller=ctrl.SimpleControl
 )
 
-num_snapshots = 5
-#num_snapshots = 200
+#num_snapshots = 5
+num_snapshots = 200
 mc_steps_per_snapshot = 40000
 
 mc.polymer_in_field(

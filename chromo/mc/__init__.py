@@ -132,11 +132,10 @@ def _polymer_in_field(
             mu_adjust_factor = mu_schedule.function(mc_count, num_saves)
         else:
             mu_adjust_factor = 1
-
         decorator_timed_path(output_dir)(mc_sim)(
             polymers, binders, num_save_mc, mc_move_controllers, field,
             mu_adjust_factor, random_seed
-        )
+        ) # added list around binders in an attempt to match input to mc_sim
 
         for poly in polymers:
             poly.to_csv(

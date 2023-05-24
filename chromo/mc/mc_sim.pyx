@@ -75,26 +75,38 @@ cpdef void mc_sim(
     cdef long i, j, k, n_polymers
     cdef list active_fields
     cdef poly
-
+    #print("does mc_sim work")
+    #print("will this be the end of the file")
     np.random.seed(random_seed)
-    n_polymers = len(polymers)
+    #print("a")
 
     if field.confine_type == "":
+        #print("b")
         active_fields = [poly.is_field_active() for poly in polymers]
     else:
+        #print("c")
         active_fields = [1 for _ in polymers]
     for k in range(num_mc_steps):
+        #print("d")
         for controller in mc_move_controllers:
+            #print("e")
             if controller.move.move_on == 1:
+                #print("f")
                 for j in range(controller.move.num_per_cycle):
+                    #print("g")
                     for i in range(len(polymers)):
+                        #print("h")
                         poly = polymers[i]
+                        #print("i")
                         poly.mu_adjust_factor = mu_adjust_factor
+                        #print("j")
                         active_field = active_fields[i]
+                        #print("k")
                         mc_step(
                             controller.move, poly, readerproteins, field,
                             active_field
                         )
+                        #print("l")
             controller.update_amplitudes()
 
 
@@ -131,44 +143,63 @@ cpdef void mc_step(
     cdef int check_field = 0
     cdef long packet_size, n_inds
     cdef long[:] inds
-
+    #print("m")
     if poly in field and active_field:
+        #print("n")
         if adaptible_move.name != "tangent_rotation":
             check_field = 1
-
+    #print("o")
     packet_size = 20
     inds = adaptible_move.propose(poly)
+    #print("p")
     n_inds = len(inds)
+    #print("q")
     if n_inds == 0:
+        #print("r")
         return
 
     dE = 0
+    #print("s")
     dE += poly.compute_dE(adaptible_move.name, inds, n_inds)
+    #print("t")
     if check_field == 1:
+        #print("u")
         if adaptible_move.name == "change_binding_state":
+            #print("v")
             dE += field.compute_dE(
                 poly, inds, n_inds, packet_size, state_change=1
             )
+            #print("w")
         else:
+            #print("x")
             dE += field.compute_dE(
                 poly, inds, n_inds, packet_size, state_change=0
             )
+            #print("y")
     try:
         exp_dE = exp(-dE)
+        #print("z")
     except RuntimeWarning:
         if dE > 0:
+            #print("aa")
             exp_dE = 0
         elif dE < 0:
+            #print("ab")
             exp_dE = 1
 
     if (<double>rand() / RAND_MAX) < exp_dE:
+        #print("ac")
         adaptible_move.accept(
             poly, dE, inds, n_inds, log_move=False, log_update=False
         )
+        #print("ad")
         if check_field == 1:
             field.update_affected_densities()
+            #print("ae")
 
     else:
+        #print("af")
         adaptible_move.reject(
             poly, dE, log_move=False, log_update=False
         )
+        #print("ag")

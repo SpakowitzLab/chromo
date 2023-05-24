@@ -107,7 +107,7 @@ cdef class SSTWLC(SSWLC):
     cdef public double lt
     cdef public np.ndarray eps_twist # potential bug
     cdef double E_pair_with_twist(
-        self, double[:] bend, double dr_par, double[:] dr_perp, double omega
+        self, double[:] bend, double dr_par, double[:] dr_perp, double omega, long ind
     )
     cdef double compute_dE(
         self,
@@ -125,7 +125,8 @@ cdef class SSTWLC(SSWLC):
         double[:] test_t3_1,
         double[:] t2_0,
         double[:] t2_1,
-        double[:] test_t2_1
+        double[:] test_t2_1,
+        long ind
     )
     cdef double bead_pair_dE_poly_reverse_with_twist(
         self,
@@ -137,7 +138,8 @@ cdef class SSTWLC(SSWLC):
         double[:] t3_1,
         double[:] t2_0,
         double[:] test_t2_0,
-        double[:] t2_1
+        double[:] t2_1,
+        long ind
     )
 
 cdef class LoopedSSTWLC(SSTWLC):

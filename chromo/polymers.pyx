@@ -338,7 +338,9 @@ cdef class PolymerBase(TransformedObject):
         float
             Elastic energy change associated with the MC move
         """
-        pass
+        #print("does it get to this empty compute_dE function")
+        return 0
+        #pass
 
     cdef void construct_beads(self):
         """Construct a list of beads forming the polymer.
@@ -858,6 +860,7 @@ cdef class Rouse(PolymerBase):
         long[:] inds,
         long n_inds
     ):
+        #print("is this function getting used even though it is empty")
         """Compute the change in configurational energy of a polymer.
         
         Notes
@@ -868,6 +871,8 @@ cdef class Rouse(PolymerBase):
         Please see documentation for `PolymerBase.compute_dE()` for 
         description of parameters and return arguments.
         """
+        # this is what must be used to calculate energy for SSTWLC which needs to be slightly different than the calculation for SSWLC
+
         pass
 
     cdef void construct_beads(self):
@@ -1029,13 +1034,14 @@ cdef class SSWLC(PolymerBase):
         """
         cdef double delta_energy_poly
         cdef long ind0, indf, ind, i
-
+        #"is this 1037 version of dE the one that gets used")
         delta_energy_poly = 0 #zero change in energy
 
         if move_name == "change_binding_state":
             if self.is_field_active() == 1:
                 ind0 = inds[0]
                 indf = inds[n_inds-1] + 1
+                #print("anything here at 1044")
                 delta_energy_poly += self.binding_dE(ind0, indf, n_inds)
         
         elif (
@@ -1044,6 +1050,7 @@ cdef class SSWLC(PolymerBase):
         ):
             ind0 = inds[0]
             indf = inds[n_inds-1] + 1
+            #print("what about line 1052")
             delta_energy_poly += self.continuous_dE_poly(ind0, indf)
         
         elif move_name == "tangent_rotation": # no changes
@@ -1051,8 +1058,9 @@ cdef class SSWLC(PolymerBase):
                 ind = inds[i]
                 ind0 = ind
                 indf = ind + 1
+                #print("is it line 1061")
                 delta_energy_poly += self.continuous_dE_poly(ind0, indf)
-
+                #print("does it get this far")
         return delta_energy_poly
 
     cdef double continuous_dE_poly(
@@ -1156,7 +1164,7 @@ cdef class SSWLC(PolymerBase):
         long ind #which bead pair currently working on
     ):
 
-        # each muclosome has
+
         """Compute change in polymer energy when affecting a single bead pair.
         
         Notes
@@ -1685,9 +1693,10 @@ cdef class SSWLC(PolymerBase):
         SSWLC
             Object representing a polymer initialized as Gaussian random walk
         """
+        #print("why is this happening")
         r = paths.gaussian_walk(num_beads, bead_length)
         t3, t2 = paths.estimate_tangents_from_coordinates(r)
-        return cls(name, r, t3=t3, t2=t2, bead_length=bead_length, **kwargs) # is this 5 positional arguments?
+        return cls(name, r, t3=t3, t2=t2, bead_length=bead_length, **kwargs)
 
     @classmethod
     def confined_gaussian_walk(
@@ -1955,6 +1964,7 @@ cdef class SSTWLC(SSWLC):
 
         delta_energy_poly = 0
         if ind0 != 0:
+            #print("does line 1959 in polymers happen")
             delta_energy_poly += self.bead_pair_dE_poly_forward_with_twist(
                 self.r[ind0_m_1, :],
                 self.r[ind0, :],
@@ -1964,9 +1974,12 @@ cdef class SSTWLC(SSWLC):
                 self.t3_trial[ind0, :],
                 self.t2[ind0_m_1, :],
                 self.t2[ind0, :],
-                self.t2_trial[ind0, :]
+                self.t2_trial[ind0, :],
+                ind0
             )
+        #print("line 1980")
         if indf != self.num_beads:
+            #print("does this reverse with twist on line 1963 happen")
             delta_energy_poly += self.bead_pair_dE_poly_reverse_with_twist(
                 self.r[indf_m_1, :],
                 self.r_trial[indf_m_1, :],
@@ -1976,12 +1989,14 @@ cdef class SSTWLC(SSWLC):
                 self.t3[indf, :],
                 self.t2[indf_m_1, :],
                 self.t2_trial[indf_m_1, :],
-                self.t2[indf, :]
+                self.t2[indf, :],
+                indf_m_1
             )
+            #print("does this return energy normally")
         return delta_energy_poly
 
     cdef double E_pair_with_twist(
-        self, double[:] bend, double dr_par, double[:] dr_perp, double omega
+        self, double[:] bend, double dr_par, double[:] dr_perp, double omega, long ind
     ):
         """Calculate elastic energy for a pair of beads.
         
@@ -2007,12 +2022,12 @@ cdef class SSTWLC(SSWLC):
         """
         cdef double E
         E = (
-            0.5 * self.eps_bend * vec_dot3(bend, bend) +
-            0.5 * self.eps_par * (dr_par - self.gamma) ** 2 +
-            0.5 * self.eps_perp * vec_dot3(dr_perp, dr_perp) +
-            0.5 * self.eps_twist * omega**2
+            0.5 * self.eps_bend[ind] * vec_dot3(bend, bend) +
+            0.5 * self.eps_par[ind] * (dr_par - self.gamma[ind]) ** 2 +
+            0.5 * self.eps_perp[ind] * vec_dot3(dr_perp, dr_perp) +
+            0.5 * self.eps_twist[ind] * omega**2
         )
-        print("does E_pair_with_twist get used")
+        #print("does E_pair_with_twist get used")
         return E
 
     cdef double bead_pair_dE_poly_forward_with_twist(
@@ -2025,7 +2040,8 @@ cdef class SSTWLC(SSWLC):
         double[:] test_t3_1,
         double[:] t2_0,
         double[:] t2_1,
-        double[:] test_t2_1
+        double[:] test_t2_1,
+        long ind
     ):
         """Compute change in polymer energy when affecting a single bead pair.
 
@@ -2061,51 +2077,67 @@ cdef class SSTWLC(SSWLC):
         cdef long i
         cdef double omega, omega_test, dr_par, dr_par_test
         cdef double[:] t1_0, t1_1, test_t1_1
-
+        #print("does the forward with twist function run")
         t1_0 = np.array([
             t2_0[1] * t3_0[2] - t2_0[2] * t3_0[1],
             t2_0[2] * t3_0[0] - t2_0[0] * t3_0[2],
             t2_0[0] * t3_0[1] - t2_0[1] * t3_0[0]
         ])
+        #print("test1")
         t1_1 = np.array([
             t2_1[1] * t3_1[2] - t2_1[2] * t3_1[1],
             t2_1[2] * t3_1[0] - t2_1[0] * t3_1[2],
             t2_1[0] * t3_1[1] - t2_1[1] * t3_1[0]
         ])
+        #print("test2")
         test_t1_1 = np.array([
             test_t2_1[1] * test_t3_1[2] - test_t2_1[2] * test_t3_1[1],
             test_t2_1[2] * test_t3_1[0] - test_t2_1[0] * test_t3_1[2],
             test_t2_1[0] * test_t3_1[1] - test_t2_1[1] * test_t3_1[0]
         ])
+        #print("this can't be the problem right")
         omega = np.arctan2(
-            (np.dot(t2_0, t1_1) - np.dot(t1_0, t2_1)) /
+            (np.dot(t2_0, t1_1) - np.dot(t1_0, t2_1)) , # changed / to ,
             (np.dot(t1_0, t1_1) + np.dot(t2_0, t2_1))
         )
+        #print("test3")
         omega_test = np.arctan2(
-            (np.dot(t2_0, test_t1_1) - np.dot(t1_0, test_t2_1)) /
+            (np.dot(t2_0, test_t1_1) - np.dot(t1_0, test_t2_1)) , # changed / to ,
             (np.dot(t1_0, test_t1_1) + np.dot(t2_0, test_t2_1))
         )
+        #print("test4")
 
         for i in range(3):
+            #print("test5")
             self.dr_test[i] = test_r_1[i] - r_0[i]
+            #print("test6")
             self.dr[i] = r_1[i] - r_0[i]
+            #print("test7")
         dr_par_test = vec_dot3(t3_0, self.dr_test)
+        #print("test8")
         dr_par = vec_dot3(t3_0, self.dr)
+        #print("test9")
 
         for i in range(3):
+            #print("test 10")
             self.dr_perp_test[i] = self.dr_test[i] - t3_0[i] * dr_par_test
+            #print("test11")
             self.dr_perp[i] = self.dr[i] - t3_0[i] * dr_par
+            #print("test12")
+
             self.bend_test[i] = (
-                test_t3_1[i] - t3_0[i] - self.dr_perp_test[i] * self.eta
+                test_t3_1[i] - t3_0[i] - self.dr_perp_test[i] * self.eta[i]
             )
+            #print("test13")
             self.bend[i] = (
-                t3_1[i] - t3_0[i] - self.dr_perp[i] * self.eta
+                t3_1[i] - t3_0[i] - self.dr_perp[i] * self.eta[i]
             )
+            #print("test14")
         return (self.E_pair_with_twist(
-            self.bend_test, dr_par_test, self.dr_perp_test, omega_test
+            self.bend_test, dr_par_test, self.dr_perp_test, omega_test, ind
         ) -
             self.E_pair_with_twist(
-                self.bend, dr_par, self.dr_perp, omega
+                self.bend, dr_par, self.dr_perp, omega, ind
         ))
 
     cdef double bead_pair_dE_poly_reverse_with_twist(
@@ -2119,6 +2151,7 @@ cdef class SSTWLC(SSWLC):
         double[:] t2_0, # new variable for twist # tangent vector of first bead in bend
         double[:] test_t2_0, # new variable for twist #tangent vector of first bead in bend
         double[:] t2_1, # new variable for twist # tangent vector of second bead in bend
+        long ind
     ):
         """Compute change in polymer energy when affecting a single bead pair.
 
@@ -2154,7 +2187,7 @@ cdef class SSTWLC(SSWLC):
         cdef long i
         cdef double omega, omega_test, dr_par, dr_par_test
         cdef double[:] t1_0, t1_1, test_t1_0
-
+        #print("does reverse with twist function happen")
         t1_0 = np.array([
             t2_0[1] * t3_0[2] - t2_0[2] * t3_0[1],
             t2_0[2] * t3_0[0] - t2_0[0] * t3_0[2],
@@ -2171,11 +2204,11 @@ cdef class SSTWLC(SSWLC):
             t2_1[0] * t3_1[1] - t2_1[1] * t3_1[0]
         ])
         omega = np.arctan2(
-            (np.dot(t2_0, t1_1) - np.dot(t1_0, t2_1)) /
+            (np.dot(t2_0, t1_1) - np.dot(t1_0, t2_1)),  # replace / with ,
             (np.dot(t1_0, t1_1) + np.dot(t2_0, t2_1))
         )
         omega_test = np.arctan2(
-            (np.dot(test_t2_0, t1_1) - np.dot(test_t1_0, t2_1)) /
+            (np.dot(test_t2_0, t1_1) - np.dot(test_t1_0, t2_1)) , # replace / with ,
             (np.dot(test_t1_0, t1_1) + np.dot(test_t2_0, t2_1))
         )
         for i in range(3):
@@ -2187,16 +2220,16 @@ cdef class SSTWLC(SSWLC):
             self.dr_perp_test[i] = self.dr_test[i] - test_t3_0[i] * dr_par_test
             self.dr_perp[i] = self.dr[i] - t3_0[i] * dr_par
             self.bend_test[i] = (
-                t3_1[i] - test_t3_0[i] - self.dr_perp_test[i] * self.eta
+                t3_1[i] - test_t3_0[i] - self.dr_perp_test[i] * self.eta[i]
             )
             self.bend[i] = (
-                t3_1[i] - t3_0[i] - self.dr_perp[i] * self.eta
+                t3_1[i] - t3_0[i] - self.dr_perp[i] * self.eta[i]
             )
         return (self.E_pair_with_twist(
-            self.bend_test, dr_par_test, self.dr_perp_test, omega_test
+            self.bend_test, dr_par_test, self.dr_perp_test, omega_test, ind
         ) -
             self.E_pair_with_twist(
-                self.bend, dr_par, self.dr_perp, omega
+                self.bend, dr_par, self.dr_perp, omega, ind
         ))
 
 
