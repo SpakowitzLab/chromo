@@ -24,7 +24,6 @@ from chromo.fields import UniformDensityField
 import chromo.mc.mc_controller as ctrl
 from chromo.util.reproducibility import get_unique_subfolder_name
 import chromo.util.poly_stat as ps
-from chromo.test_polymer_build import test_image
 
 
 # Change working directory to package root
@@ -76,7 +75,7 @@ ax.plot3D(np.asarray(x), np.asarray(y), np.asarray(z))
 ax.set_xlabel('x')
 ax.set_ylabel('y')
 ax.set_zlabel('z')
-plt.show()
+# plt.show()
 # Tests if the plot shown is sufficiently similar to the reference image.
 # control_image_configuration = "control_image_configuration"
 # plt.savefig(str("chromo/" + control_image_configuration)) # can be used to generate a new control image
@@ -85,7 +84,7 @@ plt.show()
 # plt.savefig("chromo/" + str(new_image_name))
 # plt.show()
 
-#plt.show()
+# plt.show()
 # test_image(new_image_name, control_image_configuration) # used for comparing image to reference
 
 
@@ -112,6 +111,7 @@ amp_bead_bounds, amp_move_bounds = mc.get_amplitude_bounds(
 )
 
 latest_sim = get_unique_subfolder_name("output/sim_")
+
 moves_to_use = ctrl.all_moves_except_binding_state(
     log_dir=latest_sim,
     bead_amp_bounds=amp_bead_bounds.bounds,
@@ -119,8 +119,9 @@ moves_to_use = ctrl.all_moves_except_binding_state(
     controller=ctrl.SimpleControl
 )
 
-#num_snapshots = 5
 num_snapshots = 200
+#num_snapshots = 1000 # try 1000 and average for each set of 100, depending on pre-equilibration steps
+# count number of accepted moves for different conditions
 mc_steps_per_snapshot = 40000
 
 mc.polymer_in_field(
@@ -136,7 +137,11 @@ mc.polymer_in_field(
 )
 
 # Load names of polymer configuration output files
+# 206 is with 200 snapshots of twist with alternating 15 and 25
+# 130 is without twist with alternating 15 and 25
+#latest_sim = "output/sim_206"
 output_files = os.listdir(latest_sim)
+
 output_files = [
     f for f in output_files if f.endswith(".csv") and f.startswith("poly_1")
 ]
@@ -205,6 +210,9 @@ plt.figure(figsize=(8, 6))
 plt.plot(sorted_snap, all_dists)
 plt.xlabel("Snapshot number")
 plt.ylabel(r"$\langle R^2 \rangle /(2l_p)^2$")
+plt.title("Simulation number: " + latest_sim)
+plt.suptitle("lp = " + str(lp) + ", lt (if used) = " + str(lt) + ", bead spacing = " + str(bead_spacing[1:5]) + " ..." ,
+             fontsize = 10)
 plt.tight_layout()
 plt.show()
 
@@ -217,11 +225,12 @@ monomer_separation = np.array(
         if monomer_separation[i] > 0
     ]
 )
-#monomer_separation_kuhn = monomer_separation * (bead_spacing / lp / 2)
-monomer_separation_kuhn = monomer_separation * (np.mean(bead_spacing) / lp / 2) #check that this is acceptable
+# monomer_separation_kuhn = monomer_separation * (bead_spacing / lp / 2)
+monomer_separation_kuhn = monomer_separation * (np.mean(bead_spacing) / lp / 2) # check that this is acceptable
+# do calc with same bead spacing
+# 
 
-
-lp = 100
+lp = 100 # try 53
 kuhn_length = 2 * lp
 num_equilibration = 70
 all_r2 = []
@@ -262,8 +271,12 @@ plt.ylabel(r"Log $\langle R^2 \rangle /(2l_p)^2$")
 r2_theory = monomer_separation_kuhn - 1/2 + np.exp(-2 * monomer_separation_kuhn)/2
 plt.plot(np.log10(monomer_separation_kuhn), np.log10(r2_theory), label="theory")
 plt.legend()
+plt.suptitle("lp = " + str(lp) + ", lt (if used) = " + str(lt) + ", bead spacing = " + str(bead_spacing[1:5]) + " ...",
+             fontsize = 10)
+plt.title("Simulation number: " + latest_sim)
 plt.tight_layout()
 plt.show()
 
-
-
+# try 0 as lt
+#25 nm is 75 base pairs
+# units of bead spacing are nm

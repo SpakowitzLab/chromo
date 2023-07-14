@@ -75,6 +75,7 @@ cpdef void mc_sim(
     cdef long i, j, k, n_polymers
     cdef list active_fields
     cdef poly
+    cdef list accept_reject
     #print("does mc_sim work")
     #print("will this be the end of the file")
     np.random.seed(random_seed)
@@ -108,6 +109,7 @@ cpdef void mc_sim(
                         )
                         #print("l")
             controller.update_amplitudes()
+    #print(accept_reject)
 
 
 cpdef void mc_step(
@@ -143,7 +145,10 @@ cpdef void mc_step(
     cdef int check_field = 0
     cdef long packet_size, n_inds
     cdef long[:] inds
+    #cdef list accept_reject
+    #cdef np.array accept_reject # to count acceptances and rejections
     #print("m")
+    accept_reject = [] # added new line
     if poly in field and active_field:
         #print("n")
         if adaptible_move.name != "tangent_rotation":
@@ -189,6 +194,7 @@ cpdef void mc_step(
 
     if (<double>rand() / RAND_MAX) < exp_dE:
         #print("ac")
+        #accept_reject.append(1)
         adaptible_move.accept(
             poly, dE, inds, n_inds, log_move=False, log_update=False
         )
@@ -199,7 +205,9 @@ cpdef void mc_step(
 
     else:
         #print("af")
+        #accept_reject.append(0)
         adaptible_move.reject(
             poly, dE, log_move=False, log_update=False
         )
         #print("ag")
+    #return accept_reject

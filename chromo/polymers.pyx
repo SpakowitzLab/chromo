@@ -2100,12 +2100,14 @@ cdef class SSTWLC(SSWLC):
             (np.dot(t2_0, t1_1) - np.dot(t1_0, t2_1)) , # changed / to ,
             (np.dot(t1_0, t1_1) + np.dot(t2_0, t2_1))
         )
+        # changing linker length rotates the normal vector, need to have a rotation angle
+        #for every bead
         #print("test3")
         omega_test = np.arctan2(
             (np.dot(t2_0, test_t1_1) - np.dot(t1_0, test_t2_1)) , # changed / to ,
             (np.dot(t1_0, test_t1_1) + np.dot(t2_0, test_t2_1))
         )
-        #print("test4")
+        #only goes from pi to -pi, not a problem for mc
 
         for i in range(3):
             #print("test5")
@@ -2128,11 +2130,11 @@ cdef class SSTWLC(SSWLC):
             self.bend_test[i] = (
                 test_t3_1[i] - t3_0[i] - self.dr_perp_test[i] * self.eta[i]
             )
-            #print("test13")
+
             self.bend[i] = (
                 t3_1[i] - t3_0[i] - self.dr_perp[i] * self.eta[i]
             )
-            #print("test14")
+
         return (self.E_pair_with_twist(
             self.bend_test, dr_par_test, self.dr_perp_test, omega_test, ind
         ) -
