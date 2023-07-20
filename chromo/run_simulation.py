@@ -24,7 +24,9 @@ from chromo.fields import UniformDensityField
 import chromo.mc.mc_controller as ctrl
 from chromo.util.reproducibility import get_unique_subfolder_name
 import chromo.util.poly_stat as ps
+import datetime
 
+pst_time = datetime.datetime.utcnow() + datetime.timedelta(hours=-7)
 
 # Change working directory to package root
 os.chdir(parent_dir)
@@ -44,7 +46,7 @@ bead_spacing = np.array([15, 25] * 500)
 # print(len(bead_spacing))
 # bead_spacing = 15.0 * np.ones((1000, 1)) # change to be real linker lengths later
 lp = 100
-lt=100
+lt = 100
 
 # Generates the polymer object
 """polymer = SSWLC.gaussian_walk_polymer(
@@ -120,7 +122,7 @@ moves_to_use = ctrl.all_moves_except_binding_state(
 )
 
 num_snapshots = 5
-#num_snapshots = 1000 # try 1000 and average for each set of 100, depending on pre-equilibration steps
+# num_snapshots = 1000 # try 1000 and average for each set of 100, depending on pre-equilibration steps
 # count number of accepted moves for different conditions
 mc_steps_per_snapshot = 40000
 
@@ -181,9 +183,12 @@ for i, f in enumerate(output_files):
 
 plt.figure(figsize=(8,6))
 plt.plot(sorted_snap, polymer_energies)
+plt.suptitle("lp = " + str(lp) + ", lt (if used) = " + str(lt) + ", bead spacing = " + str(bead_spacing[1:5]) + " ..." ,
+             fontsize = 10)
 plt.xlabel("Snapshot number")
 plt.ylabel("Polymer Energy")
 plt.tight_layout()
+plt.savefig(str(latest_sim) + '/' + str(pst_time) + 'Polymer_Energy_Snapshot_Number.png')
 plt.show()
 
 
@@ -214,6 +219,7 @@ plt.title("Simulation number: " + latest_sim)
 plt.suptitle("lp = " + str(lp) + ", lt (if used) = " + str(lt) + ", bead spacing = " + str(bead_spacing[1:5]) + " ..." ,
              fontsize = 10)
 plt.tight_layout()
+plt.savefig(str(latest_sim) + '/' + str(pst_time) + 'R-squared_2lp.png')
 plt.show()
 
 
@@ -274,7 +280,10 @@ plt.legend()
 plt.suptitle("lp = " + str(lp) + ", lt (if used) = " + str(lt) + ", bead spacing = " + str(bead_spacing[1:5]) + " ...",
              fontsize = 10)
 plt.title("Simulation number: " + latest_sim)
+plt.suptitle("lp = " + str(lp) + ", lt (if used) = " + str(lt) + ", bead spacing = " + str(bead_spacing[1:5]) + " ..." ,
+             fontsize = 10)
 plt.tight_layout()
+plt.savefig(str(latest_sim) + '/' + str(pst_time) + 'Theory_vs_Simulation.png')
 plt.show()
 
 # try 0 as lt
