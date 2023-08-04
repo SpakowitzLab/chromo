@@ -5,7 +5,7 @@ import sys # allows access to functions related to the interpreter
 # Insert package root to system path
 cwd = os.getcwd() # get pathname of current working directory
 parent_dir = cwd + "/../.."
-sys.path.insert(1, parent_dir) #gives interpreter a specific path to search
+sys.path.insert(1, parent_dir) # gives interpreter a specific path to search
 
 print("Directory containing the notebook:")
 print(cwd)
@@ -28,15 +28,15 @@ print(os.getcwd())
 num_beads = 1000
 
 
-bead_spacing = np.array([15, 25] * 500)
+bead_spacing = np.array([10, 15] * 500)
 lp = 100    # Persistence length of DNA; in this example, `lp` has no effect
 delta = 50  # Monomer monomer separation at which to calculate mean squared distance.
-lt=100
+lt = 100
 
 # Load names of polymer configuration output files
 # 206 is with 200 snapshots of twist with alternating 15 and 25
 # 130 is without twist with alternating 15 and 25
-latest_sim = "output/sim_210"
+latest_sim = "output/sim_218"
 output_files = os.listdir(latest_sim)
 
 output_files = [
@@ -46,7 +46,7 @@ snapshot = [int(f.split("-")[-1].split(".")[0]) for f in output_files]
 sorted_snap = np.sort(np.array(snapshot))
 output_files = [f for _, f in sorted(zip(snapshot, output_files))]
 
-break_boundaries = [800, 1000]
+break_boundaries = [0, 200]
 
 all_dists = []
 for i, f in enumerate(output_files):

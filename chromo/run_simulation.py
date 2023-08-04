@@ -42,7 +42,7 @@ binders = chromo.binders.make_binder_collection([null_binder]) # gets relevant b
 num_beads = 1000
 
 
-bead_spacing = np.array([15, 25] * 500)
+bead_spacing = np.array([10, 15] * 500)
 # print(len(bead_spacing))
 # bead_spacing = 15.0 * np.ones((1000, 1)) # change to be real linker lengths later
 lp = 100
@@ -77,17 +77,6 @@ ax.plot3D(np.asarray(x), np.asarray(y), np.asarray(z))
 ax.set_xlabel('x')
 ax.set_ylabel('y')
 ax.set_zlabel('z')
-# plt.show()
-# Tests if the plot shown is sufficiently similar to the reference image.
-# control_image_configuration = "control_image_configuration"
-# plt.savefig(str("chromo/" + control_image_configuration)) # can be used to generate a new control image
-
-# new_image_name = "testing_plot"
-# plt.savefig("chromo/" + str(new_image_name))
-# plt.show()
-
-# plt.show()
-# test_image(new_image_name, control_image_configuration) # used for comparing image to reference
 
 
 n_bins_x = 63
@@ -121,7 +110,7 @@ moves_to_use = ctrl.all_moves_except_binding_state(
     controller=ctrl.SimpleControl
 )
 
-num_snapshots = 5
+num_snapshots = 200
 # num_snapshots = 1000 # try 1000 and average for each set of 100, depending on pre-equilibration steps
 # count number of accepted moves for different conditions
 mc_steps_per_snapshot = 40000
@@ -189,12 +178,12 @@ plt.xlabel("Snapshot number")
 plt.ylabel("Polymer Energy")
 plt.tight_layout()
 plt.savefig(str(latest_sim) + '/' + str(pst_time) + 'Polymer_Energy_Snapshot_Number.png')
-plt.show()
+#plt.show()
 
 
 lp = 100    # Persistence length of DNA; in this example, `lp` has no effect
 delta = 50  # Monomer monomer separation at which to calculate mean squared distance.
-#delta = bead_length/lp
+# delta = bead_length/lp
 
 all_dists = []
 for i, f in enumerate(output_files):
@@ -215,12 +204,12 @@ plt.figure(figsize=(8, 6))
 plt.plot(sorted_snap, all_dists)
 plt.xlabel("Snapshot number")
 plt.ylabel(r"$\langle R^2 \rangle /(2l_p)^2$")
-plt.title("Simulation number: " + latest_sim)
+plt.title("Simulation number: " + str(latest_sim))
 plt.suptitle("lp = " + str(lp) + ", lt (if used) = " + str(lt) + ", bead spacing = " + str(bead_spacing[1:5]) + " ..." ,
              fontsize = 10)
 plt.tight_layout()
 plt.savefig(str(latest_sim) + '/' + str(pst_time) + 'R-squared_2lp.png')
-plt.show()
+#plt.show()
 
 
 monomer_separation = 10 ** np.arange(-1, 2, 0.05)
@@ -287,5 +276,5 @@ plt.savefig(str(latest_sim) + '/' + str(pst_time) + 'Theory_vs_Simulation.png')
 plt.show()
 
 # try 0 as lt
-#25 nm is 75 base pairs
+# 25 nm is 75 base pairs
 # units of bead spacing are nm
