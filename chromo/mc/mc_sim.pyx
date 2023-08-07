@@ -196,7 +196,7 @@ cpdef void mc_step(
         #print("ac")
         #accept_reject.append(1)
         adaptible_move.accept(
-            poly, dE, inds, n_inds, log_move=False, log_update=False
+            poly, dE, inds, n_inds, log_move=True, log_update=True
         )
         #print("ad")
         if check_field == 1:
@@ -207,7 +207,8 @@ cpdef void mc_step(
         #print("af")
         #accept_reject.append(0)
         adaptible_move.reject(
-            poly, dE, log_move=False, log_update=False
+            poly, dE, log_move=True, log_update=True
         )
+        # move is amplitude, update is accept/reject
         #print("ag")
     #return accept_reject

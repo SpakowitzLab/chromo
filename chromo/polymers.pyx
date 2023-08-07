@@ -1926,6 +1926,7 @@ cdef class SSTWLC(SSWLC):
         length_bead : ndarray
             Number of base pairs represented by each bead of the polymer
         """
+
         self.delta = np.array(length_bead/ self.lp)
         self.eps_bend = np.interp(
             self.delta, dss_params[:, 0], dss_params[:, 1]
@@ -1943,6 +1944,9 @@ cdef class SSTWLC(SSWLC):
             self.delta, dss_params[:, 0], dss_params[:, 5]
         ) / self.lp
         self.eps_twist = np.array(self.lt / (self.delta * self.lp))
+        print(self.eps_twist)
+        print(self.delta)
+        print(self.gamma)
 
     cdef double continuous_dE_poly(
         self,
