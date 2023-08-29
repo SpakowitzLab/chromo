@@ -30,7 +30,7 @@ from chromo.fields cimport UniformDensityField as Udf
 cpdef void mc_sim(
     list polymers, readerproteins, long num_mc_steps,
     list mc_move_controllers, Udf field, double mu_adjust_factor,
-    long random_seed
+    long random_seed, double mc_count, double num_saves
 ):
     """Perform Monte Carlo simulation.
 
@@ -105,16 +105,26 @@ cpdef void mc_sim(
                         #print("k")
                         mc_step(
                             controller.move, poly, readerproteins, field,
-                            active_field
+                            active_field, mc_count, num_saves
                         )
                         #print("l")
             controller.update_amplitudes()
     #print(accept_reject)
+cpdef double temperature_variation(current_step, total_steps, function_type):
+    if function_type == "constant":
+        return 1
+    if function_type == "stepwise":
+        steps_left = total_steps - current_step
+        return steps_left/total_steps
+    #if function_type == "decreasing zigzag":
+        #return 3
+    #if function_type == "smooth decrease":
+        #return 4
 
 
 cpdef void mc_step(
     MCAdapter adaptible_move, PolymerBase poly, readerproteins,
-    Udf field, bint active_field
+    Udf field, bint active_field, double mc_count, double num_saves
 ):
     """Compute energy change and determine move acceptance.
 
@@ -192,7 +202,7 @@ cpdef void mc_step(
             #print("ab")
             exp_dE = 1
 
-    if (<double>rand() / RAND_MAX) < exp_dE:
+    if (<double>rand() / RAND_MAX) < exp_dE/temperature_variation(mc_count, num_saves, "stepwise"): #temperature variation
         #print("ac")
         #accept_reject.append(1)
         adaptible_move.accept(

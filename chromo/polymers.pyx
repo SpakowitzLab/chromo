@@ -982,6 +982,8 @@ cdef class SSWLC(PolymerBase):
         ])
         self.check_attrs()
         self.mu_adjust_factor = 1
+        print("mu_adjust")
+
 
     cdef void construct_beads(self):
         """Construct `GhostBead` objects forming beads of the polymer.
@@ -1693,7 +1695,6 @@ cdef class SSWLC(PolymerBase):
         SSWLC
             Object representing a polymer initialized as Gaussian random walk
         """
-        #print("why is this happening")
         r = paths.gaussian_walk(num_beads, bead_length)
         t3, t2 = paths.estimate_tangents_from_coordinates(r)
         return cls(name, r, t3=t3, t2=t2, bead_length=bead_length, **kwargs)
@@ -1810,7 +1811,7 @@ cdef class Chromatin(SSWLC):
         Please see documentation for `PolymerBase.__init__()` and
         `SSWLC.__init__()` for parameter descriptions.
         """
-        cdef double lp = 53
+        cdef double lp = 53 #why is lp initialized to an actual number, then overwritten?
         super(Chromatin, self).__init__(
             name, r, bead_length=bead_length, bead_rad=bead_rad, lp=lp, t3=t3,
             t2=t2, states=states, binder_names=binder_names, log_path=log_path,
@@ -1855,7 +1856,6 @@ cdef class SSTWLC(SSWLC):
         Twist modulus of the polymer, divided by dimensionless `delta`,
         as appears in the equation for SSTWLC elastic energy (units of kbT)
     """
-    #cls(name, r, t3=t3, t2=t2, bead_length=bead_length, **kwargs)
 
     def __init__(
             self,
@@ -1944,9 +1944,9 @@ cdef class SSTWLC(SSWLC):
             self.delta, dss_params[:, 0], dss_params[:, 5]
         ) / self.lp
         self.eps_twist = np.array(self.lt / (self.delta * self.lp))
-        print(self.eps_twist)
-        print(self.delta)
-        print(self.gamma)
+        #print(self.eps_twist)
+        #print(self.delta)
+        #print(self.gamma)
 
     cdef double continuous_dE_poly(
         self,
@@ -1968,7 +1968,6 @@ cdef class SSTWLC(SSWLC):
 
         delta_energy_poly = 0
         if ind0 != 0:
-            #print("does line 1959 in polymers happen")
             delta_energy_poly += self.bead_pair_dE_poly_forward_with_twist(
                 self.r[ind0_m_1, :],
                 self.r[ind0, :],
@@ -1981,9 +1980,7 @@ cdef class SSTWLC(SSWLC):
                 self.t2_trial[ind0, :],
                 ind0
             )
-        #print("line 1980")
         if indf != self.num_beads:
-            #print("does this reverse with twist on line 1963 happen")
             delta_energy_poly += self.bead_pair_dE_poly_reverse_with_twist(
                 self.r[indf_m_1, :],
                 self.r_trial[indf_m_1, :],
@@ -2125,18 +2122,14 @@ cdef class SSTWLC(SSWLC):
         #print("test9")
 
         for i in range(3):
-            #print("test 10")
+
             self.dr_perp_test[i] = self.dr_test[i] - t3_0[i] * dr_par_test
-            #print("test11")
             self.dr_perp[i] = self.dr[i] - t3_0[i] * dr_par
-            #print("test12")
-
             self.bend_test[i] = (
-                test_t3_1[i] - t3_0[i] - self.dr_perp_test[i] * self.eta[i]
+                test_t3_1[i] - t3_0[i] - self.dr_perp_test[i] * self.eta[ind] # changed to ind from  i
             )
-
             self.bend[i] = (
-                t3_1[i] - t3_0[i] - self.dr_perp[i] * self.eta[i]
+                t3_1[i] - t3_0[i] - self.dr_perp[i] * self.eta[ind] # changed to ind from i
             )
 
         return (self.E_pair_with_twist(
@@ -2226,10 +2219,10 @@ cdef class SSTWLC(SSWLC):
             self.dr_perp_test[i] = self.dr_test[i] - test_t3_0[i] * dr_par_test
             self.dr_perp[i] = self.dr[i] - t3_0[i] * dr_par
             self.bend_test[i] = (
-                t3_1[i] - test_t3_0[i] - self.dr_perp_test[i] * self.eta[i]
+                t3_1[i] - test_t3_0[i] - self.dr_perp_test[i] * self.eta[ind] # changed i to ind
             )
             self.bend[i] = (
-                t3_1[i] - t3_0[i] - self.dr_perp[i] * self.eta[i]
+                t3_1[i] - t3_0[i] - self.dr_perp[i] * self.eta[ind] #changed i to ind
             )
         return (self.E_pair_with_twist(
             self.bend_test, dr_par_test, self.dr_perp_test, omega_test, ind

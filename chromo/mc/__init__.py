@@ -134,7 +134,7 @@ def _polymer_in_field(
             mu_adjust_factor = 1
         decorator_timed_path(output_dir)(mc_sim)(
             polymers, binders, num_save_mc, mc_move_controllers, field,
-            mu_adjust_factor, random_seed
+            mu_adjust_factor, random_seed, mc_count, num_saves
         ) # added list around binders in an attempt to match input to mc_sim
 
         for poly in polymers:

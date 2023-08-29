@@ -28,7 +28,7 @@ print(os.getcwd())
 num_beads = 1000
 
 
-bead_spacing = np.array([10, 15] * 500)
+bead_spacing = np.array([15, 25] * 500)
 lp = 100    # Persistence length of DNA; in this example, `lp` has no effect
 delta = 50  # Monomer monomer separation at which to calculate mean squared distance.
 lt = 100
@@ -36,7 +36,7 @@ lt = 100
 # Load names of polymer configuration output files
 # 206 is with 200 snapshots of twist with alternating 15 and 25
 # 130 is without twist with alternating 15 and 25
-latest_sim = "output/sim_218"
+latest_sim = "output/sim_210"
 output_files = os.listdir(latest_sim)
 
 output_files = [
@@ -46,7 +46,7 @@ snapshot = [int(f.split("-")[-1].split(".")[0]) for f in output_files]
 sorted_snap = np.sort(np.array(snapshot))
 output_files = [f for _, f in sorted(zip(snapshot, output_files))]
 
-break_boundaries = [0, 200]
+break_boundaries = [800, 1000]
 
 all_dists = []
 for i, f in enumerate(output_files):
@@ -140,6 +140,10 @@ plt.suptitle("lp = " + str(lp) + ", lt (if used) = " + str(lt) + ", bead spacing
 plt.title("Simulation number: " + latest_sim)
 plt.tight_layout()
 plt.show()
+
+ratio = average_squared_e2e/r2_theory
+print(ratio)
+
 
 
 
