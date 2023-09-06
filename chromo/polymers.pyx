@@ -24,7 +24,8 @@ import chromo.util.mc_stat as mc_stat
 from chromo.util.linalg cimport (vec_sub3, vec_dot3, vec_scale3)
 from .util import dss_params
 from .util import poly_paths as paths
-
+from typing import Optional
+import chromo.twist_schedule as twist_adjust
 # Global type aliases and variables
 ctypedef np.uint8_t uint8
 cdef np.ndarray empty_2d = np.empty((0, 0))
@@ -938,7 +939,7 @@ cdef class SSWLC(PolymerBase):
     """
 
     def __init__(
-        self, str name, double[:,::1] r, np.ndarray bead_length, *, double lp, # moved bead_length to positional (5/22)
+        self, str name, double[:,::1] r, np.ndarray bead_length, *, double lp,
         double bead_rad=5, double[:,::1] t3=empty_2d,
         double[:,::1] t2=empty_2d, long[:,::1] states=mty_2d_int,
         np.ndarray binder_names=empty_1d, long[:,::1] chemical_mods=mty_2d_int,
@@ -982,7 +983,10 @@ cdef class SSWLC(PolymerBase):
         ])
         self.check_attrs()
         self.mu_adjust_factor = 1
+        self.temperature_adjust_factor = 1
+        self.lt_adjust_factor = 1
         print("mu_adjust")
+
 
 
     cdef void construct_beads(self):
@@ -1873,6 +1877,8 @@ cdef class SSTWLC(SSWLC):
             long[:, ::1] chemical_mods = mty_2d_int,
             np.ndarray chemical_mod_names = empty_1d_str,
             str log_path = "", long max_binders = -1,
+            #float lt_adjust_factor
+            #lt_schedule: Optional[Callable[[str], float]] = None
         ):
         """Construct a `SSTWLC` polymer object as a subclass of `SSWLC`.
 
@@ -1895,8 +1901,17 @@ cdef class SSTWLC(SSWLC):
         )
         self.bead_rad = bead_rad
         self.construct_beads()
+        #lt_adjust_factor = self.lt_adjust_factor
+        #if lt_schedule is not None:
+            #if lt_schedule == "logarithmic increase":
+                #lt_adjust = twist_schedule.logarithmic_increase()
+
+
+
+        #self.lt_adjust = twist_adjust
+        #lt_adjust_factor =
         self.lp = lp
-        self.lt = lt
+        self.lt = lt #* lt_adjust_factor# twist modulus
         self._find_parameters(self.bead_length)
         self.required_attrs = np.array([
             "name", "r", "t3", "t2", "states", "binder_names", "num_binders",
@@ -1906,6 +1921,7 @@ cdef class SSTWLC(SSWLC):
             ['r', 't3', 't2', 'states', 'bead_length', 'chemical_mods']
         )
         self.check_attrs()
+
 
     cpdef void _find_parameters(self, np.ndarray length_bead):
         """Look up elastic parameters of ssWLC for each bead_length.
@@ -1944,9 +1960,6 @@ cdef class SSTWLC(SSWLC):
             self.delta, dss_params[:, 0], dss_params[:, 5]
         ) / self.lp
         self.eps_twist = np.array(self.lt / (self.delta * self.lp))
-        #print(self.eps_twist)
-        #print(self.delta)
-        #print(self.gamma)
 
     cdef double continuous_dE_poly(
         self,

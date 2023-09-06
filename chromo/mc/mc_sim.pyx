@@ -25,12 +25,13 @@ from chromo.mc.moves import MCAdapter
 from chromo.mc.moves cimport MCAdapter
 from chromo.mc.mc_controller import Controller
 from chromo.fields cimport UniformDensityField as Udf
+from chromo.polymers import SSTWLC
 
 
 cpdef void mc_sim(
     list polymers, readerproteins, long num_mc_steps,
-    list mc_move_controllers, Udf field, double mu_adjust_factor,
-    long random_seed, double mc_count, double num_saves
+    list mc_move_controllers, Udf field, double mu_adjust_factor, double temperature_adjust_factor,
+    long random_seed, double lt_value_adjust = 1
 ):
     """Perform Monte Carlo simulation.
 
@@ -76,55 +77,35 @@ cpdef void mc_sim(
     cdef list active_fields
     cdef poly
     cdef list accept_reject
-    #print("does mc_sim work")
-    #print("will this be the end of the file")
     np.random.seed(random_seed)
-    #print("a")
 
     if field.confine_type == "":
-        #print("b")
         active_fields = [poly.is_field_active() for poly in polymers]
     else:
-        #print("c")
         active_fields = [1 for _ in polymers]
     for k in range(num_mc_steps):
-        #print("d")
         for controller in mc_move_controllers:
-            #print("e")
             if controller.move.move_on == 1:
-                #print("f")
                 for j in range(controller.move.num_per_cycle):
-                    #print("g")
                     for i in range(len(polymers)):
-                        #print("h")
+                        polymers[i].lt = polymers[i].lt * lt_value_adjust
+
+                        polymers[i]._find_parameters(polymers[i].bead_length)
+                        #SSTWLC._find_parameters(polymers[i].bead_length)
+
+                        #polymers[i].find_parameters(polymers[i].bead_length)
                         poly = polymers[i]
-                        #print("i")
-                        poly.mu_adjust_factor = mu_adjust_factor
-                        #print("j")
                         active_field = active_fields[i]
-                        #print("k")
                         mc_step(
                             controller.move, poly, readerproteins, field,
-                            active_field, mc_count, num_saves
+                            active_field, temperature_adjust_factor
                         )
-                        #print("l")
             controller.update_amplitudes()
-    #print(accept_reject)
-cpdef double temperature_variation(current_step, total_steps, function_type):
-    if function_type == "constant":
-        return 1
-    if function_type == "stepwise":
-        steps_left = total_steps - current_step
-        return steps_left/total_steps
-    #if function_type == "decreasing zigzag":
-        #return 3
-    #if function_type == "smooth decrease":
-        #return 4
 
 
 cpdef void mc_step(
     MCAdapter adaptible_move, PolymerBase poly, readerproteins,
-    Udf field, bint active_field, double mc_count, double num_saves
+    Udf field, bint active_field, double temperature_adjust_factor
 ):
     """Compute energy change and determine move acceptance.
 
@@ -155,8 +136,9 @@ cpdef void mc_step(
     cdef int check_field = 0
     cdef long packet_size, n_inds
     cdef long[:] inds
-    #cdef list accept_reject
-    #cdef np.array accept_reject # to count acceptances and rejections
+
+    #temperature_adjust_factor = poly.temperature_adjust_factor
+    #lt_value_adjust = poly.lt_value_adjust
     #print("m")
     accept_reject = [] # added new line
     if poly in field and active_field:
@@ -178,6 +160,7 @@ cpdef void mc_step(
     dE += poly.compute_dE(adaptible_move.name, inds, n_inds)
     #print("t")
     if check_field == 1:
+        #pol = lt * lt_value_adjust
         #print("u")
         if adaptible_move.name == "change_binding_state":
             #print("v")
@@ -202,7 +185,7 @@ cpdef void mc_step(
             #print("ab")
             exp_dE = 1
 
-    if (<double>rand() / RAND_MAX) < exp_dE/temperature_variation(mc_count, num_saves, "stepwise"): #temperature variation
+    if (<double>rand() / RAND_MAX) < exp_dE/temperature_adjust_factor: #temperature variation
         #print("ac")
         #accept_reject.append(1)
         adaptible_move.accept(

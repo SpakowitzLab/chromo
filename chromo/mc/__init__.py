@@ -24,7 +24,8 @@ from chromo.polymers import PolymerBase, Chromatin
 from chromo.binders import ReaderProtein
 from chromo.binders import get_by_name, make_binder_collection
 from chromo.fields import UniformDensityField, FieldBase
-
+import chromo.twist_schedule as twist_schedule
+import chromo.util.temperature_schedule as temp_schedule
 
 F = TypeVar("F")    # Represents an arbitrary field
 STEPS = int         # Number of steps per MC save point
@@ -44,10 +45,13 @@ def _polymer_in_field(
     mc_move_controllers: Optional[List[Controller]] = None,
     random_seed: Optional[int] = 0,
     mu_schedule: Optional[Callable[[float], float]] = None,
+    lt_schedule: Optional[Callable[[str],float]] = None,
+    temperature_schedule: Optional[Callable[[str],float]] = None,
     output_dir: Optional[DIR] = '.',
     path_to_run_script: Optional[str] = None,
     path_to_chem_mods: Optional[List[str]] = None,
     run_command: Optional[str] = None,
+    #lt_value_adjust = 1,
     **kwargs
 ):
     """
@@ -126,16 +130,34 @@ def _polymer_in_field(
 
     t1_start = process_time()
     for mc_count in range(num_saves):
-
         # Simulated annealing
         if mu_schedule is not None:
             mu_adjust_factor = mu_schedule.function(mc_count, num_saves)
         else:
             mu_adjust_factor = 1
+        if temperature_schedule is not None:
+            if temperature_schedule == "linear decrease":
+                temperature_adjust_factor = temp_schedule.linear_decrease(mc_count, num_saves)
+            elif temperature_schedule == "logarithmic decrease":
+                temperature_adjust_factor = temp_schedule.logarithmic_decrease(mc_count, num_saves)
+            elif temperature_schedule == "decreasing stepwise":
+                temperature_adjust_factor = temp_schedule.decreasing_stepwise(mc_count, num_saves)
+            else:
+                print("Not a valid temperature schedule option")
+        else:
+            temperature_adjust_factor = 1
+        if lt_schedule is not None:
+            if lt_schedule == "logarithmic increase":
+                lt_change = twist_schedule.logarithmic_increase(mc_count, num_saves)
+            else:
+                print("Not a valid lt schedule option")
+        else:
+            lt_change = 1
+
         decorator_timed_path(output_dir)(mc_sim)(
             polymers, binders, num_save_mc, mc_move_controllers, field,
-            mu_adjust_factor, random_seed, mc_count, num_saves
-        ) # added list around binders in an attempt to match input to mc_sim
+            mu_adjust_factor, temperature_adjust_factor, random_seed, lt_value_adjust = lt_change
+        )
 
         for poly in polymers:
             poly.to_csv(

@@ -25,6 +25,7 @@ import chromo.mc.mc_controller as ctrl
 from chromo.util.reproducibility import get_unique_subfolder_name
 import chromo.util.poly_stat as ps
 import datetime
+import chromo.util.temperature_schedule as temperature
 
 pst_time = datetime.datetime.utcnow() + datetime.timedelta(hours=-7)
 
@@ -63,7 +64,8 @@ polymer = SSTWLC.gaussian_walk_polymer(
     bead_spacing,
     lp=lp,
     lt=lt,
-    binder_names=np.array(["null_reader"])
+    binder_names=np.array(["null_reader"]),
+    #lt_schedule = "logarithmic increase"
 )
 
 # shows a plot of the polymer object
@@ -124,9 +126,13 @@ mc.polymer_in_field(
     bead_amp_bounds = amp_bead_bounds,
     move_amp_bounds = amp_move_bounds,
     output_dir = 'output',
-    mc_move_controllers = moves_to_use
+    mc_move_controllers = moves_to_use,
+    temperature_schedule = "linear decrease",
+    lt_schedule = "logarithmic increase"
 )
 
+
+#temperature_schedule: Optional[Callable[[float],float]] = None
 # Load names of polymer configuration output files
 # 206 is with 200 snapshots of twist with alternating 15 and 25
 # 130 is without twist with alternating 15 and 25
@@ -268,7 +274,7 @@ plt.plot(np.log10(monomer_separation_kuhn), np.log10(r2_theory), label="theory")
 plt.legend()
 plt.suptitle("lp = " + str(lp) + ", lt (if used) = " + str(lt) + ", bead spacing = " + str(bead_spacing[1:5]) + " ...",
              fontsize = 10)
-plt.title("Simulation number: " + latest_sim)
+plt.title("Simulation number: " + str(latest_sim))
 plt.suptitle("lp = " + str(lp) + ", lt (if used) = " + str(lt) + ", bead spacing = " + str(bead_spacing[1:5]) + " ..." ,
              fontsize = 10)
 plt.tight_layout()
