@@ -1877,8 +1877,6 @@ cdef class SSTWLC(SSWLC):
             long[:, ::1] chemical_mods = mty_2d_int,
             np.ndarray chemical_mod_names = empty_1d_str,
             str log_path = "", long max_binders = -1,
-            #float lt_adjust_factor
-            #lt_schedule: Optional[Callable[[str], float]] = None
         ):
         """Construct a `SSTWLC` polymer object as a subclass of `SSWLC`.
 
@@ -1901,17 +1899,8 @@ cdef class SSTWLC(SSWLC):
         )
         self.bead_rad = bead_rad
         self.construct_beads()
-        #lt_adjust_factor = self.lt_adjust_factor
-        #if lt_schedule is not None:
-            #if lt_schedule == "logarithmic increase":
-                #lt_adjust = twist_schedule.logarithmic_increase()
-
-
-
-        #self.lt_adjust = twist_adjust
-        #lt_adjust_factor =
         self.lp = lp
-        self.lt = lt #* lt_adjust_factor# twist modulus
+        self.lt = lt
         self._find_parameters(self.bead_length)
         self.required_attrs = np.array([
             "name", "r", "t3", "t2", "states", "binder_names", "num_binders",
@@ -1942,7 +1931,6 @@ cdef class SSTWLC(SSWLC):
         length_bead : ndarray
             Number of base pairs represented by each bead of the polymer
         """
-
         self.delta = np.array(length_bead/ self.lp)
         self.eps_bend = np.interp(
             self.delta, dss_params[:, 0], dss_params[:, 1]

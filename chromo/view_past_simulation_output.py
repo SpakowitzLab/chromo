@@ -30,7 +30,7 @@ num_beads = 1000
 
 bead_spacing = np.array([15, 25] * 500)
 lp = 100    # Persistence length of DNA; in this example, `lp` has no effect
-delta = 50  # Monomer monomer separation at which to calculate mean squared distance.
+delta = 20  # Monomer monomer separation at which to calculate mean squared distance.
 lt = 100
 
 # Load names of polymer configuration output files

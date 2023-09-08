@@ -76,9 +76,9 @@ cpdef void mc_sim(
     cdef long i, j, k, n_polymers
     cdef list active_fields
     cdef poly
-    cdef list accept_reject
+    #cdef list accept_reject
     np.random.seed(random_seed)
-
+    print("test")
     if field.confine_type == "":
         active_fields = [poly.is_field_active() for poly in polymers]
     else:
@@ -88,19 +88,24 @@ cpdef void mc_sim(
             if controller.move.move_on == 1:
                 for j in range(controller.move.num_per_cycle):
                     for i in range(len(polymers)):
-                        polymers[i].lt = polymers[i].lt * lt_value_adjust
-
+                        print("start lt")
+                        print(polymers[i].lt)
+                        polymers[i].lt = lt_value_adjust
                         polymers[i]._find_parameters(polymers[i].bead_length)
-                        #SSTWLC._find_parameters(polymers[i].bead_length)
-
-                        #polymers[i].find_parameters(polymers[i].bead_length)
                         poly = polymers[i]
+
+                        print("lt change factor")
+                        print(lt_value_adjust)
+                        print("new lt value " + str(polymers[i].lt ))
+
+
                         active_field = active_fields[i]
                         mc_step(
                             controller.move, poly, readerproteins, field,
                             active_field, temperature_adjust_factor
                         )
             controller.update_amplitudes()
+    print(poly.lt)
 
 
 cpdef void mc_step(
@@ -137,71 +142,46 @@ cpdef void mc_step(
     cdef long packet_size, n_inds
     cdef long[:] inds
 
-    #temperature_adjust_factor = poly.temperature_adjust_factor
-    #lt_value_adjust = poly.lt_value_adjust
-    #print("m")
-    accept_reject = [] # added new line
+
+
+
     if poly in field and active_field:
-        #print("n")
         if adaptible_move.name != "tangent_rotation":
             check_field = 1
-    #print("o")
     packet_size = 20
     inds = adaptible_move.propose(poly)
-    #print("p")
     n_inds = len(inds)
-    #print("q")
     if n_inds == 0:
-        #print("r")
         return
 
     dE = 0
-    #print("s")
     dE += poly.compute_dE(adaptible_move.name, inds, n_inds)
-    #print("t")
     if check_field == 1:
-        #pol = lt * lt_value_adjust
-        #print("u")
         if adaptible_move.name == "change_binding_state":
-            #print("v")
             dE += field.compute_dE(
                 poly, inds, n_inds, packet_size, state_change=1
             )
-            #print("w")
         else:
-            #print("x")
             dE += field.compute_dE(
                 poly, inds, n_inds, packet_size, state_change=0
             )
-            #print("y")
     try:
         exp_dE = exp(-dE)
-        #print("z")
     except RuntimeWarning:
         if dE > 0:
-            #print("aa")
             exp_dE = 0
         elif dE < 0:
-            #print("ab")
             exp_dE = 1
 
     if (<double>rand() / RAND_MAX) < exp_dE/temperature_adjust_factor: #temperature variation
-        #print("ac")
-        #accept_reject.append(1)
         adaptible_move.accept(
             poly, dE, inds, n_inds, log_move=True, log_update=True
         )
-        #print("ad")
         if check_field == 1:
             field.update_affected_densities()
-            #print("ae")
 
     else:
-        #print("af")
-        #accept_reject.append(0)
         adaptible_move.reject(
             poly, dE, log_move=True, log_update=True
         )
-        # move is amplitude, update is accept/reject
-        #print("ag")
-    #return accept_reject
+

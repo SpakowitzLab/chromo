@@ -21,7 +21,8 @@ def increasing_stepwise(current_step, total_steps):
 
     return value
 def logarithmic_increase(current_step, total_steps):
-    value = 1 - (0.9 ** (current_step / total_steps))
+    #value = 5
+    value =  current_step
     return value
 
 def linear_increase(current_step, total_steps):
