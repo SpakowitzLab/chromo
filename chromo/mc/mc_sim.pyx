@@ -30,8 +30,8 @@ from chromo.polymers import SSTWLC
 
 cpdef void mc_sim(
     list polymers, readerproteins, long num_mc_steps,
-    list mc_move_controllers, Udf field, double mu_adjust_factor, double temperature_adjust_factor,
-    long random_seed, double lt_value_adjust = 1
+    list mc_move_controllers, Udf field, double mu_adjust_factor,
+    long random_seed, double temperature_adjust_factor = 1, double lt_value_adjust = 1
 ):
     """Perform Monte Carlo simulation.
 
