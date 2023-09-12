@@ -33,6 +33,7 @@ cpdef void mc_sim(
     list mc_move_controllers, Udf field, double mu_adjust_factor,
     long random_seed, double temperature_adjust_factor = 1, double lt_value_adjust = 1
 ):
+    print('Hi')
     """Perform Monte Carlo simulation.
 
     Pseudocode
