@@ -78,7 +78,6 @@ cpdef void mc_sim(
     cdef poly
     #cdef list accept_reject
     np.random.seed(random_seed)
-    print("test")
     if field.confine_type == "":
         active_fields = [poly.is_field_active() for poly in polymers]
     else:
@@ -88,15 +87,15 @@ cpdef void mc_sim(
             if controller.move.move_on == 1:
                 for j in range(controller.move.num_per_cycle):
                     for i in range(len(polymers)):
-                        print("start lt")
-                        print(polymers[i].lt)
+                        #print("start lt")
+                        #print(polymers[i].lt)
                         polymers[i].lt = lt_value_adjust
                         polymers[i]._find_parameters(polymers[i].bead_length)
                         poly = polymers[i]
 
-                        print("lt change factor")
-                        print(lt_value_adjust)
-                        print("new lt value " + str(polymers[i].lt ))
+                        #print("lt change factor")
+                        #print(lt_value_adjust)
+                        #print("new lt value " + str(polymers[i].lt ))
 
 
                         active_field = active_fields[i]
@@ -105,7 +104,7 @@ cpdef void mc_sim(
                             active_field, temperature_adjust_factor
                         )
             controller.update_amplitudes()
-    print(poly.lt)
+    #print(poly.lt)
 
 
 cpdef void mc_step(

@@ -309,7 +309,7 @@ def gaussian_walk(
         represent individual points and columns give x, y, z coordinates
     """
     steps = np.random.standard_normal((num_steps, 3))
-    magnitude_steps = np.linalg.norm(steps, axis=1)#changed from 1 to 0
+    magnitude_steps = np.linalg.norm(steps, axis=1) # changed from 1 to 0
 
     return np.cumsum(
         np.divide(steps, magnitude_steps[:, None]) * np.reshape(step_size, (num_steps, 1)), axis=0

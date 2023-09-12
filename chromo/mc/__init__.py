@@ -149,8 +149,8 @@ def _polymer_in_field(
 
         if lt_schedule is not None:
             if lt_schedule == "logarithmic increase":
-                print(mc_count)
-                print(num_saves)
+                #print(mc_count)
+                #print(num_saves)
                 lt_change = twist_schedule.logarithmic_increase(mc_count, num_saves)
             elif lt_schedule == "linear increase":
                 lt_change = twist_schedule.linear_increase(mc_count, num_saves)
@@ -160,7 +160,7 @@ def _polymer_in_field(
                 print("Not a valid lt schedule option")
         else:
             lt_change = 1
-        print("lt change " + str(lt_change))
+        #print("lt change " + str(lt_change))
         decorator_timed_path(output_dir)(mc_sim)(
             polymers, binders, num_save_mc, mc_move_controllers, field,
             mu_adjust_factor, temperature_adjust_factor, random_seed, lt_value_adjust = lt_change

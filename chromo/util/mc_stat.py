@@ -260,6 +260,7 @@ class ConfigurationTracker(Tracker):
         self.RMSD = RMSD
         self.RMSD_log.append(RMSD)
         self.previous_config = config
+        #return self.RMSD
 
     def save_move_log(self, snapshot: int):
         """Save to the `ConfigurationTracker` output file and reset log.
