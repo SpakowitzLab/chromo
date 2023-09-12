@@ -161,9 +161,13 @@ def _polymer_in_field(
         else:
             lt_change = 1
         #print("lt change " + str(lt_change))
+
+        temperature_adjust_factor=1
+        lt_value_adjust= lt_change
+
         decorator_timed_path(output_dir)(mc_sim)(
             polymers, binders, num_save_mc, mc_move_controllers, field,
-            mu_adjust_factor, random_seed, temperature_adjust_factor= 1, lt_value_adjust = lt_change
+            mu_adjust_factor, random_seed, temperature_adjust_factor, lt_value_adjust
         )
 
         for poly in polymers:

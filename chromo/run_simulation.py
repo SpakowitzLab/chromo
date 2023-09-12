@@ -127,7 +127,7 @@ mc.polymer_in_field(
     move_amp_bounds = amp_move_bounds,
     output_dir = 'output',
     mc_move_controllers = moves_to_use,
-    #temperature_schedule = "linear decrease",
+    temperature_schedule = "linear decrease",
     lt_schedule = "linear increase"
 )
 

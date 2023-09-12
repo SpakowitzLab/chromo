@@ -10,7 +10,7 @@ from chromo.fields cimport UniformDensityField as UDF
 cpdef void mc_sim(
     list polymers, readerproteins, long num_mc_steps,
     list mc_move_controllers, UDF field, double mu_adjust_factor,
-    long random_seed, double temperature_adjust_factor = *, double lt_value_adjust = *
+    long random_seed, double temperature_adjust_factor, double lt_value_adjust
 )
 
 cpdef void mc_step(
