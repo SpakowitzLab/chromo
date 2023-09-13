@@ -1,3 +1,4 @@
+
 class Schedule:
     """Class representation of the simulated annealing schedule.
 
@@ -28,3 +29,5 @@ def logarithmic_increase(current_step, total_steps):
 def linear_increase(current_step, total_steps):
     value =  (current_step/total_steps) * 100
     return value
+def no_schedule():
+    return 100

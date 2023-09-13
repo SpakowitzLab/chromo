@@ -33,7 +33,6 @@ cpdef void mc_sim(
     list mc_move_controllers, Udf field, double mu_adjust_factor,
     long random_seed, double temperature_adjust_factor, double lt_value_adjust
 ):
-    print('Hi')
     """Perform Monte Carlo simulation.
 
     Pseudocode
@@ -88,24 +87,15 @@ cpdef void mc_sim(
             if controller.move.move_on == 1:
                 for j in range(controller.move.num_per_cycle):
                     for i in range(len(polymers)):
-                        #print("start lt")
-                        #print(polymers[i].lt)
                         polymers[i].lt = lt_value_adjust
-                        polymers[i]._find_parameters(polymers[i].bead_length)
+                        polymers[i]._find_parameters(polymers[i].bead_length) # coding best practice: accessing protected member of a class from outside the class?
                         poly = polymers[i]
-
-                        #print("lt change factor")
-                        #print(lt_value_adjust)
-                        #print("new lt value " + str(polymers[i].lt ))
-
-
                         active_field = active_fields[i]
                         mc_step(
                             controller.move, poly, readerproteins, field,
                             active_field, temperature_adjust_factor
                         )
             controller.update_amplitudes()
-    #print(poly.lt)
 
 
 cpdef void mc_step(
@@ -136,6 +126,8 @@ cpdef void mc_step(
         Field affecting polymer in Monte Carlo step
     active_field: bool
         Indicator of whether or not the field is active for the polymer
+    temperature_adjust_factor: double
+        Divide the energy value used to select accepted moves by this factor
     """
     cdef double dE, exp_dE
     cdef int check_field = 0

@@ -25,7 +25,7 @@ import chromo.mc.mc_controller as ctrl
 from chromo.util.reproducibility import get_unique_subfolder_name
 import chromo.util.poly_stat as ps
 import datetime
-import chromo.util.temperature_schedule as temperature
+
 
 pst_time = datetime.datetime.utcnow() + datetime.timedelta(hours=-7)
 
@@ -65,7 +65,6 @@ polymer = SSTWLC.gaussian_walk_polymer(
     lp=lp,
     lt=lt,
     binder_names=np.array(["null_reader"]),
-    #lt_schedule = "logarithmic increase"
 )
 
 # shows a plot of the polymer object
@@ -117,6 +116,9 @@ num_snapshots = 10000
 # count number of accepted moves for different conditions
 mc_steps_per_snapshot = 40000
 
+
+
+
 mc.polymer_in_field(
     polymers = [polymer],
     binders = binders,
@@ -127,16 +129,10 @@ mc.polymer_in_field(
     move_amp_bounds = amp_move_bounds,
     output_dir = 'output',
     mc_move_controllers = moves_to_use,
-    temperature_schedule = "linear decrease",
+    temperature_schedule = "no schedule",
     lt_schedule = "linear increase"
 )
 
-
-#temperature_schedule: Optional[Callable[[float],float]] = None
-# Load names of polymer configuration output files
-# 206 is with 200 snapshots of twist with alternating 15 and 25
-# 130 is without twist with alternating 15 and 25
-#latest_sim = "output/sim_206"
 output_files = os.listdir(latest_sim)
 
 output_files = [
@@ -226,10 +222,9 @@ monomer_separation = np.array(
         if monomer_separation[i] > 0
     ]
 )
-# monomer_separation_kuhn = monomer_separation * (bead_spacing / lp / 2)
+
 monomer_separation_kuhn = monomer_separation * (np.mean(bead_spacing) / lp / 2) # check that this is acceptable
-# do calc with same bead spacing
-# 
+
 
 lp = 100 # try 53
 kuhn_length = 2 * lp

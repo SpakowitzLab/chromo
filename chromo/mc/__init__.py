@@ -51,7 +51,6 @@ def _polymer_in_field(
     path_to_run_script: Optional[str] = None,
     path_to_chem_mods: Optional[List[str]] = None,
     run_command: Optional[str] = None,
-    #lt_value_adjust = 1,
     **kwargs
 ):
     """
@@ -142,27 +141,29 @@ def _polymer_in_field(
                 temperature_adjust_factor = temp_schedule.logarithmic_decrease(mc_count, num_saves)
             elif temperature_schedule == "decreasing stepwise":
                 temperature_adjust_factor = temp_schedule.decreasing_stepwise(mc_count, num_saves)
+            elif temperature_schedule == "no schedule":
+                temperature_adjust_factor = temp_schedule.no_schedule()
             else:
                 print("Not a valid temperature schedule option")
         else:
-            temperature_adjust_factor = 1
+            print("Missing lt schedule option")
 
         if lt_schedule is not None:
             if lt_schedule == "logarithmic increase":
-                #print(mc_count)
-                #print(num_saves)
                 lt_change = twist_schedule.logarithmic_increase(mc_count, num_saves)
             elif lt_schedule == "linear increase":
                 lt_change = twist_schedule.linear_increase(mc_count, num_saves)
             elif lt_schedule == "increasing stepwise":
                 lt_change = twist_schedule.increasing_stepwise(mc_count, num_saves)
+            elif lt_schedule == "no schedule":
+                lt_change = twist_schedule.no_schedule()
             else:
                 print("Not a valid lt schedule option")
         else:
-            lt_change = 1
+            print("Missing lt schedule option")
         #print("lt change " + str(lt_change))
 
-        temperature_adjust_factor=1
+        temperature_adjust_factor = 1
         lt_value_adjust= lt_change
 
         decorator_timed_path(output_dir)(mc_sim)(

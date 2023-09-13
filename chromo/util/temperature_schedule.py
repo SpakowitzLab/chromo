@@ -32,4 +32,6 @@ def linear_decrease(current_step, total_steps):
     slope = (0.1 - 1) / total_steps
     value = 1 + slope * current_step
     return value
+def no_schedule():
+    return 1
 
