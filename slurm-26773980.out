@@ -1,0 +1,9 @@
+/var/spool/slurmd/job26773980/slurm_script: line 2: --job-name=chromo: command not found
+Directory containing the notebook:
+/home/users/ahirsch1/Chromo_Github/chromo/chromo
+Traceback (most recent call last):
+  File "/home/users/ahirsch1/Chromo_Github/chromo/chromo/run_simulation.py", line 19, in <module>
+    import chromo.mc as mc
+ModuleNotFoundError: No module named 'chromo.mc'
+Job complete#!/bin/bash
+/var/spool/slurmd/job26773980/slurm_script: line 12: o: command not found

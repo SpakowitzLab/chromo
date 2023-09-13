@@ -1,0 +1,4 @@
+/var/spool/slurmd/job26776755/slurm_script: line 2: --job-name=chromo: command not found
+/home/users/ahirsch1/Chromo_Github/chromo/chromo/run_simulation.py:40: FutureWarning: The frame.append method is deprecated and will be removed from pandas in a future version. Use pandas.concat instead.
+  binders = chromo.binders.make_binder_collection([null_binder]) # gets relevant binder information from binder specified
+slurmstepd: error: *** JOB 26776755 ON sh02-01n50 CANCELLED AT 2023-08-07T19:33:28 DUE TO TIME LIMIT ***

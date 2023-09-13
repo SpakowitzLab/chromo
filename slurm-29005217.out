@@ -1,0 +1,7 @@
+/var/spool/slurmd/job29005217/slurm_script: line 2: --job-name=chromo: command not found
+  File "/home/users/ahirsch1/Chromo_Github/chromo/chromo/run_simulation.py", line 45
+    bead_spacing = np.array(10, 15] * 500)
+                                  ^
+SyntaxError: closing parenthesis ']' does not match opening parenthesis '('
+Job complete#!/bin/bash
+/var/spool/slurmd/job29005217/slurm_script: line 12: o: command not found
