@@ -57,6 +57,10 @@ np.random.seed(random_seed)
 path_to_run_script = os.path.abspath(__file__)
 run_command = f"python {' '.join(sys.argv)}"
 root_dir = "/".join(path_to_run_script.split("/")[:-3])
+if "output_dir" in config:
+    output_dir = config["output_dir"]  # given relative to root_dir
+else:
+    output_dir = "output"
 
 # Binders
 binder_name = config["binder_name"]
@@ -163,7 +167,7 @@ polymers_cg = mc.polymer_in_field(
     num_snapshots,
     amp_bead_bounds,
     amp_move_bounds,
-    output_dir='output',
+    output_dir=output_dir,
     mu_schedule=mu_schedules[0],
     random_seed=random_seed,
     path_to_run_script=path_to_run_script,
