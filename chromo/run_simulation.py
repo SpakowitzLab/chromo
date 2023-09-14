@@ -127,7 +127,8 @@ mc.polymer_in_field(
     num_saves = num_snapshots,
     bead_amp_bounds = amp_bead_bounds,
     move_amp_bounds = amp_move_bounds,
-    output_dir = 'output',
+    output_dir = '/scratch/users/ahirsch1/output', # for running on sherlock
+    #output_dir = 'output',
     mc_move_controllers = moves_to_use,
     temperature_schedule = "no schedule",
     lt_schedule = "linear increase"
