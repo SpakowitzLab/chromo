@@ -172,5 +172,6 @@ polymers_cg = mc.polymer_in_field(
     random_seed=random_seed,
     path_to_run_script=path_to_run_script,
     path_to_chem_mods=chem_mods_path,
-    run_command=run_command
+    run_command=run_command,
+    config_file_path=config_file_path
 )
