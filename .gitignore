@@ -181,3 +181,6 @@ docs/build*
 # them in the github repo.
 *.cpp
 *.html
+
+# Old examples (to keep examples in the codebase clean)
+simulations/old/
