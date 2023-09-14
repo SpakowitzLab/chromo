@@ -459,13 +459,15 @@ cdef class PolymerBase(TransformedObject):
         num_mods = len(paths_to_seqs)
         if num_mods == 0:
             return mty_2d_int
-        first_seq = np.loadtxt(paths_to_seqs[0], dtype=int)
+        first_seq = np.loadtxt(paths_to_seqs[0], dtype=float)
+        first_seq = np.round(first_seq).astype(int)
         num_beads = first_seq.shape[0]
         chemical_mods = np.zeros((num_beads, num_mods), dtype=int)
         chemical_mods[:, 0] = first_seq
         for i in range(1, num_mods):
             path = paths_to_seqs[i]
-            chemical_mod = np.loadtxt(path, dtype=int)
+            chemical_mod = np.loadtxt(path, dtype=float)
+            chemical_mod = np.round(chemical_mod).astype(int)
             if chemical_mod.shape[0] != num_beads:
                 raise ValueError(
                     "Inconsistent sequences of chemical modifications"
