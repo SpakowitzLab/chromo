@@ -64,14 +64,14 @@ else:
 
 # Binders
 binder_name = config["binder_name"]
-modification_name = config["modification_name"]
-mod_seq_path = config["modification_sequence_path"]  # given as an absolute path
 binder = chromo.binders.get_by_name(binder_name)
 binder.chemical_potential = config["chemical_potential"]
 binder.interaction_energy = config["interaction_energy"]
 binders = chromo.binders.make_binder_collection([binder])
 
 # Chemical Modifications
+modification_name = config["modification_name"]
+mod_seq_path = config["modification_sequence_path"]  # given as an absolute path
 chem_mods_path = np.array([mod_seq_path])
 chemical_mods = Chromatin.load_seqs(chem_mods_path)
 
@@ -128,7 +128,10 @@ udf = UniformDensityField(
 )
 
 # Coarse-grain the polymer, field, and binders
-cg_factor = int(sys.argv[6])
+if "cg_factor" in config:
+    cg_factor = config["cg_factor"]
+else:
+    cg_factor = 16
 p_cg = rd.get_cg_chromatin(
     polymer=p,
     cg_factor=cg_factor,
