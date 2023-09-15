@@ -472,7 +472,7 @@ def store_config_file(duplicate_chromo_dir, **kwargs):
 
 def store_run_command(duplicate_sim_dir, duplicate_chromo_dir, **kwargs):
     # If we made a config file, we need to store that in the duplicate
-    kwargs, config_file_path = store_config_file(duplicate_sim_dir, **kwargs)
+    kwargs, config_file_path = store_config_file(duplicate_chromo_dir, **kwargs)
     # If config_file_path is not None, then simulation was run w/ a config file
     run_with_config = (config_file_path is not None)
     if run_command_kwarg not in kwargs:
