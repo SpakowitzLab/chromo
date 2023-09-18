@@ -31,3 +31,10 @@ def linear_increase(current_step, total_steps):
     return value
 def no_schedule():
     return 100
+#dynamic structure factor
+#density correlation function at differnet lengthscales
+#fouirer transform of density density correlation function
+#how much largest lengthscale of polymer is changing
+#correleation function of radius of gyration
+#how density fluctluation within polymer correlate in time
+#plot rmsd for different twist values

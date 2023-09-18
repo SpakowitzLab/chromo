@@ -109,6 +109,8 @@ def _polymer_in_field(
         (default = None)
     """
     np.random.seed(random_seed)
+    print("output init "+ str(output_dir))
+    #print(log_directory)
     if mc_move_controllers is None:
         mc_move_controllers = all_moves(
             log_dir=output_dir,
@@ -179,6 +181,7 @@ def _polymer_in_field(
         print("Save point " + str(mc_count) + " completed")
 
     for polymer in polymers:
+        print("update log path " + str(output_dir))
         polymer.update_log_path(
             str(output_dir) + "/" + polymer.name + "_config_log.csv"
         )
@@ -226,6 +229,7 @@ def continue_polymer_in_field_simulation(
     random_seed : Optional[SEED]
         Random seed for replication of simulation (default = 0)
     """
+    # issue is somewhere here
     latest_output_subdir = get_latest_simulation(output_dir)
     latest_output_subdir_path = output_dir + "/" + latest_output_subdir
     polymer_names = find_polymers_in_output_dir(latest_output_subdir_path)

@@ -760,6 +760,7 @@ cdef class PolymerBase(TransformedObject):
         """
         if name is None:
             name = path.split("/")[-1].split(".")[0]
+            print("name" + str(name))
         df = pd.read_csv(path, header=[0, 1], index_col=0)
         return cls.from_dataframe(df, name)
 

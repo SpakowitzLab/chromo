@@ -150,7 +150,8 @@ ratio = average_squared_e2e/r2_theory
 #print(ratio)
 
 def find_RMSD(array1, array2):
-
+    array1 = array1 - np.mean(array1, axis = 0)
+    array2 = array2 - np.mean(array2, axis = 0)
     RMSD = np.sqrt(
         1 / array1.shape[0] * np.sum(
             np.linalg.norm(array2 - array1, ord=1, axis=1)
@@ -158,7 +159,7 @@ def find_RMSD(array1, array2):
         )
 
     return RMSD
-
+# dot produt of end to end vector should be a decaying function over different snapshots
 num_equilibration = 70
 RMSD_list = []
 x_list = []
