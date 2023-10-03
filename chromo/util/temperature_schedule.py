@@ -25,8 +25,15 @@ def decreasing_stepwise(current_step, total_steps):
 
     return value
 def logarithmic_decrease(current_step, total_steps):
-    value = 1 - (0.9 ** (current_step / total_steps))
-    return value
+    if current_step == 0:
+    	return 1
+    ratio = current_step/total_steps
+    result = -1 * np.log(ratio/2)/5.5 -0.1
+    if result > 1:
+        result = 1
+    if result < 0:
+        result = 0
+    return result
 
 def linear_decrease(current_step, total_steps):
     slope = (0.1 - 1) / total_steps

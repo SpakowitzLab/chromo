@@ -154,7 +154,9 @@ def _polymer_in_field(
             elif lt_schedule == "linear increase":
                 lt_change = twist_schedule.linear_increase(mc_count, num_saves)
             elif lt_schedule == "increasing stepwise":
-                lt_change = twist_schedule.increasing_stepwise(mc_count, num_saves)
+                lt_change = twist_schedule.step_wise_increase(mc_count, num_saves)
+	    elif lt_schedule == "increasing sawtooth":
+                lt_change = twist_schedule.increasing_sawtooth(mc_count, num_saves)
             elif lt_schedule == "no schedule":
                 lt_change = twist_schedule.no_schedule()
             else:
@@ -163,7 +165,7 @@ def _polymer_in_field(
             print("Missing lt schedule option")
         #print("lt change " + str(lt_change))
 
-        temperature_adjust_factor = 1
+        #temperature_adjust_factor = 1
         lt_value_adjust= lt_change
 
         decorator_timed_path(output_dir)(mc_sim)(
