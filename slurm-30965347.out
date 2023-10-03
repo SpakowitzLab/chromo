@@ -1,0 +1,13 @@
+/home/users/ahirsch1/Chromo_Github/chromo/chromo/run_simulation.py:41: FutureWarning: The frame.append method is deprecated and will be removed from pandas in a future version. Use pandas.concat instead.
+  binders = chromo.binders.make_binder_collection([null_binder]) # gets relevant binder information from binder specified
+Directory containing the notebook:
+/home/users/ahirsch1/Chromo_Github/chromo/chromo
+Root Directory of Package: 
+/home/users/ahirsch1/Chromo_Github
+Traceback (most recent call last):
+  File "/home/users/ahirsch1/Chromo_Github/chromo/chromo/run_simulation.py", line 61, in <module>
+    polymer = SSTWLC.gaussian_walk_polymer(
+  File "chromo/polymers.pyx", line 1635, in chromo.polymers.SSWLC.gaussian_walk_polymer
+    shape_func_x: Callable[[float], float],
+TypeError: only size-1 arrays can be converted to Python scalars
+Job complete

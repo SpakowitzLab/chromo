@@ -6,7 +6,7 @@
 #SBATCH --mem-per-cpu=16G
 source ~/.bashrc
 conda activate chromo
-cd /home/users/ahirsch1/Chromo_Github/chromo/chromo
+cd /scratch/users/ahirsch1/chromo_scratch/chromo/chromo
 python run_simulation.py
 echo 'Job complete'
 

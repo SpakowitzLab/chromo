@@ -1,0 +1,24 @@
+/home/users/ahirsch1/Chromo_Github/chromo/chromo/run_simulation.py:41: FutureWarning: The frame.append method is deprecated and will be removed from pandas in a future version. Use pandas.concat instead.
+  binders = chromo.binders.make_binder_collection([null_binder]) # gets relevant binder information from binder specified
+Directory containing the notebook:
+/home/users/ahirsch1/Chromo_Github/chromo/chromo
+Root Directory of Package: 
+/home/users/ahirsch1/Chromo_Github
+No states defined.
+No chemical modifications defined.
+output init /scratch/users/ahirsch1/output/sim_1
+log dir in mc_stat output/sim_1/acceptance_trackers
+prefix in mcstat crank_shaft_snap_
+Traceback (most recent call last):
+  File "/home/users/ahirsch1/Chromo_Github/chromo/chromo/run_simulation.py", line 122, in <module>
+    mc.polymer_in_field(
+  File "/scratch/users/ahirsch1/chromo_scratch/chromo/chromo/util/reproducibility.py", line 156, in __call__
+    sim_out = self.sim(*args, **kwargs)
+  File "/scratch/users/ahirsch1/chromo_scratch/chromo/chromo/mc/__init__.py", line 177, in _polymer_in_field
+    controller.move.acceptance_tracker.create_log_file(mc_count)
+  File "/scratch/users/ahirsch1/chromo_scratch/chromo/chromo/util/mc_stat.py", line 116, in create_log_file
+    initialize_table(log_path, column_labels)
+  File "/scratch/users/ahirsch1/chromo_scratch/chromo/chromo/util/mc_stat.py", line 299, in initialize_table
+    output = open(path, 'w+')
+FileNotFoundError: [Errno 2] No such file or directory: 'output/sim_1/acceptance_trackers/crank_shaft_snap_0.csv'
+Job complete
