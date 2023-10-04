@@ -130,7 +130,7 @@ mc.polymer_in_field(
     output_dir = 'output',
     mc_move_controllers = moves_to_use,
     temperature_schedule = "no schedule",
-    lt_schedule = "linear increase"
+    lt_schedule = "logarithmic increase"
 )
 
 output_files = os.listdir(latest_sim)
