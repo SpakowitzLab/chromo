@@ -76,7 +76,6 @@ cpdef void mc_sim(
     cdef long i, j, k, n_polymers
     cdef list active_fields
     cdef poly
-    #cdef list accept_reject
     np.random.seed(random_seed)
     if field.confine_type == "":
         active_fields = [poly.is_field_active() for poly in polymers]
@@ -166,6 +165,7 @@ cpdef void mc_step(
             exp_dE = 1
 
     if (<double>rand() / RAND_MAX) < exp_dE/temperature_adjust_factor: #temperature variation
+        #print(<double>rand() / RAND_MAX)
         adaptible_move.accept(
             poly, dE, inds, n_inds, log_move=True, log_update=True
         )

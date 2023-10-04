@@ -109,7 +109,7 @@ def _polymer_in_field(
         (default = None)
     """
     np.random.seed(random_seed)
-    print("output init "+ str(output_dir))
+    #print("output init "+ str(output_dir))
     #print(log_directory)
     if mc_move_controllers is None:
         mc_move_controllers = all_moves(
