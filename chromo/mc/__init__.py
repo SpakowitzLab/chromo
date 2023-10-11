@@ -109,7 +109,7 @@ def _polymer_in_field(
         (default = None)
     """
     np.random.seed(random_seed)
-    print("output init "+ str(output_dir))
+    #print("output init "+ str(output_dir))
     #print(log_directory)
     if mc_move_controllers is None:
         mc_move_controllers = all_moves(
@@ -143,6 +143,8 @@ def _polymer_in_field(
                 temperature_adjust_factor = temp_schedule.logarithmic_decrease(mc_count, num_saves)
             elif temperature_schedule == "decreasing stepwise":
                 temperature_adjust_factor = temp_schedule.decreasing_stepwise(mc_count, num_saves)
+            elif temperature_schedule == "sin decrease":
+                temperature_adjust_factor = temp_schedule.sin_decrease(mc_count, num_saves)
             elif temperature_schedule == "no schedule":
                 temperature_adjust_factor = temp_schedule.no_schedule()
             else:
@@ -153,10 +155,14 @@ def _polymer_in_field(
         if lt_schedule is not None:
             if lt_schedule == "logarithmic increase":
                 lt_change = twist_schedule.logarithmic_increase(mc_count, num_saves)
+            elif lt_schedule == "exponential increase":
+                lt_change = twist_schedule.exponential_increase(mc_count, num_saves)
             elif lt_schedule == "linear increase":
                 lt_change = twist_schedule.linear_increase(mc_count, num_saves)
             elif lt_schedule == "increasing stepwise":
-                lt_change = twist_schedule.increasing_stepwise(mc_count, num_saves)
+                lt_change = twist_schedule.step_wise_increase(mc_count, num_saves)
+            elif lt_schedule == "increasing sawtooth":
+                lt_change = twist_schedule.increasing_sawtooth(mc_count, num_saves)
             elif lt_schedule == "no schedule":
                 lt_change = twist_schedule.no_schedule()
             else:

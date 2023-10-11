@@ -100,8 +100,8 @@ class AcceptanceTracker(Tracker):
             Index with which to append log file name
         """
         log_path = self.log_dir+"/"+self.log_file_prefix+str(ind)+".csv"
-        print("log dir in mc_stat "+str(self.log_dir))
-        print("prefix in mcstat " + str(self.log_file_prefix))
+        #print("log dir in mc_stat "+str(self.log_dir))
+        #print("prefix in mcstat " + str(self.log_file_prefix))
         column_labels = [
             "snapshot",
             "iteration",

@@ -36,7 +36,8 @@ lt = 100
 # Load names of polymer configuration output files
 # 206 is with 200 snapshots of twist with alternating 15 and 25
 # 130 is without twist with alternating 15 and 25
-latest_sim = "output/sim_206"
+# latest_sim = "output/sim_206"
+latest_sim = "output/sim_214"
 
 output_files = os.listdir(latest_sim)
 
@@ -147,7 +148,6 @@ plt.show()
 
 ratio = average_squared_e2e/r2_theory
 """
-#print(ratio)
 
 def find_RMSD(array1, array2):
     array1 = array1 - np.mean(array1, axis = 0)
@@ -159,45 +159,108 @@ def find_RMSD(array1, array2):
         )
 
     return RMSD
-# dot produt of end to end vector should be a decaying function over different snapshots
-num_equilibration = 70
+
+def extract_snapshot(file_name):
+    file_name= file_name.replace('.csv', '')
+    file_name = file_name.replace('poly_1-', '')
+    snapshot_number = int(file_name)
+    return snapshot_number
+# dot product of end-to-end vector should be a decaying function over different snapshots
+# num_equilibration = 70
 RMSD_list = []
 x_list = []
-original_configuration = []
-x = 0
-for i, f in enumerate(output_files):
-    if i < break_boundaries[0]:
-        continue
-    if i > break_boundaries[1]:
-        break
-    if i < num_equilibration:
-        continue
-    output_path = str(latest_sim) + "/" + f
-    r = pd.read_csv(
-        output_path,
-        header=0,
-        skiprows=1,
-        usecols=[1, 2, 3],
-        dtype=float
-    ).to_numpy()
-    if len(RMSD_list) == 0:
-        RMSD_list.append(find_RMSD(r, r))
-        original_configuration = r
-    else:
-        RMSD_list.append(find_RMSD(original_configuration, r))
-    #original_configuration = r
-    x_list.append(x)
-    x = x + 1
+# x = 0
+
+for original_configuration in output_files:
+    for f in output_files:
+        """
+        if i < break_boundaries[0]:
+            continue
+        if i > break_boundaries[1]:
+            break
+        if i < num_equilibration:
+            continue
+            """
+        output_path = str(latest_sim) + "/" + f
+        original_path = str(latest_sim) + "/" + original_configuration
+        figure1 = pd.read_csv(
+            output_path,
+            header=0,
+            skiprows=1,
+            usecols=[1, 2, 3],
+            dtype=float
+        ).to_numpy()
+        figure2 = pd.read_csv(
+            original_path,
+            header=0,
+            skiprows=1,
+            usecols=[1, 2, 3],
+            dtype=float
+        ).to_numpy()
+        RMSD_list.append(find_RMSD(figure1, figure2))
+        print(abs(extract_snapshot(f) - extract_snapshot(original_configuration)))
+        x_list.append(abs(extract_snapshot(f) - extract_snapshot(original_configuration)))
 
 plt.scatter(x_list, RMSD_list, label="RMSD progression")
 plt.show()
-"""
-xlog_data = np.log(x_list)
+file = open('x_list.txt','w')
+for item in x_list:
+    file.write(str(item)+"\n")
+file.close()
 
-curve = np.polyfit(xlog_data, RMSD_list, 1)
-print(curve)
+file = open('RMSD_distribution.txt','w')
+for item in RMSD_list:
+    file.write(str(item)+"\n")
+file.close()
+
+
+#xlog_data = np.log(x_list)
+
+#curve = np.polyfit(xlog_data, RMSD_list, 1)
+#print(curve)
+
 """
-    #mc_stat.ConfigurationTracker.log_move()
+RMSD_list = []
+x_list = []
+x = 0
+for i, f1 in enumerate(output_files):
+    for j, f2 in enumerate(output_files):
+        output_path_i = str(latest_sim) + "/" + f1
+        output_path_j = str(latest_sim) + "/" + f2
+        config_1 = pd.read_csv(
+            output_path_i,
+            header=0,
+            skiprows=1,
+            usecols=[1, 2, 3],
+            dtype=float
+        ).to_numpy()
+        config_2 = pd.read_csv(
+            output_path_i,
+            header=0,
+            skiprows=1,
+            usecols=[1, 2, 3],
+            dtype=float
+        ).to_numpy()
+        RMSD_list.append(find_RMSD(config_1, config_2))
+        x_list.append(i-j)
+"""
+
+
+
+#plt.scatter(x_list, RMSD_list, label="RMSD progression")
+#plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -209,13 +272,13 @@ def logarithmic_curve(x, a, b):
     return a * np.log(x) + b # natural log
 
 # Fit the curve to the data
-x_list = x_list[1:]
-RMSD_list = RMSD_list[1:]
-popt, _ = curve_fit(logarithmic_curve, x_list, RMSD_list)
+#x_list = x_list[1:]
+#RMSD_list = RMSD_list[1:]
+#popt, _ = curve_fit(logarithmic_curve, x_list, RMSD_list)
 
 # The optimal parameters (coefficients)
-a_optimal, b_optimal = popt
+#a_optimal, b_optimal = popt
 
 # Print the coefficients
-print("Coefficient a (a_optimal):", a_optimal)
-print("Coefficient b (b_optimal):", b_optimal)
+#print("Coefficient a (a_optimal):", a_optimal)
+#print("Coefficient b (b_optimal):", b_optimal)

@@ -1162,8 +1162,8 @@ cdef class SSWLC(PolymerBase):
 
     cdef double bead_pair_dE_poly_forward(
         self,
-        double[:] r_0, #posoiton of first bead in move
-        double[:] r_1, # position of the escond bead in the move
+        double[:] r_0, #positon of first bead in move
+        double[:] r_1, # position of the second bead in the move
         double[:] test_r_1,
         double[:] t3_0,
         double[:] t3_1,
@@ -2030,7 +2030,6 @@ cdef class SSTWLC(SSWLC):
             0.5 * self.eps_perp[ind] * vec_dot3(dr_perp, dr_perp) +
             0.5 * self.eps_twist[ind] * omega**2
         )
-        #print("does E_pair_with_twist get used")
         return E
 
     cdef double bead_pair_dE_poly_forward_with_twist(
