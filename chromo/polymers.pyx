@@ -2023,13 +2023,18 @@ cdef class SSTWLC(SSWLC):
         double
             Elastic energy of bond between the bead pair
         """
+        delta_omega = (self.bead_length[ind] * 2 * np.pi)/(10.5 * 0.34)
+        delta_n = np.round(delta_omega/(2 * np.pi))
+        delta_omega = delta_omega - ( 2 * np. pi * delta_n)
+
         cdef double E
         E = (
             0.5 * self.eps_bend[ind] * vec_dot3(bend, bend) +
             0.5 * self.eps_par[ind] * (dr_par - self.gamma[ind]) ** 2 +
             0.5 * self.eps_perp[ind] * vec_dot3(dr_perp, dr_perp) +
-            0.5 * self.eps_twist[ind] * omega**2
+            0.5 * self.eps_twist[ind] * delta_omega**2
         )
+        # so we never use the omega value input because of the delta_omega calculation?
         return E
 
     cdef double bead_pair_dE_poly_forward_with_twist(
