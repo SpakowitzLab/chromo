@@ -44,7 +44,6 @@ num_beads = 1000
 
 
 bead_spacing = np.array([10, 15] * 500)
-# print(len(bead_spacing))
 # bead_spacing = 15.0 * np.ones((1000, 1)) # change to be real linker lengths later
 lp = 100
 lt = 100

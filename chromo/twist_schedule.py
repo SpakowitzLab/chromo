@@ -1,5 +1,5 @@
 import numpy as np
-
+from chromo.polymers import PolymerBase
 
 class Schedule:
     """Class representation of the simulated annealing schedule.
@@ -104,5 +104,5 @@ def increasing_sawtooth(current_step, total_steps):
         result = result - (current_step%num_sections)*2 - section_division + 20
     return result
 
-def no_schedule():
-    return 100
+
+

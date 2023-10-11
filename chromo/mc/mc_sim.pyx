@@ -86,6 +86,7 @@ cpdef void mc_sim(
             if controller.move.move_on == 1:
                 for j in range(controller.move.num_per_cycle):
                     for i in range(len(polymers)):
+                        #polymers[i].lt = lt
                         polymers[i].lt = lt_value_adjust
                         polymers[i]._find_parameters(polymers[i].bead_length) # coding best practice: accessing protected member of a class from outside the class?
                         poly = polymers[i]
