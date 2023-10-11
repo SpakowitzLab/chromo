@@ -1,2 +1,0 @@
-,name,sites_per_bead,bind_energy,interaction_energy,chemical_potential,bind_energy_mod,bind_energy_no_mod,cross_talk_field_energy_prefactor,cross_talk_interaction_energy,field_energy_prefactor,interaction_energy_intranucleosome,interaction_radius,interaction_volume
-0,HP1,2,,0.0,-100.0,-0.01,1.52,{'HP1': 0},{'PRC1': 0},0.0,0.0,3.0,113.09733552923254

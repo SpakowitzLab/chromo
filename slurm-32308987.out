@@ -1,0 +1,4 @@
+/scratch/users/ahirsch1/chromo_scratch/chromo/chromo/run_simulation.py:41: FutureWarning: The frame.append method is deprecated and will be removed from pandas in a future version. Use pandas.concat instead.
+  binders = chromo.binders.make_binder_collection([null_binder]) # gets relevant binder information from binder specified
+/var/spool/slurmd/job32308987/slurm_script: line 10: 18439 Bus error               python run_simulation.py
+Job complete

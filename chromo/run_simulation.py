@@ -111,7 +111,7 @@ moves_to_use = ctrl.all_moves_except_binding_state(
     controller=ctrl.SimpleControl
 )
 
-num_snapshots = 560
+num_snapshots = 200
 # num_snapshots = 1000 # try 1000 and average for each set of 100, depending on pre-equilibration steps
 # count number of accepted moves for different conditions
 mc_steps_per_snapshot = 40000
@@ -130,7 +130,7 @@ mc.polymer_in_field(
     output_dir = 'output',
     mc_move_controllers = moves_to_use,
     temperature_schedule = "no schedule",
-    lt_schedule = "logarithmic increase"
+    lt_schedule = "no schedule"
 )
 
 output_files = os.listdir(latest_sim)

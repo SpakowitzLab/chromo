@@ -38,6 +38,9 @@ def logarithmic_increase(current_step, total_steps):
     if result < 0:
         result = 0
     return result
+def exponential_increase(current_step, total_steps):
+    result = np.exp(current_step/total_steps) * 58
+    return result - 58
 
 # for lp
 def linear_increase(current_step, total_steps):
@@ -49,7 +52,8 @@ def linear_increase(current_step, total_steps):
 
 # for lp
 def step_wise_increase(current_step, total_steps):
-    num_blocks = 10
+    #num_blocks = 10
+    num_blocks = 25
     max_height = 100
     step_height = max_height / num_blocks  # each step has a height of 10
     step_length = total_steps / num_blocks  # so 20 is the length

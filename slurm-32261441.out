@@ -1,0 +1,9 @@
+Directory containing the notebook:
+/scratch/users/ahirsch1/chromo_scratch/chromo/chromo
+Traceback (most recent call last):
+  File "/scratch/users/ahirsch1/chromo_scratch/chromo/chromo/run_simulation.py", line 19, in <module>
+    import chromo.mc as mc
+  File "/scratch/users/ahirsch1/chromo_scratch/chromo/chromo/mc/__init__.py", line 158
+    elif lt_schedule == "increasing sawtooth":
+TabError: inconsistent use of tabs and spaces in indentation
+Job complete
