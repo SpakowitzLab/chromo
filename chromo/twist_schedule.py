@@ -1,5 +1,5 @@
 import numpy as np
-from chromo.polymers import PolymerBase
+
 
 class Schedule:
     """Class representation of the simulated annealing schedule.

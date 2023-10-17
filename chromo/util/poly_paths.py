@@ -310,7 +310,10 @@ def gaussian_walk(
     """
     steps = np.random.standard_normal((num_steps, 3))
     magnitude_steps = np.linalg.norm(steps, axis=1) # changed from 1 to 0
-
+    print("magnitude steps")
+    print(magnitude_steps)
+    print(num_steps)
+    print(step_size)
     return np.cumsum(
         np.divide(steps, magnitude_steps[:, None]) * np.reshape(step_size, (num_steps, 1)), axis=0
     )

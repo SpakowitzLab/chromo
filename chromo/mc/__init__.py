@@ -162,9 +162,7 @@ def _polymer_in_field(
             elif lt_schedule == "increasing sawtooth":
                 lt_change = twist_schedule.increasing_sawtooth(mc_count, num_saves)
             elif lt_schedule == "no schedule":
-                # lt_change = twist_schedule.no_schedule()
-                lt_change = polymers[0].lt # set to the lt of the first polymer in the list
-                print(polymers[0].lt)
+                lt_change = polymers[0].lt  # set to the lt of the first polymer in the list
             else:
                 print("Not a valid lt schedule option")
         else:

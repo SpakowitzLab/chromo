@@ -5,7 +5,7 @@ import sys # allows access to functions related to the interpreter
 # Insert package root to system path
 cwd = os.getcwd() # get pathname of current working directory
 parent_dir = cwd + "/../.."
-sys.path.insert(1, parent_dir) #gives interpreter a specific path to search
+sys.path.insert(1, parent_dir) # gives interpreter a specific path to search
 
 print("Directory containing the notebook:")
 print(cwd)
@@ -40,13 +40,32 @@ null_binder = chromo.binders.get_by_name('null_reader') # must include null bind
 # Create the binder collection
 binders = chromo.binders.make_binder_collection([null_binder]) # gets relevant binder information from binder specified
 
-num_beads = 1000
+# potential command line arguments
+
+num_beads = sys.argv[1]
+bead_spacing_value_1 = sys.argv[2]
+bead_spacing_value_2 = sys.argv[3]
+lp = sys.argv[4]
+lt = sys.argv[5]
+num_snapshots = sys.argv[6]
+mc_steps_per_snapshot = sys.argv[7]
 
 
-bead_spacing = np.array([10, 15] * 500)
+"""
+num_beads = 100
+bead_spacing = np.array([0.34, 0.34] * 50)
 # bead_spacing = 15.0 * np.ones((1000, 1)) # change to be real linker lengths later
-lp = 100
+lp = 50
 lt = 100
+num_snapshots = 1000
+# num_snapshots = 1000 # try 1000 and average for each set of 100, depending on pre-equilibration steps
+# count number of accepted moves for different conditions
+
+#mc_steps_per_snapshot = 40000
+mc_steps_per_snapshot = 2000
+"""
+
+
 
 # Generates the polymer object
 """polymer = SSWLC.gaussian_walk_polymer(
@@ -110,10 +129,6 @@ moves_to_use = ctrl.all_moves_except_binding_state(
     controller=ctrl.SimpleControl
 )
 
-num_snapshots = 200
-# num_snapshots = 1000 # try 1000 and average for each set of 100, depending on pre-equilibration steps
-# count number of accepted moves for different conditions
-mc_steps_per_snapshot = 40000
 
 
 
