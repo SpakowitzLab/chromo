@@ -1,0 +1,20 @@
+/scratch/users/ahirsch1/chromo_scratch/chromo/chromo/run_simulation.py:41: FutureWarning: The frame.append method is deprecated and will be removed from pandas in a future version. Use pandas.concat instead.
+  binders = chromo.binders.make_binder_collection([null_binder]) # gets relevant binder information from binder specified
+Directory containing the notebook:
+/scratch/users/ahirsch1/chromo_scratch/chromo/chromo
+Root Directory of Package: 
+/scratch/users/ahirsch1/chromo_scratch
+Traceback (most recent call last):
+  File "/scratch/users/ahirsch1/chromo_scratch/chromo/chromo/run_simulation.py", line 60, in <module>
+    polymer = SSTWLC.gaussian_walk_polymer(
+  File "chromo/polymers.pyx", line 1703, in chromo.polymers.SSWLC.gaussian_walk_polymer
+    r = paths.gaussian_walk(num_beads, bead_length)
+  File "/scratch/users/ahirsch1/chromo_scratch/chromo/chromo/util/poly_paths.py", line 315, in gaussian_walk
+    np.divide(steps, magnitude_steps[:, None]) * np.reshape(step_size, (num_steps, 1)), axis=0
+  File "<__array_function__ internals>", line 180, in reshape
+  File "/home/groups/ajspakow/ahirsch/miniconda3/envs/chromo/lib/python3.9/site-packages/numpy/core/fromnumeric.py", line 298, in reshape
+    return _wrapfunc(a, 'reshape', newshape, order=order)
+  File "/home/groups/ajspakow/ahirsch/miniconda3/envs/chromo/lib/python3.9/site-packages/numpy/core/fromnumeric.py", line 57, in _wrapfunc
+    return bound(*args, **kwds)
+ValueError: cannot reshape array of size 1000 into shape (100,1)
+Job complete

@@ -42,14 +42,14 @@ binders = chromo.binders.make_binder_collection([null_binder]) # gets relevant b
 
 # potential command line arguments
 
-num_beads = sys.argv[1]
-bead_spacing_value_1 = sys.argv[2]
-bead_spacing_value_2 = sys.argv[3]
-lp = sys.argv[4]
-lt = sys.argv[5]
-num_snapshots = sys.argv[6]
-mc_steps_per_snapshot = sys.argv[7]
-
+num_beads = int(sys.argv[1])
+bead_spacing_value_1 = float(sys.argv[2])
+bead_spacing_value_2 = float(sys.argv[3])
+lp = float(sys.argv[4])
+lt = float(sys.argv[5])
+num_snapshots = int(sys.argv[6])
+mc_steps_per_snapshot = int(sys.argv[7])
+bead_spacing = np.array([bead_spacing_value_1, bead_spacing_value_2] * int(num_beads/2))
 
 """
 num_beads = 100
