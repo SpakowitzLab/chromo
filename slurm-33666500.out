@@ -1,2 +1,2011 @@
 /scratch/users/ahirsch1/chromo_scratch/chromo/chromo/run_simulation.py:41: FutureWarning: The frame.append method is deprecated and will be removed from pandas in a future version. Use pandas.concat instead.
   binders = chromo.binders.make_binder_collection([null_binder]) # gets relevant binder information from binder specified
+Directory containing the notebook:
+/scratch/users/ahirsch1/chromo_scratch/chromo/chromo
+Root Directory of Package: 
+/scratch/users/ahirsch1/chromo_scratch
+No states defined.
+No chemical modifications defined.
+100.0
+Save point 0 completed
+100.0
+Save point 1 completed
+100.0
+Save point 2 completed
+100.0
+Save point 3 completed
+100.0
+Save point 4 completed
+100.0
+Save point 5 completed
+100.0
+Save point 6 completed
+100.0
+Save point 7 completed
+100.0
+Save point 8 completed
+100.0
+Save point 9 completed
+100.0
+Save point 10 completed
+100.0
+Save point 11 completed
+100.0
+Save point 12 completed
+100.0
+Save point 13 completed
+100.0
+Save point 14 completed
+100.0
+Save point 15 completed
+100.0
+Save point 16 completed
+100.0
+Save point 17 completed
+100.0
+Save point 18 completed
+100.0
+Save point 19 completed
+100.0
+Save point 20 completed
+100.0
+Save point 21 completed
+100.0
+Save point 22 completed
+100.0
+Save point 23 completed
+100.0
+Save point 24 completed
+100.0
+Save point 25 completed
+100.0
+Save point 26 completed
+100.0
+Save point 27 completed
+100.0
+Save point 28 completed
+100.0
+Save point 29 completed
+100.0
+Save point 30 completed
+100.0
+Save point 31 completed
+100.0
+Save point 32 completed
+100.0
+Save point 33 completed
+100.0
+Save point 34 completed
+100.0
+Save point 35 completed
+100.0
+Save point 36 completed
+100.0
+Save point 37 completed
+100.0
+Save point 38 completed
+100.0
+Save point 39 completed
+100.0
+Save point 40 completed
+100.0
+Save point 41 completed
+100.0
+Save point 42 completed
+100.0
+Save point 43 completed
+100.0
+Save point 44 completed
+100.0
+Save point 45 completed
+100.0
+Save point 46 completed
+100.0
+Save point 47 completed
+100.0
+Save point 48 completed
+100.0
+Save point 49 completed
+100.0
+Save point 50 completed
+100.0
+Save point 51 completed
+100.0
+Save point 52 completed
+100.0
+Save point 53 completed
+100.0
+Save point 54 completed
+100.0
+Save point 55 completed
+100.0
+Save point 56 completed
+100.0
+Save point 57 completed
+100.0
+Save point 58 completed
+100.0
+Save point 59 completed
+100.0
+Save point 60 completed
+100.0
+Save point 61 completed
+100.0
+Save point 62 completed
+100.0
+Save point 63 completed
+100.0
+Save point 64 completed
+100.0
+Save point 65 completed
+100.0
+Save point 66 completed
+100.0
+Save point 67 completed
+100.0
+Save point 68 completed
+100.0
+Save point 69 completed
+100.0
+Save point 70 completed
+100.0
+Save point 71 completed
+100.0
+Save point 72 completed
+100.0
+Save point 73 completed
+100.0
+Save point 74 completed
+100.0
+Save point 75 completed
+100.0
+Save point 76 completed
+100.0
+Save point 77 completed
+100.0
+Save point 78 completed
+100.0
+Save point 79 completed
+100.0
+Save point 80 completed
+100.0
+Save point 81 completed
+100.0
+Save point 82 completed
+100.0
+Save point 83 completed
+100.0
+Save point 84 completed
+100.0
+Save point 85 completed
+100.0
+Save point 86 completed
+100.0
+Save point 87 completed
+100.0
+Save point 88 completed
+100.0
+Save point 89 completed
+100.0
+Save point 90 completed
+100.0
+Save point 91 completed
+100.0
+Save point 92 completed
+100.0
+Save point 93 completed
+100.0
+Save point 94 completed
+100.0
+Save point 95 completed
+100.0
+Save point 96 completed
+100.0
+Save point 97 completed
+100.0
+Save point 98 completed
+100.0
+Save point 99 completed
+100.0
+Save point 100 completed
+100.0
+Save point 101 completed
+100.0
+Save point 102 completed
+100.0
+Save point 103 completed
+100.0
+Save point 104 completed
+100.0
+Save point 105 completed
+100.0
+Save point 106 completed
+100.0
+Save point 107 completed
+100.0
+Save point 108 completed
+100.0
+Save point 109 completed
+100.0
+Save point 110 completed
+100.0
+Save point 111 completed
+100.0
+Save point 112 completed
+100.0
+Save point 113 completed
+100.0
+Save point 114 completed
+100.0
+Save point 115 completed
+100.0
+Save point 116 completed
+100.0
+Save point 117 completed
+100.0
+Save point 118 completed
+100.0
+Save point 119 completed
+100.0
+Save point 120 completed
+100.0
+Save point 121 completed
+100.0
+Save point 122 completed
+100.0
+Save point 123 completed
+100.0
+Save point 124 completed
+100.0
+Save point 125 completed
+100.0
+Save point 126 completed
+100.0
+Save point 127 completed
+100.0
+Save point 128 completed
+100.0
+Save point 129 completed
+100.0
+Save point 130 completed
+100.0
+Save point 131 completed
+100.0
+Save point 132 completed
+100.0
+Save point 133 completed
+100.0
+Save point 134 completed
+100.0
+Save point 135 completed
+100.0
+Save point 136 completed
+100.0
+Save point 137 completed
+100.0
+Save point 138 completed
+100.0
+Save point 139 completed
+100.0
+Save point 140 completed
+100.0
+Save point 141 completed
+100.0
+Save point 142 completed
+100.0
+Save point 143 completed
+100.0
+Save point 144 completed
+100.0
+Save point 145 completed
+100.0
+Save point 146 completed
+100.0
+Save point 147 completed
+100.0
+Save point 148 completed
+100.0
+Save point 149 completed
+100.0
+Save point 150 completed
+100.0
+Save point 151 completed
+100.0
+Save point 152 completed
+100.0
+Save point 153 completed
+100.0
+Save point 154 completed
+100.0
+Save point 155 completed
+100.0
+Save point 156 completed
+100.0
+Save point 157 completed
+100.0
+Save point 158 completed
+100.0
+Save point 159 completed
+100.0
+Save point 160 completed
+100.0
+Save point 161 completed
+100.0
+Save point 162 completed
+100.0
+Save point 163 completed
+100.0
+Save point 164 completed
+100.0
+Save point 165 completed
+100.0
+Save point 166 completed
+100.0
+Save point 167 completed
+100.0
+Save point 168 completed
+100.0
+Save point 169 completed
+100.0
+Save point 170 completed
+100.0
+Save point 171 completed
+100.0
+Save point 172 completed
+100.0
+Save point 173 completed
+100.0
+Save point 174 completed
+100.0
+Save point 175 completed
+100.0
+Save point 176 completed
+100.0
+Save point 177 completed
+100.0
+Save point 178 completed
+100.0
+Save point 179 completed
+100.0
+Save point 180 completed
+100.0
+Save point 181 completed
+100.0
+Save point 182 completed
+100.0
+Save point 183 completed
+100.0
+Save point 184 completed
+100.0
+Save point 185 completed
+100.0
+Save point 186 completed
+100.0
+Save point 187 completed
+100.0
+Save point 188 completed
+100.0
+Save point 189 completed
+100.0
+Save point 190 completed
+100.0
+Save point 191 completed
+100.0
+Save point 192 completed
+100.0
+Save point 193 completed
+100.0
+Save point 194 completed
+100.0
+Save point 195 completed
+100.0
+Save point 196 completed
+100.0
+Save point 197 completed
+100.0
+Save point 198 completed
+100.0
+Save point 199 completed
+100.0
+Save point 200 completed
+100.0
+Save point 201 completed
+100.0
+Save point 202 completed
+100.0
+Save point 203 completed
+100.0
+Save point 204 completed
+100.0
+Save point 205 completed
+100.0
+Save point 206 completed
+100.0
+Save point 207 completed
+100.0
+Save point 208 completed
+100.0
+Save point 209 completed
+100.0
+Save point 210 completed
+100.0
+Save point 211 completed
+100.0
+Save point 212 completed
+100.0
+Save point 213 completed
+100.0
+Save point 214 completed
+100.0
+Save point 215 completed
+100.0
+Save point 216 completed
+100.0
+Save point 217 completed
+100.0
+Save point 218 completed
+100.0
+Save point 219 completed
+100.0
+Save point 220 completed
+100.0
+Save point 221 completed
+100.0
+Save point 222 completed
+100.0
+Save point 223 completed
+100.0
+Save point 224 completed
+100.0
+Save point 225 completed
+100.0
+Save point 226 completed
+100.0
+Save point 227 completed
+100.0
+Save point 228 completed
+100.0
+Save point 229 completed
+100.0
+Save point 230 completed
+100.0
+Save point 231 completed
+100.0
+Save point 232 completed
+100.0
+Save point 233 completed
+100.0
+Save point 234 completed
+100.0
+Save point 235 completed
+100.0
+Save point 236 completed
+100.0
+Save point 237 completed
+100.0
+Save point 238 completed
+100.0
+Save point 239 completed
+100.0
+Save point 240 completed
+100.0
+Save point 241 completed
+100.0
+Save point 242 completed
+100.0
+Save point 243 completed
+100.0
+Save point 244 completed
+100.0
+Save point 245 completed
+100.0
+Save point 246 completed
+100.0
+Save point 247 completed
+100.0
+Save point 248 completed
+100.0
+Save point 249 completed
+100.0
+Save point 250 completed
+100.0
+Save point 251 completed
+100.0
+Save point 252 completed
+100.0
+Save point 253 completed
+100.0
+Save point 254 completed
+100.0
+Save point 255 completed
+100.0
+Save point 256 completed
+100.0
+Save point 257 completed
+100.0
+Save point 258 completed
+100.0
+Save point 259 completed
+100.0
+Save point 260 completed
+100.0
+Save point 261 completed
+100.0
+Save point 262 completed
+100.0
+Save point 263 completed
+100.0
+Save point 264 completed
+100.0
+Save point 265 completed
+100.0
+Save point 266 completed
+100.0
+Save point 267 completed
+100.0
+Save point 268 completed
+100.0
+Save point 269 completed
+100.0
+Save point 270 completed
+100.0
+Save point 271 completed
+100.0
+Save point 272 completed
+100.0
+Save point 273 completed
+100.0
+Save point 274 completed
+100.0
+Save point 275 completed
+100.0
+Save point 276 completed
+100.0
+Save point 277 completed
+100.0
+Save point 278 completed
+100.0
+Save point 279 completed
+100.0
+Save point 280 completed
+100.0
+Save point 281 completed
+100.0
+Save point 282 completed
+100.0
+Save point 283 completed
+100.0
+Save point 284 completed
+100.0
+Save point 285 completed
+100.0
+Save point 286 completed
+100.0
+Save point 287 completed
+100.0
+Save point 288 completed
+100.0
+Save point 289 completed
+100.0
+Save point 290 completed
+100.0
+Save point 291 completed
+100.0
+Save point 292 completed
+100.0
+Save point 293 completed
+100.0
+Save point 294 completed
+100.0
+Save point 295 completed
+100.0
+Save point 296 completed
+100.0
+Save point 297 completed
+100.0
+Save point 298 completed
+100.0
+Save point 299 completed
+100.0
+Save point 300 completed
+100.0
+Save point 301 completed
+100.0
+Save point 302 completed
+100.0
+Save point 303 completed
+100.0
+Save point 304 completed
+100.0
+Save point 305 completed
+100.0
+Save point 306 completed
+100.0
+Save point 307 completed
+100.0
+Save point 308 completed
+100.0
+Save point 309 completed
+100.0
+Save point 310 completed
+100.0
+Save point 311 completed
+100.0
+Save point 312 completed
+100.0
+Save point 313 completed
+100.0
+Save point 314 completed
+100.0
+Save point 315 completed
+100.0
+Save point 316 completed
+100.0
+Save point 317 completed
+100.0
+Save point 318 completed
+100.0
+Save point 319 completed
+100.0
+Save point 320 completed
+100.0
+Save point 321 completed
+100.0
+Save point 322 completed
+100.0
+Save point 323 completed
+100.0
+Save point 324 completed
+100.0
+Save point 325 completed
+100.0
+Save point 326 completed
+100.0
+Save point 327 completed
+100.0
+Save point 328 completed
+100.0
+Save point 329 completed
+100.0
+Save point 330 completed
+100.0
+Save point 331 completed
+100.0
+Save point 332 completed
+100.0
+Save point 333 completed
+100.0
+Save point 334 completed
+100.0
+Save point 335 completed
+100.0
+Save point 336 completed
+100.0
+Save point 337 completed
+100.0
+Save point 338 completed
+100.0
+Save point 339 completed
+100.0
+Save point 340 completed
+100.0
+Save point 341 completed
+100.0
+Save point 342 completed
+100.0
+Save point 343 completed
+100.0
+Save point 344 completed
+100.0
+Save point 345 completed
+100.0
+Save point 346 completed
+100.0
+Save point 347 completed
+100.0
+Save point 348 completed
+100.0
+Save point 349 completed
+100.0
+Save point 350 completed
+100.0
+Save point 351 completed
+100.0
+Save point 352 completed
+100.0
+Save point 353 completed
+100.0
+Save point 354 completed
+100.0
+Save point 355 completed
+100.0
+Save point 356 completed
+100.0
+Save point 357 completed
+100.0
+Save point 358 completed
+100.0
+Save point 359 completed
+100.0
+Save point 360 completed
+100.0
+Save point 361 completed
+100.0
+Save point 362 completed
+100.0
+Save point 363 completed
+100.0
+Save point 364 completed
+100.0
+Save point 365 completed
+100.0
+Save point 366 completed
+100.0
+Save point 367 completed
+100.0
+Save point 368 completed
+100.0
+Save point 369 completed
+100.0
+Save point 370 completed
+100.0
+Save point 371 completed
+100.0
+Save point 372 completed
+100.0
+Save point 373 completed
+100.0
+Save point 374 completed
+100.0
+Save point 375 completed
+100.0
+Save point 376 completed
+100.0
+Save point 377 completed
+100.0
+Save point 378 completed
+100.0
+Save point 379 completed
+100.0
+Save point 380 completed
+100.0
+Save point 381 completed
+100.0
+Save point 382 completed
+100.0
+Save point 383 completed
+100.0
+Save point 384 completed
+100.0
+Save point 385 completed
+100.0
+Save point 386 completed
+100.0
+Save point 387 completed
+100.0
+Save point 388 completed
+100.0
+Save point 389 completed
+100.0
+Save point 390 completed
+100.0
+Save point 391 completed
+100.0
+Save point 392 completed
+100.0
+Save point 393 completed
+100.0
+Save point 394 completed
+100.0
+Save point 395 completed
+100.0
+Save point 396 completed
+100.0
+Save point 397 completed
+100.0
+Save point 398 completed
+100.0
+Save point 399 completed
+100.0
+Save point 400 completed
+100.0
+Save point 401 completed
+100.0
+Save point 402 completed
+100.0
+Save point 403 completed
+100.0
+Save point 404 completed
+100.0
+Save point 405 completed
+100.0
+Save point 406 completed
+100.0
+Save point 407 completed
+100.0
+Save point 408 completed
+100.0
+Save point 409 completed
+100.0
+Save point 410 completed
+100.0
+Save point 411 completed
+100.0
+Save point 412 completed
+100.0
+Save point 413 completed
+100.0
+Save point 414 completed
+100.0
+Save point 415 completed
+100.0
+Save point 416 completed
+100.0
+Save point 417 completed
+100.0
+Save point 418 completed
+100.0
+Save point 419 completed
+100.0
+Save point 420 completed
+100.0
+Save point 421 completed
+100.0
+Save point 422 completed
+100.0
+Save point 423 completed
+100.0
+Save point 424 completed
+100.0
+Save point 425 completed
+100.0
+Save point 426 completed
+100.0
+Save point 427 completed
+100.0
+Save point 428 completed
+100.0
+Save point 429 completed
+100.0
+Save point 430 completed
+100.0
+Save point 431 completed
+100.0
+Save point 432 completed
+100.0
+Save point 433 completed
+100.0
+Save point 434 completed
+100.0
+Save point 435 completed
+100.0
+Save point 436 completed
+100.0
+Save point 437 completed
+100.0
+Save point 438 completed
+100.0
+Save point 439 completed
+100.0
+Save point 440 completed
+100.0
+Save point 441 completed
+100.0
+Save point 442 completed
+100.0
+Save point 443 completed
+100.0
+Save point 444 completed
+100.0
+Save point 445 completed
+100.0
+Save point 446 completed
+100.0
+Save point 447 completed
+100.0
+Save point 448 completed
+100.0
+Save point 449 completed
+100.0
+Save point 450 completed
+100.0
+Save point 451 completed
+100.0
+Save point 452 completed
+100.0
+Save point 453 completed
+100.0
+Save point 454 completed
+100.0
+Save point 455 completed
+100.0
+Save point 456 completed
+100.0
+Save point 457 completed
+100.0
+Save point 458 completed
+100.0
+Save point 459 completed
+100.0
+Save point 460 completed
+100.0
+Save point 461 completed
+100.0
+Save point 462 completed
+100.0
+Save point 463 completed
+100.0
+Save point 464 completed
+100.0
+Save point 465 completed
+100.0
+Save point 466 completed
+100.0
+Save point 467 completed
+100.0
+Save point 468 completed
+100.0
+Save point 469 completed
+100.0
+Save point 470 completed
+100.0
+Save point 471 completed
+100.0
+Save point 472 completed
+100.0
+Save point 473 completed
+100.0
+Save point 474 completed
+100.0
+Save point 475 completed
+100.0
+Save point 476 completed
+100.0
+Save point 477 completed
+100.0
+Save point 478 completed
+100.0
+Save point 479 completed
+100.0
+Save point 480 completed
+100.0
+Save point 481 completed
+100.0
+Save point 482 completed
+100.0
+Save point 483 completed
+100.0
+Save point 484 completed
+100.0
+Save point 485 completed
+100.0
+Save point 486 completed
+100.0
+Save point 487 completed
+100.0
+Save point 488 completed
+100.0
+Save point 489 completed
+100.0
+Save point 490 completed
+100.0
+Save point 491 completed
+100.0
+Save point 492 completed
+100.0
+Save point 493 completed
+100.0
+Save point 494 completed
+100.0
+Save point 495 completed
+100.0
+Save point 496 completed
+100.0
+Save point 497 completed
+100.0
+Save point 498 completed
+100.0
+Save point 499 completed
+100.0
+Save point 500 completed
+100.0
+Save point 501 completed
+100.0
+Save point 502 completed
+100.0
+Save point 503 completed
+100.0
+Save point 504 completed
+100.0
+Save point 505 completed
+100.0
+Save point 506 completed
+100.0
+Save point 507 completed
+100.0
+Save point 508 completed
+100.0
+Save point 509 completed
+100.0
+Save point 510 completed
+100.0
+Save point 511 completed
+100.0
+Save point 512 completed
+100.0
+Save point 513 completed
+100.0
+Save point 514 completed
+100.0
+Save point 515 completed
+100.0
+Save point 516 completed
+100.0
+Save point 517 completed
+100.0
+Save point 518 completed
+100.0
+Save point 519 completed
+100.0
+Save point 520 completed
+100.0
+Save point 521 completed
+100.0
+Save point 522 completed
+100.0
+Save point 523 completed
+100.0
+Save point 524 completed
+100.0
+Save point 525 completed
+100.0
+Save point 526 completed
+100.0
+Save point 527 completed
+100.0
+Save point 528 completed
+100.0
+Save point 529 completed
+100.0
+Save point 530 completed
+100.0
+Save point 531 completed
+100.0
+Save point 532 completed
+100.0
+Save point 533 completed
+100.0
+Save point 534 completed
+100.0
+Save point 535 completed
+100.0
+Save point 536 completed
+100.0
+Save point 537 completed
+100.0
+Save point 538 completed
+100.0
+Save point 539 completed
+100.0
+Save point 540 completed
+100.0
+Save point 541 completed
+100.0
+Save point 542 completed
+100.0
+Save point 543 completed
+100.0
+Save point 544 completed
+100.0
+Save point 545 completed
+100.0
+Save point 546 completed
+100.0
+Save point 547 completed
+100.0
+Save point 548 completed
+100.0
+Save point 549 completed
+100.0
+Save point 550 completed
+100.0
+Save point 551 completed
+100.0
+Save point 552 completed
+100.0
+Save point 553 completed
+100.0
+Save point 554 completed
+100.0
+Save point 555 completed
+100.0
+Save point 556 completed
+100.0
+Save point 557 completed
+100.0
+Save point 558 completed
+100.0
+Save point 559 completed
+100.0
+Save point 560 completed
+100.0
+Save point 561 completed
+100.0
+Save point 562 completed
+100.0
+Save point 563 completed
+100.0
+Save point 564 completed
+100.0
+Save point 565 completed
+100.0
+Save point 566 completed
+100.0
+Save point 567 completed
+100.0
+Save point 568 completed
+100.0
+Save point 569 completed
+100.0
+Save point 570 completed
+100.0
+Save point 571 completed
+100.0
+Save point 572 completed
+100.0
+Save point 573 completed
+100.0
+Save point 574 completed
+100.0
+Save point 575 completed
+100.0
+Save point 576 completed
+100.0
+Save point 577 completed
+100.0
+Save point 578 completed
+100.0
+Save point 579 completed
+100.0
+Save point 580 completed
+100.0
+Save point 581 completed
+100.0
+Save point 582 completed
+100.0
+Save point 583 completed
+100.0
+Save point 584 completed
+100.0
+Save point 585 completed
+100.0
+Save point 586 completed
+100.0
+Save point 587 completed
+100.0
+Save point 588 completed
+100.0
+Save point 589 completed
+100.0
+Save point 590 completed
+100.0
+Save point 591 completed
+100.0
+Save point 592 completed
+100.0
+Save point 593 completed
+100.0
+Save point 594 completed
+100.0
+Save point 595 completed
+100.0
+Save point 596 completed
+100.0
+Save point 597 completed
+100.0
+Save point 598 completed
+100.0
+Save point 599 completed
+100.0
+Save point 600 completed
+100.0
+Save point 601 completed
+100.0
+Save point 602 completed
+100.0
+Save point 603 completed
+100.0
+Save point 604 completed
+100.0
+Save point 605 completed
+100.0
+Save point 606 completed
+100.0
+Save point 607 completed
+100.0
+Save point 608 completed
+100.0
+Save point 609 completed
+100.0
+Save point 610 completed
+100.0
+Save point 611 completed
+100.0
+Save point 612 completed
+100.0
+Save point 613 completed
+100.0
+Save point 614 completed
+100.0
+Save point 615 completed
+100.0
+Save point 616 completed
+100.0
+Save point 617 completed
+100.0
+Save point 618 completed
+100.0
+Save point 619 completed
+100.0
+Save point 620 completed
+100.0
+Save point 621 completed
+100.0
+Save point 622 completed
+100.0
+Save point 623 completed
+100.0
+Save point 624 completed
+100.0
+Save point 625 completed
+100.0
+Save point 626 completed
+100.0
+Save point 627 completed
+100.0
+Save point 628 completed
+100.0
+Save point 629 completed
+100.0
+Save point 630 completed
+100.0
+Save point 631 completed
+100.0
+Save point 632 completed
+100.0
+Save point 633 completed
+100.0
+Save point 634 completed
+100.0
+Save point 635 completed
+100.0
+Save point 636 completed
+100.0
+Save point 637 completed
+100.0
+Save point 638 completed
+100.0
+Save point 639 completed
+100.0
+Save point 640 completed
+100.0
+Save point 641 completed
+100.0
+Save point 642 completed
+100.0
+Save point 643 completed
+100.0
+Save point 644 completed
+100.0
+Save point 645 completed
+100.0
+Save point 646 completed
+100.0
+Save point 647 completed
+100.0
+Save point 648 completed
+100.0
+Save point 649 completed
+100.0
+Save point 650 completed
+100.0
+Save point 651 completed
+100.0
+Save point 652 completed
+100.0
+Save point 653 completed
+100.0
+Save point 654 completed
+100.0
+Save point 655 completed
+100.0
+Save point 656 completed
+100.0
+Save point 657 completed
+100.0
+Save point 658 completed
+100.0
+Save point 659 completed
+100.0
+Save point 660 completed
+100.0
+Save point 661 completed
+100.0
+Save point 662 completed
+100.0
+Save point 663 completed
+100.0
+Save point 664 completed
+100.0
+Save point 665 completed
+100.0
+Save point 666 completed
+100.0
+Save point 667 completed
+100.0
+Save point 668 completed
+100.0
+Save point 669 completed
+100.0
+Save point 670 completed
+100.0
+Save point 671 completed
+100.0
+Save point 672 completed
+100.0
+Save point 673 completed
+100.0
+Save point 674 completed
+100.0
+Save point 675 completed
+100.0
+Save point 676 completed
+100.0
+Save point 677 completed
+100.0
+Save point 678 completed
+100.0
+Save point 679 completed
+100.0
+Save point 680 completed
+100.0
+Save point 681 completed
+100.0
+Save point 682 completed
+100.0
+Save point 683 completed
+100.0
+Save point 684 completed
+100.0
+Save point 685 completed
+100.0
+Save point 686 completed
+100.0
+Save point 687 completed
+100.0
+Save point 688 completed
+100.0
+Save point 689 completed
+100.0
+Save point 690 completed
+100.0
+Save point 691 completed
+100.0
+Save point 692 completed
+100.0
+Save point 693 completed
+100.0
+Save point 694 completed
+100.0
+Save point 695 completed
+100.0
+Save point 696 completed
+100.0
+Save point 697 completed
+100.0
+Save point 698 completed
+100.0
+Save point 699 completed
+100.0
+Save point 700 completed
+100.0
+Save point 701 completed
+100.0
+Save point 702 completed
+100.0
+Save point 703 completed
+100.0
+Save point 704 completed
+100.0
+Save point 705 completed
+100.0
+Save point 706 completed
+100.0
+Save point 707 completed
+100.0
+Save point 708 completed
+100.0
+Save point 709 completed
+100.0
+Save point 710 completed
+100.0
+Save point 711 completed
+100.0
+Save point 712 completed
+100.0
+Save point 713 completed
+100.0
+Save point 714 completed
+100.0
+Save point 715 completed
+100.0
+Save point 716 completed
+100.0
+Save point 717 completed
+100.0
+Save point 718 completed
+100.0
+Save point 719 completed
+100.0
+Save point 720 completed
+100.0
+Save point 721 completed
+100.0
+Save point 722 completed
+100.0
+Save point 723 completed
+100.0
+Save point 724 completed
+100.0
+Save point 725 completed
+100.0
+Save point 726 completed
+100.0
+Save point 727 completed
+100.0
+Save point 728 completed
+100.0
+Save point 729 completed
+100.0
+Save point 730 completed
+100.0
+Save point 731 completed
+100.0
+Save point 732 completed
+100.0
+Save point 733 completed
+100.0
+Save point 734 completed
+100.0
+Save point 735 completed
+100.0
+Save point 736 completed
+100.0
+Save point 737 completed
+100.0
+Save point 738 completed
+100.0
+Save point 739 completed
+100.0
+Save point 740 completed
+100.0
+Save point 741 completed
+100.0
+Save point 742 completed
+100.0
+Save point 743 completed
+100.0
+Save point 744 completed
+100.0
+Save point 745 completed
+100.0
+Save point 746 completed
+100.0
+Save point 747 completed
+100.0
+Save point 748 completed
+100.0
+Save point 749 completed
+100.0
+Save point 750 completed
+100.0
+Save point 751 completed
+100.0
+Save point 752 completed
+100.0
+Save point 753 completed
+100.0
+Save point 754 completed
+100.0
+Save point 755 completed
+100.0
+Save point 756 completed
+100.0
+Save point 757 completed
+100.0
+Save point 758 completed
+100.0
+Save point 759 completed
+100.0
+Save point 760 completed
+100.0
+Save point 761 completed
+100.0
+Save point 762 completed
+100.0
+Save point 763 completed
+100.0
+Save point 764 completed
+100.0
+Save point 765 completed
+100.0
+Save point 766 completed
+100.0
+Save point 767 completed
+100.0
+Save point 768 completed
+100.0
+Save point 769 completed
+100.0
+Save point 770 completed
+100.0
+Save point 771 completed
+100.0
+Save point 772 completed
+100.0
+Save point 773 completed
+100.0
+Save point 774 completed
+100.0
+Save point 775 completed
+100.0
+Save point 776 completed
+100.0
+Save point 777 completed
+100.0
+Save point 778 completed
+100.0
+Save point 779 completed
+100.0
+Save point 780 completed
+100.0
+Save point 781 completed
+100.0
+Save point 782 completed
+100.0
+Save point 783 completed
+100.0
+Save point 784 completed
+100.0
+Save point 785 completed
+100.0
+Save point 786 completed
+100.0
+Save point 787 completed
+100.0
+Save point 788 completed
+100.0
+Save point 789 completed
+100.0
+Save point 790 completed
+100.0
+Save point 791 completed
+100.0
+Save point 792 completed
+100.0
+Save point 793 completed
+100.0
+Save point 794 completed
+100.0
+Save point 795 completed
+100.0
+Save point 796 completed
+100.0
+Save point 797 completed
+100.0
+Save point 798 completed
+100.0
+Save point 799 completed
+100.0
+Save point 800 completed
+100.0
+Save point 801 completed
+100.0
+Save point 802 completed
+100.0
+Save point 803 completed
+100.0
+Save point 804 completed
+100.0
+Save point 805 completed
+100.0
+Save point 806 completed
+100.0
+Save point 807 completed
+100.0
+Save point 808 completed
+100.0
+Save point 809 completed
+100.0
+Save point 810 completed
+100.0
+Save point 811 completed
+100.0
+Save point 812 completed
+100.0
+Save point 813 completed
+100.0
+Save point 814 completed
+100.0
+Save point 815 completed
+100.0
+Save point 816 completed
+100.0
+Save point 817 completed
+100.0
+Save point 818 completed
+100.0
+Save point 819 completed
+100.0
+Save point 820 completed
+100.0
+Save point 821 completed
+100.0
+Save point 822 completed
+100.0
+Save point 823 completed
+100.0
+Save point 824 completed
+100.0
+Save point 825 completed
+100.0
+Save point 826 completed
+100.0
+Save point 827 completed
+100.0
+Save point 828 completed
+100.0
+Save point 829 completed
+100.0
+Save point 830 completed
+100.0
+Save point 831 completed
+100.0
+Save point 832 completed
+100.0
+Save point 833 completed
+100.0
+Save point 834 completed
+100.0
+Save point 835 completed
+100.0
+Save point 836 completed
+100.0
+Save point 837 completed
+100.0
+Save point 838 completed
+100.0
+Save point 839 completed
+100.0
+Save point 840 completed
+100.0
+Save point 841 completed
+100.0
+Save point 842 completed
+100.0
+Save point 843 completed
+100.0
+Save point 844 completed
+100.0
+Save point 845 completed
+100.0
+Save point 846 completed
+100.0
+Save point 847 completed
+100.0
+Save point 848 completed
+100.0
+Save point 849 completed
+100.0
+Save point 850 completed
+100.0
+Save point 851 completed
+100.0
+Save point 852 completed
+100.0
+Save point 853 completed
+100.0
+Save point 854 completed
+100.0
+Save point 855 completed
+100.0
+Save point 856 completed
+100.0
+Save point 857 completed
+100.0
+Save point 858 completed
+100.0
+Save point 859 completed
+100.0
+Save point 860 completed
+100.0
+Save point 861 completed
+100.0
+Save point 862 completed
+100.0
+Save point 863 completed
+100.0
+Save point 864 completed
+100.0
+Save point 865 completed
+100.0
+Save point 866 completed
+100.0
+Save point 867 completed
+100.0
+Save point 868 completed
+100.0
+Save point 869 completed
+100.0
+Save point 870 completed
+100.0
+Save point 871 completed
+100.0
+Save point 872 completed
+100.0
+Save point 873 completed
+100.0
+Save point 874 completed
+100.0
+Save point 875 completed
+100.0
+Save point 876 completed
+100.0
+Save point 877 completed
+100.0
+Save point 878 completed
+100.0
+Save point 879 completed
+100.0
+Save point 880 completed
+100.0
+Save point 881 completed
+100.0
+Save point 882 completed
+100.0
+Save point 883 completed
+100.0
+Save point 884 completed
+100.0
+Save point 885 completed
+100.0
+Save point 886 completed
+100.0
+Save point 887 completed
+100.0
+Save point 888 completed
+100.0
+Save point 889 completed
+100.0
+Save point 890 completed
+100.0
+Save point 891 completed
+100.0
+Save point 892 completed
+100.0
+Save point 893 completed
+100.0
+Save point 894 completed
+100.0
+Save point 895 completed
+100.0
+Save point 896 completed
+100.0
+Save point 897 completed
+100.0
+Save point 898 completed
+100.0
+Save point 899 completed
+100.0
+Save point 900 completed
+100.0
+Save point 901 completed
+100.0
+Save point 902 completed
+100.0
+Save point 903 completed
+100.0
+Save point 904 completed
+100.0
+Save point 905 completed
+100.0
+Save point 906 completed
+100.0
+Save point 907 completed
+100.0
+Save point 908 completed
+100.0
+Save point 909 completed
+100.0
+Save point 910 completed
+100.0
+Save point 911 completed
+100.0
+Save point 912 completed
+100.0
+Save point 913 completed
+100.0
+Save point 914 completed
+100.0
+Save point 915 completed
+100.0
+Save point 916 completed
+100.0
+Save point 917 completed
+100.0
+Save point 918 completed
+100.0
+Save point 919 completed
+100.0
+Save point 920 completed
+100.0
+Save point 921 completed
+100.0
+Save point 922 completed
+100.0
+Save point 923 completed
+100.0
+Save point 924 completed
+100.0
+Save point 925 completed
+100.0
+Save point 926 completed
+100.0
+Save point 927 completed
+100.0
+Save point 928 completed
+100.0
+Save point 929 completed
+100.0
+Save point 930 completed
+100.0
+Save point 931 completed
+100.0
+Save point 932 completed
+100.0
+Save point 933 completed
+100.0
+Save point 934 completed
+100.0
+Save point 935 completed
+100.0
+Save point 936 completed
+100.0
+Save point 937 completed
+100.0
+Save point 938 completed
+100.0
+Save point 939 completed
+100.0
+Save point 940 completed
+100.0
+Save point 941 completed
+100.0
+Save point 942 completed
+100.0
+Save point 943 completed
+100.0
+Save point 944 completed
+100.0
+Save point 945 completed
+100.0
+Save point 946 completed
+100.0
+Save point 947 completed
+100.0
+Save point 948 completed
+100.0
+Save point 949 completed
+100.0
+Save point 950 completed
+100.0
+Save point 951 completed
+100.0
+Save point 952 completed
+100.0
+Save point 953 completed
+100.0
+Save point 954 completed
+100.0
+Save point 955 completed
+100.0
+Save point 956 completed
+100.0
+Save point 957 completed
+100.0
+Save point 958 completed
+100.0
+Save point 959 completed
+100.0
+Save point 960 completed
+100.0
+Save point 961 completed
+100.0
+Save point 962 completed
+100.0
+Save point 963 completed
+100.0
+Save point 964 completed
+100.0
+Save point 965 completed
+100.0
+Save point 966 completed
+100.0
+Save point 967 completed
+100.0
+Save point 968 completed
+100.0
+Save point 969 completed
+100.0
+Save point 970 completed
+100.0
+Save point 971 completed
+100.0
+Save point 972 completed
+100.0
+Save point 973 completed
+100.0
+Save point 974 completed
+100.0
+Save point 975 completed
+100.0
+Save point 976 completed
+100.0
+Save point 977 completed
+100.0
+Save point 978 completed
+100.0
+Save point 979 completed
+100.0
+Save point 980 completed
+100.0
+Save point 981 completed
+100.0
+Save point 982 completed
+100.0
+Save point 983 completed
+100.0
+Save point 984 completed
+100.0
+Save point 985 completed
+100.0
+Save point 986 completed
+100.0
+Save point 987 completed
+100.0
+Save point 988 completed
+100.0
+Save point 989 completed
+100.0
+Save point 990 completed
+100.0
+Save point 991 completed
+100.0
+Save point 992 completed
+100.0
+Save point 993 completed
+100.0
+Save point 994 completed
+100.0
+Save point 995 completed
+100.0
+Save point 996 completed
+100.0
+Save point 997 completed
+100.0
+Save point 998 completed
+100.0
+Save point 999 completed
+update log path output/sim_18
+Simulation Runtime (in seconds):  110440.95
+Job complete
