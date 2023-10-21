@@ -37,7 +37,7 @@ lt = 100
 # 206 is with 200 snapshots of twist with alternating 15 and 25
 # 130 is without twist with alternating 15 and 25
 # latest_sim = "output/sim_206"
-latest_sim = "output/sim_214"
+latest_sim = "output/sim_10"
 
 output_files = os.listdir(latest_sim)
 
