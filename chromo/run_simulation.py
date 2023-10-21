@@ -41,7 +41,7 @@ null_binder = chromo.binders.get_by_name('null_reader') # must include null bind
 binders = chromo.binders.make_binder_collection([null_binder]) # gets relevant binder information from binder specified
 
 # potential command line arguments
-
+"""
 num_beads = int(sys.argv[1])
 bead_spacing_value_1 = float(sys.argv[2])
 bead_spacing_value_2 = float(sys.argv[3])
@@ -50,20 +50,20 @@ lt = float(sys.argv[5])
 num_snapshots = int(sys.argv[6])
 mc_steps_per_snapshot = int(sys.argv[7])
 bead_spacing = np.array([bead_spacing_value_1, bead_spacing_value_2] * int(num_beads/2))
-
 """
+
 num_beads = 100
 bead_spacing = np.array([0.34, 0.34] * 50)
 # bead_spacing = 15.0 * np.ones((1000, 1)) # change to be real linker lengths later
 lp = 50
 lt = 100
-num_snapshots = 1000
+num_snapshots = 10
 # num_snapshots = 1000 # try 1000 and average for each set of 100, depending on pre-equilibration steps
 # count number of accepted moves for different conditions
 
 #mc_steps_per_snapshot = 40000
 mc_steps_per_snapshot = 2000
-"""
+
 
 
 
@@ -155,7 +155,7 @@ output_files = [
 snapshot = [int(f.split("-")[-1].split(".")[0]) for f in output_files]
 sorted_snap = np.sort(np.array(snapshot))
 output_files = [f for _, f in sorted(zip(snapshot, output_files))]
-
+"""
 
 all_energies = []
 polymer_energies = []
@@ -240,7 +240,7 @@ monomer_separation = np.array(
 monomer_separation_kuhn = monomer_separation * (np.mean(bead_spacing) / lp / 2) # check that this is acceptable
 
 
-lp = 100 # try 53
+#lp = 100 # try 53
 kuhn_length = 2 * lp
 num_equilibration = 70
 all_r2 = []
@@ -293,3 +293,4 @@ plt.show()
 # try 0 as lt
 # 25 nm is 75 base pairs
 # units of bead spacing are nm
+"""
