@@ -22,18 +22,22 @@ os.chdir("/scratch/users/ahirsch1/chromo_scratch")
 print("Root Directory of Package: ")
 print(os.getcwd())
 
-num_beads = 1000
+latest_sim = str(sys.argv[1])
+constant_bead_spacing = float(sys.argv[2])
+
+num_beads = 100
 
 
-bead_spacing = np.array([10, 15] * 500)
-lp = 100    # Persistence length of DNA; in this example, `lp` has no effect
+bead_spacing = np.array([constant_bead_spacing, constant_bead_spacing] * 50)
+lp = 50    # Persistence length of DNA; in this example, `lp` has no effect
 delta = 50  # Monomer monomer separation at which to calculate mean squared distance.
 lt = 100
 
 # Load names of polymer configuration output files
 # 206 is with 200 snapshots of twist with alternating 15 and 25
 # 130 is without twist with alternating 15 and 25
-latest_sim = "output/sim_16"
+latest_sim = "output/sim_" + str(latest_sim)
+#latest_sim = "output/sim_24"
 output_files = os.listdir(latest_sim)
 output_files = [
     f for f in output_files if f.endswith(".csv") and f.startswith("poly_1")

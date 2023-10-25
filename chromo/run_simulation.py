@@ -273,7 +273,7 @@ font = {'family': 'serif',
         'size': 18}
 plt.rc('font', **font)
 
-
+print(latest_sim)
 plt.figure(figsize=(8,6), dpi=300)
 plt.scatter(np.log10(monomer_separation_kuhn), np.log10(average_squared_e2e), label="simulation")
 plt.xlabel(r"Log $L/(2l_p)$")
