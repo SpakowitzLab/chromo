@@ -5,6 +5,10 @@ July 18, 2021
 """
 cimport chromo.polymers as poly
 cimport numpy as np
+#cimport pandas as pd
+import pandas as pd
+
+
 
 cdef np.ndarray identify_4
 cdef double[:] uniform_sample_unit_sphere()

@@ -19,6 +19,7 @@ cimport numpy as np
 import pandas as pd
 
 # Custom Modules
+from .util import poly_stat
 import chromo.beads as beads
 import chromo.util.mc_stat as mc_stat
 from chromo.util.linalg cimport (vec_sub3, vec_dot3, vec_scale3)
@@ -622,7 +623,11 @@ cdef class PolymerBase(TransformedObject):
         vector_index = pd.MultiIndex.from_product(
             [vector_arrs.keys(), ('x', 'y', 'z')]
         )
+
         vector_df = pd.DataFrame(vector_arr, columns=vector_index)
+        vector_df = poly_stat.entry_exit_angle(vector_df)
+        #vector_df = poly_stat.extry_exit_angle(vector_df) # added
+
         if len(self.chemical_mod_names) > 0:
             states_index = pd.MultiIndex.from_tuples(
                 [('states', name) for name in self.binder_names]
