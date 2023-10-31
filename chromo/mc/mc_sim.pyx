@@ -82,19 +82,33 @@ cpdef void mc_sim(
     else:
         active_fields = [1 for _ in polymers]
     for k in range(num_mc_steps):
+        print("a")
         for controller in mc_move_controllers:
+            print("b")
             if controller.move.move_on == 1:
+                print("c")
                 for j in range(controller.move.num_per_cycle):
+                    print("d")
                     for i in range(len(polymers)):
+                        print("e")
                         #polymers[i].lt = lt
                         polymers[i].lt = lt_value_adjust
                         polymers[i]._find_parameters(polymers[i].bead_length) # coding best practice: accessing protected member of a class from outside the class?
                         poly = polymers[i]
                         active_field = active_fields[i]
+                        print("before mc step")
+                        #controller.move = MCAdapter.specific_moves.end_pivot
+                        print("does printing work here")
+                        print(controller.move)
+                        print(poly)
+                        print(readerproteins)
+                        print(field)
+                        print(active_field)
                         mc_step(
                             controller.move, poly, readerproteins, field,
                             active_field, temperature_adjust_factor
                         )
+                        print("after mc step")
             controller.update_amplitudes()
 
 
@@ -135,29 +149,37 @@ cpdef void mc_step(
     cdef long[:] inds
 
 
-
-
+    packet_size = 1 # will need to change back
+    print("entering mc")
     if poly in field and active_field:
+        print("this is it probably")
         if adaptible_move.name != "tangent_rotation":
+            print("interesting")
             check_field = 1
     packet_size = 20
     inds = adaptible_move.propose(poly)
     n_inds = len(inds)
+    print("intermediate test")
     if n_inds == 0:
+        print("is this it")
         return
 
     dE = 0
     dE += poly.compute_dE(adaptible_move.name, inds, n_inds)
     if check_field == 1:
+        print("field 1")
         if adaptible_move.name == "change_binding_state":
+            print("additional test location")
             dE += field.compute_dE(
                 poly, inds, n_inds, packet_size, state_change=1
             )
         else:
+            print("field 0")
             dE += field.compute_dE(
                 poly, inds, n_inds, packet_size, state_change=0
             )
     try:
+        print("energy exp")
         exp_dE = exp(-dE)
     except RuntimeWarning:
         if dE > 0:

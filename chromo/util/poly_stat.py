@@ -58,8 +58,9 @@ def entry_exit_angle(df):
 
     # Add the angle to the DataFrame
     df['Entry Exit Angle'] = angle_rad
-    print(df)
     return df
+
+
 def overlap_sample(bead_separation, num_beads):
     """Generate list of bead index pairs for sliding window sampling scheme.
 

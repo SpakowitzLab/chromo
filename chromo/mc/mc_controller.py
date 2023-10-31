@@ -254,8 +254,9 @@ def all_moves(
             move_amp_bounds=move_amp_bounds[move.__name__]
         ) for move in [
             mv.crank_shaft, mv.end_pivot, mv.slide, mv.tangent_rotation,
-            mv.change_binding_state
+            # mv.change_binding_state
         ]
+        #
     ]
     controllers[0].move.num_per_cycle = 30
     controllers[1].move.num_per_cycle = 1

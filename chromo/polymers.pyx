@@ -2028,7 +2028,7 @@ cdef class SSTWLC(SSWLC):
         double
             Elastic energy of bond between the bead pair
         """
-        delta_omega = (self.bead_length[ind] * 2 * np.pi)/(10.5 * 0.34)
+        delta_omega = omega - (self.bead_length[ind] * 2 * np.pi)/(10.5 * 0.34)
         delta_n = np.round(delta_omega/(2 * np.pi))
         delta_omega = delta_omega - ( 2 * np. pi * delta_n)
 
