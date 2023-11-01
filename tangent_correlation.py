@@ -78,7 +78,7 @@ t3_final_list = []
 print(simulation_number)
 for snap in range(snap_range1, snap_range2):
     print(snap)
-    snap_path = f"{file_path}/sim_{simulation_number}/poly_1-{snap}.csv"
+    snap_path = f"{file_path}sim_{simulation_number}/poly_1-{snap}.csv"
     df = pd.read_csv(snap_path)
 
     t2coordinates = df[["('t2', 'x')", "('t2', 'y')", "('t2', 'z')"]].values
