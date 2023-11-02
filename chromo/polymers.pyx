@@ -14,6 +14,7 @@ from libc.math cimport sin, cos
 import numpy as np
 cimport numpy as np
 import pandas as pd
+from scipy.special import comb
 
 # Custom Modules
 import chromo.beads as beads
@@ -1400,7 +1401,7 @@ cdef class SSWLC(PolymerBase):
         cdef long h, Nn, Nm, Nu
         cdef long tot_bound, diff
         cdef double dE
-        cdef long[:] i, mod_states, states_ind
+        cdef long[:] mod_states, states_ind
 
         mod_states = self.chemical_mods[ind]
         states_ind = self.states[ind].copy()
