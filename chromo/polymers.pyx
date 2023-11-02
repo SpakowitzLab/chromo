@@ -1354,12 +1354,28 @@ cdef class SSWLC(PolymerBase):
         
         Notes
         -----
-        Begin by determining whether or not the bead is chemically modified.
-        Then, calculate the energy associated with the proposed binding state.
-        For each bound tail, the interaction energy (dependent on the chemical
-        modification state) is added to `dE` and the chemical potential is 
-        subtracted from `dE`. Finally, using the same approach, subtract the 
-        energy associated with the current binding state.
+        Begin by identifying the chemical modification and binding states of the
+        nucleosome. Using a single-site partition function, we compute the
+        expected binding energy over all possible binding configurations.
+        Previously, we had assumed that binders will first bind marked sites
+        before binding unmarked sites. Using the single-site partition function,
+        we remove this assumption and consider the entropy of binding.
+        
+        Consider that we are arranging `Nb` binders on `Nn` sites, of which `Nm`
+        are marked. We can have up to `min(Nb, Nm)` binders on marked sites. For
+        each value `i` in range(`min(Nb, Nm)`), there are `comb(Nm, i)` ways to
+        arrange `i` binders on marked sites and `comb(Nn-Nm, Nb-i)` ways to
+        arrange the remaining `Nb-i` binders on unmarked sites. Thus, the total
+        number of ways to arrange `Nb` binders on `Nn` sites, of which `Nm` are
+        marked, is the sum of `comb(Nm, i) * comb(Nn-Nm, Nb-i)` for `i` in
+        range(`min(Nb, Nm)`). This is equivalent to `comb(Nn, Nb)`.
+        
+         The energy of each configuration is determined by the number of binders
+        on marked sites, or `i`. If there is an energy `E_b` associated with
+        each binder on a marked site, then the total energy of the configuration
+        is `i * E_b`. Therefore, the site partition function representing
+        binding is given by `sum(comb(Nm, i) * comb(Nn-Nm, Nb-i) * exp(-i * E_b))`
+        for `i` in range(`min(Nb, Nm)`).
         
         `self.max_binders` indicates the maximum number of total binders of any
         type that can bind a single bead. This attribute accounts for steric
@@ -1381,10 +1397,10 @@ cdef class SSWLC(PolymerBase):
         double
             The energy change from the single bead's change in binding state
         """
-        cdef long i, num_tails, modified_tails, unmodified_tails
+        cdef long h, Nn, Nm, Nu
         cdef long tot_bound, diff
         cdef double dE
-        cdef long[:] mod_states, states_ind
+        cdef long[:] i, mod_states, states_ind
 
         mod_states = self.chemical_mods[ind]
         states_ind = self.states[ind].copy()
@@ -1395,67 +1411,65 @@ cdef class SSWLC(PolymerBase):
 
             # Trail configuration
             tot_bound = 0
-            for i in range(self.num_binders):
-                tot_bound += states_trial_ind[i]
+            for h in range(self.num_binders):
+                tot_bound += states_trial_ind[h]
             if tot_bound > self.max_binders:
                 diff = tot_bound - self.max_binders
                 dE += E_HUGE * diff
 
             # Current configuration
             tot_bound = 0
-            for i in range(self.num_binders):
-                tot_bound += states_ind[i]
+            for h in range(self.num_binders):
+                tot_bound += states_ind[h]
             if tot_bound > self.max_binders:
                 diff = tot_bound - self.max_binders
                 dE -= E_HUGE * diff
 
         # Evaluate the change in binding energy
-        for i in range(self.num_binders):
-            num_tails = self.beads[ind].binders[i].sites_per_bead
-            modified_tails = mod_states[i]
-            unmodified_tails = num_tails - modified_tails
+        for b in range(self.num_binders):
+            # Number of sites
+            Nn = self.beads[ind].binders[b].sites_per_bead
+            # Number of modified tails
+            Nm = mod_states[b]
+            # Number of unmodified tails
+            Nu = Nn - Nm
 
-            # Trial configuration
-            for j in range(states_trial_ind[i]):
-                if j+1 <= modified_tails:
-                    dE += (
-                        self.beads[ind].binders[i].bind_energy_mod -
-                        (min(
-                            self.beads[ind].binders[i].chemical_potential,
-                            self.beads[ind].binders[i].chemical_potential *
-                            self.mu_adjust_factor
-                        ))
-                    )
-                else:
-                    dE += (
-                        self.beads[ind].binders[i].bind_energy_no_mod -
-                        (min(
-                            self.beads[ind].binders[i].chemical_potential,
-                            self.beads[ind].binders[i].chemical_potential *
-                            self.mu_adjust_factor
-                        ))
-                    )
+            # Single-site partition function (trial configuration)
+            i = np.arange(states_trial_ind[b] + 1)
+            dE += -np.log(np.sum(
+                comb(Nm, i) *
+                comb(Nn - Nm, states_trial_ind[b] - i) *
+                (np.exp(
+                    -i * self.beads[ind].binders[b].bind_energy_mod +
+                    (states_trial_ind[b] - i) *
+                    self.beads[ind].binders[b].bind_energy_no_mod
+                ))
+            ))
 
-            # Current configuration
-            for j in range(states_ind[i]):
-                if j+1 <= modified_tails:
-                    dE -= (
-                        self.beads[ind].binders[i].bind_energy_mod -
-                        (min(
-                            self.beads[ind].binders[i].chemical_potential,
-                            self.beads[ind].binders[i].chemical_potential *
-                            self.mu_adjust_factor
-                        ))
-                    )
-                else:
-                    dE -= (
-                        self.beads[ind].binders[i].bind_energy_no_mod -
-                        (min(
-                            self.beads[ind].binders[i].chemical_potential,
-                            self.beads[ind].binders[i].chemical_potential *
-                            self.mu_adjust_factor
-                        ))
-                    )
+            # Single-site partition function (current configuration)
+            i = np.arange(states_ind[b] + 1)
+            dE -= -np.log(np.sum(
+                comb(Nm, i) *
+                comb(Nn - Nm, states_ind[b] - i) *
+                (np.exp(
+                    -i * self.beads[ind].binders[b].bind_energy_mod +
+                    (states_ind[b] - i) *
+                    self.beads[ind].binders[b].bind_energy_no_mod
+                ))
+            ))
+
+            # Chemical potentials
+            dE += -states_trial_ind[b] * (min(
+                self.beads[ind].binders[b].chemical_potential,
+                self.beads[ind].binders[b].chemical_potential *
+                self.mu_adjust_factor
+            ))
+            dE -= -states_ind[b] * (min(
+                self.beads[ind].binders[b].chemical_potential,
+                self.beads[ind].binders[b].chemical_potential *
+                self.mu_adjust_factor
+            ))
+
         return dE
 
     def __str__(self):
