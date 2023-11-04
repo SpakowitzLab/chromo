@@ -1435,27 +1435,31 @@ cdef class SSWLC(PolymerBase):
             # Number of unmodified tails
             Nu = Nn - Nm
 
-            # Single-site partition function (trial configuration)
+            # Single-site Helmholtz free energy (trial configuration)
             i = np.arange(states_trial_ind[b] + 1)
             dE += -np.log(np.sum(
                 comb(Nm, i) *
                 comb(Nn - Nm, states_trial_ind[b] - i) *
                 (np.exp(
-                    -i * self.beads[ind].binders[b].bind_energy_mod +
-                    (states_trial_ind[b] - i) *
-                    self.beads[ind].binders[b].bind_energy_no_mod
+                    - (
+                        i * self.beads[ind].binders[b].bind_energy_mod +
+                        (states_trial_ind[b] - i) *
+                        self.beads[ind].binders[b].bind_energy_no_mod
+                    )
                 ))
             ))
 
-            # Single-site partition function (current configuration)
+            # Single-site Helmholtz free energy (current configuration)
             i = np.arange(states_ind[b] + 1)
             dE -= -np.log(np.sum(
                 comb(Nm, i) *
                 comb(Nn - Nm, states_ind[b] - i) *
                 (np.exp(
-                    -i * self.beads[ind].binders[b].bind_energy_mod +
-                    (states_ind[b] - i) *
-                    self.beads[ind].binders[b].bind_energy_no_mod
+                    - (
+                        i * self.beads[ind].binders[b].bind_energy_mod +
+                        (states_ind[b] - i) *
+                        self.beads[ind].binders[b].bind_energy_no_mod
+                    )
                 ))
             ))
 
