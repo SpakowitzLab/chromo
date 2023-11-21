@@ -146,10 +146,17 @@ n_bins_y = n_bins_x
 y_width = x_width
 n_bins_z = n_bins_x
 z_width = x_width
+
+# If chi is specified in the config file, use that value for the field
+if "chi" in config:
+    chi = config["chi"]
+else:
+    chi = 1.0
+
 udf = UniformDensityField(
     [p], binders, x_width, n_bins_x, y_width,
     n_bins_y, z_width, n_bins_z, confine_type=confine_type,
-    confine_length=confine_length, chi=1,
+    confine_length=confine_length, chi=chi,
     assume_fully_accessible=1, fast_field=0
 )
 
