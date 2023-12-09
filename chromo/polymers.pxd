@@ -95,7 +95,7 @@ cdef class SSWLC(PolymerBase):
     cdef double bead_binding_dE(
         self, long ind, long[:] states_trial_ind
     )
-    cpdef void _find_parameters(self, double length_bead)
+    cpdef void _find_parameters(self, double[:] bead_length)
 
 cdef class Chromatin(SSWLC):
     cdef double compute_dE(
