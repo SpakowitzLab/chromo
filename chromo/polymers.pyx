@@ -925,7 +925,7 @@ cdef class SSWLC(PolymerBase):
     """
 
     def __init__(
-        self, str name, double[:,::1] r, *, double bead_length, double lp,
+        self, str name, double[:,::1] r, *, double[:] bead_length, double lp,
         double bead_rad=5, double[:,::1] t3=empty_2d,
         double[:,::1] t2=empty_2d, long[:,::1] states=mty_2d_int,
         np.ndarray binder_names=empty_1d, long[:,::1] chemical_mods=mty_2d_int,
@@ -941,8 +941,9 @@ cdef class SSWLC(PolymerBase):
 
         Parameters
         ----------
-        bead_length : double
-            The amount of polymer path length between subsequent beads (in nm)
+        bead_length : double[:]
+            The amount of polymer path length between subsequent beads (in nm),
+            defined for each linker along the polymer
         lp : double
             Dimensional persistence length of the SSWLC (in nm)
         bead_rad : double
@@ -1095,7 +1096,8 @@ cdef class SSWLC(PolymerBase):
                 self.r_trial[ind0, :],
                 self.t3[ind0_m_1, :],
                 self.t3[ind0, :],
-                self.t3_trial[ind0, :]
+                self.t3_trial[ind0, :],
+                bond_ind = ind0_m_1
             )
         if indf != self.num_beads:
             delta_energy_poly += self.bead_pair_dE_poly_reverse(
@@ -1104,12 +1106,15 @@ cdef class SSWLC(PolymerBase):
                 self.r[indf, :],
                 self.t3[indf_m_1, :],
                 self.t3_trial[indf_m_1, :],
-                self.t3[indf, :]
+                self.t3[indf, :],
+                bond_ind = indf_m_1
             )
 
         return delta_energy_poly
 
-    cdef double E_pair(self, double[:] bend, double dr_par, double[:] dr_perp):
+    cdef double E_pair(
+        self, double[:] bend, double dr_par, double[:] dr_perp, long bond_ind
+    ):
         """Calculate elastic energy for a pair of beads.
 
         Parameters
@@ -1120,6 +1125,8 @@ cdef class SSWLC(PolymerBase):
             Magnitude of the parallel component of the displacement vector
         dr_perp : double[:]
             Perpendicular component of the displacement vector
+        bond_ind : long
+            Index of the bond between the beads
 
         Returns
         -------
@@ -1128,9 +1135,9 @@ cdef class SSWLC(PolymerBase):
         """
         cdef double E
         E = (
-            0.5 * self.eps_bend * vec_dot3(bend, bend) +
-            0.5 * self.eps_par * (dr_par - self.gamma) ** 2 +
-            0.5 * self.eps_perp * vec_dot3(dr_perp, dr_perp)
+            0.5 * self.eps_bend[bond_ind] * vec_dot3(bend, bend) +
+            0.5 * self.eps_par[bond_ind] * (dr_par - self.gamma[bond_ind])**2 +
+            0.5 * self.eps_perp[bond_ind] * vec_dot3(dr_perp, dr_perp)
         )
         return E
 
@@ -1141,7 +1148,8 @@ cdef class SSWLC(PolymerBase):
         double[:] test_r_1,
         double[:] t3_0,
         double[:] t3_1,
-        double[:] test_t3_1
+        double[:] test_t3_1,
+        long bond_ind
     ):
         """Compute change in polymer energy when affecting a single bead pair.
         
@@ -1202,6 +1210,8 @@ cdef class SSWLC(PolymerBase):
             t3 tangent vector of second bead in bend
         test_t3_1 : array_like (3,)
             t3 tangent vector of second bead in bend (TRIAL MOVE)
+        bond_ind : int
+            Index of the bond being affected
 
         Returns
         -------
@@ -1221,13 +1231,17 @@ cdef class SSWLC(PolymerBase):
             self.dr_perp_test[i] = self.dr_test[i] - t3_0[i] * dr_par_test
             self.dr_perp[i] = self.dr[i] - t3_0[i] * dr_par
             self.bend_test[i] = (
-                test_t3_1[i] - t3_0[i] - self.dr_perp_test[i] * self.eta
+                test_t3_1[i] - t3_0[i] - self.dr_perp_test[i] *
+                self.eta[bond_ind]
             )
             self.bend[i] = (
-                t3_1[i] - t3_0[i] - self.dr_perp[i] * self.eta
+                t3_1[i] - t3_0[i] - self.dr_perp[i] * self.eta[bond_ind]
             )
-        return self.E_pair(self.bend_test, dr_par_test, self.dr_perp_test) -\
-            self.E_pair(self.bend, dr_par, self.dr_perp)
+        return self.E_pair(
+            self.bend_test, dr_par_test, self.dr_perp_test, bond_ind
+        ) - self.E_pair(
+            self.bend, dr_par, self.dr_perp, bond_ind
+        )
 
     cdef double bead_pair_dE_poly_reverse(
         self,
@@ -1236,7 +1250,8 @@ cdef class SSWLC(PolymerBase):
         double[:] r_1,
         double[:] t3_0,
         double[:] test_t3_0,
-        double[:] t3_1
+        double[:] t3_1,
+        long bond_ind
     ):
         """Compute change in polymer energy when affecting a single bead pair.
         
@@ -1265,6 +1280,8 @@ cdef class SSWLC(PolymerBase):
             t3 tangent vector of first bead in bend (TRIAL MOVE)
         t3_1 : array_like (3,)
             t3 tangent vector of second bead in bend
+        bond_ind : int
+            Index of the bond being affected
 
         Returns
         -------
@@ -1283,13 +1300,17 @@ cdef class SSWLC(PolymerBase):
             self.dr_perp_test[i] = self.dr_test[i] - test_t3_0[i] * dr_par_test
             self.dr_perp[i] = self.dr[i] - t3_0[i] * dr_par
             self.bend_test[i] = (
-                t3_1[i] - test_t3_0[i] - self.dr_perp_test[i] * self.eta
+                t3_1[i] - test_t3_0[i] - self.dr_perp_test[i] *
+                self.eta[bond_ind]
             )
             self.bend[i] = (
-                t3_1[i] - t3_0[i] - self.dr_perp[i] * self.eta
+                t3_1[i] - t3_0[i] - self.dr_perp[i] * self.eta[bond_ind]
             )
-        return self.E_pair(self.bend_test, dr_par_test, self.dr_perp_test) -\
-            self.E_pair(self.bend, dr_par, self.dr_perp)
+        return self.E_pair(
+            self.bend_test, dr_par_test, self.dr_perp_test, bond_ind
+        ) - self.E_pair(
+            self.bend, dr_par, self.dr_perp, bond_ind
+        )
 
     cpdef double compute_E(self):
         """Compute the overall polymer energy at the current configuration.
@@ -1305,15 +1326,16 @@ cdef class SSWLC(PolymerBase):
             Configurational energy of the polymer.
         """
         cdef double E, dr_par
-        cdef long i, j
+        cdef long i, j, i_m1
         cdef double[:] dr, dr_perp, bend
         cdef double[:] r_0, r_1, t3_0, t3_1
 
         E = 0
         for i in range(1, self.num_beads):
-            r_0 = self.r[i-1, :]
+            i_m1 = i - 1
+            r_0 = self.r[i_m1, :]
             r_1 = self.r[i, :]
-            t3_0 = self.t3[i-1, :]
+            t3_0 = self.t3[i_m1, :]
             t3_1 = self.t3[i, :]
 
             dr = vec_sub3(r_1, r_0)
@@ -1321,8 +1343,8 @@ cdef class SSWLC(PolymerBase):
             dr_perp = vec_sub3(dr, vec_scale3(t3_0, dr_par))
             bend = t3_1.copy()
             for j in range(3):
-                bend[j] += -t3_0[j] - self.eta * dr_perp[j]
-            E += self.E_pair(bend, dr_par, dr_perp)
+                bend[j] += -t3_0[j] - self.eta[i_m1] * dr_perp[j]
+            E += self.E_pair(bend, dr_par, dr_perp, i_m1)
         return E
 
     cdef double binding_dE(self, long ind0, long indf, long n_inds):
@@ -1482,7 +1504,7 @@ cdef class SSWLC(PolymerBase):
         """
         return f"Polymer_Class<SSWLC>, {super(SSWLC, self).__str__()}"
 
-    cpdef void _find_parameters(self, double length_bead):
+    cpdef void _find_parameters(self, double[:] bead_length):
         """Look up elastic parameters of ssWLC for each bead_length.
         
         Interpolate from the parameter table to get the physical parameters of
@@ -1511,25 +1533,33 @@ cdef class SSWLC(PolymerBase):
 
         Parameters
         ----------
-        length_bead : double
+        bead_length : double
             Dimensional distance between subsequent beads of the polymer (in nm)
         """
-        self.delta = length_bead / self.lp
-        self.eps_bend = np.interp(
-            self.delta, dss_params[:, 0], dss_params[:, 1]
-        ) / self.delta
-        self.gamma = np.interp(
-            self.delta, dss_params[:, 0], dss_params[:, 2]
-        ) * self.delta * self.lp
-        self.eps_par = np.interp(
-            self.delta, dss_params[:, 0], dss_params[:, 3]
-        ) / (self.delta * self.lp**2)
-        self.eps_perp = np.interp(
-            self.delta, dss_params[:, 0], dss_params[:, 4]
-        ) / (self.delta * self.lp**2)
-        self.eta = np.interp(
-            self.delta, dss_params[:, 0], dss_params[:, 5]
-        ) / self.lp
+        cdef long i
+        self.delta = np.zeros(len(bead_length))
+        self.eps_bend = np.zeros(len(bead_length))
+        self.gamma = np.zeros(len(bead_length))
+        self.eps_par = np.zeros(len(bead_length))
+        self.eps_perp = np.zeros(len(bead_length))
+        self.eta = np.zeros(len(bead_length))
+        for i in range(len(bead_length)):
+            self.delta[i] = bead_length[i] / self.lp
+            self.eps_bend = np.interp(
+                self.delta[i], dss_params[:, 0], dss_params[:, 1]
+            ) / self.delta[i]
+            self.gamma = np.interp(
+                self.delta[i], dss_params[:, 0], dss_params[:, 2]
+            ) * self.delta[i] * self.lp
+            self.eps_par = np.interp(
+                self.delta[i], dss_params[:, 0], dss_params[:, 3]
+            ) / (self.delta[i] * self.lp**2)
+            self.eps_perp = np.interp(
+                self.delta[i], dss_params[:, 0], dss_params[:, 4]
+            ) / (self.delta[i] * self.lp**2)
+            self.eta = np.interp(
+                self.delta[i], dss_params[:, 0], dss_params[:, 5]
+            ) / self.lp
 
     @classmethod
     def straight_line_in_x(
@@ -1838,7 +1868,7 @@ cdef class SSTWLC(SSWLC):
         str name,
         double[:, ::1] r,
         *,
-        double bead_length,
+        double[:] bead_length,
         double lp,
         double lt,
         double bead_rad = 5,
@@ -1883,7 +1913,7 @@ cdef class SSTWLC(SSWLC):
         )
         self.check_attrs()
 
-    cpdef void _find_parameters(self, double length_bead):
+    cpdef void _find_parameters(self, double bead_length):
         """Look up elastic parameters of ssWLC for each bead_length.
 
         Notes
@@ -1899,26 +1929,34 @@ cdef class SSTWLC(SSWLC):
 
         Parameters
         ----------
-        length_bead : double
-            Number of base pairs represented by each bead of the polymer
+        bead_length : double
+            Dimensional distance between subsequent beads of the polymer (in nm)
         """
-        self.delta = length_bead / self.lp
-        self.eps_bend = np.interp(
-            self.delta, dss_params[:, 0], dss_params[:, 1]
-        ) / self.delta
-        self.gamma = np.interp(
-            self.delta, dss_params[:, 0], dss_params[:, 2]
-        ) * self.delta * self.lp
-        self.eps_par = np.interp(
-            self.delta, dss_params[:, 0], dss_params[:, 3]
-        ) / (self.delta * self.lp**2)
-        self.eps_perp = np.interp(
-            self.delta, dss_params[:, 0], dss_params[:, 4]
-        ) / (self.delta * self.lp**2)
-        self.eta = np.interp(
-            self.delta, dss_params[:, 0], dss_params[:, 5]
-        ) / self.lp
-        self.eps_twist = self.lt / (self.delta * self.lp)
+        self.delta = np.zeros(len(bead_length))
+        self.eps_bend = np.zeros(len(bead_length))
+        self.gamma = np.zeros(len(bead_length))
+        self.eps_para = np.zeros(len(bead_length))
+        self.eps_perp = np.zeros(len(bead_length))
+        self.eta = np.zeros(len(bead_length))
+        self.eps_twist = np.zeros(len(bead_length))
+        for i in range(len(bead_length)):
+            self.delta[i] = bead_length[i] / self.lp
+            self.eps_bend[i] = np.interp(
+                self.delta[i], dss_params[:, 0], dss_params[:, 1]
+            ) / self.delta[i]
+            self.gamma[i] = np.interp(
+                self.delta[i], dss_params[:, 0], dss_params[:, 2]
+            ) * self.delta[i] * self.lp
+            self.eps_par[i] = np.interp(
+                self.delta[i], dss_params[:, 0], dss_params[:, 3]
+            ) / (self.delta[i] * self.lp**2)
+            self.eps_perp[i] = np.interp(
+                self.delta[i], dss_params[:, 0], dss_params[:, 4]
+            ) / (self.delta[i] * self.lp**2)
+            self.eta[i] = np.interp(
+                self.delta[i], dss_params[:, 0], dss_params[:, 5]
+            ) / self.lp
+            self.eps_twist[i] = self.lt / (self.delta[i] * self.lp)
 
     cdef double continuous_dE_poly(
         self,
@@ -1949,7 +1987,8 @@ cdef class SSTWLC(SSWLC):
                 self.t3_trial[ind0, :],
                 self.t2[ind0_m_1, :],
                 self.t2[ind0, :],
-                self.t2_trial[ind0, :]
+                self.t2_trial[ind0, :],
+                bond_ind = ind0_m_1
             )
         if indf != self.num_beads:
             delta_energy_poly += self.bead_pair_dE_poly_reverse_with_twist(
@@ -1961,12 +2000,14 @@ cdef class SSTWLC(SSWLC):
                 self.t3[indf, :],
                 self.t2[indf_m_1, :],
                 self.t2_trial[indf_m_1, :],
-                self.t2[indf, :]
+                self.t2[indf, :],
+                bond_ind = indf_m_1
             )
         return delta_energy_poly
 
     cdef double E_pair_with_twist(
-        self, double[:] bend, double dr_par, double[:] dr_perp, double omega
+        self, double[:] bend, double dr_par, double[:] dr_perp, double omega,
+        long bond_ind
     ):
         """Calculate elastic energy for a pair of beads.
         
@@ -1984,6 +2025,8 @@ cdef class SSTWLC(SSWLC):
             Perpendicular component of the displacement vector
         omega : double
             Twist angle (in radians)
+        bond_ind : long
+            Index of the bond between the two beads
 
         Returns
         -------
@@ -1992,10 +2035,10 @@ cdef class SSTWLC(SSWLC):
         """
         cdef double E
         E = (
-            0.5 * self.eps_bend * vec_dot3(bend, bend) +
-            0.5 * self.eps_par * (dr_par - self.gamma) ** 2 +
-            0.5 * self.eps_perp * vec_dot3(dr_perp, dr_perp) +
-            0.5 * self.eps_twist * omega**2
+            0.5 * self.eps_bend[bond_ind] * vec_dot3(bend, bend) +
+            0.5 * self.eps_par[bond_ind] * (dr_par - self.gamma[bond_ind])**2 +
+            0.5 * self.eps_perp[bond_ind] * vec_dot3(dr_perp, dr_perp) +
+            0.5 * self.eps_twist[bond_ind] * omega**2
         )
         return E
 
@@ -2009,7 +2052,8 @@ cdef class SSTWLC(SSWLC):
         double[:] test_t3_1,
         double[:] t2_0,
         double[:] t2_1,
-        double[:] test_t2_1
+        double[:] test_t2_1,
+        long bond_ind
     ):
         """Compute change in polymer energy when affecting a single bead pair.
 
@@ -2036,6 +2080,8 @@ cdef class SSTWLC(SSWLC):
             t3, t2 tangent vector of second bead in bend
         test_t3_1, test_t2_1 : array_like (3,)
             t3, t2 tangent vector of second bead in bend (TRIAL MOVE)
+        bond_ind : long
+            Index of the bond between the two beads
 
         Returns
         -------
@@ -2080,16 +2126,16 @@ cdef class SSTWLC(SSWLC):
             self.dr_perp_test[i] = self.dr_test[i] - t3_0[i] * dr_par_test
             self.dr_perp[i] = self.dr[i] - t3_0[i] * dr_par
             self.bend_test[i] = (
-                test_t3_1[i] - t3_0[i] - self.dr_perp_test[i] * self.eta
+                test_t3_1[i] - t3_0[i] - self.dr_perp_test[i] *
+                self.eta[bond_ind]
             )
             self.bend[i] = (
-                t3_1[i] - t3_0[i] - self.dr_perp[i] * self.eta
+                t3_1[i] - t3_0[i] - self.dr_perp[i] * self.eta[bond_ind]
             )
         return (self.E_pair_with_twist(
-            self.bend_test, dr_par_test, self.dr_perp_test, omega_test
-        ) -
-            self.E_pair_with_twist(
-                self.bend, dr_par, self.dr_perp, omega
+            self.bend_test, dr_par_test, self.dr_perp_test, omega_test, bond_ind
+        ) - self.E_pair_with_twist(
+            self.bend, dr_par, self.dr_perp, omega, bond_ind
         ))
 
     cdef double bead_pair_dE_poly_reverse_with_twist(
@@ -2102,7 +2148,8 @@ cdef class SSTWLC(SSWLC):
         double[:] t3_1,
         double[:] t2_0,
         double[:] test_t2_0,
-        double[:] t2_1
+        double[:] t2_1,
+        long bond_ind
     ):
         """Compute change in polymer energy when affecting a single bead pair.
 
@@ -2129,6 +2176,8 @@ cdef class SSTWLC(SSWLC):
             t3, t2 tangent vector of first bead in bend (TRIAL MOVE)
         t3_1, t2_1 : array_like (3,)
             t3, t2 tangent vector of second bead in bend
+        bond_ind : long
+            Index of the bond between the two beads
 
         Returns
         -------
@@ -2171,16 +2220,16 @@ cdef class SSTWLC(SSWLC):
             self.dr_perp_test[i] = self.dr_test[i] - test_t3_0[i] * dr_par_test
             self.dr_perp[i] = self.dr[i] - t3_0[i] * dr_par
             self.bend_test[i] = (
-                t3_1[i] - test_t3_0[i] - self.dr_perp_test[i] * self.eta
+                t3_1[i] - test_t3_0[i] - self.dr_perp_test[i] *
+                self.eta[bond_ind]
             )
             self.bend[i] = (
-                t3_1[i] - t3_0[i] - self.dr_perp[i] * self.eta
+                t3_1[i] - t3_0[i] - self.dr_perp[i] * self.eta[bond_ind]
             )
         return (self.E_pair_with_twist(
-            self.bend_test, dr_par_test, self.dr_perp_test, omega_test
-        ) -
-            self.E_pair_with_twist(
-                self.bend, dr_par, self.dr_perp, omega
+            self.bend_test, dr_par_test, self.dr_perp_test, omega_test, bond_ind
+        ) - self.E_pair_with_twist(
+            self.bend, dr_par, self.dr_perp, omega, bond_ind
         ))
 
 

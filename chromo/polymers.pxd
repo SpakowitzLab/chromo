@@ -52,8 +52,9 @@ cdef class Rouse(PolymerBase):
     cdef void construct_beads(self)
 
 cdef class SSWLC(PolymerBase):
-    cdef public double delta, eps_bend, eps_par, eps_perp, gamma, eta
-    cdef public double bead_length, bead_rad
+    cdef public double[:] delta, eps_bend, eps_par, eps_perp, gamma, eta
+    cdef public double bead_rad
+    cdef public double[:] bead_length
     cdef void construct_beads(self)
     cpdef double compute_E(self)
     cdef double compute_dE(
@@ -67,7 +68,9 @@ cdef class SSWLC(PolymerBase):
         long ind0,
         long indf,
     )
-    cdef double E_pair(self, double[:] bend, double dr_par, double[:] dr_perp)
+    cdef double E_pair(
+        self, double[:] bend, double dr_par, double[:] dr_perp, long bond_ind
+    )
     cdef double bead_pair_dE_poly_forward(
         self,
         double[:] r_0,
@@ -75,7 +78,8 @@ cdef class SSWLC(PolymerBase):
         double[:] test_r_1,
         double[:] t3_0,
         double[:] t3_1,
-        double[:] test_t3_1
+        double[:] test_t3_1,
+        long bond_ind
     )
     cdef double bead_pair_dE_poly_reverse(
         self,
@@ -84,7 +88,8 @@ cdef class SSWLC(PolymerBase):
         double[:] r_1,
         double[:] t3_0,
         double[:] test_t3_0,
-        double[:] t3_1
+        double[:] t3_1,
+        long bond_ind
     )
     cdef double binding_dE(self, long ind0, long indf, long n_inds)
     cdef double bead_binding_dE(
@@ -103,7 +108,8 @@ cdef class Chromatin(SSWLC):
 cdef class SSTWLC(SSWLC):
     cdef public double lt, eps_twist
     cdef double E_pair_with_twist(
-        self, double[:] bend, double dr_par, double[:] dr_perp, double omega
+        self, double[:] bend, double dr_par, double[:] dr_perp, double omega,
+        long bond_ind
     )
     cdef double compute_dE(
         self,
@@ -121,7 +127,8 @@ cdef class SSTWLC(SSWLC):
         double[:] test_t3_1,
         double[:] t2_0,
         double[:] t2_1,
-        double[:] test_t2_1
+        double[:] test_t2_1,
+        long bond_ind
     )
     cdef double bead_pair_dE_poly_reverse_with_twist(
         self,
@@ -133,7 +140,8 @@ cdef class SSTWLC(SSWLC):
         double[:] t3_1,
         double[:] t2_0,
         double[:] test_t2_0,
-        double[:] t2_1
+        double[:] t2_1,
+        long bond_ind
     )
 
 cdef class LoopedSSTWLC(SSTWLC):
