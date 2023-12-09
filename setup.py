@@ -60,7 +60,7 @@ if __name__ == "__main__":
             "numpy~=1.26.2",
             "pandas~=1.3.5",
             "scikit_learn~=1.1.2",
-            "scipy~=1.9.1",
+            "scipy~=1.11.4",
             "setuptools~=61.2.0",
             "notebook~=6.0.0",
             "jupyter~=1.0.0",
