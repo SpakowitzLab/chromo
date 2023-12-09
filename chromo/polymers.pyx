@@ -1913,7 +1913,7 @@ cdef class SSTWLC(SSWLC):
         )
         self.check_attrs()
 
-    cpdef void _find_parameters(self, double bead_length):
+    cpdef void _find_parameters(self, double[:] bead_length):
         """Look up elastic parameters of ssWLC for each bead_length.
 
         Notes
