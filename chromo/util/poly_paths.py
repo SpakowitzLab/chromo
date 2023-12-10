@@ -268,7 +268,7 @@ def numerical_derivative(
 
 def gaussian_walk(
     num_steps: int,
-    step_size: float
+    step_sizes: np.ndarray
 ) -> np.ndarray:
     """Generate coordinates for Gaussian random walk w/ fixed path length.
 
@@ -276,8 +276,8 @@ def gaussian_walk(
     ----------
     num_steps : int
         Number of steps in the Gaussian random walk
-    step_size : float
-        Distance between each point in the random walk
+    step_sizes : np.ndarrau
+        Distances between subsequent points in the random walk
 
     Returns
     -------
@@ -288,7 +288,7 @@ def gaussian_walk(
     steps = np.random.standard_normal((num_steps, 3))
     magnitude_steps = np.linalg.norm(steps, axis=1)
     return np.cumsum(
-        np.divide(steps, magnitude_steps[:, None]) * step_size, axis=0
+        np.divide(steps, magnitude_steps[:, None]) * step_sizes, axis=0
     )
 
 

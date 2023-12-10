@@ -1683,7 +1683,7 @@ cdef class SSWLC(PolymerBase):
 
     @classmethod
     def gaussian_walk_polymer(
-        cls, name: str, num_beads: int, bead_length: float, **kwargs
+        cls, name: str, num_beads: int, bead_lengths: np.ndarray, **kwargs
     ):
         """Initialize a polymer to a Gaussian random walk.
 
@@ -1701,9 +1701,9 @@ cdef class SSWLC(PolymerBase):
         SSWLC
             Object representing a polymer initialized as Gaussian random walk
         """
-        r = paths.gaussian_walk(num_beads, bead_length)
+        r = paths.gaussian_walk(num_beads, bead_lengths)
         t3, t2 = paths.estimate_tangents_from_coordinates(r)
-        return cls(name, r, t3=t3, t2=t2, bead_length=bead_length, **kwargs)
+        return cls(name, r, t3=t3, t2=t2, bead_length=bead_lengths, **kwargs)
 
     @classmethod
     def confined_gaussian_walk(
