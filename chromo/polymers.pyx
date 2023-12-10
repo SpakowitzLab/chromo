@@ -2110,11 +2110,11 @@ cdef class SSTWLC(SSWLC):
             test_t2_1[0] * test_t3_1[1] - test_t2_1[1] * test_t3_1[0]
         ])
         omega = np.arctan2(
-            (np.dot(t2_0, t1_1) - np.dot(t1_0, t2_1)) /
+            (np.dot(t2_0, t1_1) - np.dot(t1_0, t2_1)),
             (np.dot(t1_0, t1_1) + np.dot(t2_0, t2_1))
         )
         omega_test = np.arctan2(
-            (np.dot(t2_0, test_t1_1) - np.dot(t1_0, test_t2_1)) /
+            (np.dot(t2_0, test_t1_1) - np.dot(t1_0, test_t2_1)),
             (np.dot(t1_0, test_t1_1) + np.dot(t2_0, test_t2_1))
         )
 
@@ -2206,11 +2206,11 @@ cdef class SSTWLC(SSWLC):
             t2_1[0] * t3_1[1] - t2_1[1] * t3_1[0]
         ])
         omega = np.arctan2(
-            (np.dot(t2_0, t1_1) - np.dot(t1_0, t2_1)) /
+            (np.dot(t2_0, t1_1) - np.dot(t1_0, t2_1)),
             (np.dot(t1_0, t1_1) + np.dot(t2_0, t2_1))
         )
         omega_test = np.arctan2(
-            (np.dot(test_t2_0, t1_1) - np.dot(test_t1_0, t2_1)) /
+            (np.dot(test_t2_0, t1_1) - np.dot(test_t1_0, t2_1)),
             (np.dot(test_t1_0, t1_1) + np.dot(test_t2_0, t2_1))
         )
         for i in range(3):
