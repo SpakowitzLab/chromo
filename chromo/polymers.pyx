@@ -611,7 +611,8 @@ cdef class PolymerBase(TransformedObject):
         for name, arr in arrays.items():
             if name in self._3d_arrays:
                 vector_arrs[name] = arr
-            elif name != 'states' and name != 'chemical_mods':
+            elif name != 'states' and name != 'chemical_mods' \
+                    and name != "bead_length":
                 regular_arrs[name] = arr
         vector_arr = np.concatenate(list(vector_arrs.values()), axis=1)
         vector_index = pd.MultiIndex.from_product(
@@ -631,6 +632,9 @@ cdef class PolymerBase(TransformedObject):
             chemical_mods_df = pd.DataFrame(
                 np.asarray(self.chemical_mods), columns=chem_mod_index,
                 dtype=int
+            )
+            bead_length_df = pd.DataFrame(
+                np.asarray(self.bead_length), dtype=float
             )
             df = pd.concat([vector_df, states_df, chemical_mods_df], axis=1)
         else:
@@ -717,8 +721,6 @@ cdef class PolymerBase(TransformedObject):
         if 'chemical_mods' in df:
             chemical_mod_names = df['chemical_mods'].columns.to_numpy()
             kwargs['chemical_mod_names'] = chemical_mod_names
-        if 'bead_length' in df:
-            kwargs['bead_length'] = kwargs['bead_length'][0]
         if 'max_binders' in df:
             kwargs['max_binders'] = kwargs['max_binders'][0]
         if "name" in df and name is None:
