@@ -398,7 +398,7 @@ def to_file_params(non_builtins_kwargs, folder, suffix=''):
         dtype = type(value)
         if isinstance(value, collections.Sequence):
             for data in value:
-                to_file_params({arg_name: data}, folder, suffix)
+                to_file_params({arg_name: np.atleast_2d(data)}, folder, suffix)
         elif hasattr(value, 'to_file'):
             value.to_file(str(folder / Path(value.name + suffix)))
         elif issubclass(dtype, pd.DataFrame) or issubclass(dtype, pd.Series):
