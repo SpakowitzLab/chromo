@@ -2345,7 +2345,8 @@ cdef class LoopedSSTWLC(SSTWLC):
             self.r_trial[ind0, :],
             self.t3[ind0_m_1, :],
             self.t3[ind0, :],
-            self.t3_trial[ind0, :]
+            self.t3_trial[ind0, :],
+            ind0_m_1
         )
         # Elastic energy change from RHS of the move
         indf_m_1 = indf - 1
@@ -2357,7 +2358,8 @@ cdef class LoopedSSTWLC(SSTWLC):
             self.r[indf, :],
             self.t3[indf_m_1, :],
             self.t3_trial[indf_m_1, :],
-            self.t3[indf, :]
+            self.t3[indf, :],
+            indf_m_1
         )
 
         return delta_energy_poly

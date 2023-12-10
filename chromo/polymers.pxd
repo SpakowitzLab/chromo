@@ -106,7 +106,8 @@ cdef class Chromatin(SSWLC):
     )
 
 cdef class SSTWLC(SSWLC):
-    cdef public double lt, eps_twist
+    cdef public double lt
+    cdef public double[:] eps_twist
     cdef double E_pair_with_twist(
         self, double[:] bend, double dr_par, double[:] dr_perp, double omega,
         long bond_ind
