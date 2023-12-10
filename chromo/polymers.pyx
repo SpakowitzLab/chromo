@@ -1935,7 +1935,7 @@ cdef class SSTWLC(SSWLC):
         self.delta = np.zeros(len(bead_length))
         self.eps_bend = np.zeros(len(bead_length))
         self.gamma = np.zeros(len(bead_length))
-        self.eps_para = np.zeros(len(bead_length))
+        self.eps_par = np.zeros(len(bead_length))
         self.eps_perp = np.zeros(len(bead_length))
         self.eta = np.zeros(len(bead_length))
         self.eps_twist = np.zeros(len(bead_length))
