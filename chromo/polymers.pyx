@@ -2367,6 +2367,146 @@ cdef class LoopedSSTWLC(SSTWLC):
         return delta_energy_poly
 
 
+cdef class DetailedChromatin(SSTWLC):
+    """Class representation of a chromatin fiber with detailed nucleosomes.
+    """
+    def __init__(
+        self,
+        str name,
+        double[:, ::1] r,
+        double omega_enter,
+        double omega_exit,
+        double bp_wrap,
+        double phi,
+        double rad,
+        *,
+        double[:] bead_length,
+        double lp,
+        double lt,
+        double bead_rad = 5,
+        double[:, ::1] t3 = empty_2d,
+        double[:, ::1] t2 = empty_2d,
+        long[:, ::1] states = mty_2d_int,
+        np.ndarray binder_names = empty_1d,
+        long[:, ::1] chemical_mods = mty_2d_int,
+        np.ndarray chemical_mod_names = empty_1d_str,
+        str log_path = "", long max_binders = -1
+    ):
+        """Construct a detailed chromatin object as a subclass of `SSTWLC`.
+
+        Notes
+        -----
+        See documentation for `SSTWLC` class for description of common
+        parameters.
+
+        Parameters
+        ----------
+        omega_enter : double
+            Angle of entry of DNA into each nucleosome in radians
+        omega_exit : double
+            Angle of exit of DNA from each nucleosome in radians
+        bp_wrap : double
+            Number of base pairs wrapped around each nucleosome
+        phi : double
+            Tilt angle of DNA entering and exiting each nucleosome in radians
+        """
+        super(DetailedChromatin, self).__init__(
+            name, r, bead_length=bead_length, lp=lp, lt=lt, bead_rad=bead_rad,
+            t3=t3, t2=t2, states=states, binder_names=binder_names,
+            log_path=log_path, chemical_mods=chemical_mods,
+            chemical_mod_names=chemical_mod_names, max_binders=max_binders
+        )
+        self.omega_enter = omega_enter
+        self.omega_exit = omega_exit
+        self.bp_wrap = bp_wrap
+        self.phi = phi
+        self.bead_rad = rad
+        self.construct_beads()
+
+    cdef void construct_beads(self):
+        """Construct Nucleosome objects forming beads of our polymer.
+        """
+        self.beads = {
+            i: beads.DetailedNucleosome(
+                id_=i,
+                r=self.r[i],
+                t3=self.t3[i],
+                t2=self.t2[i],
+                bead_length=self.bead_length[i],
+                omega_enter=self.omega_enter,
+                omega_exit=self.omega_exit,
+                bp_wrap=self.bp_wrap,
+                phi=self.phi,
+                rad=self.bead_rad,
+                states=self.states[i],
+                binder_names=self.binder_names
+            ) for i in range(self.r.shape[0])
+        }
+
+    cdef double continuous_dE_poly(
+            self,
+            long ind0,
+            long indf,
+    ):
+        """Compute change in polymer energy for a continuous bead region.
+
+        Notes
+        -----
+        See documentation for `SSWLC.continuous_dE_poly()` class for details 
+        and parameter/return descriptions.
+        """
+        cdef long ind0_m_1, indf_m_1
+        cdef double delta_energy_poly
+
+        ind0_m_1 = ind0 - 1
+        indf_m_1 = indf - 1
+
+        delta_energy_poly = 0
+        if ind0 != 0:
+            # Compute the entry and exit positions and orientations of the
+            # linker DNA for the first nucleosome in the continuous region
+            ri_0, ro_0, t3i_0, t3o_0, t2i_0, t2o_0 =  \
+                self.beads[ind0_m_1].update_configuration(
+                    self.r[ind0_m_1, :], self.t3[ind0_m_1, :],
+                    self.t2[ind0_m_1, :]
+                )
+            ri_1, ro_1, t3i_1, t3o_1, t2i_1, t2o_1 = \
+                self.beads[ind0].update_configuration(
+                    self.r[ind0, :], self.t3[ind0, :], self.t2[ind0, :]
+                )
+            ri_1_try, ro_1_try, t3i_1_try, t3o_1_try, t2i_1_try, t2o_1_try = \
+                self.beads[ind0].update_configuration(
+                    self.r_trial[ind0, :], self.t3_trial[ind0, :],
+                    self.t2_trial[ind0, :]
+                )
+            delta_energy_poly += self.bead_pair_dE_poly_forward_with_twist(
+                ro_0, ri_1, ri_1_try, t3o_0, t3i_1, t3i_1_try, t2o_0, t2i_1,
+                t2i_1_try, bond_ind = ind0_m_1
+            )
+        if indf != self.num_beads:
+            # Compute the entry and exit positions and orientations of the
+            # linker DNA for the last nucleosome in the continuous region
+            ri_0, ro_0, t3i_0, t3o_0, t2i_0, t2o_0 = \
+                self.beads[indf_m_1].update_configuration(
+                    self.r[indf_m_1, :], self.t3[indf_m_1, :],
+                    self.t2[indf_m_1, :]
+                )
+            ri_1, ro_1, t3i_1, t3o_1, t2i_1, t2o_1 = \
+                self.beads[ind0].update_configuration(
+                    self.r[ind0, :], self.t3[ind0, :], self.t2[ind0, :]
+                )
+            ri_0_try, ro_0_try, t3i_0_try, t3o_0_try, t2i_0_try, t2o_0_try = \
+                self.beads[indf_m_1].update_configuration(
+                    self.r_trial[indf_m_1, :], self.t3_trial[indf_m_1, :],
+                    self.t2_trial[indf_m_1, :]
+                )
+            delta_energy_poly += self.bead_pair_dE_poly_reverse_with_twist(
+                ro_0, ro_0_try, ri_1, t3o_0, t3o_0_try, t3i_1, t2o_0, t2o_0_try,
+                t2i_1, bond_ind = indf_m_1
+            )
+        return delta_energy_poly
+
+
 cpdef double sin_func(double x):
     """Sine function to which the polymer will be initialized.
 

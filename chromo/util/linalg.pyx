@@ -458,3 +458,87 @@ cdef long alt_mod(long x, long n):
     filled = <long>floor(x / n)
     remainder = x - filled * n
     return remainder
+
+
+def angle_between_vectors(v, w):
+    """Angle between two vectors, v and w, returned in radians.
+    """
+    # Calculate the dot product of v and w
+    dot_product = np.dot(v, w)
+    # Calculate the magnitudes of v and w
+    magnitude_v = np.linalg.norm(v)
+    magnitude_w = np.linalg.norm(w)
+    # Calculate the cosine of the angle
+    cos_theta = dot_product / (magnitude_v * magnitude_w)
+    # Use arccosine to find the angle in radians
+    theta_radians = np.arccos(np.clip(cos_theta, -1.0, 1.0))
+    return theta_radians
+
+
+def rotation_matrix_from_vectors(vec1, vec2):
+    """Find the rotation matrix that aligns vec1 to vec2
+
+    Notes
+    -----
+    This method is based on the following Stack Overflow answer:
+    https://stackoverflow.com/a/67767180 from the forum: "Calculate rotation
+    matrix to align two vectors in 3D space."
+
+    Parameters
+    ----------
+    vec1 : array_like (3,) of double
+        A 3D "source" vector
+    vec2 : array_like (3,) of double
+        A 3D "destination" vector
+
+    Returns
+    -------
+    array_like (3, 3) of double
+        A 3x3 rotation matrix that rotates vec1 to vec2
+    """
+    a, b = (vec1 / np.linalg.norm(vec1)).reshape(3), \
+           (vec2 / np.linalg.norm(vec2)).reshape(3)
+    v = np.cross(a, b)
+    if any(v): # if not all zeros then
+        c = np.dot(a, b)
+        s = np.linalg.norm(v)
+        kmat = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
+        return np.eye(3) + kmat + kmat.dot(kmat) * ((1 - c) / (s ** 2))
+    else:
+        # cross of all zeros only occurs on identical directions
+        return numpy.eye(3)
+
+
+def get_rotation_matrix(t3, t2):
+    """Find rotation matrix that aligns t3 and t2 w/ y and z axes, respectively.
+
+    Notes
+    -----
+    t3 and t2 must be orthonormal. We start by finding the rotation matrix
+    required to align t3 with the y-axis. We will then define a rotation matrix
+    that rotates about the y-axis until t2 aligns with the z-axis.
+    """
+    # Specify axes
+    y_axis = np.array([0., 1., 0.])
+    z_axis = np.array([0., 0., 1.])
+    # Align t3 with the y-axis
+    R1 = rotation_matrix_from_vectors(t3, y_axis)
+    assert np.allclose(np.dot(R1, t3), y_axis), "Error with R1"
+    # Rotate t2
+    t2_temp = np.dot(R1, t2)
+    # Find the angle between t2 and the z-axis
+    theta_ = angle_between_vectors(t2_temp, z_axis)
+    R2 = np.array([
+        [np.cos(theta_), 0, np.sin(theta_)],
+        [0, 1, 0],
+        [-np.sin(theta_), 0, np.cos(theta_)]
+    ])
+    R = np.matmul(R2, R1)
+    if not np.allclose(np.dot(R, t2), z_axis):
+        R2 = np.array([
+            [np.cos(-theta_), 0, np.sin(-theta_)],
+            [0, 1, 0],
+            [-np.sin(-theta_), 0, np.cos(-theta_)]
+        ])
+        R = np.matmul(R2, R1)
+    return R
