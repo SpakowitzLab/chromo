@@ -2410,17 +2410,17 @@ cdef class DetailedChromatin(SSTWLC):
         phi : double
             Tilt angle of DNA entering and exiting each nucleosome in radians
         """
+        self.omega_enter = omega_enter
+        self.omega_exit = omega_exit
+        self.bp_wrap = bp_wrap
+        self.phi = phi
+        self.bead_rad = rad
         super(DetailedChromatin, self).__init__(
             name, r, bead_length=bead_length, lp=lp, lt=lt, bead_rad=bead_rad,
             t3=t3, t2=t2, states=states, binder_names=binder_names,
             log_path=log_path, chemical_mods=chemical_mods,
             chemical_mod_names=chemical_mod_names, max_binders=max_binders
         )
-        self.omega_enter = omega_enter
-        self.omega_exit = omega_exit
-        self.bp_wrap = bp_wrap
-        self.phi = phi
-        self.bead_rad = rad
         self.construct_beads()
 
     cdef void construct_beads(self):
