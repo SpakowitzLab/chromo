@@ -563,7 +563,7 @@ class DetailedNucleosome(Nucleosome):
         self.exit_vec = np.dot(self.exit_rot_mat, self.exit_vec)
         self.entry_perp_vec = np.cross(self.entry_vec, np.array([1, 0, 0]))
         self.entry_perp_vec /= np.linalg.norm(self.entry_perp_vec)
-        self.exit_perp_vec = np.cross(np.array([1, 0, 0]), self.exit_vec)
+        self.exit_perp_vec = np.cross(self.exit_vec, np.array([1, 0, 0]))
         self.exit_perp_vec /= np.linalg.norm(self.exit_perp_vec)
 
     def align_with_global_frame(self):
