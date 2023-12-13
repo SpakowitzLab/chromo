@@ -506,7 +506,7 @@ def rotation_matrix_from_vectors(vec1, vec2):
         return np.eye(3) + kmat + kmat.dot(kmat) * ((1 - c) / (s ** 2))
     else:
         # cross of all zeros only occurs on identical directions
-        return numpy.eye(3)
+        return np.eye(3)
 
 
 def get_rotation_matrix(t3, t2):
