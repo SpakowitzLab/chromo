@@ -149,7 +149,7 @@ cdef class LoopedSSTWLC(SSTWLC):
     pass
 
 cdef class DetailedChromatin(SSTWLC):
-    cdef public double omega_enter, omega_exit, bp_wrap, phi, bead_rad
+    cdef public double omega_enter, omega_exit, bp_wrap, phi
     cdef void construct_beads(self)
     cdef double continuous_dE_poly(
             self,
