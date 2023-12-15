@@ -2043,7 +2043,9 @@ cdef class SSTWLC(SSWLC):
         # polymer segments may deviate from theory, unless `bead_length[ind]`
         # is equal to the stretched bond length.
 
-        delta_omega = omega - (self.bead_length[ind] * 2 * np.pi)/(10.5 * 0.34)
+        delta_omega = omega - (
+                self.bead_length[bond_ind] * 2 * np.pi
+        ) / (10.5 * 0.34)
         delta_omega = delta_omega - 2 * np.pi * (delta_omega // (2 * np.pi))
         E = (
             0.5 * self.eps_bend[bond_ind] * vec_dot3(bend, bend) +
