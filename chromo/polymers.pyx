@@ -2035,7 +2035,16 @@ cdef class SSTWLC(SSWLC):
         double
             Elastic energy of bond between the bead pair
         """
-        cdef double E
+        cdef double E, delta_omega
+        # Remove natural twist of DNA (2 pi / 10.5 bp * 1 bp / 0.34 nm)
+
+        # Note, natural twist is based on the number of base pairs in a linker.
+        # If the linker stretches, the mean-squared end-to-end distances of
+        # polymer segments may deviate from theory, unless `bead_length[ind]`
+        # is equal to the stretched bond length.
+
+        delta_omega = omega - (self.bead_length[ind] * 2 * np.pi)/(10.5 * 0.34)
+        delta_omega = delta_omega - 2 * np.pi * (delta_omega // (2 * np.pi))
         E = (
             0.5 * self.eps_bend[bond_ind] * vec_dot3(bend, bend) +
             0.5 * self.eps_par[bond_ind] * (dr_par - self.gamma[bond_ind])**2 +
@@ -2492,8 +2501,8 @@ cdef class DetailedChromatin(SSTWLC):
                     self.t2[indf_m_1, :]
                 )
             ri_1, ro_1, t3i_1, t3o_1, t2i_1, t2o_1 = \
-                self.beads[ind0].update_configuration(
-                    self.r[ind0, :], self.t3[ind0, :], self.t2[ind0, :]
+                self.beads[indf].update_configuration(
+                    self.r[indf, :], self.t3[indf, :], self.t2[indf, :]
                 )
             ri_0_try, ro_0_try, t3i_0_try, t3o_0_try, t2i_0_try, t2o_0_try = \
                 self.beads[indf_m_1].update_configuration(
@@ -2502,7 +2511,124 @@ cdef class DetailedChromatin(SSTWLC):
                 )
             delta_energy_poly += self.bead_pair_dE_poly_reverse_with_twist(
                 ro_0, ro_0_try, ri_1, t3o_0, t3o_0_try, t3i_1, t2o_0, t2o_0_try,
-                t2i_1, bond_ind = indf_m_1
+                t2i_1, bond_ind=indf_m_1
+            )
+        return delta_energy_poly
+
+
+cdef class DetailedChromatin2(DetailedChromatin):
+    """Chromatin fiber with detailed nucleosomes without nucleosome diameter.
+
+    Notes
+    -----
+    This class is identical to `DetailedChromatin` except that the nucleosome
+    diameter is not included in the energy calculations. This is useful for
+    comparison with theoretical end-to-end distances of a kinked wormlike chain.
+
+    Parameters
+    ----------
+    See documentation for `DetailedChromatin` class for details and parameter
+    descriptions.
+    """
+    def __init__(
+        self,
+        str name,
+        double[:, ::1] r,
+        *,
+        double omega_enter,
+        double omega_exit,
+        double bp_wrap,
+        double phi,
+        double rad,
+        double[:] bead_length,
+        double lp,
+        double lt,
+        double bead_rad = 5,
+        double[:, ::1] t3 = empty_2d,
+        double[:, ::1] t2 = empty_2d,
+        long[:, ::1] states = mty_2d_int,
+        np.ndarray binder_names = empty_1d,
+        long[:, ::1] chemical_mods = mty_2d_int,
+        np.ndarray chemical_mod_names = empty_1d_str,
+        str log_path = "", long max_binders = -1
+    ):
+        """Initialize a detailed chromatin fiber.
+
+        Parameters
+        ----------
+        see `DetailedChromatin.__init__()` for details
+        """
+        super().__init__(
+            name, r, omega_enter=omega_enter, omega_exit=omega_exit,
+            bp_wrap=bp_wrap, phi=phi, rad=rad, bead_length=bead_length,
+            lp=lp, lt=lt, bead_rad=bead_rad, t3=t3, t2=t2,
+            states=states, binder_names=binder_names,
+            chemical_mods=chemical_mods, chemical_mod_names=chemical_mod_names,
+            log_path=log_path, max_binders=max_binders
+        )
+
+    cdef double continuous_dE_poly(
+            self,
+            long ind0,
+            long indf,
+    ):
+        """Compute change in polymer energy for a continuous bead region.
+
+        Notes
+        -----
+        See documentation for `SSWLC.continuous_dE_poly()` class for details 
+        and parameter/return descriptions.
+        """
+        cdef long ind0_m_1, indf_m_1
+        cdef double delta_energy_poly
+
+        ind0_m_1 = ind0 - 1
+        indf_m_1 = indf - 1
+
+        delta_energy_poly = 0
+        if ind0 != 0:
+            # Compute the entry and exit positions and orientations of the
+            # linker DNA for the first nucleosome in the continuous region
+            _, _, t3i_0, t3o_0, t2i_0, t2o_0 = \
+                self.beads[ind0_m_1].update_configuration(
+                    self.r[ind0_m_1, :], self.t3[ind0_m_1, :],
+                    self.t2[ind0_m_1, :]
+                )
+            _, _, t3i_1, t3o_1, t2i_1, t2o_1 = \
+                self.beads[ind0].update_configuration(
+                    self.r[ind0, :], self.t3[ind0, :], self.t2[ind0, :]
+                )
+            _, _, t3i_1_try, t3o_1_try, t2i_1_try, t2o_1_try = \
+                self.beads[ind0].update_configuration(
+                    self.r_trial[ind0, :], self.t3_trial[ind0, :],
+                    self.t2_trial[ind0, :]
+                )
+            delta_energy_poly += self.bead_pair_dE_poly_forward_with_twist(
+                self.r[ind0_m_1, :], self.r[ind0, :],  self.r_trial[ind0, :],
+                t3o_0, t3i_1, t3i_1_try, t2o_0, t2i_1, t2i_1_try,
+                bond_ind = ind0_m_1
+            )
+        if indf != self.num_beads:
+            # Compute the entry and exit positions and orientations of the
+            # linker DNA for the last nucleosome in the continuous region
+            _, _, t3i_0, t3o_0, t2i_0, t2o_0 = \
+                self.beads[indf_m_1].update_configuration(
+                    self.r[indf_m_1, :], self.t3[indf_m_1, :],
+                    self.t2[indf_m_1, :]
+                )
+            _, _, t3i_1, t3o_1, t2i_1, t2o_1 = \
+                self.beads[indf].update_configuration(
+                    self.r[indf, :], self.t3[indf, :], self.t2[indf, :]
+                )
+            _, _, t3i_0_try, t3o_0_try, t2i_0_try, t2o_0_try = \
+                self.beads[indf_m_1].update_configuration(
+                    self.r_trial[indf_m_1, :], self.t3_trial[indf_m_1, :],
+                    self.t2_trial[indf_m_1, :]
+                )
+            delta_energy_poly += self.bead_pair_dE_poly_reverse_with_twist(
+                self.r[indf_m_1, :], self.r_trial[indf_m_1, :], self.r[indf, :],
+                t3o_0, t3o_0_try, t3i_1, t2o_0, t2o_0_try, t2i_1,
+                bond_ind = indf_m_1
             )
         return delta_energy_poly
 
