@@ -17,6 +17,12 @@ from .util.gjk import gjk_collision
 # Length of a base pair of DNA in nanometers
 LENGTH_BP = 0.34
 
+# Rise per helical turn of DNA around the nucleosome
+# Modeled after the thickness of DNA, which is 2nm
+RISE_PER_LAP = 2.0
+
+# Natural twist of DNA (in radians / bp)
+NATURAL_TWIST = 2 * np.pi / 10.5
 
 class Bead(ABC):
     """Abstract class representation of a bead of a polymer.
@@ -522,13 +528,16 @@ class DetailedNucleosome(Nucleosome):
         coordinate system. DNA enters on the positive x-axis such that the
         angle of entry is aligned with the t3 orientation.
         """
-        self.r_enter = np.array([self.rad, 0, 0])
+        self.r_enter = np.array([self.rad, 0, -self.n_wrap * RISE_PER_LAP / 2])
         self.exit_rot_mat = np.array([
             [np.cos(self.theta_wrap), -np.sin(self.theta_wrap), 0],
             [np.sin(self.theta_wrap), np.cos(self.theta_wrap), 0],
             [0, 0, 1]
         ])
         self.r_exit = np.dot(self.exit_rot_mat, self.r_enter)
+        self.r_exit = self.r_exit + np.array(
+            [0, 0, self.n_wrap * RISE_PER_LAP / 2]
+        )
         assert np.isclose(np.linalg.norm(self.r_exit), self.rad), \
             "Exit position is not on the nucleosome surface."
 
@@ -550,21 +559,44 @@ class DetailedNucleosome(Nucleosome):
         specified by phi and affects the z-component of the entry and exit
         vectors.
 
+        As the DNA wraps around the nucleosome, the natural twist of DNA
+        affects its orientation. The t2-orientation of the DNA strand rotates
+        around the t3-vector based on the natural twist of DNA.
+
         TODO: Check implementation of entry and exit perp vectors.
         """
+        # Generate the entry vector (t3-orientation at entry)
         self.entry_vec = np.array([
             -np.sin(self.omega_enter), np.cos(self.omega_exit), 0.
         ]) + np.array([0., 0., np.sin(self.phi)])
         self.entry_vec = self.entry_vec / np.linalg.norm(self.entry_vec)
+
+        # Generate the exit vector (t3-orientation at exit)
         self.exit_vec = np.array([
             np.sin(self.omega_exit), np.cos(self.omega_exit), 0.
         ]) + np.array([0., 0., np.sin(self.phi)])
         self.exit_vec = self.exit_vec / np.linalg.norm(self.exit_vec)
         self.exit_vec = np.dot(self.exit_rot_mat, self.exit_vec)
+
+        # Generate the perp vectors (t2-orientations at entry and exit)
         self.entry_perp_vec = np.cross(self.entry_vec, np.array([1, 0, 0]))
         self.entry_perp_vec /= np.linalg.norm(self.entry_perp_vec)
         self.exit_perp_vec = np.cross(self.exit_vec, np.array([1, 0, 0]))
         self.exit_perp_vec /= np.linalg.norm(self.exit_perp_vec)
+
+        # The t2-orientation of the exiting DNA strand must take into account
+        # the natural twist of DNA. We rotate the t2-orientation of the exiting
+        # DNA strand about the t3-vector by the amount of natural twist.
+        # The rotated perpendicular exit vector is computed by Rodrigues'
+        # rotation formula.
+        angle_twist = self.bp_wrap * NATURAL_TWIST
+        angle_twist = angle_twist - 2 * np.pi * (angle_twist // (2 * np.pi))
+        self.exit_perp_vec = (
+            self.exit_perp_vec * np.cos(angle_twist) +
+            np.cross(self.exit_vec, self.exit_perp_vec) * np.sin(angle_twist) +
+            self.exit_vec * np.dot(self.exit_vec, self.exit_perp_vec) *
+            (1 - np.cos(angle_twist))
+        )
 
     def align_with_global_frame(self):
         """Align nucleosome with global frame.

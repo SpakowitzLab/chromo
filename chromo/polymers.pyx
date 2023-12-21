@@ -2044,14 +2044,14 @@ cdef class SSTWLC(SSWLC):
         # is equal to the stretched bond length.
 
         delta_omega = omega - (
-                self.bead_length[bond_ind] * 2 * np.pi
+            self.bead_length[bond_ind] * 2 * np.pi
         ) / (10.5 * 0.34)
         delta_omega = delta_omega - 2 * np.pi * (delta_omega // (2 * np.pi))
         E = (
             0.5 * self.eps_bend[bond_ind] * vec_dot3(bend, bend) +
             0.5 * self.eps_par[bond_ind] * (dr_par - self.gamma[bond_ind])**2 +
             0.5 * self.eps_perp[bond_ind] * vec_dot3(dr_perp, dr_perp) +
-            0.5 * self.eps_twist[bond_ind] * omega**2
+            0.5 * self.eps_twist[bond_ind] * delta_omega**2
         )
         return E
 
