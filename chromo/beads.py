@@ -536,7 +536,7 @@ class DetailedNucleosome(Nucleosome):
         ])
         self.r_exit = np.dot(self.exit_rot_mat, self.r_enter)
         self.r_exit = self.r_exit + np.array(
-            [0, 0, self.n_wrap * RISE_PER_LAP / 2]
+            [0, 0, self.n_wrap * RISE_PER_LAP]
         )
         assert np.isclose(np.linalg.norm(self.r_exit), self.rad), \
             "Exit position is not on the nucleosome surface."
