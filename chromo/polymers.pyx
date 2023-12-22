@@ -33,6 +33,11 @@ cdef np.ndarray empty_1d_str = np.empty((0, ), dtype=str)
 
 cdef double E_HUGE = 1E99
 
+# Length per base pair of DNA
+cdef double LENGTH_BP = 0.332
+# Natural twist of linker DNA (in radians / bp)
+cdef double NATURAL_TWIST_BARE = 2 * np.pi / 10.5
+
 
 cdef class TransformedObject:
     """Represents any object undergoing physical transformations during MC sim.
@@ -2036,16 +2041,16 @@ cdef class SSTWLC(SSWLC):
             Elastic energy of bond between the bead pair
         """
         cdef double E, delta_omega
-        # Remove natural twist of DNA (2 pi / 10.5 bp * 1 bp / 0.34 nm)
 
         # Note, natural twist is based on the number of base pairs in a linker.
         # If the linker stretches, the mean-squared end-to-end distances of
         # polymer segments may deviate from theory, unless `bead_length[ind]`
         # is equal to the stretched bond length.
 
+        # Adjust for natural twist of DNA (2 pi / 10.5 * 1 bp / 0.34 nm)
         delta_omega = omega - (
-            self.bead_length[bond_ind] * 2 * np.pi
-        ) / (10.5 * 0.34)
+            self.bead_length[bond_ind] * NATURAL_TWIST_BARE / LENGTH_BP
+        )
         delta_omega = delta_omega - 2 * np.pi * (delta_omega // (2 * np.pi))
         E = (
             0.5 * self.eps_bend[bond_ind] * vec_dot3(bend, bend) +

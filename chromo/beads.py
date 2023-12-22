@@ -15,14 +15,14 @@ from .util.gjk import gjk_collision
 
 
 # Length of a base pair of DNA in nanometers
-LENGTH_BP = 0.34
+LENGTH_BP = 0.332
 
 # Rise per helical turn of DNA around the nucleosome
 # Modeled after the thickness of DNA, which is 2nm
 RISE_PER_LAP = 2.0
 
-# Natural twist of DNA (in radians / bp)
-NATURAL_TWIST = 2 * np.pi / 10.5
+# Natural twist of DNA wrapped around the nucleosome (in radians / bp)
+NATURAL_TWIST_NUCLEOSOME = 2 * np.pi / 10.17
 
 class Bead(ABC):
     """Abstract class representation of a bead of a polymer.
@@ -589,7 +589,7 @@ class DetailedNucleosome(Nucleosome):
         # DNA strand about the t3-vector by the amount of natural twist.
         # The rotated perpendicular exit vector is computed by Rodrigues'
         # rotation formula.
-        angle_twist = self.bp_wrap * NATURAL_TWIST
+        angle_twist = self.bp_wrap * NATURAL_TWIST_NUCLEOSOME
         angle_twist = angle_twist - 2 * np.pi * (angle_twist // (2 * np.pi))
         self.exit_perp_vec = (
             self.exit_perp_vec * np.cos(angle_twist) +
