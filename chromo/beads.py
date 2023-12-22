@@ -538,7 +538,7 @@ class DetailedNucleosome(Nucleosome):
         self.r_exit = self.r_exit + np.array(
             [0, 0, self.n_wrap * RISE_PER_LAP]
         )
-        assert np.isclose(np.linalg.norm(self.r_exit), self.rad), \
+        assert np.isclose(np.linalg.norm(self.r_exit[:2]), self.rad), \
             "Exit position is not on the nucleosome surface."
 
     def get_entry_exit_orientations(self):
