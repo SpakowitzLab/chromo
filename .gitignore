@@ -187,3 +187,7 @@ docs/build*
 
 # Old examples (to keep examples in the codebase clean)
 simulations/old/
+
+# Jobs files
+jobs/
+jobs*/
