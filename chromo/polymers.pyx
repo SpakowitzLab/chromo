@@ -2395,7 +2395,6 @@ cdef class DetailedChromatin(SSTWLC):
         double omega_exit,
         double bp_wrap,
         double phi,
-        double rad,
         double[:] bead_length,
         double lp,
         double lt,
@@ -2430,7 +2429,7 @@ cdef class DetailedChromatin(SSTWLC):
         self.omega_exit = omega_exit
         self.bp_wrap = bp_wrap
         self.phi = phi
-        self.bead_rad = rad
+        self.bead_rad = bead_rad
         super(DetailedChromatin, self).__init__(
             name, r, bead_length=bead_length, lp=lp, lt=lt, bead_rad=bead_rad,
             t3=t3, t2=t2, states=states, binder_names=binder_names,
@@ -2546,7 +2545,6 @@ cdef class DetailedChromatin2(DetailedChromatin):
         double omega_exit,
         double bp_wrap,
         double phi,
-        double rad,
         double[:] bead_length,
         double lp,
         double lt,
@@ -2567,7 +2565,7 @@ cdef class DetailedChromatin2(DetailedChromatin):
         """
         super().__init__(
             name, r, omega_enter=omega_enter, omega_exit=omega_exit,
-            bp_wrap=bp_wrap, phi=phi, rad=rad, bead_length=bead_length,
+            bp_wrap=bp_wrap, phi=phi, bead_length=bead_length,
             lp=lp, lt=lt, bead_rad=bead_rad, t3=t3, t2=t2,
             states=states, binder_names=binder_names,
             chemical_mods=chemical_mods, chemical_mod_names=chemical_mod_names,
