@@ -24,9 +24,41 @@ from typing import List, Optional
 # External Modules
 import matplotlib.pyplot as plt
 import numpy as np
-
+import pandas as pd
 # Custom Modules
 from chromo.polymers import PolymerBase, Chromatin
+
+
+def entry_exit_angle(df):
+    # Calculate the dot product
+    dot_product = (
+            (df['t3']['x'] - df['r']['x']) * (df['t2']['x'] - df['r']['x']) +
+            (df['t3']['y'] - df['r']['y']) * (df['t2']['y'] - df['r']['y']) +
+            (df['t3']['z'] - df['r']['z']) * (df['t2']['z'] - df['r']['z'])
+    )
+
+    # Calculate the norms
+    norm_vector1 = np.sqrt(
+        (df['t3']['x'] - df['r']['x']) ** 2 +
+        (df['t3']['y'] - df['r']['y']) ** 2 +
+        (df['t3']['z'] - df['r']['z']) ** 2
+    )
+
+    norm_vector2 = np.sqrt(
+        (df['t2']['x'] - df['r']['x']) ** 2 +
+        (df['t2']['y'] - df['r']['y']) ** 2 +
+        (df['t2']['z'] - df['r']['z']) ** 2
+    )
+
+    # Calculate the cosine of the angle
+    cos_theta = dot_product / (norm_vector1 * norm_vector2)
+
+    # Calculate the angle in radians
+    angle_rad = np.arccos(np.clip(cos_theta, -1.0, 1.0))
+
+    # Add the angle to the DataFrame
+    df['Entry Exit Angle'] = angle_rad
+    return df
 
 
 def overlap_sample(bead_separation, num_beads):
@@ -329,6 +361,9 @@ def calc_mean_r2(
                     windows=poly_stat.load_indices(window_size)
                 )
         )
+        print("calc_mean_r2")
+        print(len(r2))
+        print(r2)
     return np.average(r2)
 
 

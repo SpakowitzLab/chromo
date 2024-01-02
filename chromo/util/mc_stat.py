@@ -100,6 +100,8 @@ class AcceptanceTracker(Tracker):
             Index with which to append log file name
         """
         log_path = self.log_dir+"/"+self.log_file_prefix+str(ind)+".csv"
+        #print("log dir in mc_stat "+str(self.log_dir))
+        #print("prefix in mcstat " + str(self.log_file_prefix))
         column_labels = [
             "snapshot",
             "iteration",
@@ -209,7 +211,7 @@ class AcceptanceTracker(Tracker):
 
 
 class ConfigurationTracker(Tracker):
-    """Track progressive reconfiguraion of the polymer.
+    """Track progressive reconfiguration of the polymer.
     """
 
     def __init__(self, log_path: str, initial_config: np.ndarray):
@@ -218,7 +220,7 @@ class ConfigurationTracker(Tracker):
         Parameters
         ----------
         log_path : str
-            Path to the output file for confiruation tracker
+            Path to the output file for configuration tracker
         initial_config : np.ndarray (N, 3)
             Initial polymer configuration; rows represent individual beads and
             columns represent (x, y, z) coordinates
@@ -260,6 +262,7 @@ class ConfigurationTracker(Tracker):
         self.RMSD = RMSD
         self.RMSD_log.append(RMSD)
         self.previous_config = config
+        #return self.RMSD
 
     def save_move_log(self, snapshot: int):
         """Save to the `ConfigurationTracker` output file and reset log.

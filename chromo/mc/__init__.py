@@ -24,7 +24,8 @@ from chromo.polymers import PolymerBase, Chromatin
 from chromo.binders import ReaderProtein
 from chromo.binders import get_by_name, make_binder_collection
 from chromo.fields import UniformDensityField, FieldBase
-
+import chromo.twist_schedule as twist_schedule
+import chromo.util.temperature_schedule as temp_schedule
 
 F = TypeVar("F")    # Represents an arbitrary field
 STEPS = int         # Number of steps per MC save point
@@ -44,7 +45,9 @@ def _polymer_in_field(
     mc_move_controllers: Optional[List[Controller]] = None,
     random_seed: Optional[int] = 0,
     mu_schedule: Optional[Callable[[float], float]] = None,
-    output_dir: Optional[DIR] = '.',
+    lt_schedule: Optional[Callable[[str],float]] = None,
+    temperature_schedule: Optional[Callable[[str],float]] = None,
+    output_dir: Optional[DIR] = '.', # defaults to  current location, same level as chromo folder: name = output
     path_to_run_script: Optional[str] = None,
     path_to_chem_mods: Optional[List[str]] = None,
     run_command: Optional[str] = None,
@@ -126,17 +129,50 @@ def _polymer_in_field(
 
     t1_start = process_time()
     for mc_count in range(num_saves):
-
         # Simulated annealing
         if mu_schedule is not None:
             mu_adjust_factor = mu_schedule.function(mc_count, num_saves)
         else:
             mu_adjust_factor = 1
+        if temperature_schedule is not None:
+            if temperature_schedule == "linear decrease":
+                temperature_adjust_factor = temp_schedule.linear_decrease(mc_count, num_saves)
+            elif temperature_schedule == "logarithmic decrease":
+                temperature_adjust_factor = temp_schedule.logarithmic_decrease(mc_count, num_saves)
+            elif temperature_schedule == "decreasing stepwise":
+                temperature_adjust_factor = temp_schedule.decreasing_stepwise(mc_count, num_saves)
+            elif temperature_schedule == "sin decrease":
+                temperature_adjust_factor = temp_schedule.sin_decrease(mc_count, num_saves)
+            elif temperature_schedule == "no schedule":
+                temperature_adjust_factor = temp_schedule.no_schedule()
+            else:
+                print("Not a valid temperature schedule option")
+        else:
+            print("Missing lt schedule option")
+
+        if lt_schedule is not None:
+            if lt_schedule == "logarithmic increase":
+                lt_change = twist_schedule.logarithmic_increase(mc_count, num_saves)
+            elif lt_schedule == "exponential increase":
+                lt_change = twist_schedule.exponential_increase(mc_count, num_saves)
+            elif lt_schedule == "linear increase":
+                lt_change = twist_schedule.linear_increase(mc_count, num_saves)
+            elif lt_schedule == "increasing stepwise":
+                lt_change = twist_schedule.step_wise_increase(mc_count, num_saves)
+            elif lt_schedule == "increasing sawtooth":
+                lt_change = twist_schedule.increasing_sawtooth(mc_count, num_saves)
+            elif lt_schedule == "no schedule":
+                lt_change = polymers[0].lt  # set to the lt of the first polymer in the list
+            else:
+                print("Not a valid lt schedule option")
+        else:
+            print("Missing lt schedule option")
 
         decorator_timed_path(output_dir)(mc_sim)(
             polymers, binders, num_save_mc, mc_move_controllers, field,
-            mu_adjust_factor, random_seed
+            mu_adjust_factor, random_seed, temperature_adjust_factor, lt_change
         )
+
         for poly in polymers:
             poly.to_csv(
                 str(output_dir / Path(f"{poly.name}-{mc_count}.csv"))
@@ -149,6 +185,7 @@ def _polymer_in_field(
         print("Save point " + str(mc_count) + " completed")
 
     for polymer in polymers:
+        print("update log path " + str(output_dir))
         polymer.update_log_path(
             str(output_dir) + "/" + polymer.name + "_config_log.csv"
         )
@@ -196,6 +233,7 @@ def continue_polymer_in_field_simulation(
     random_seed : Optional[SEED]
         Random seed for replication of simulation (default = 0)
     """
+    # issue is somewhere here
     latest_output_subdir = get_latest_simulation(output_dir)
     latest_output_subdir_path = output_dir + "/" + latest_output_subdir
     polymer_names = find_polymers_in_output_dir(latest_output_subdir_path)

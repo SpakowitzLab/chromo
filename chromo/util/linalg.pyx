@@ -7,17 +7,18 @@ pyximport.install()
 # Built-in Modules
 from libc.math cimport sin, cos, acos, pi, floor
 from libc.stdlib cimport rand, RAND_MAX
-
 # External Modules
 import numpy as np
-cimport numpy as np
+#cimport numpy as np
 
 # Custom Modules
 import chromo.polymers as poly
 cimport chromo.polymers as poly
-
-
+#cimport pandas as pd
+#import pandas as pd
 cdef np.ndarray identity_4 = np.identity(4, dtype=np.double)
+
+
 
 
 cdef double[:] uniform_sample_unit_sphere():

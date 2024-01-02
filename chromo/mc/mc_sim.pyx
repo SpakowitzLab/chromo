@@ -25,12 +25,13 @@ from chromo.mc.moves import MCAdapter
 from chromo.mc.moves cimport MCAdapter
 from chromo.mc.mc_controller import Controller
 from chromo.fields cimport UniformDensityField as Udf
+from chromo.polymers import SSTWLC
 
 
 cpdef void mc_sim(
     list polymers, readerproteins, long num_mc_steps,
     list mc_move_controllers, Udf field, double mu_adjust_factor,
-    long random_seed
+    long random_seed, double temperature_adjust_factor, double lt_value_adjust
 ):
     """Perform Monte Carlo simulation.
 
@@ -75,32 +76,32 @@ cpdef void mc_sim(
     cdef long i, j, k, n_polymers
     cdef list active_fields
     cdef poly
-
     np.random.seed(random_seed)
-    n_polymers = len(polymers)
     if field.confine_type == "":
         active_fields = [poly.is_field_active() for poly in polymers]
     else:
         active_fields = [1 for _ in polymers]
-
     for k in range(num_mc_steps):
         for controller in mc_move_controllers:
             if controller.move.move_on == 1:
                 for j in range(controller.move.num_per_cycle):
                     for i in range(len(polymers)):
+                        polymers[i].lt = lt_value_adjust
+                        polymers[i]._find_parameters(polymers[i].bead_length) # coding best practice: accessing protected member of a class from outside the class?
                         poly = polymers[i]
-                        poly.mu_adjust_factor = mu_adjust_factor
                         active_field = active_fields[i]
+                        print("controller move")
+                        print(controller.move)
                         mc_step(
                             controller.move, poly, readerproteins, field,
-                            active_field
+                            active_field, temperature_adjust_factor
                         )
             controller.update_amplitudes()
 
 
 cpdef void mc_step(
     MCAdapter adaptible_move, PolymerBase poly, readerproteins,
-    Udf field, bint active_field
+    Udf field, bint active_field, double temperature_adjust_factor
 ):
     """Compute energy change and determine move acceptance.
 
@@ -126,16 +127,19 @@ cpdef void mc_step(
         Field affecting polymer in Monte Carlo step
     active_field: bool
         Indicator of whether or not the field is active for the polymer
+    temperature_adjust_factor: double
+        Divide the energy value used to select accepted moves by this factor
     """
     cdef double dE, exp_dE
     cdef int check_field = 0
     cdef long packet_size, n_inds
     cdef long[:] inds
 
+
+    #packet_size = 1 # will need to change back
     if poly in field and active_field:
         if adaptible_move.name != "tangent_rotation":
             check_field = 1
-
     packet_size = 20
     inds = adaptible_move.propose(poly)
     n_inds = len(inds)
@@ -161,14 +165,16 @@ cpdef void mc_step(
         elif dE < 0:
             exp_dE = 1
 
-    if (<double>rand() / RAND_MAX) < exp_dE:
+    if (<double>rand() / RAND_MAX) < exp_dE/temperature_adjust_factor: #temperature variation
+        #print(<double>rand() / RAND_MAX)
         adaptible_move.accept(
-            poly, dE, inds, n_inds, log_move=False, log_update=False
+            poly, dE, inds, n_inds, log_move=True, log_update=True
         )
         if check_field == 1:
             field.update_affected_densities()
 
     else:
         adaptible_move.reject(
-            poly, dE, log_move=False, log_update=False
+            poly, dE, log_move=True, log_update=True
         )
+

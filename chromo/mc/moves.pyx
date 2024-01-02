@@ -207,13 +207,15 @@ cdef class MCAdapter:
         self.acceptance_tracker.update_acceptance_rate(
             accept=1.0, log_update=log_update
         )
-        if log_move == 1:
+        if log_move == 1: # control whether acceptance trackers are on from here?
             self.acceptance_tracker.log_move(
                 self.amp_move,
                 self.amp_bead,
                 poly.last_amp_move,
                 poly.last_amp_bead,
-                dE
+                dE#,
+                #mc_stat.ConfigurationTracker(log_dir, sfe).RMSD
+               # mc_stat.ConfigurationTracker(log_path, )
             )
 
     cdef void reject(
@@ -242,7 +244,7 @@ cdef class MCAdapter:
         if log_move == 1:
             self.acceptance_tracker.log_move(
                 self.amp_move, self.amp_bead, poly.last_amp_move,
-                poly.last_amp_bead, dE
+                poly.last_amp_bead, dE#, mc_stat.ConfigurationTracker().RMSD
             )
 
 
