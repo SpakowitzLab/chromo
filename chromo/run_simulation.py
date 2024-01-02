@@ -52,12 +52,12 @@ if sherlock:
     mc_steps_per_snapshot = int(sys.argv[7])
     bead_spacing = np.array([bead_spacing_value_1, bead_spacing_value_2] * int(num_beads / 2))
 else:
-    num_beads = 1000
-    bead_spacing_number = np.array([75, 75] * 500)
+    num_beads = 100
+    bead_spacing_number = np.array([75, 75] * 50)
     bead_spacing = bead_spacing_number * 0.34  # convert from base pairs to nanometers
     lp = 51
     lt = 100
-    num_snapshots = 10
+    num_snapshots = 200
     # num_snapshots = 1000 # try 1000 and average for each set of 100, depending on pre-equilibration steps
     # count number of accepted moves for different conditions
     # mc_steps_per_snapshot = 40000
@@ -148,7 +148,7 @@ output_files = [
 snapshot = [int(f.split("-")[-1].split(".")[0]) for f in output_files]
 sorted_snap = np.sort(np.array(snapshot))
 output_files = [f for _, f in sorted(zip(snapshot, output_files))]
-"""
+
 
 all_energies = []
 polymer_energies = []
@@ -286,4 +286,4 @@ plt.show()
 # try 0 as lt
 # 25 nm is 75 base pairs
 # units of bead spacing are nm
-"""
+

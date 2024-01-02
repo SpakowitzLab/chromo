@@ -107,7 +107,7 @@ cdef class SSTWLC(SSWLC):
     cdef public double lt
     cdef public np.ndarray eps_twist # potential bug
     cdef double E_pair_with_twist(
-        self, double[:] bend, double dr_par, double[:] dr_perp, double omega, long ind
+        self, double[:] bend, double dr_par, double[:] dr_perp, double omega, long ind, double dr
     )
     cdef double compute_dE(
         self,

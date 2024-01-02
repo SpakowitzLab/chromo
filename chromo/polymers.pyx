@@ -2004,7 +2004,7 @@ cdef class SSTWLC(SSWLC):
         return delta_energy_poly
 
     cdef double E_pair_with_twist(
-        self, double[:] bend, double dr_par, double[:] dr_perp, double omega, long ind
+        self, double[:] bend, double dr_par, double[:] dr_perp, double omega, long ind, double dr
     ):
         """Calculate elastic energy for a pair of beads.
         
@@ -2028,9 +2028,10 @@ cdef class SSTWLC(SSWLC):
         double
             Elastic energy of bond between the bead pair
         """
-        delta_omega = omega - (self.bead_length[ind] * 2 * np.pi)/(10.5 * 0.34)
+        #delta_omega = omega - (self.bead_length[ind] * 2 * np.pi)/(10.5 * 0.34)
+        delta_omega = omega - (dr * 2 * np.pi)/(10.5 * 0.34)
         delta_n = np.round(delta_omega/(2 * np.pi))
-        delta_omega = delta_omega - ( 2 * np. pi * delta_n)
+        delta_omega = delta_omega - ( 2 * np.pi * delta_n)
 
         cdef double E
         E = (
@@ -2039,7 +2040,7 @@ cdef class SSTWLC(SSWLC):
             0.5 * self.eps_perp[ind] * vec_dot3(dr_perp, dr_perp) +
             0.5 * self.eps_twist[ind] * delta_omega**2
         )
-        # so we never use the omega value input because of the delta_omega calculation?
+
         return E
 
     cdef double bead_pair_dE_poly_forward_with_twist(
@@ -2144,10 +2145,10 @@ cdef class SSTWLC(SSWLC):
             )
 
         return (self.E_pair_with_twist(
-            self.bend_test, dr_par_test, self.dr_perp_test, omega_test, ind
+            self.bend_test, dr_par_test, self.dr_perp_test, omega_test, ind, np.linalg.norm(self.dr_test)
         ) -
             self.E_pair_with_twist(
-                self.bend, dr_par, self.dr_perp, omega, ind
+                self.bend, dr_par, self.dr_perp, omega, ind, np.linalg.norm(self.dr)
         ))
 
     cdef double bead_pair_dE_poly_reverse_with_twist(
@@ -2236,10 +2237,10 @@ cdef class SSTWLC(SSWLC):
                 t3_1[i] - t3_0[i] - self.dr_perp[i] * self.eta[ind] #changed i to ind
             )
         return (self.E_pair_with_twist(
-            self.bend_test, dr_par_test, self.dr_perp_test, omega_test, ind
+            self.bend_test, dr_par_test, self.dr_perp_test, omega_test, ind,  np.linalg.norm(self.dr_test)
         ) -
             self.E_pair_with_twist(
-                self.bend, dr_par, self.dr_perp, omega, ind
+                self.bend, dr_par, self.dr_perp, omega, ind,  np.linalg.norm(self.dr)
         ))
 
 
