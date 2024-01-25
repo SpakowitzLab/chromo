@@ -1713,7 +1713,7 @@ cdef class SSWLC(PolymerBase):
         SSWLC
             Object representing a polymer initialized as Gaussian random walk
         """
-        r = paths.gaussian_walk(num_beads, step_lengths)
+        r = paths.gaussian_walk(num_beads-1, step_lengths)
         t3, t2 = paths.estimate_tangents_from_coordinates(r)
         return cls(name, r, t3=t3, t2=t2, bead_length=step_lengths, **kwargs)
 

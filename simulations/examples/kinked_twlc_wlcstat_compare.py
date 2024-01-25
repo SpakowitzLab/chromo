@@ -33,16 +33,6 @@ lp = 10000.
 lt = 10000.
 bp_wrap = 147.
 
-# Entry/exit angles
-omega_entry_deg = 0.
-omega_enter = (omega_entry_deg / 180) * np.pi
-omega_exit_deg = 0.
-omega_exit = (omega_exit_deg / 180) * np.pi
-
-# Tilt angle
-phi_deg = 0.
-phi = (phi_deg / 180) * np.pi
-
 # Instantiate the HP1 reader protein
 # This is pre-defined in the `chromo.binders` module
 null_binder = chromo.binders.get_by_name('null_reader')
