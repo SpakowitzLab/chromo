@@ -41,9 +41,8 @@ null_binder = chromo.binders.get_by_name('null_reader')
 binders = chromo.binders.make_binder_collection([null_binder])
 
 # Initialize the polymer
-p = poly.DetailedChromatin2.gaussian_walk_polymer(
+p = poly.DetailedChromatin2.straight_line_in_x(
     "Chr",
-    n_beads,
     linker_lengths,
     bp_wrap=bp_wrap,
     lp=lp,

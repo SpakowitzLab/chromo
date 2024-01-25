@@ -1575,7 +1575,7 @@ cdef class SSWLC(PolymerBase):
 
     @classmethod
     def straight_line_in_x(
-        cls, name: str, num_beads: int, bead_length: float, **kwargs
+        cls, name: str, step_sizes: np.ndarray, **kwargs
     ):
         """Construct polymer initialized uniformly along the positve x-axis.
 
@@ -1583,10 +1583,10 @@ cdef class SSWLC(PolymerBase):
         ----------
         name : str
             Name of polymer being constructed
-        num_beads : int
-            Number of monomeric units of polymer
-        bead_length : float
+        step_sizes : np.ndarray (N-1,) of float
             Dimensional distance between subsequent beads of the polymer (in nm)
+            represented as an (N-1,) array where N is the number of beads in the
+            polymer.
 
         Returns
         -------
@@ -1594,13 +1594,17 @@ cdef class SSWLC(PolymerBase):
             Object representation of a polymer currently configured as a
             straight line
         """
+        # Get the cumulative sum of the step sizes
+        csum = np.cumsum(step_sizes)
+        # Initialize the positions and orientations of the polymer
+        num_beads = len(step_sizes) + 1
         r = np.zeros((num_beads, 3))
-        r[:, 0] = bead_length * np.arange(num_beads)
+        r[1:, 0] = csum.copy()
         t3 = np.zeros((num_beads, 3))
         t3[:, 0] = 1
         t2 = np.zeros((num_beads, 3))
         t2[:, 1] = 1
-        return cls(name, r, t3=t3, t2=t2, bead_length=bead_length, **kwargs)
+        return cls(name, r, t3=t3, t2=t2, bead_length=step_sizes, **kwargs)
 
     @classmethod
     def arbitrary_path_in_x_y(
