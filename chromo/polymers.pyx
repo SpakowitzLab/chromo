@@ -2441,11 +2441,7 @@ cdef class DetailedChromatin(SSTWLC):
                 r=self.r[i],
                 t3=self.t3[i],
                 t2=self.t2[i],
-                omega_enter=self.omega_enter,
-                omega_exit=self.omega_exit,
                 bp_wrap=self.bp_wrap,
-                phi=self.phi,
-                rad=self.bead_rad,
                 states=self.states[i],
                 binder_names=self.binder_names
             ) for i in range(self.r.shape[0])
