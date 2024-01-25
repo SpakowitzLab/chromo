@@ -375,8 +375,6 @@ class Nucleosome(Bead):
 
     Attributes
     ----------
-    bead_length : double
-        Spacing between the nucleosome and its neighbor
     rad : double
         Radius of spherical excluded volume around nucleosome
     vol : double
@@ -385,8 +383,7 @@ class Nucleosome(Bead):
 
     def __init__(
         self, id_: int, r: np.ndarray, *, t3: np.ndarray, t2: np.ndarray,
-        bead_length: float, rad: Optional[float] = 5,
-        states: Optional[np.ndarray] = None,
+        rad: Optional[float] = 5, states: Optional[np.ndarray] = None,
         binder_names: Optional[Sequence[str]] = None
     ):
         """Initialize nucleosome object.
@@ -403,8 +400,6 @@ class Nucleosome(Bead):
             Tangent vector orthogonal to `t3` defining orientation of
             nucleosome; a third orthogonal tangent vector can be obtained
             from the cross product of `t2` and `t3`
-        bead_length : float
-            Spacing between the nucleosome and its neighbor
         rad : Optional[float]
             Radius of spherical excluded volume around nucleosome in simulation
             units of distance; default is 5
@@ -416,7 +411,6 @@ class Nucleosome(Bead):
             are how the properties of the binders are loaded, default = None
         """
         super(Nucleosome, self).__init__(id_, r, t3, t2, states, binder_names)
-        self.bead_length = bead_length
         self.rad = rad
         self.vol = (4/3) * np.pi * rad ** 3
 
@@ -471,7 +465,7 @@ class DetailedNucleosome(Nucleosome):
 
     def __init__(
         self, id_: int, r: np.ndarray, *, t3: np.ndarray, t2: np.ndarray,
-        bead_length: float, bp_wrap: int, states: Optional[np.ndarray] = None,
+        bp_wrap: int, states: Optional[np.ndarray] = None,
         binder_names: Optional[Sequence[str]] = None
     ):
         """Initialize detailed nucleosome object.
@@ -489,7 +483,7 @@ class DetailedNucleosome(Nucleosome):
         """
         rad = consts_dict["R"]
         super(DetailedNucleosome, self).__init__(
-            id_, r, t3=t3, t2=t2, bead_length=bead_length, rad=rad,
+            id_, r, t3=t3, t2=t2, rad=rad,
             states=states, binder_names=binder_names
         )
         self.bp_wrap = bp_wrap

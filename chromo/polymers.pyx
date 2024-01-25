@@ -22,6 +22,7 @@ import chromo.util.mc_stat as mc_stat
 from chromo.util.linalg cimport (vec_sub3, vec_dot3, vec_scale3)
 from .util import dss_params
 from .util import poly_paths as paths
+from .util.nucleo_geom import consts_dict
 
 # Global type aliases and variables
 ctypedef np.uint8_t uint8
@@ -992,7 +993,6 @@ cdef class SSWLC(PolymerBase):
                 r=self.r[i],
                 t3=self.t3[i],
                 t2=self.t2[i],
-                bead_length=self.bead_length,
                 states=self.states[i],
                 binder_names=self.binder_names,
                 rad=self.bead_rad
@@ -1847,7 +1847,6 @@ cdef class Chromatin(SSWLC):
                 r=self.r[i],
                 t3=self.t3[i],
                 t2=self.t2[i],
-                bead_length=self.bead_length,
                 rad=self.bead_rad,
                 states=self.states[i],
                 binder_names=self.binder_names
@@ -2337,7 +2336,6 @@ cdef class LoopedSSTWLC(SSTWLC):
                 r=self.r[i],
                 t3=self.t3[i],
                 t2=self.t2[i],
-                bead_length=self.bead_length,
                 rad=self.bead_rad,
                 states=self.states[i],
                 binder_names=self.binder_names
@@ -2399,14 +2397,10 @@ cdef class DetailedChromatin(SSTWLC):
         str name,
         double[:, ::1] r,
         *,
-        double omega_enter,
-        double omega_exit,
         double bp_wrap,
-        double phi,
         double[:] bead_length,
         double lp,
         double lt,
-        double bead_rad = 5,
         double[:, ::1] t3 = empty_2d,
         double[:, ::1] t2 = empty_2d,
         long[:, ::1] states = mty_2d_int,
@@ -2424,25 +2418,17 @@ cdef class DetailedChromatin(SSTWLC):
 
         Parameters
         ----------
-        omega_enter : double
-            Angle of entry of DNA into each nucleosome in radians
-        omega_exit : double
-            Angle of exit of DNA from each nucleosome in radians
         bp_wrap : double
             Number of base pairs wrapped around each nucleosome
-        phi : double
-            Tilt angle of DNA entering and exiting each nucleosome in radians
         """
-        self.omega_enter = omega_enter
-        self.omega_exit = omega_exit
         self.bp_wrap = bp_wrap
-        self.phi = phi
-        self.bead_rad = bead_rad
+        self.bead_rad = consts_dict["R"]
         super(DetailedChromatin, self).__init__(
-            name, r, bead_length=bead_length, lp=lp, lt=lt, bead_rad=bead_rad,
-            t3=t3, t2=t2, states=states, binder_names=binder_names,
-            log_path=log_path, chemical_mods=chemical_mods,
-            chemical_mod_names=chemical_mod_names, max_binders=max_binders
+            name, r, bead_length=bead_length, lp=lp, lt=lt,
+            bead_rad=self.bead_rad, t3=t3, t2=t2, states=states,
+            binder_names=binder_names, log_path=log_path,
+            chemical_mods=chemical_mods, chemical_mod_names=chemical_mod_names,
+            max_binders=max_binders
         )
         self.construct_beads()
 
@@ -2455,7 +2441,6 @@ cdef class DetailedChromatin(SSTWLC):
                 r=self.r[i],
                 t3=self.t3[i],
                 t2=self.t2[i],
-                bead_length=self.bead_length[i],
                 omega_enter=self.omega_enter,
                 omega_exit=self.omega_exit,
                 bp_wrap=self.bp_wrap,
@@ -2549,14 +2534,10 @@ cdef class DetailedChromatin2(DetailedChromatin):
         str name,
         double[:, ::1] r,
         *,
-        double omega_enter,
-        double omega_exit,
         double bp_wrap,
-        double phi,
         double[:] bead_length,
         double lp,
         double lt,
-        double bead_rad = 5,
         double[:, ::1] t3 = empty_2d,
         double[:, ::1] t2 = empty_2d,
         long[:, ::1] states = mty_2d_int,
@@ -2571,10 +2552,10 @@ cdef class DetailedChromatin2(DetailedChromatin):
         ----------
         see `DetailedChromatin.__init__()` for details
         """
+        self.bead_rad = consts_dict["R"]
         super().__init__(
-            name, r, omega_enter=omega_enter, omega_exit=omega_exit,
-            bp_wrap=bp_wrap, phi=phi, bead_length=bead_length,
-            lp=lp, lt=lt, bead_rad=bead_rad, t3=t3, t2=t2,
+            name, r, bp_wrap=bp_wrap, bead_length=bead_length,
+            lp=lp, lt=lt, bead_rad=self.bead_rad, t3=t3, t2=t2,
             states=states, binder_names=binder_names,
             chemical_mods=chemical_mods, chemical_mod_names=chemical_mod_names,
             log_path=log_path, max_binders=max_binders
