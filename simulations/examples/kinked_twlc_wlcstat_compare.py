@@ -50,7 +50,6 @@ p = poly.DetailedChromatin2.gaussian_walk_polymer(
     lt=lt,
     binder_names=np.array(["null_reader"])
 )
-n_wrap = p.beads[0].n_wrap
 
 n_bins_x = 63
 n_bins_y = n_bins_x
