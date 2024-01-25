@@ -9,20 +9,12 @@ from typing import (Sequence, Optional, List)
 import numpy as np
 
 # Custom Modules
+from .util.nucleo_geom import \
+    get_exiting_orientations, LENGTH_BP, NUC_TWIST_DENS, consts_dict, get_r
 from .binders import Binder, get_by_name
 from .util import linalg as la
 from .util.gjk import gjk_collision
 
-
-# Length of a base pair of DNA in nanometers
-LENGTH_BP = 0.332
-
-# Rise per helical turn of DNA around the nucleosome
-# Modeled after the thickness of DNA, which is 2nm
-RISE_PER_LAP = 2.0
-
-# Natural twist of DNA wrapped around the nucleosome (in radians / bp)
-NATURAL_TWIST_NUCLEOSOME = 2 * np.pi / 10.17
 
 class Bead(ABC):
     """Abstract class representation of a bead of a polymer.
@@ -469,176 +461,69 @@ class DetailedNucleosome(Nucleosome):
     the relative entry and exit positions and orientations are fixed for all
     nucleosomes.
 
-    The nucleosome is defined
+    The nucleosome is defined such that the orientation of the entering DNA is
+    fixed by the t3 orientation. The orientation of the exiting DNA is dictated
+    by the amount of DNA wrapping around the nucleosome. This class includes
+    methods that return the positions and orientations for entering and
+    exiting DNA strands based on the current position and orientation of the
+    nucleosome.
     """
 
     def __init__(
         self, id_: int, r: np.ndarray, *, t3: np.ndarray, t2: np.ndarray,
-        bead_length: float, omega_enter: float, omega_exit: float,
-        bp_wrap: int, phi: float, rad: Optional[float] = 5,
-        states: Optional[np.ndarray] = None,
+        bead_length: float, bp_wrap: int, states: Optional[np.ndarray] = None,
         binder_names: Optional[Sequence[str]] = None
     ):
         """Initialize detailed nucleosome object.
+
+        Notes
+        -----
+        Entering DNA must perfectly align with the tangent of the nucleosome.
 
         Parameters
         ----------
         see documentation for `Nucleosome` class
 
-        omega_enter : float
-            Angle of entry of DNA into nucleosome in radians
-        omega_exit : float
-            Angle of exit of DNA from nucleosome in radians
         bp_wrap : int
             Number of base pairs wrapped around nucleosome
-        phi : float
-            Tilt angle of DNA entering and exiting nucleosome in radians
         """
+        rad = consts_dict["R"]
         super(DetailedNucleosome, self).__init__(
             id_, r, t3=t3, t2=t2, bead_length=bead_length, rad=rad,
             states=states, binder_names=binder_names
         )
-        self.omega_enter = omega_enter
-        self.omega_exit = omega_exit
         self.bp_wrap = bp_wrap
-        self.phi = phi
-        assert phi < np.pi / 2, "Phi must be less than pi/2"
-
-        # Characterize DNA wrapping around nucleosome
         self.length_wrap = bp_wrap * LENGTH_BP
-        self.circ = 2 * np.pi * self.rad
-        self.n_wrap = self.length_wrap / self.circ
-        self.frac_loop, self.full_loop = np.modf(self.n_wrap)
-        self.theta_wrap = self.frac_loop * 2 * np.pi
 
-        # Compute configuration in a local coordinate system
-        self.get_entry_exit_positions()
-        self.get_entry_exit_orientations()
+        # Specify local reference frame
+        self.t3_local = np.array([
+            0,
+            2 * np.pi * rad / consts_dict["Lt"],
+            consts_dict["h"] / consts_dict["Lt"]
+        ])
+        self.t2_local = np.array([
+            0,
+            -consts_dict["h"] / consts_dict["Lt"],
+            2 * np.pi * rad / consts_dict["Lt"]
+        ])
+        self.r_enter_local = np.array([rad, 0, 0])
+        self.r_exit_local = get_r(self.length_wrap, consts_dict)
+        self.update_configuration(self.r, self.t3, self.t2)
 
     def get_entry_exit_positions(self):
-        """Get entry and exit positions of DNA relative to nucleosome center.
-
-        Notes
-        -----
-        The entry and exit positions are defined on a local coordinate system
-        such that the circular face of the nucleosome is on the x-y plane. The
-        t3 orientation is aligned with the +y direction and the t2 orientation
-        is aligned with the +z direction. Therefore, the t1 orientation is
-        implicitly aligned with the -x direction to maintain a right-handed
-        coordinate system. DNA enters on the positive x-axis such that the
-        angle of entry is aligned with the t3 orientation.
+        """Get entry and exit positions of DNA in the global reference frame.
         """
-        self.r_enter = np.array([self.rad, 0, -self.n_wrap * RISE_PER_LAP / 2])
-        self.exit_rot_mat = np.array([
-            [np.cos(self.theta_wrap), -np.sin(self.theta_wrap), 0],
-            [np.sin(self.theta_wrap), np.cos(self.theta_wrap), 0],
-            [0, 0, 1]
-        ])
-        self.r_exit = np.dot(self.exit_rot_mat, self.r_enter)
-        self.r_exit = self.r_exit + np.array(
-            [0, 0, self.n_wrap * RISE_PER_LAP]
-        )
-        assert np.isclose(np.linalg.norm(self.r_exit[:2]), self.rad), \
-            "Exit position is not on the nucleosome surface."
+        self.r_enter = \
+            np.dot(self.R_local_to_global, self.r_enter_local) + self.r
+        self.r_exit = \
+            np.dot(self.R_local_to_global, self.r_exit_local) + self.r
 
     def get_entry_exit_orientations(self):
-        """Get the vector defining the orientation of DNA entering and exiting.
-
-        Notes
-        -----
-        The entry and exit orientations are defined on a local coordinate
-        system such that the circular face of the nucleosome is on the x-y
-        plane. The t3 orientation is aligned with the +y direction and the t2
-        orientation is aligned with the +z direction. Therefore, the t1
-        orientation is implicitly aligned with the -x direction to maintain a
-        right-handed coordinate system. DNA enters on the positive x-axis such
-        that the entry vector is parallel to the t3 orientation when omega_entry
-        is zero. The exit vector is dictated by the amount of wrapping around
-        the nucleosome and omega_exit. In addition to the entry and exit angles,
-        the tilt angle of the DNA entering and exiting the nucleosome is
-        specified by phi and affects the z-component of the entry and exit
-        vectors.
-
-        As the DNA wraps around the nucleosome, the natural twist of DNA
-        affects its orientation. The t2-orientation of the DNA strand rotates
-        around the t3-vector based on the natural twist of DNA.
-
-        TODO: Check implementation of entry and exit perp vectors.
+        """Get entry and exit orientations of DNA in global reference frame.
         """
-        # Generate the entry vector (t3-orientation at entry)
-        self.entry_vec = np.array([
-            -np.sin(self.omega_enter), np.cos(self.omega_exit), 0.
-        ]) + np.array([0., 0., np.sin(self.phi)])
-        self.entry_vec = self.entry_vec / np.linalg.norm(self.entry_vec)
-
-        # Generate the exit vector (t3-orientation at exit)
-        self.exit_vec = np.array([
-            np.sin(self.omega_exit), np.cos(self.omega_exit), 0.
-        ]) + np.array([0., 0., np.sin(self.phi)])
-        self.exit_vec = self.exit_vec / np.linalg.norm(self.exit_vec)
-        self.exit_vec = np.dot(self.exit_rot_mat, self.exit_vec)
-
-        # Generate the perp vectors (t2-orientations at entry and exit)
-        self.entry_perp_vec = np.cross(self.entry_vec, np.array([1, 0, 0]))
-        self.entry_perp_vec /= np.linalg.norm(self.entry_perp_vec)
-        self.exit_perp_vec = np.cross(self.exit_vec, np.array([1, 0, 0]))
-        self.exit_perp_vec /= np.linalg.norm(self.exit_perp_vec)
-
-        # The t2-orientation of the exiting DNA strand must take into account
-        # the natural twist of DNA. We rotate the t2-orientation of the exiting
-        # DNA strand about the t3-vector by the amount of natural twist.
-        # The rotated perpendicular exit vector is computed by Rodrigues'
-        # rotation formula.
-        angle_twist = self.bp_wrap * NATURAL_TWIST_NUCLEOSOME
-        angle_twist = angle_twist - 2 * np.pi * (angle_twist // (2 * np.pi))
-        self.exit_perp_vec = (
-            self.exit_perp_vec * np.cos(angle_twist) +
-            np.cross(self.exit_vec, self.exit_perp_vec) * np.sin(angle_twist) +
-            self.exit_vec * np.dot(self.exit_vec, self.exit_perp_vec) *
-            (1 - np.cos(angle_twist))
-        )
-
-    def align_with_global_frame(self):
-        """Align nucleosome with global frame.
-
-        Notes
-        -----
-        The nucleosome is aligned to a local frame such that the circular face
-        of the nucleosome is on the x-y plane. The t3 orientation is aligned
-        with the +y direction and the t2 orientation is aligned with the +z
-        direction. Therefore, the t1 orientation is implicitly aligned with the
-        -x direction to maintain a right-handed coordinate system. This method
-        rotates the nucleosome to so that the t3 axis of the nucleosome is
-        properly aligned with the t3 orientation of the associated polymer
-        segment in the global reference frame.
-
-        Returns
-        -------
-        r_enter_global : np.ndarray (3,) of float
-            Entry position of DNA defined in global reference frame
-        r_exit_global : np.ndarray (3,) of float
-            Exit position of DNA defined in global reference frame
-        entry_vec_global : np.ndarray (3,) of float
-            Entry vector of DNA defined in global reference frame
-        exit_vec_global : np.ndarray (3,) of float
-            Exit vector of DNA defined in global reference frame
-        entry_perp_vec_global = np.ndarray (3,) of float
-            Perpendicular vector to entry vector of DNA defined in global
-            reference frame
-        exit_perp_vec_global = np.ndarray (3,) of float
-            Perpendicular vector to exit vector of DNA defined in global
-            reference frame
-        """
-        R_global_to_local = la.get_rotation_matrix(self.t3, self.t2)
-        R_local_to_global = np.linalg.inv(R_global_to_local)
-        r_enter_global = np.dot(R_local_to_global, self.r_enter) + self.r
-        r_exit_global = np.dot(R_local_to_global, self.r_exit) + self.r
-        entry_vec_global = np.dot(R_local_to_global, self.entry_vec)
-        exit_vec_global = np.dot(R_local_to_global, self.exit_vec)
-        entry_perp_vec_global = np.dot(R_local_to_global, self.entry_perp_vec)
-        exit_perp_vec_global = np.dot(R_local_to_global, self.exit_perp_vec)
-        return r_enter_global, r_exit_global, entry_vec_global, \
-            exit_vec_global, entry_perp_vec_global, exit_perp_vec_global
+        t3_exit, t2_exit, t1_exit = get_exiting_orientations(
+            self.length_wrap, self.t3, self.t2, self.t1, consts_dict)
+        return t3_exit, t2_exit, t1_exit
 
     def update_configuration(self, r, t3, t2):
         """Update the position and orientations of the nucleosome.
@@ -653,24 +538,29 @@ class DetailedNucleosome(Nucleosome):
 
         Returns
         -------
-        r_enter_global : np.ndarray (3,) of float
+        r_enter : np.ndarray (3,) of float
             Entry position of DNA defined in global reference frame
-        r_exit_global : np.ndarray (3,) of float
+        r_exit : np.ndarray (3,) of float
             Exit position of DNA defined in global reference frame
-        entry_vec_global : np.ndarray (3,) of float
-            Entry vector of DNA defined in global reference frame
-        exit_vec_global : np.ndarray (3,) of float
-            Exit vector of DNA defined in global reference frame
+        t3 : np.ndarray (3,) of float
+            t3 tangent of entering DNA in global reference frame
+        t3_exit : np.ndarray (3,) of float
+            t3 tangent of exiting DNA in global reference frame
+        t2 : np.ndarray (3,) of float
+            t2 tangent of entering DNA in global reference frame
+        t2_exit : np.ndarray (3,) of float
+            t2 tangent of exiting DNA in global reference frame
         """
+        # Update user-specified geometry
         self.r = r
         self.t3 = t3
         self.t2 = t2
-        vals = self.align_with_global_frame()
-        r_entry_global = vals[0]
-        r_exit_global = vals[1]
-        entry_vec_global = vals[2]
-        exit_vec_global = vals[3]
-        entry_perp_vec_global = vals[4]
-        exit_perp_vec_global = vals[5]
-        return r_entry_global, r_exit_global, entry_vec_global, \
-            exit_vec_global, entry_perp_vec_global, exit_perp_vec_global
+        self.t1 = np.cross(self.t2, self.t3)
+        # Compute the rotation matrix that rotates local to global coordinates
+        self.R_local_to_global = la.get_rotation_matrix(
+            self.t3_local, self.t2_local, self.t3, self.t2
+        )
+        # Compute configuration in a global coordinate system
+        self.get_entry_exit_positions()
+        t3_exit, t2_exit, t1_exit = self.get_entry_exit_orientations()
+        return self.r_enter, self.r_exit, self.t3, t3_exit, self.t2, t2_exit

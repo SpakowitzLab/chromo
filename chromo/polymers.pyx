@@ -646,7 +646,12 @@ cdef class PolymerBase(TransformedObject):
             df = vector_df
         for name, arr in regular_arrs.items():
             if name == "bead_length" or name == "max_binders":
-                df[name] = np.broadcast_to(arr, (len(df.index), 1))
+                if name == "bead_length" and isinstance(arr, np.ndarray):
+                    df[name] = np.broadcast_to(
+                        np.append(arr, 0), (len(df.index), 1)
+                    )
+                else:
+                    df[name] = np.broadcast_to(arr, (len(df.index), 1))
             else:
                 df[name] = arr
         for name, val in single_vals.items():
@@ -1690,7 +1695,7 @@ cdef class SSWLC(PolymerBase):
 
     @classmethod
     def gaussian_walk_polymer(
-        cls, name: str, num_beads: int, bead_lengths: np.ndarray, **kwargs
+        cls, name: str, num_beads: int, step_lengths: np.ndarray, **kwargs
     ):
         """Initialize a polymer to a Gaussian random walk.
 
@@ -1700,7 +1705,7 @@ cdef class SSWLC(PolymerBase):
             Name of the polymer
         num_beads : int
             Number of monomer units on the polymer
-        bead_length : float
+        step_lengths : np.ndarray (N-1,) float
             Dimensional distance between subsequent beads of the polymer (in nm)
 
         Returns
@@ -1708,13 +1713,13 @@ cdef class SSWLC(PolymerBase):
         SSWLC
             Object representing a polymer initialized as Gaussian random walk
         """
-        r = paths.gaussian_walk(num_beads, bead_lengths)
+        r = paths.gaussian_walk(num_beads, step_lengths)
         t3, t2 = paths.estimate_tangents_from_coordinates(r)
-        return cls(name, r, t3=t3, t2=t2, bead_length=bead_lengths, **kwargs)
+        return cls(name, r, t3=t3, t2=t2, bead_length=step_lengths, **kwargs)
 
     @classmethod
     def confined_gaussian_walk(
-        cls, name: str, num_beads: int, bead_length: float, confine_type: str,
+        cls, name: str, num_beads: int, step_lengths: float, confine_type: str,
         confine_length: float, **kwargs
     ):
         """Initialize a polymer to a confined Gaussian random walk.
@@ -1725,7 +1730,7 @@ cdef class SSWLC(PolymerBase):
             Name of the polymer
         num_beads : int
             Number of monomer units on the polymer
-        bead_length : float
+        step_lengths : np.ndarray (N-1,) float
             Dimensional distance between subsequent beads of the polymer (in nm)
         confine_type : str
             Name of the confining boundary; to indicate model w/o confinement,
@@ -1741,14 +1746,14 @@ cdef class SSWLC(PolymerBase):
             random walk
         """
         r = paths.confined_gaussian_walk(
-            num_beads, bead_length, confine_type, confine_length
+            num_beads, step_lengths, confine_type, confine_length
         )
         t3, t2 = paths.estimate_tangents_from_coordinates(r)
-        return cls(name, r, t3=t3, t2=t2, bead_length=bead_length, **kwargs)
+        return cls(name, r, t3=t3, t2=t2, bead_length=step_lengths, **kwargs)
 
     @classmethod
     def confined_uniform_random_walk(
-            cls, name: str, num_beads: int, bead_length: float, confine_type: str,
+            cls, name: str, num_beads: int, step_lengths: float, confine_type: str,
             confine_length: float, **kwargs
     ):
         """Initialize a polymer to a confined uniform random walk.
@@ -1759,7 +1764,7 @@ cdef class SSWLC(PolymerBase):
             Name of the polymer
         num_beads : int
             Number of monomer units on the polymer
-        bead_length : float
+        step_lengths : float
             Dimensional distance between subsequent beads of the polymer (in nm)
         confine_type : str
             Name of the confining boundary; to indicate model w/o confinement,
@@ -1775,10 +1780,10 @@ cdef class SSWLC(PolymerBase):
             random walk
         """
         r = paths.confined_uniform_random_walk(
-            num_beads, bead_length, confine_type, confine_length
+            num_beads, step_lengths, confine_type, confine_length
         )
         t3, t2 = paths.estimate_tangents_from_coordinates(r)
-        return cls(name, r, t3=t3, t2=t2, bead_length=bead_length, **kwargs)
+        return cls(name, r, t3=t3, t2=t2, bead_length=step_lengths, **kwargs)
 
 
 cdef class Chromatin(SSWLC):
@@ -1920,7 +1925,7 @@ cdef class SSTWLC(SSWLC):
         )
         self.check_attrs()
 
-    cpdef void _find_parameters(self, double[:] bead_length):
+    cpdef void _find_parameters(self, double[:] step_lengths):
         """Look up elastic parameters of ssWLC for each bead_length.
 
         Notes
@@ -1936,17 +1941,17 @@ cdef class SSTWLC(SSWLC):
 
         Parameters
         ----------
-        bead_length : double
+        step_lengths : np.ndarray (N-1,) of double
             Dimensional distance between subsequent beads of the polymer (in nm)
         """
-        self.delta = np.zeros(len(bead_length))
-        self.eps_bend = np.zeros(len(bead_length))
-        self.gamma = np.zeros(len(bead_length))
-        self.eps_par = np.zeros(len(bead_length))
-        self.eps_perp = np.zeros(len(bead_length))
-        self.eta = np.zeros(len(bead_length))
-        self.eps_twist = np.zeros(len(bead_length))
-        for i in range(len(bead_length)):
+        self.delta = np.zeros(len(step_lengths))
+        self.eps_bend = np.zeros(len(step_lengths))
+        self.gamma = np.zeros(len(step_lengths))
+        self.eps_par = np.zeros(len(step_lengths))
+        self.eps_perp = np.zeros(len(step_lengths))
+        self.eta = np.zeros(len(step_lengths))
+        self.eps_twist = np.zeros(len(step_lengths))
+        for i in range(len(step_lengths)):
             self.delta[i] = bead_length[i] / self.lp
             self.eps_bend[i] = np.interp(
                 self.delta[i], dss_params[:, 0], dss_params[:, 1]
@@ -2051,7 +2056,10 @@ cdef class SSTWLC(SSWLC):
         delta_omega = omega - (
             self.bead_length[bond_ind] * NATURAL_TWIST_BARE / LENGTH_BP
         )
-        delta_omega = delta_omega - 2 * np.pi * (delta_omega // (2 * np.pi))
+        if delta_omega < 0:
+            delta_omega += 2 * np.pi * (-delta_omega) // (2 * np.pi)
+        else:
+            delta_omega -= 2 * np.pi * (delta_omega // (2 * np.pi))
         E = (
             0.5 * self.eps_bend[bond_ind] * vec_dot3(bend, bend) +
             0.5 * self.eps_par[bond_ind] * (dr_par - self.gamma[bond_ind])**2 +

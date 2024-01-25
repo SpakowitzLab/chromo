@@ -509,36 +509,31 @@ def rotation_matrix_from_vectors(vec1, vec2):
         return np.eye(3)
 
 
-def get_rotation_matrix(t3, t2):
-    """Find rotation matrix that aligns t3 and t2 w/ y and z axes, respectively.
+def get_rotation_matrix(t3_local, t2_local, t3, t2):
+    """Find the rotation matrix that aligns two pairs of vectors.
 
     Notes
     -----
-    t3 and t2 must be orthonormal. We start by finding the rotation matrix
-    required to align t3 with the y-axis. We will then define a rotation matrix
-    that rotates about the y-axis until t2 aligns with the z-axis.
+    This function provides a transformation matrix that rotates t3_local to
+    align with t3 while simultaneously rotating t2_local to align with t2.
+    To do this, the function first finds the rotation matrix that aligns
+    t3_local to t3. Once that first rotation is applied, the function then
+    finds the rotation matrix that aligns the intermediately-rotated t2_local
+    to t2. The final rotation matrix is the product of these two rotations.
     """
-    # Specify axes
-    y_axis = np.array([0., 1., 0.])
-    z_axis = np.array([0., 0., 1.])
-    # Align t3 with the y-axis
-    R1 = rotation_matrix_from_vectors(t3, y_axis)
-    assert np.allclose(np.dot(R1, t3), y_axis), "Error with R1"
-    # Rotate t2
-    t2_temp = np.dot(R1, t2)
-    # Find the angle between t2 and the z-axis
-    theta_ = angle_between_vectors(t2_temp, z_axis)
-    R2 = np.array([
-        [np.cos(theta_), 0, np.sin(theta_)],
-        [0, 1, 0],
-        [-np.sin(theta_), 0, np.cos(theta_)]
-    ])
+    # Align t3_local with t3
+    R1 = rotation_matrix_from_vectors(t3_local, t3)
+    # Check progress
+    assert np.allclose(np.dot(R1, t3_local), t3), "Error with R1"
+    # Rotate t2_local by R1
+    t2_local_rotated = np.dot(R1, t2_local)
+    # Find the rotation matrix that aligns t2_local_rotated with t2
+    R2 = rotation_matrix_from_vectors(t2_local_rotated, t2)
+    # Check progress
+    assert np.allclose(np.dot(R2, t2_local_rotated), t2), "Error with R2"
+    # Find the final rotation matrix
     R = np.matmul(R2, R1)
-    if not np.allclose(np.dot(R, t2), z_axis):
-        R2 = np.array([
-            [np.cos(-theta_), 0, np.sin(-theta_)],
-            [0, 1, 0],
-            [-np.sin(-theta_), 0, np.cos(-theta_)]
-        ])
-        R = np.matmul(R2, R1)
+    # Check progress
+    assert np.allclose(np.dot(R, t3_local), t3), "Error with R (rotating t3)"
+    assert np.allclose(np.dot(R, t2_local), t2), "Error with R (rotating t2)"
     return R

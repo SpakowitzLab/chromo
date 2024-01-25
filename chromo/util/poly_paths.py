@@ -287,10 +287,12 @@ def gaussian_walk(
     """
     steps = np.random.standard_normal((num_steps, 3))
     magnitude_steps = np.linalg.norm(steps, axis=1)
-    return np.cumsum(
+    positions = np.cumsum(
         np.divide(steps, magnitude_steps[:, None]) * step_sizes[:, np.newaxis],
         axis=0
     )
+    positions = np.vstack((np.zeros(3), positions))
+    return positions
 
 
 def confined_gaussian_walk(
