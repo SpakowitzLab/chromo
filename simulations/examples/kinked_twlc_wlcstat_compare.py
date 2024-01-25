@@ -27,7 +27,7 @@ print(os.getcwd())
 linker_length_bp = 36
 length_bp = 0.332
 linker_length = linker_length_bp * length_bp
-n_beads = 2000
+n_beads = 1000
 linker_lengths = np.array([linker_length] * (n_beads-1))
 lp = 10000.
 lt = 10000.
