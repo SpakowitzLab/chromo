@@ -2552,13 +2552,12 @@ cdef class DetailedChromatin2(DetailedChromatin):
         ----------
         see `DetailedChromatin.__init__()` for details
         """
-        self.bead_rad = consts_dict["R"]
         super().__init__(
             name, r, bp_wrap=bp_wrap, bead_length=bead_length,
-            lp=lp, lt=lt, bead_rad=self.bead_rad, t3=t3, t2=t2,
-            states=states, binder_names=binder_names,
-            chemical_mods=chemical_mods, chemical_mod_names=chemical_mod_names,
-            log_path=log_path, max_binders=max_binders
+            lp=lp, lt=lt, t3=t3, t2=t2, states=states,
+            binder_names=binder_names, chemical_mods=chemical_mods,
+            chemical_mod_names=chemical_mod_names, log_path=log_path,
+            max_binders=max_binders
         )
 
     cdef double continuous_dE_poly(
