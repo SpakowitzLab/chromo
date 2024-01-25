@@ -12,10 +12,6 @@ print("Directory containing the notebook:")
 print(cwd)
 
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-
 import chromo.mc as mc
 import chromo.polymers as poly
 import chromo.binders
@@ -32,11 +28,10 @@ linker_length_bp = 36
 length_bp = 0.332
 linker_length = linker_length_bp * length_bp
 n_beads = 2000
-linker_lengths = np.array([linker_length] * n_beads-1)
+linker_lengths = np.array([linker_length] * (n_beads-1))
 lp = 10000.
 lt = 10000.
 bp_wrap = 147.
-bead_rad = float(sys.argv[1])
 
 # Entry/exit angles
 omega_entry_deg = 0.
@@ -48,7 +43,8 @@ omega_exit = (omega_exit_deg / 180) * np.pi
 phi_deg = 0.
 phi = (phi_deg / 180) * np.pi
 
-# Instantiate the HP1 reader protein, which is pre-defined in the `chromo.binders` module
+# Instantiate the HP1 reader protein
+# This is pre-defined in the `chromo.binders` module
 null_binder = chromo.binders.get_by_name('null_reader')
 
 # Create the binder collection
@@ -59,13 +55,9 @@ p = poly.DetailedChromatin2.gaussian_walk_polymer(
     "Chr",
     n_beads,
     linker_lengths,
-    omega_enter = omega_enter,
-    omega_exit = omega_exit,
-    phi = phi,
-    bp_wrap = bp_wrap,
-    bead_rad = bead_rad,
-    lp = lp,
-    lt = lt,
+    bp_wrap=bp_wrap,
+    lp=lp,
+    lt=lt,
     binder_names=np.array(["null_reader"])
 )
 n_wrap = p.beads[0].n_wrap
@@ -79,17 +71,17 @@ y_width = x_width
 z_width = x_width
 
 udf = UniformDensityField(
-    polymers = [p],
-    binders = binders,
-    x_width = x_width,
-    nx = n_bins_x,
-    y_width = y_width,
-    ny = n_bins_y,
-    z_width = z_width,
-    nz = n_bins_z
+    polymers=[p],
+    binders=binders,
+    x_width=x_width,
+    nx=n_bins_x,
+    y_width=y_width,
+    ny=n_bins_y,
+    z_width=z_width,
+    nz=n_bins_z
 )
 
-amp_bead_bounds, amp_move_bounds = mc.get_amplitude_bounds(polymers = [p])
+amp_bead_bounds, amp_move_bounds = mc.get_amplitude_bounds(polymers=[p])
 
 latest_sim = get_unique_subfolder_name("output/sim_")
 moves_to_use = ctrl.all_moves_except_binding_state(
@@ -103,13 +95,13 @@ num_snapshots = 200
 mc_steps_per_snapshot = 2000
 
 p_sim = mc.polymer_in_field(
-    polymers = [p],
-    binders = binders,
-    field = udf,
-    num_save_mc = mc_steps_per_snapshot,
-    num_saves = num_snapshots,
-    bead_amp_bounds = amp_bead_bounds,
-    move_amp_bounds = amp_move_bounds,
-    output_dir = 'output',
-    mc_move_controllers = moves_to_use
+    polymers=[p],
+    binders=binders,
+    field=udf,
+    num_save_mc=mc_steps_per_snapshot,
+    num_saves=num_snapshots,
+    bead_amp_bounds=amp_bead_bounds,
+    move_amp_bounds=amp_move_bounds,
+    output_dir='output',
+    mc_move_controllers=moves_to_use
 )
