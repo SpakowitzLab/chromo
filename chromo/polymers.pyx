@@ -1952,7 +1952,7 @@ cdef class SSTWLC(SSWLC):
         self.eta = np.zeros(len(step_lengths))
         self.eps_twist = np.zeros(len(step_lengths))
         for i in range(len(step_lengths)):
-            self.delta[i] = bead_length[i] / self.lp
+            self.delta[i] = step_lengths[i] / self.lp
             self.eps_bend[i] = np.interp(
                 self.delta[i], dss_params[:, 0], dss_params[:, 1]
             ) / self.delta[i]
