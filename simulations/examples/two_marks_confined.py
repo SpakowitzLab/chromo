@@ -124,10 +124,11 @@ if "bead_spacing" in config:
 else:
     # Bead spacing is defined by MacPherson et al. 2018
     bead_spacing = 16.5
+bead_spacing = np.array([bead_spacing] * (num_beads - 1))
 p = Chromatin.confined_gaussian_walk(
     'Chr-1',
     num_beads,
-    bead_length=bead_spacing,
+    step_lengths=bead_spacing,
     states=states,
     confine_type=confine_type,
     confine_length=confine_length,

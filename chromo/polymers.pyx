@@ -1723,8 +1723,8 @@ cdef class SSWLC(PolymerBase):
 
     @classmethod
     def confined_gaussian_walk(
-        cls, name: str, num_beads: int, step_lengths: float, confine_type: str,
-        confine_length: float, **kwargs
+        cls, name: str, num_beads: int, step_lengths: np.ndarray,
+        confine_type: str, confine_length: float, **kwargs
     ):
         """Initialize a polymer to a confined Gaussian random walk.
 
