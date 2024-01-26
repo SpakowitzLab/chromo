@@ -99,6 +99,7 @@ else:
     # Bead spacing is defined by MacPherson et al. 2018
     bead_spacing = 16.5
 bead_spacing = np.array([bead_spacing] * (num_beads - 1))
+bead_spacing = np.ascontiguousarray(bead_spacing, dtype=np.float64)
 p = Chromatin.confined_gaussian_walk(
     'Chr-1',
     num_beads,
