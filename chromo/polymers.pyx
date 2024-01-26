@@ -931,7 +931,7 @@ cdef class SSWLC(PolymerBase):
         Ground-state segment compression (obtained from `_find_parameters`)
     eta : double
         Bend-shear coupling (obtained from `_find_parameters`)
-    bead_length : double
+    bead_length : np.ndarray (N-1,) of float
         Dimensional spacing between beads of the discrete polymer (in nm)
     bead_rad : double
         Dimensional radius of each bead in the polymer (in nm)
@@ -1549,6 +1549,7 @@ cdef class SSWLC(PolymerBase):
             Dimensional distance between subsequent beads of the polymer (in nm)
         """
         cdef long i
+        bead_length = np.asarray(bead_length)
         self.delta = np.zeros(len(bead_length))
         self.eps_bend = np.zeros(len(bead_length))
         self.gamma = np.zeros(len(bead_length))
