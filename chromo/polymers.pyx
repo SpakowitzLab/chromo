@@ -1813,7 +1813,7 @@ cdef class Chromatin(SSWLC):
         str name,
         np.ndarray[double, ndim=2] r,
         *,
-        double bead_length,
+        double[:] bead_length,
         double bead_rad = 5,
         np.ndarray[double, ndim=2] t3 = empty_2d,
         np.ndarray[double, ndim=2] t2 = empty_2d,
