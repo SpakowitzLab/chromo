@@ -1558,19 +1558,19 @@ cdef class SSWLC(PolymerBase):
         self.eta = np.zeros(len(bead_length))
         for i in range(len(bead_length)):
             self.delta[i] = bead_length[i] / self.lp
-            self.eps_bend = np.interp(
+            self.eps_bend[i] = np.interp(
                 self.delta[i], dss_params[:, 0], dss_params[:, 1]
             ) / self.delta[i]
-            self.gamma = np.interp(
+            self.gamma[i] = np.interp(
                 self.delta[i], dss_params[:, 0], dss_params[:, 2]
             ) * self.delta[i] * self.lp
-            self.eps_par = np.interp(
+            self.eps_par[i] = np.interp(
                 self.delta[i], dss_params[:, 0], dss_params[:, 3]
             ) / (self.delta[i] * self.lp**2)
-            self.eps_perp = np.interp(
+            self.eps_perp[i] = np.interp(
                 self.delta[i], dss_params[:, 0], dss_params[:, 4]
             ) / (self.delta[i] * self.lp**2)
-            self.eta = np.interp(
+            self.eta[i] = np.interp(
                 self.delta[i], dss_params[:, 0], dss_params[:, 5]
             ) / self.lp
 
@@ -1750,6 +1750,7 @@ cdef class SSWLC(PolymerBase):
             Object representing a polymer initialized as a confined Gaussian
             random walk
         """
+        step_lengths = np.ascontiguousarray(step_lengths)
         r = paths.confined_gaussian_walk(
             num_beads, step_lengths, confine_type, confine_length
         )
@@ -1948,6 +1949,7 @@ cdef class SSTWLC(SSWLC):
         step_lengths : np.ndarray (N-1,) of double
             Dimensional distance between subsequent beads of the polymer (in nm)
         """
+        step_lengths = np.asarray(step_lengths)
         self.delta = np.zeros(len(step_lengths))
         self.eps_bend = np.zeros(len(step_lengths))
         self.gamma = np.zeros(len(step_lengths))
@@ -2283,6 +2285,8 @@ cdef class LoopedSSTWLC(SSTWLC):
         See documentation for `SSTWLC` class for description of parameters.
 
         TODO: Change the default values of lt, lp to ones that makes more sense
+
+        TODO: Implement variable linker lengths in this class!
         """
         super(LoopedSSTWLC, self).__init__(
             name, r, bead_length=bead_length, lp=lp, lt=lt, bead_rad=bead_rad,
