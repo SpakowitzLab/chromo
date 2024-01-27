@@ -8,7 +8,7 @@ pyximport.install()
 
 # Built-in Modules
 from typing import List, TypeVar, Optional
-from libc.stdlib cimport rand, RAND_MAX
+from libc.stdlib cimport rand, RAND_MAX, srand
 from libc.math cimport exp
 #from time import process_time
 #import warnings
@@ -77,6 +77,7 @@ cpdef void mc_sim(
     cdef poly
 
     np.random.seed(random_seed)
+    srand(random_seed)
     n_polymers = len(polymers)
     if field.confine_type == "":
         active_fields = [poly.is_field_active() for poly in polymers]
