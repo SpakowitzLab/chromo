@@ -2063,7 +2063,7 @@ cdef class SSTWLC(SSWLC):
             self.bead_length[bond_ind] * NATURAL_TWIST_BARE / LENGTH_BP
         )
         if delta_omega < 0:
-            delta_omega += 2 * np.pi * (-delta_omega) // (2 * np.pi)
+            delta_omega += 2 * np.pi * ((-delta_omega) // (2 * np.pi))
         else:
             delta_omega -= 2 * np.pi * (delta_omega // (2 * np.pi))
         E = (
