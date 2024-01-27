@@ -82,6 +82,9 @@ moves_to_use = ctrl.all_moves_except_binding_state(
 num_snapshots = 200
 mc_steps_per_snapshot = 2000
 
+# Select a random seed
+random_seed = np.random.randint(1, 999999)
+
 p_sim = mc.polymer_in_field(
     polymers=[p],
     binders=binders,
@@ -91,5 +94,6 @@ p_sim = mc.polymer_in_field(
     bead_amp_bounds=amp_bead_bounds,
     move_amp_bounds=amp_move_bounds,
     output_dir='output',
+    random_seed=random_seed,
     mc_move_controllers=moves_to_use
 )
