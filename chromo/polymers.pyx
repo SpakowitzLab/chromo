@@ -2062,11 +2062,8 @@ cdef class SSTWLC(SSWLC):
         delta_omega = omega - (
             self.bead_length[bond_ind] * NATURAL_TWIST_BARE / LENGTH_BP
         )
-        # Attempt simulation without restricting range of delta_omega
-        #if delta_omega < 0:
-        #    delta_omega += 2 * np.pi * ((-delta_omega) // (2 * np.pi))
-        #else:
-        #    delta_omega -= 2 * np.pi * (delta_omega // (2 * np.pi))
+        # TODO: Check if negative delta_omega needs to be handled differently
+        delta_omega -= 2 * np.pi * (delta_omega // (2 * np.pi))
         E = (
             0.5 * self.eps_bend[bond_ind] * vec_dot3(bend, bend) +
             0.5 * self.eps_par[bond_ind] * (dr_par - self.gamma[bond_ind])**2 +
