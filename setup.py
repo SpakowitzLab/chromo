@@ -57,7 +57,7 @@ if __name__ == "__main__":
             "IPython~=8.4.0",
             "matplotlib~=3.5.2",
             "numba~=0.57.1",
-            "numpy~=1.26.2",
+            "numpy~=1.21.6",
             "pandas~=1.3.5",
             "scikit_learn~=1.1.2",
             "scipy~=1.11.4",
