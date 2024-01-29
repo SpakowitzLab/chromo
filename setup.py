@@ -64,7 +64,8 @@ if __name__ == "__main__":
             "setuptools~=61.2.0",
             "notebook~=6.0.0",
             "jupyter~=1.0.0",
-            "pytest~=7.4.3"
+            "pytest~=7.4.3",
+            'wlcstat @ git+https://github.com/JosephWakim/wlcstat.git'
         ],
         include_package_data=True,
         extras_require = {

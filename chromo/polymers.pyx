@@ -2058,7 +2058,7 @@ cdef class SSTWLC(SSWLC):
         # polymer segments may deviate from theory, unless `bead_length[ind]`
         # is equal to the stretched bond length.
 
-        # Adjust for natural twist of DNA (2 pi / 10.5 * 1 bp / 0.34 nm)
+        # Adjust for natural twist of DNA (2 pi / 10.5 bp * 1 bp / 0.34 nm)
         delta_omega = omega - (
             self.bead_length[bond_ind] * NATURAL_TWIST_BARE / LENGTH_BP
         )
