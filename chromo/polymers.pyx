@@ -173,6 +173,7 @@ cdef class PolymerBase(TransformedObject):
         str log_path = "",
         double[:, ::1] t3 = empty_2d,
         double[:, ::1] t2 = empty_2d,
+        double[:] bead_length = empty_1d,
         double lp = 0,
         long[:, ::1] states = mty_2d_int,
         np.ndarray binder_names = empty_1d,
@@ -211,6 +212,10 @@ cdef class PolymerBase(TransformedObject):
         t2 : Optional array_like (N, 3) of double
             Material normal to each bead in the global coordinate system; this
             vector should be orthogonal to t2 (default is empty array)
+        bead_length : array_like (N,) of double
+            The length of each bond in the polymer (default is empty array)
+        lp : Optional double
+            The persistence length of the polymer (default is 0)
         states : Optional array_like (N, M) of int
             State of each of the M reader proteins being tracked for each of
             the N beads (default is empty array)
@@ -246,6 +251,7 @@ cdef class PolymerBase(TransformedObject):
         self.r = r
         self.t3 = t3
         self.t2 = t2
+        self.bead_length = bead_length
         self.states = states
         self.max_binders = max_binders
         self.binder_names = binder_names
@@ -263,7 +269,7 @@ cdef class PolymerBase(TransformedObject):
         self.lp = lp
         self.required_attrs = np.array([
             "name", "r", "t3", "t2", "states", "binder_names", "num_binders",
-            "beads", "num_beads", "lp"
+            "beads", "num_beads", "lp", "bead_length"
         ])
         self._arrays = np.array(
             ['r', 't3', 't2', 'states', 'chemical_mods', 'bead_length']
@@ -965,15 +971,14 @@ cdef class SSWLC(PolymerBase):
             Radius of individual beads on the polymer (in nm)
         """
         cdef np.ndarray _arrays
-        self.bead_length = bead_length
         super(SSWLC, self).__init__(
             name, r, t3=t3, t2=t2, states=states, binder_names=binder_names,
-            log_path=log_path, chemical_mods=chemical_mods,
-            chemical_mod_names=chemical_mod_names, max_binders=max_binders
+            bead_length=bead_length, lp=lp, log_path=log_path,
+            chemical_mods=chemical_mods, chemical_mod_names=chemical_mod_names,
+            max_binders=max_binders
         )
         self.bead_rad = bead_rad
         self.construct_beads()
-        self.lp = lp
         self._find_parameters(self.bead_length)
         self.required_attrs = np.array([
             "name", "r", "t3", "t2", "states", "binder_names", "num_binders",

@@ -14,6 +14,7 @@ cdef class PolymerBase(TransformedObject):
     cdef public beads
     cdef public long max_binders
     cdef public configuration_tracker
+    cdef public double[:] bead_length
     cdef public double lp
     cdef public long num_binders, num_beads, n_binders_p1
     cdef public long[:] all_inds
@@ -54,7 +55,6 @@ cdef class Rouse(PolymerBase):
 cdef class SSWLC(PolymerBase):
     cdef public double[:] delta, eps_bend, eps_par, eps_perp, gamma, eta
     cdef public double bead_rad
-    cdef public double[:] bead_length
     cdef void construct_beads(self)
     cpdef double compute_E(self)
     cdef double compute_dE(
