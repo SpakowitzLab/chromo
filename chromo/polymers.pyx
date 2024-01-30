@@ -265,7 +265,9 @@ cdef class PolymerBase(TransformedObject):
             "name", "r", "t3", "t2", "states", "binder_names", "num_binders",
             "beads", "num_beads", "lp"
         ])
-        self._arrays = np.array(['r', 't3', 't2', 'states', 'chemical_mods'])
+        self._arrays = np.array(
+            ['r', 't3', 't2', 'states', 'chemical_mods', 'bead_length']
+        )
         self._3d_arrays = np.array(['r', 't3', 't2'])
         self._single_values = np.array(["name", "lp", "num_beads"])
 
@@ -639,20 +641,17 @@ cdef class PolymerBase(TransformedObject):
                 np.asarray(self.chemical_mods), columns=chem_mod_index,
                 dtype=int
             )
-            bead_length_df = pd.DataFrame(
-                np.asarray(self.bead_length), dtype=float
-            )
             df = pd.concat([vector_df, states_df, chemical_mods_df], axis=1)
         else:
             df = vector_df
+        # Store bead lengths
+        df["bead_length"] = np.broadcast_to(
+            np.append(self.bead_length, 0).reshape((-1, 1)), (len(df.index), 1)
+        )
+        # Store scalar measure of the maximum number of beads
         for name, arr in regular_arrs.items():
-            if name == "bead_length" or name == "max_binders":
-                if name == "bead_length" and isinstance(arr, np.ndarray):
-                    df[name] = np.broadcast_to(
-                        np.append(arr, 0), (len(df.index), 1)
-                    )
-                else:
-                    df[name] = np.broadcast_to(arr, (len(df.index), 1))
+            if name == "max_binders":
+                df[name] = np.broadcast_to(arr, (len(df.index), 1))
             else:
                 df[name] = arr
         for name, val in single_vals.items():
@@ -742,6 +741,9 @@ cdef class PolymerBase(TransformedObject):
             kwargs['name'] = name
         if "lp" in df:
             kwargs['lp'] = float(kwargs['lp'][0])
+        if "bead_length" in df:
+            kwargs['bead_length'] = \
+                np.asarray(kwargs['bead_length'][:-1]).flatten().astype(float)
         return cls(**kwargs)
 
     @classmethod
