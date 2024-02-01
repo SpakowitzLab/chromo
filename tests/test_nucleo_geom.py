@@ -3,7 +3,7 @@
 
 import numpy as np
 from chromo.util.nucleo_geom import get_exiting_orientations, s_default, \
-    consts_dict, t3, t1, t2, normal
+    consts_dict, t3, t1, t2, normal, get_r
 from chromo.util.linalg import get_rotation_matrix
 
 
@@ -210,3 +210,63 @@ def test_rotations_with_dot_products():
         "Error obtaining T2_exit using dot product matrix."
     assert np.allclose(T1_1, T1_1_check), \
         "Error obtaining T1_exit using dot product matrix."
+
+
+def test_transformation_of_r():
+    """Verify relative entry/exit position is consistent in different frames.
+
+    Notes
+    -----
+    There are two ways to compute the exit position given an entry position.
+    One way is to compute the exit position in the local frame and then rotate
+    the position to the global frame. This is how the transformation is done in
+    the nucleo_geom module.
+
+    Another way to compute the exiting orientation from an entry position is to
+    first take the difference vector between the entry and exit positions in the
+    local frame. Then compute the dot products of that difference vector with
+    the local frame entry tangents. Call these dot products B = [b1, b2, b3].
+    Next, take your entry position in the global frame and add b1 * T1_entry +
+    b2 * T2_entry + b3 * T3_entry. This will give you the exit position in the
+    global frame.
+
+    This test verifies that the two methods produce the same exit position in
+    the global frame.
+    """
+    # Define entering and exiting DNA orientations in the local frame
+    t3_0 = t3(0)
+    t1_0 = t1(0)
+    t2_0 = np.cross(t3_0, t1_0)
+    t3_1 = t3(s_default)
+    t1_1 = t1(s_default)
+    t2_1 = np.cross(t3_1, t1_1)
+    # Compute the entry/exit positions in the local frame
+    r_local = np.array([0, 0, 0])
+    r0_local = get_r(s=0)
+    r1_local = get_r(s=s_default)
+    # Compute the coefficients B = [b1, b2, b3] using the local frame
+    B0 = np.dot(r0_local - r_local, np.array([t1_0, t2_0, t3_0]))
+    B = np.dot(r1_local - r0_local, np.array([t1_0, t2_0, t3_0]))
+    # Verify that B can be used to compute the exit position in the local frame
+    r1_local_check = r0_local + B[0] * t1_0 + B[1] * t2_0 + B[2] * t3_0
+    assert np.allclose(r1_local, r1_local_check), \
+        "Error obtaining r_exit using dot products in local frame."
+    # Generate new orientations arbitrarily in space
+    T3_0 = np.array([1, 0, 0])
+    T1_0 = np.array([0, 1, 0])
+    T2_0 = np.cross(T3_0, T1_0)
+    # Generate a new entry position arbitrarily in space
+    r_global = np.array([134, 234, 341])
+    # Compute rotation matrix that converts the local frame to the global frame
+    R_local_to_global = get_rotation_matrix(t3_0, t2_0, T3_0, T2_0)
+    # Compute the entry/exit position using the rotation matrix
+    r0_global = np.dot(R_local_to_global, r0_local) + r_global
+    r1_global = np.dot(R_local_to_global, r1_local) + r_global
+    # Compute the exit position using the coefficients B
+    r0_global_check = r_global + B0[0] * T1_0 + B0[1] * T2_0 + B0[2] * T3_0
+    r1_global_check = r0_global + B[0] * T1_0 + B[1] * T2_0 + B[2] * T3_0
+    # Verify that the two methods produce same exit position in the global frame
+    assert np.allclose(r0_global, r0_global_check), \
+        "Error obtaining r_entry using dot products in global frame."
+    assert np.allclose(r1_global, r1_global_check), \
+        "Error obtaining r_exit using dot products in global frame."

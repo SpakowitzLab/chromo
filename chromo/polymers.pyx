@@ -2069,7 +2069,7 @@ cdef class SSTWLC(SSWLC):
         delta_omega = omega - (
             self.bead_length[bond_ind] * NATURAL_TWIST_BARE / LENGTH_BP
         )
-        # TODO: Check if negative delta_omega needs to be handled differently
+        # Assume polymer is well-behaved and twists < 2pi from relaxed state
         delta_omega -= 2 * np.pi * (delta_omega // (2 * np.pi))
         E = (
             0.5 * self.eps_bend[bond_ind] * vec_dot3(bend, bend) +
