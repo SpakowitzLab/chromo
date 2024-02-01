@@ -274,7 +274,7 @@ def simple_mc(
     """
     polymers = [
         Chromatin.straight_line_in_x(
-            f'Polymer-{i}', num_beads, bead_length,
+            f'Polymer-{i}', np.ones(num_beads) * bead_length,
             states=np.zeros((num_beads, num_binders)),
             binder_names=num_binders*['HP1']
         ) for i in range(num_polymers)
@@ -314,7 +314,7 @@ def get_amplitude_bounds(
         bound, upper bound)
     """
     poly_len = np.min([polymer.r.shape[0] for polymer in polymers])
-    min_spacing = np.min([polymer.bead_length for polymer in polymers])
+    min_spacing = np.min([np.min(polymer.bead_length) for polymer in polymers])
     bead_amp_bounds = Bounds("bead_amp_bounds", {
         "crank_shaft": (min(30, poly_len), min(150, poly_len)),
         "slide": (min(10, poly_len), min(150, poly_len)),
