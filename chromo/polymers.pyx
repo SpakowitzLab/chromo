@@ -1916,12 +1916,11 @@ cdef class SSTWLC(SSWLC):
             Twist persistence length (in nm)
         """
         cdef np.ndarray _arrays
-
-        self.bead_length = bead_length
-        super(SSWLC, self).__init__(
+        super(SSTWLC, self).__init__(
             name, r, t3=t3, t2=t2, states=states, binder_names=binder_names,
             log_path=log_path, chemical_mods=chemical_mods,
-            chemical_mod_names=chemical_mod_names, max_binders=max_binders
+            bead_length=bead_length, chemical_mod_names=chemical_mod_names,
+            max_binders=max_binders
         )
         self.bead_rad = bead_rad
         self.construct_beads()
