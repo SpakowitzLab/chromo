@@ -16,6 +16,10 @@ def test_binormal():
     binormal_vec = np.cross(T3_vec, normal_vec)
     assert np.allclose(np.linalg.norm(binormal_vec), 1), \
         "Binormal vector should have unit norm."
+    assert np.allclose(np.linalg.norm(T3_vec), 1), \
+        "T3 vector should have unit norm."
+    assert np.allclose(np.linalg.norm(normal_vec), 1), \
+        "Normal vector should have unit norm."
     assert np.allclose(np.dot(T3_vec, binormal_vec), 0), \
         "Binormal vector should be orthogonal to T3 vector."
     assert np.allclose(np.dot(normal_vec, binormal_vec), 0), \
