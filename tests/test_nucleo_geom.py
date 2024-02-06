@@ -20,6 +20,8 @@ def test_binormal():
         "Binormal vector should be orthogonal to T3 vector."
     assert np.allclose(np.dot(normal_vec, binormal_vec), 0), \
         "Binormal vector should be orthogonal to normal vector."
+    assert np.allclose(np.dot(T3_vec, normal_vec), 0), \
+        "T3 and normal vectors should be orthogonal."
     R = consts_dict["R"]
     Lt = consts_dict["Lt"]
     h = consts_dict["h"]
