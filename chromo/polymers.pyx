@@ -2634,6 +2634,128 @@ cdef class DetailedChromatin2(DetailedChromatin):
         return delta_energy_poly
 
 
+cdef class DetailedChromatinWithSterics(DetailedChromatin):
+    """Chromatin fiber with detailed nucleosomes and steric interactions.
+    """
+    def __init__(
+        self,
+        str name,
+        double[:, ::1] r,
+        *,
+        double bp_wrap,
+        double[:] bead_length,
+        double lp,
+        double lt,
+        double[:, ::1] t3 = empty_2d,
+        double[:, ::1] t2 = empty_2d,
+        long[:, ::1] states = mty_2d_int,
+        np.ndarray binder_names = empty_1d,
+        long[:, ::1] chemical_mods = mty_2d_int,
+        np.ndarray chemical_mod_names = empty_1d_str,
+        str log_path = "", long max_binders = -1
+    ):
+        """Initialize a detailed chromatin fiber with steric interactions.
+
+        Parameters
+        ----------
+        see `DetailedChromatin.__init__()` for details
+        """
+        super(DetailedChromatinWithSterics).__init__(
+            name, r, bp_wrap=bp_wrap, bead_length=bead_length,
+            lp=lp, lt=lt, t3=t3, t2=t2, states=states,
+            binder_names=binder_names, chemical_mods=chemical_mods,
+            chemical_mod_names=chemical_mod_names, log_path=log_path,
+            max_binders=max_binders
+        )
+        self.excluded_volume = self.beads[0].rad * 2.0
+        self.distances = np.zeros((self.num_beads, self.num_beads))
+        self.distances_trial = np.zeros((self.num_beads, self.num_beads))
+        self.get_distances()
+
+    cdef void get_distances(self):
+        """Get the distances between all pairs of nucleosomes.
+
+        Returns
+        -------
+        np.ndarray
+            2D array of distances between all pairs of nucleosomes.
+        """
+        cdef long i, j
+        for i in range(self.num_beads):
+            for j in range(i + 1, self.num_beads):
+                self.distances[i, j] = np.sqrt(
+                    (self.r[i, 0] - self.r[j, 0]) ** 2 + \
+                    (self.r[i, 1] - self.r[j, 1]) ** 2 + \
+                    (self.r[i, 2] - self.r[j, 2]) ** 2
+                )
+                self.distances_trial[i, j] = np.sqrt(
+                    (self.r_trial[i, 0] - self.r_trial[j, 0]) ** 2 + \
+                    (self.r_trial[i, 1] - self.r_trial[j, 1]) ** 2 + \
+                    (self.r_trial[i, 2] - self.r_trial[j, 2]) ** 2
+                )
+                self.distances[j, i] = self.distances[i, j]
+                self.distances_trial[j, i] = self.distances_trial[i, j]
+
+    cdef double continuous_dE_poly(
+            self,
+            long ind0,
+            long indf,
+    ):
+        """Compute change in polymer energy for a continuous bead region.
+
+        Notes
+        -----
+        See documentation for `SSWLC.continuous_dE_poly()` class for details 
+        and parameter/return descriptions.
+        """
+        cdef long ind0_m_1, indf_m_1
+        cdef double delta_energy_poly
+
+        ind0_m_1 = ind0 - 1
+        indf_m_1 = indf - 1
+
+        delta_energy_poly = 0
+        if ind0 != 0:
+            delta_energy_poly += self.bead_pair_dE_poly_forward_with_twist(
+                self.r[ind0_m_1, :],
+                self.r[ind0, :],
+                self.r_trial[ind0, :],
+                self.t3[ind0_m_1, :],
+                self.t3[ind0, :],
+                self.t3_trial[ind0, :],
+                self.t2[ind0_m_1, :],
+                self.t2[ind0, :],
+                self.t2_trial[ind0, :],
+                bond_ind = ind0_m_1
+            )
+        if indf != self.num_beads:
+            delta_energy_poly += self.bead_pair_dE_poly_reverse_with_twist(
+                self.r[indf_m_1, :],
+                self.r_trial[indf_m_1, :],
+                self.r[indf, :],
+                self.t3[indf_m_1, :],
+                self.t3_trial[indf_m_1, :],
+                self.t3[indf, :],
+                self.t2[indf_m_1, :],
+                self.t2_trial[indf_m_1, :],
+                self.t2[indf, :],
+                bond_ind = indf_m_1
+            )
+        # Check for overlapping nucleosomes
+        self.get_distances()
+        # Count the number of bead pairs that are too close
+        cdef long i, j
+        for i in range(self.num_beads):
+            for j in range(i + 1, self.num_beads):
+                # Trial configuration
+                if self.distances_trial[i, j] < self.excluded_volume:
+                    delta_energy_poly += E_HUGE
+                # Current configuration
+                if self.distances[i, j] < self.excluded_volume:
+                    delta_energy_poly -= E_HUGE
+        return delta_energy_poly
+
+
 cpdef double sin_func(double x):
     """Sine function to which the polymer will be initialized.
 
