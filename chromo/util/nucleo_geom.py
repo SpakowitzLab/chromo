@@ -189,9 +189,9 @@ def get_T3(s, T3_enter, T2_enter, T1_enter, consts=consts_dict):
         reference frame
     """
     return (
-            np.dot(t3(s=s, consts=consts), t3(s=0, consts=consts)) * T3_enter +
-            np.dot(t3(s=s, consts=consts), t2(s=0, consts=consts)) * T2_enter +
-            np.dot(t3(s=s, consts=consts), t1(s=0, consts=consts)) * T1_enter
+        np.dot(t3(s=s, consts=consts), t3(s=0, consts=consts)) * T3_enter +
+        np.dot(t3(s=s, consts=consts), t2(s=0, consts=consts)) * T2_enter +
+        np.dot(t3(s=s, consts=consts), t1(s=0, consts=consts)) * T1_enter
     )
 
 
@@ -212,13 +212,13 @@ def get_T1(s, T3_enter, T2_enter, T1_enter, consts=consts_dict):
     Returns
     -------
     np.ndarray (3,) of float
-        t3 orientation of DNA at linear position s in GLOBAL
+        t1 orientation of DNA at linear position s in GLOBAL
         reference frame
     """
     return (
-            np.dot(t1(s=s, consts=consts), t3(s=0, consts=consts)) * T3_enter +
-            np.dot(t1(s=s, consts=consts), t2(s=0, consts=consts)) * T2_enter +
-            np.dot(t1(s=s, consts=consts), t1(s=0, consts=consts)) * T1_enter
+        np.dot(t1(s=s, consts=consts), t3(s=0, consts=consts)) * T3_enter +
+        np.dot(t1(s=s, consts=consts), t2(s=0, consts=consts)) * T2_enter +
+        np.dot(t1(s=s, consts=consts), t1(s=0, consts=consts)) * T1_enter
     )
 
 
@@ -292,3 +292,50 @@ def get_r(s, consts=consts_dict):
         R * np.sin(2 * np.pi * s / Lt),
         h * s / Lt
     ])
+
+
+# For default conditions, we can pre-compute the rotation (dot product) matrix
+default_rot_matrix = np.array([
+    [
+        np.dot(t1(s=s_default, consts=consts_dict),t1(s=0, consts=consts_dict)),
+        np.dot(t1(s=s_default, consts=consts_dict),t2(s=0, consts=consts_dict)),
+        np.dot(t1(s=s_default, consts=consts_dict),t3(s=0, consts=consts_dict)),
+    ],
+    [
+        np.dot(t2(s=s_default, consts=consts_dict),t1(s=0, consts=consts_dict)),
+        np.dot(t2(s=s_default, consts=consts_dict),t2(s=0, consts=consts_dict)),
+        np.dot(t2(s=s_default, consts=consts_dict),t3(s=0, consts=consts_dict)),
+    ],
+    [
+        np.dot(t3(s=s_default, consts=consts_dict),t1(s=0, consts=consts_dict)),
+        np.dot(t3(s=s_default, consts=consts_dict),t2(s=0, consts=consts_dict)),
+        np.dot(t3(s=s_default, consts=consts_dict),t3(s=0, consts=consts_dict)),
+    ]
+])
+# Given an entry triad, we can compute the exit triad by taking the dot product
+# of this rotation matrix with a matrix of the triad.
+
+
+def compute_exit_orientations_with_default_wrapping(
+    T3_enter, T2_enter, T1_enter
+):
+    """Compute exit orientations with the default nucleosome geometry
+
+    Parameters
+    ----------
+    T3_enter, T2_enter, T1_enter : np.ndarray (3,) of float
+        t3, t2, t1 orientation vectors of entering DNA in GLOBAL
+        reference frame
+
+    Returns
+    -------
+    3 x np.ndarray (3,) of float
+        t3, t2, and t1 orientations of DNA at linear position s in GLOBAL
+        reference frame (returned in the order: T3_exit, T2_exit, T1_exit)
+    """
+    T_in_matrix = np.column_stack((T1_enter, T2_enter, T3_enter))
+    T_out_matrix = np.dot(T_in_matrix, default_rot_matrix[:3].T)
+    T1_exit = T_out_matrix[:, 0]
+    T2_exit = T_out_matrix[:, 1]
+    T3_exit = T_out_matrix[:, 2]
+    return T3_exit, T2_exit, T1_exit

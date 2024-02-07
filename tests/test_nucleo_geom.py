@@ -3,7 +3,8 @@
 
 import numpy as np
 from chromo.util.nucleo_geom import get_exiting_orientations, s_default, \
-    consts_dict, t3, t1, t2, normal, get_r
+    consts_dict, t3, t1, t2, normal, get_r, default_rot_matrix, \
+    compute_exit_orientations_with_default_wrapping
 from chromo.util.linalg import get_rotation_matrix
 
 
@@ -276,3 +277,35 @@ def test_transformation_of_r():
         "Error obtaining r_entry using dot products in global frame."
     assert np.allclose(r1_global, r1_global_check), \
         "Error obtaining r_exit using dot products in global frame."
+
+
+def test_default_rotation_matrix():
+    """Test the implementation of the default rotation matrix.
+    """
+    # Define arbitrary entry orientations
+    T3_0 = np.array([1, 0, 0])
+    T1_0 = np.array([0, 1, 0])
+    T2_0 = np.cross(T3_0, T1_0)
+    # Get the exit orientations using the `get_exiting_orientations` function
+    T3_1, T2_1, T1_1 = get_exiting_orientations(
+        s=s_default, T3_enter=T3_0, T2_enter=T2_0, T1_enter=T1_0
+    )
+    # Get the exiting orientations using the default rotation matrix
+    T_in_matrix = np.column_stack((T1_0, T2_0, T3_0))
+    T_out_matrix = np.dot(T_in_matrix, default_rot_matrix[:3].T)
+    T1_1_check = T_out_matrix[:, 0]
+    T2_1_check = T_out_matrix[:, 1]
+    T3_1_check = T_out_matrix[:, 2]
+    # Verify that the two methods produce the same exit orientations
+    assert np.allclose(T1_1, T1_1_check), \
+        "Error obtaining T1_exit using default rotation matrix."
+    assert np.allclose(T2_1, T2_1_check), \
+        "Error obtaining T2_exit using default rotation matrix."
+    assert np.allclose(T3_1, T3_1_check), \
+        "Error obtaining T3_exit using default rotation matrix."
+    T3_1_check2, T2_1_check2, T1_1_check2 = \
+        compute_exit_orientations_with_default_wrapping(T3_0, T2_0, T1_0)
+    assert np.allclose(T1_1, T1_1_check2), \
+        "Error obtaining T1_exit using default rotation matrix and function."
+    assert np.allclose(T2_1, T2_1_check2), \
+        "Error obtaining T2_exit using default rotation matrix and function."
