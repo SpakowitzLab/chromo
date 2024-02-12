@@ -193,5 +193,5 @@ jobs/
 jobs*/
 
 # Test plots
-tests/plots/
+tests/plots/*
 
