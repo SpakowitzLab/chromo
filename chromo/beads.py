@@ -10,7 +10,7 @@ import numpy as np
 
 # Custom Modules
 from .util.nucleo_geom import \
-    get_exiting_orientations, LENGTH_BP, NUC_TWIST_DENS, consts_dict, get_r
+    get_exiting_orientations, LENGTH_BP, consts_dict, get_r
 from .binders import Binder, get_by_name
 from .util import linalg as la
 from .util.gjk import gjk_collision
@@ -500,7 +500,11 @@ class DetailedNucleosome(Nucleosome):
             -consts_dict["h"] / consts_dict["Lt"],
             2 * np.pi * rad / consts_dict["Lt"]
         ])
-        self.r_enter_local = np.array([rad, 0, 0])
+        self.r_enter_local = np.array([
+            rad,
+            0,
+            -(consts_dict["h"] * consts_dict["s"] / consts_dict["Lt"]) / 2
+        ])
         self.r_exit_local = get_r(self.length_wrap, consts_dict)
         self.update_configuration(self.r, self.t3, self.t2)
 

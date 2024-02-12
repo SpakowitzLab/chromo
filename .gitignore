@@ -191,3 +191,7 @@ simulations/old/
 # Jobs files
 jobs/
 jobs*/
+
+# Test plots
+tests/plots/
+

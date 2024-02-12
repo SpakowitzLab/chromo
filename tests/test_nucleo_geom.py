@@ -277,6 +277,25 @@ def test_transformation_of_r():
         "Error obtaining r_entry using dot products in global frame."
     assert np.allclose(r1_global, r1_global_check), \
         "Error obtaining r_exit using dot products in global frame."
+    # Verify that the distance between the entry position nucleosome center
+    # is equal to the radius of the nucleus and half the change in height
+    # associated with wrapping
+    delta_h_wrap = consts_dict["s"] / consts_dict["Lt"] * consts_dict["h"] / 2
+    dist_expected = np.sqrt(consts_dict["R"]**2 + delta_h_wrap**2)
+    print("Expected distance core to Entry: ", dist_expected)
+    print(
+        "Actual distance core to entry: ", np.linalg.norm(r0_global - r_global)
+    )
+    assert np.allclose(np.linalg.norm(r0_global - r_global), dist_expected), \
+        "Error obtaining r_entry using dot products in global frame."
+    # Verify that the distance between the exit position nucleosome center
+    # is equal to the radius of the nucleus + change in height
+    print("Expected distance core to exit: ", dist_expected)
+    print(
+        "Actual distance core to exit: ", np.linalg.norm(r1_global - r_global)
+    )
+    assert np.allclose(np.linalg.norm(r1_global - r_global), dist_expected), \
+        "Error obtaining r_exit using dot products in global frame."
 
 
 def test_default_rotation_matrix():
@@ -309,3 +328,14 @@ def test_default_rotation_matrix():
         "Error obtaining T1_exit using default rotation matrix and function."
     assert np.allclose(T2_1, T2_1_check2), \
         "Error obtaining T2_exit using default rotation matrix and function."
+
+
+if __name__ == "__main__":
+    test_binormal()
+    test_T2_exit()
+    test_get_rotation_matrix()
+    test_dot_product_matrix()
+    test_rotations_with_dot_products()
+    test_transformation_of_r()
+    test_default_rotation_matrix()
+    print("All tests passed.")

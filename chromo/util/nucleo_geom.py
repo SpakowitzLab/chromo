@@ -290,7 +290,7 @@ def get_r(s, consts=consts_dict):
     return np.array([
         R * np.cos(2 * np.pi * s / Lt),
         R * np.sin(2 * np.pi * s / Lt),
-        h * s / Lt
+        h * s / Lt - ((s_default / Lt * h) / 2)
     ])
 
 
