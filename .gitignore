@@ -195,3 +195,5 @@ jobs*/
 # Test plots
 tests/plots/*
 
+# Test outputs
+tests/test_outputs/*

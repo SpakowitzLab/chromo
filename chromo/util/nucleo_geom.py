@@ -31,7 +31,7 @@ h_default = 4.531142964071856 / 2
 # Number of base pairs wrapped around each nucleosome
 bp_wrap_default = 147
 # nm length of DNA wrapped around each nucleosome
-s_default = bp_wrap_default * LENGTH_BP
+s_default = (bp_wrap_default - 1) * LENGTH_BP
 # Natural twist of DNA (radians per bp)
 w0_default = 2 * np.pi / (NUC_TWIST_DENS * LENGTH_BP)
 # DNA length required for full (2pi) rotation around nucleosome

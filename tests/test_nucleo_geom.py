@@ -13,6 +13,8 @@ def test_binormal():
     """
     s = s_default
     T3_vec = t3(s, consts_dict)
+    assert np.isclose(np.linalg.norm(T3_vec), 1), \
+        "Error in normalization of local t3 vector."
     normal_vec = normal(s, consts_dict)
     binormal_vec = np.cross(T3_vec, normal_vec)
     assert np.allclose(np.linalg.norm(binormal_vec), 1), \
@@ -61,6 +63,8 @@ def test_T2_exit():
     print("T2_exit_2: ", T2_exit_2)
     assert np.allclose(T2_exit, T2_exit_2), \
         "Error in computation of T2 vector."
+    assert np.isclose(np.linalg.norm(T2_exit), 1), \
+        "T2_exit should have unit norm."
 
 
 def test_get_rotation_matrix():
@@ -80,6 +84,8 @@ def test_get_rotation_matrix():
     t3_1 = t3(s_default)
     t1_1 = t1(s_default)
     t2_1 = np.cross(t3_1, t1_1)
+    assert np.isclose(np.linalg.norm(t1_1), 1), \
+        "T1 vector should have unit norm."
     # Compute the rotation matrix that converts the entering orientation to the
     # exiting orientation in the local frame
     R_local = get_rotation_matrix(t3_0, t1_0, t3_1, t1_1)
@@ -118,6 +124,32 @@ def test_get_rotation_matrix():
         "Error obtaining T2_exit using `get_rotation_matrix` in global frame."
     assert np.allclose(T1_exit, T1_exit_check), \
         "Error obtaining T1_exit using `get_rotation_matrix` in global frame."
+    # Generate random global frame vectors and check that the rotation matrix
+    # correctly rotates the local frame to the global frame
+    n_test = 100
+    for _ in range(n_test):
+        T3_entry = np.random.rand(3)
+        T3_entry = T3_entry / np.linalg.norm(T3_entry)
+        if not np.allclose(T3_entry, np.array([0, 0, 1])):
+            T1_entry = np.cross(T3_entry, np.array([0, 0, 1]))
+            T1_entry = T1_entry / np.linalg.norm(T1_entry)
+        else:
+            T1_entry = np.array([0, 1, 0])
+        T2_entry = np.cross(T3_entry, T1_entry)
+        R_local_to_global = get_rotation_matrix(t3_0, t2_0, T3_entry, T2_entry)
+        T3_check = np.dot(R_local_to_global, t3_0)
+        T2_check = np.dot(R_local_to_global, t2_0)
+        T1_check = np.dot(R_local_to_global, t1_0)
+        assert np.allclose(T3_check, T3_entry), \
+            "Error rotating t3 to global frame using get_rotation_matrix."
+        assert np.allclose(T2_check, T2_entry), \
+            "Error rotating t2 to global frame using get_rotation_matrix."
+        assert np.allclose(T1_check, T1_entry), \
+            "Error rotating t1 to global frame using get_rotation_matrix."
+    # The rotation matrix between a vector and itself should be identity
+    R = get_rotation_matrix(T3_entry, T2_entry, T3_entry, T2_entry)
+    assert np.allclose(R, np.eye(3)), \
+        "Rotation matrix between a vector and itself should be identity."
 
 
 def test_dot_product_matrix():

@@ -2486,14 +2486,14 @@ cdef class DetailedChromatin(SSTWLC):
                     self.r[ind0_m_1, :], self.t3[ind0_m_1, :],
                     self.t2[ind0_m_1, :]
                 )
-            ri_1, ro_1, t3i_1, t3o_1, t2i_1, t2o_1 = \
-                self.beads[ind0].update_configuration(
-                    self.r[ind0, :], self.t3[ind0, :], self.t2[ind0, :]
-                )
             ri_1_try, ro_1_try, t3i_1_try, t3o_1_try, t2i_1_try, t2o_1_try = \
                 self.beads[ind0].update_configuration(
                     self.r_trial[ind0, :], self.t3_trial[ind0, :],
                     self.t2_trial[ind0, :]
+                )
+            ri_1, ro_1, t3i_1, t3o_1, t2i_1, t2o_1 = \
+                self.beads[ind0].update_configuration(
+                    self.r[ind0, :], self.t3[ind0, :], self.t2[ind0, :]
                 )
             delta_energy_poly += self.bead_pair_dE_poly_forward_with_twist(
                 ro_0, ri_1, ri_1_try, t3o_0, t3i_1, t3i_1_try, t2o_0, t2i_1,
@@ -2502,6 +2502,11 @@ cdef class DetailedChromatin(SSTWLC):
         if indf != self.num_beads:
             # Compute the entry and exit positions and orientations of the
             # linker DNA for the last nucleosome in the continuous region
+            ri_0_try, ro_0_try, t3i_0_try, t3o_0_try, t2i_0_try, t2o_0_try = \
+                self.beads[indf_m_1].update_configuration(
+                    self.r_trial[indf_m_1, :], self.t3_trial[indf_m_1, :],
+                    self.t2_trial[indf_m_1, :]
+                )
             ri_0, ro_0, t3i_0, t3o_0, t2i_0, t2o_0 = \
                 self.beads[indf_m_1].update_configuration(
                     self.r[indf_m_1, :], self.t3[indf_m_1, :],
@@ -2510,11 +2515,6 @@ cdef class DetailedChromatin(SSTWLC):
             ri_1, ro_1, t3i_1, t3o_1, t2i_1, t2o_1 = \
                 self.beads[indf].update_configuration(
                     self.r[indf, :], self.t3[indf, :], self.t2[indf, :]
-                )
-            ri_0_try, ro_0_try, t3i_0_try, t3o_0_try, t2i_0_try, t2o_0_try = \
-                self.beads[indf_m_1].update_configuration(
-                    self.r_trial[indf_m_1, :], self.t3_trial[indf_m_1, :],
-                    self.t2_trial[indf_m_1, :]
                 )
             delta_energy_poly += self.bead_pair_dE_poly_reverse_with_twist(
                 ro_0, ro_0_try, ri_1, t3o_0, t3o_0_try, t3i_1, t2o_0, t2o_0_try,

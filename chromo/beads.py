@@ -487,7 +487,7 @@ class DetailedNucleosome(Nucleosome):
             states=states, binder_names=binder_names
         )
         self.bp_wrap = bp_wrap
-        self.length_wrap = bp_wrap * LENGTH_BP
+        self.length_wrap = (bp_wrap-1) * LENGTH_BP
 
         # Specify local reference frame
         self.t3_local = np.array([
@@ -506,15 +506,25 @@ class DetailedNucleosome(Nucleosome):
             -(consts_dict["h"] * consts_dict["s"] / consts_dict["Lt"]) / 2
         ])
         self.r_exit_local = get_r(self.length_wrap, consts_dict)
+
+        # Get normalized positions
+        self.r_enter_local_norm = np.linalg.norm(self.r_enter_local)
+        self.r_exit_local_norm = np.linalg.norm(self.r_exit_local)
+        self.r_enter_local_unit = self.r_enter_local / self.r_enter_local_norm
+        self.r_exit_local_unit = self.r_exit_local / self.r_exit_local_norm
+
+        # Update configuration
         self.update_configuration(self.r, self.t3, self.t2)
 
     def get_entry_exit_positions(self):
         """Get entry and exit positions of DNA in the global reference frame.
         """
         self.r_enter = \
-            np.dot(self.R_local_to_global, self.r_enter_local) + self.r
+            np.dot(self.R_local_to_global, self.r_enter_local_unit) \
+            * self.r_enter_local_norm + self.r
         self.r_exit = \
-            np.dot(self.R_local_to_global, self.r_exit_local) + self.r
+            np.dot(self.R_local_to_global, self.r_exit_local_unit) \
+            * self.r_exit_local_norm + self.r
 
     def get_entry_exit_orientations(self):
         """Get entry and exit orientations of DNA in global reference frame.
