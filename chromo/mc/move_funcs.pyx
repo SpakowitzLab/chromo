@@ -459,6 +459,8 @@ cpdef long[:] slide(poly.PolymerBase polymer, double amp_move, long amp_bead):
         for j in range(3):
             polymer.r_trial[inds[i], j] = polymer.r[inds[i], j] +\
                 polymer.transformation_mat[j, 3]
+            polymer.t3_trial[inds[i], j] = polymer.t3[inds[i], j]
+            polymer.t2_trial[inds[i], j] = polymer.t2[inds[i], j]
 
     return inds
 

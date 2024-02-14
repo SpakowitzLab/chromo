@@ -171,5 +171,5 @@ cpdef void mc_step(
 
     else:
         adaptible_move.reject(
-            poly, dE, log_move=False, log_update=False
+            poly, dE, inds, n_inds, log_move=False, log_update=False
         )

@@ -144,6 +144,7 @@ cdef class SSTWLC(SSWLC):
         double[:] t2_1,
         long bond_ind
     )
+    cpdef double compute_E_no_twist(self)
 
 cdef class LoopedSSTWLC(SSTWLC):
     pass

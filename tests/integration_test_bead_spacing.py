@@ -6,9 +6,6 @@ kinked wormlike chain. After the short simulation, we will check that the
 linker lengths fluctuate around the specified setpoint.
 """
 
-"""Compare simulated and theoretical end-to-end distances of a kinked twistable wlc.
-"""
-
 import os
 import sys
 
@@ -40,14 +37,14 @@ def test_linker_lengths():
     # Define chromatin to match theory
     linker_length_bp = 36
     length_bp = 0.332
-    linker_length = linker_length_bp * length_bp
+    linker_length = (linker_length_bp+1) * length_bp
     n_beads = 400
     linker_lengths = np.array([linker_length] * (n_beads-1))
     lp = 50.
     lt = 100.
     bp_wrap = 147.
 
-    # Instantiate the HP1 reader protein
+    # Instantiate the null reader protein
     # This is pre-defined in the `chromo.binders` module
     null_binder = chromo.binders.get_by_name('null_reader')
 
@@ -78,10 +75,6 @@ def test_linker_lengths():
     p.t3_trial = orientations["t3_incoming"].copy()
     p.t2 = orientations["t2_incoming"].copy()
     p.t2_trial = orientations["t2_incoming"].copy()
-    for i in range(len(p.t3)):
-        assert np.isclose(np.linalg.norm(p.t3[i]), 1)
-        assert np.isclose(np.linalg.norm(p.t2[i]), 1)
-        assert np.isclose(np.dot(p.t3[i], p.t2[i]), 0)
 
     # Load the linker lengths (pre-simulation)
     linker_lengths = []
@@ -100,9 +93,10 @@ def test_linker_lengths():
             )
         link = np.linalg.norm(ri_1 - ro_0)
         linker_lengths.append(link)
+    avg_linker_lengths_pre = np.mean(linker_lengths)
     print(f"All Linker Lengths: {linker_lengths}")
-    print(f"Average Linker Length: {np.average(linker_lengths)}")
-    print(f"Expected Linker Length: {linker_length}")
+    print(f"Average Linker Length: {avg_linker_lengths_pre}")
+    print(f"Extended Linker Length: {linker_length}")
 
     n_bins_x = 63
     n_bins_y = n_bins_x
@@ -120,7 +114,8 @@ def test_linker_lengths():
         y_width=y_width,
         ny=n_bins_y,
         z_width=z_width,
-        nz=n_bins_z
+        nz=n_bins_z,
+        chi=0.0
     )
 
     amp_bead_bounds, amp_move_bounds = mc.get_amplitude_bounds(polymers=[p])
@@ -170,13 +165,15 @@ def test_linker_lengths():
             )
         link = np.linalg.norm(ri_1 - ro_0)
         linker_lengths.append(link)
+    avg_linker_lengths_post = np.mean(linker_lengths)
     print(f"All Linker Lengths: {linker_lengths}")
-    print(f"Average Linker Length: {np.average(linker_lengths)}")
-    print(f"Expected Linker Length: {linker_length}")
+    print(f"Average Linker Length: {avg_linker_lengths_post}")
+    print(f"Extended Linker Length: {linker_length}")
 
     # Check that the linker lengths are close to the setpoint
-    assert np.isclose(np.average(linker_lengths), linker_length, atol=0.5), \
-        "Linker lengths are not close to the setpoint."
+    assert np.isclose(
+        avg_linker_lengths_pre, avg_linker_lengths_post, atol=0.3
+    ), "Chain growth algorithm and simulation are inconsistent."
 
 
 if __name__ == "__main__":

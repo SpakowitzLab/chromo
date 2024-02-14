@@ -2063,12 +2063,18 @@ cdef class SSTWLC(SSWLC):
         # polymer segments may deviate from theory, unless `bead_length[ind]`
         # is equal to the stretched bond length.
 
-        # Adjust for natural twist of DNA (2 pi / 10.5 bp * 1 bp / 0.34 nm)
+        # TODO: Adding twist seems to increase linker lengths! Why is this?
+
+        # Adjust for natural twist of DNA (2 pi / 10.5 bp * 1 bp / 0.332 nm)
         delta_omega = omega - (
             self.bead_length[bond_ind] * NATURAL_TWIST_BARE / LENGTH_BP
         )
         # Assume polymer is well-behaved and twists < 2pi from relaxed state
         delta_omega -= 2 * np.pi * (delta_omega // (2 * np.pi))
+        delta_omega -= np.pi
+        assert -np.pi <= delta_omega < np.pi, \
+            "Twist angle out of bounds."
+        assert self.eps_twist[bond_ind] > 0, "Twist modulus must be positive."
         E = (
             0.5 * self.eps_bend[bond_ind] * vec_dot3(bend, bend) +
             0.5 * self.eps_par[bond_ind] * (dr_par - self.gamma[bond_ind])**2 +
@@ -2266,6 +2272,91 @@ cdef class SSTWLC(SSWLC):
         ) - self.E_pair_with_twist(
             self.bend, dr_par, self.dr_perp, omega, bond_ind
         ))
+
+    cpdef double compute_E(self):
+        """Compute the overall polymer energy at the current configuration.
+        
+        Notes
+        -----
+        This method loops over each bond in the polymer and calculates the 
+        energy change of that bond.
+
+        Returns
+        -------
+        double
+            Configurational energy of the polymer.
+        """
+        cdef double E, dr_par
+        cdef long i, j, i_m1
+        cdef double[:] dr, dr_perp, bend
+        cdef double[:] r_0, r_1, t3_0, t3_1, t2_0, t2_1
+
+        E = 0
+        for i in range(1, self.num_beads):
+            i_m1 = i - 1
+            r_0 = self.r[i_m1, :]
+            r_1 = self.r[i, :]
+            t3_0 = self.t3[i_m1, :]
+            t3_1 = self.t3[i, :]
+            t2_0 = self.t2[i_m1, :]
+            t2_1 = self.t2[i, :]
+            t1_0 = np.array([
+                t2_0[1] * t3_0[2] - t2_0[2] * t3_0[1],
+                t2_0[2] * t3_0[0] - t2_0[0] * t3_0[2],
+                t2_0[0] * t3_0[1] - t2_0[1] * t3_0[0]
+            ])
+            t1_1 = np.array([
+                t2_1[1] * t3_1[2] - t2_1[2] * t3_1[1],
+                t2_1[2] * t3_1[0] - t2_1[0] * t3_1[2],
+                t2_1[0] * t3_1[1] - t2_1[1] * t3_1[0]
+            ])
+            omega = np.arctan2(
+                (np.dot(t2_0, t1_1) - np.dot(t1_0, t2_1)),
+                (np.dot(t1_0, t1_1) + np.dot(t2_0, t2_1))
+            )
+            dr = vec_sub3(r_1, r_0)
+            dr_par = vec_dot3(t3_0, dr)
+            dr_perp = vec_sub3(dr, vec_scale3(t3_0, dr_par))
+            bend = t3_1.copy()
+            for j in range(3):
+                bend[j] += -t3_0[j] - self.eta[i_m1] * dr_perp[j]
+            E += self.E_pair_with_twist(bend, dr_par, dr_perp, omega, i_m1)
+        return E
+
+    cpdef double compute_E_no_twist(self):
+        """Compute the overall polymer energy at the current configuration.
+        
+        Notes
+        -----
+        This method loops over each bond in the polymer and calculates the 
+        energy change of that bond.
+
+        Returns
+        -------
+        double
+            Configurational energy of the polymer.
+        """
+        cdef double E, dr_par
+        cdef long i, j, i_m1
+        cdef double[:] dr, dr_perp, bend
+        cdef double[:] r_0, r_1, t3_0, t3_1
+
+        E = 0
+        for i in range(1, self.num_beads):
+            i_m1 = i - 1
+            r_0 = self.r[i_m1, :]
+            r_1 = self.r[i, :]
+            t3_0 = self.t3[i_m1, :]
+            t3_1 = self.t3[i, :]
+
+            dr = vec_sub3(r_1, r_0)
+            dr_par = vec_dot3(t3_0, dr)
+            dr_perp = vec_sub3(dr, vec_scale3(t3_0, dr_par))
+            bend = t3_1.copy()
+            for j in range(3):
+                bend[j] += -t3_0[j] - self.eta[i_m1] * dr_perp[j]
+            E += self.E_pair(bend, dr_par, dr_perp, i_m1)
+        return E
 
 
 cdef class LoopedSSTWLC(SSTWLC):
@@ -2483,18 +2574,43 @@ cdef class DetailedChromatin(SSTWLC):
             # linker DNA for the first nucleosome in the continuous region
             ri_0, ro_0, t3i_0, t3o_0, t2i_0, t2o_0 =  \
                 self.beads[ind0_m_1].update_configuration(
-                    self.r[ind0_m_1, :], self.t3[ind0_m_1, :],
-                    self.t2[ind0_m_1, :]
+                    np.asarray(self.r[ind0_m_1, :]),
+                    np.asarray(self.t3[ind0_m_1, :]),
+                    np.asarray(self.t2[ind0_m_1, :])
                 )
             ri_1_try, ro_1_try, t3i_1_try, t3o_1_try, t2i_1_try, t2o_1_try = \
                 self.beads[ind0].update_configuration(
-                    self.r_trial[ind0, :], self.t3_trial[ind0, :],
-                    self.t2_trial[ind0, :]
+                    np.asarray(self.r_trial[ind0, :]),
+                    np.asarray(self.t3_trial[ind0, :]),
+                    np.asarray(self.t2_trial[ind0, :])
                 )
             ri_1, ro_1, t3i_1, t3o_1, t2i_1, t2o_1 = \
                 self.beads[ind0].update_configuration(
-                    self.r[ind0, :], self.t3[ind0, :], self.t2[ind0, :]
+                    np.asarray(self.r[ind0, :]),
+                    np.asarray(self.t3[ind0, :]),
+                    np.asarray(self.t2[ind0, :])
                 )
+
+            # Check progress (can be removed later)
+            # assert np.isclose(np.linalg.norm(t2i_0), 1)
+            # assert np.isclose(np.linalg.norm(t2o_0), 1)
+            # assert np.isclose(
+            #     np.linalg.norm(ri_0 - np.asarray(self.r[ind0_m_1, :])),
+            #     np.linalg.norm(ro_0 - np.asarray(self.r[ind0_m_1, :]))
+            # ), "Error in calculation of entry and exit positions"
+            # assert np.isclose(np.linalg.norm(t2i_1_try), 1)
+            # assert np.isclose(np.linalg.norm(t2o_1_try), 1)
+            # assert np.isclose(
+            #     np.linalg.norm(ri_1_try - np.asarray(self.r_trial[ind0, :])),
+            #     np.linalg.norm(ro_1_try - np.asarray(self.r_trial[ind0, :]))
+            # ), "Error in calculation of entry and exit positions"
+            # assert np.isclose(np.linalg.norm(t2i_1), 1)
+            # assert np.isclose(np.linalg.norm(t2o_1), 1)
+            # assert np.isclose(
+            #     np.linalg.norm(ri_1 - np.asarray(self.r[ind0, :])),
+            #     np.linalg.norm(ro_1 - np.asarray(self.r[ind0, :]))
+            # ), "Error in calculation of entry and exit positions"
+
             delta_energy_poly += self.bead_pair_dE_poly_forward_with_twist(
                 ro_0, ri_1, ri_1_try, t3o_0, t3i_1, t3i_1_try, t2o_0, t2i_1,
                 t2i_1_try, bond_ind = ind0_m_1
@@ -2504,18 +2620,43 @@ cdef class DetailedChromatin(SSTWLC):
             # linker DNA for the last nucleosome in the continuous region
             ri_0_try, ro_0_try, t3i_0_try, t3o_0_try, t2i_0_try, t2o_0_try = \
                 self.beads[indf_m_1].update_configuration(
-                    self.r_trial[indf_m_1, :], self.t3_trial[indf_m_1, :],
-                    self.t2_trial[indf_m_1, :]
+                    np.asarray(self.r_trial[indf_m_1, :]),
+                    np.asarray(self.t3_trial[indf_m_1, :]),
+                    np.asarray(self.t2_trial[indf_m_1, :])
                 )
             ri_0, ro_0, t3i_0, t3o_0, t2i_0, t2o_0 = \
                 self.beads[indf_m_1].update_configuration(
-                    self.r[indf_m_1, :], self.t3[indf_m_1, :],
-                    self.t2[indf_m_1, :]
+                    np.asarray(self.r[indf_m_1, :]),
+                    np.asarray(self.t3[indf_m_1, :]),
+                    np.asarray(self.t2[indf_m_1, :])
                 )
             ri_1, ro_1, t3i_1, t3o_1, t2i_1, t2o_1 = \
                 self.beads[indf].update_configuration(
-                    self.r[indf, :], self.t3[indf, :], self.t2[indf, :]
+                    np.asarray(self.r[indf, :]),
+                    np.asarray(self.t3[indf, :]),
+                    np.asarray(self.t2[indf, :])
                 )
+
+            # Check progress (can be removed later)
+            # assert np.isclose(np.linalg.norm(t2i_0_try), 1)
+            # assert np.isclose(np.linalg.norm(t2o_0_try), 1)
+            # assert np.isclose(
+            #     np.linalg.norm(ri_0_try - np.asarray(self.r_trial[indf_m_1,:])),
+            #     np.linalg.norm(ro_0_try - np.asarray(self.r_trial[indf_m_1,:]))
+            # ), "Error in calculation of entry and exit positions"
+            # assert np.isclose(np.linalg.norm(t2i_0), 1)
+            # assert np.isclose(np.linalg.norm(t2o_0), 1)
+            # assert np.isclose(
+            #     np.linalg.norm(ri_0 - np.asarray(self.r[indf_m_1, :])),
+            #     np.linalg.norm(ro_0 - np.asarray(self.r[indf_m_1, :]))
+            # ), "Error in calculation of entry and exit positions"
+            # assert np.isclose(np.linalg.norm(t2i_1), 1)
+            # assert np.isclose(np.linalg.norm(t2o_1), 1)
+            # assert np.isclose(
+            #     np.linalg.norm(ri_1 - np.asarray(self.r[indf, :])),
+            #     np.linalg.norm(ro_1 - np.asarray(self.r[indf, :]))
+            # ), "Error in calculation of entry and exit positions"
+
             delta_energy_poly += self.bead_pair_dE_poly_reverse_with_twist(
                 ro_0, ro_0_try, ri_1, t3o_0, t3o_0_try, t3i_1, t2o_0, t2o_0_try,
                 t2i_1, bond_ind=indf_m_1

@@ -30,7 +30,8 @@ cdef class MCAdapter:
         bint log_move, bint log_update
     )
     cdef void reject(
-        self, PolymerBase poly, double dE, bint log_move, bint log_update
+        self, PolymerBase poly, double dE,  long[:] inds, long n_inds,
+        bint log_move, bint log_update
     ) except *
 
 cdef class Bounds:

@@ -521,10 +521,10 @@ class DetailedNucleosome(Nucleosome):
         """
         self.r_enter = \
             np.dot(self.R_local_to_global, self.r_enter_local_unit) \
-            * self.r_enter_local_norm + self.r
+            * self.r_enter_local_norm + np.asarray(self.r)
         self.r_exit = \
             np.dot(self.R_local_to_global, self.r_exit_local_unit) \
-            * self.r_exit_local_norm + self.r
+            * self.r_exit_local_norm + np.asarray(self.r)
 
     def get_entry_exit_orientations(self):
         """Get entry and exit orientations of DNA in global reference frame.

@@ -362,6 +362,84 @@ def test_default_rotation_matrix():
         "Error obtaining T2_exit using default rotation matrix and function."
 
 
+def test_check_nucleosome_wrapping():
+    """Check the entering and exiting orientations of a standard nucleosome
+    """
+    R = consts_dict["R"]
+    Lt = consts_dict["Lt"]
+    h = consts_dict["h"]
+
+    # Manually define orientations given by theory
+    t3_enter = np.array([
+        0,
+        2 * np.pi * R / Lt,
+        h / Lt
+    ])
+    t3_enter_check = t3(0)
+    assert np.allclose(t3_enter, t3_enter_check), \
+        "Error in implementation of t3() at entry."
+    n_enter = np.array([-1, 0, 0])
+    b_enter = np.array([0, -h / Lt, 2 * np.pi * R / Lt])
+    phi = 2 * np.pi / (10.17 * 0.332) - 2 * np.pi * h / (Lt ** 2)
+    phi_check = consts_dict["Phi"]
+    assert np.allclose(phi, phi_check), "Error obtaining phi."
+    t1_enter = n_enter
+    t1_enter_check = t1(0)
+    assert np.allclose(t1_enter, t1_enter_check), \
+        "Error in implementation of t1() at entry."
+    t2_enter = b_enter
+    t2_enter_check = t2(0)
+    assert np.allclose(t2_enter, t2_enter_check), \
+        "Error in implementation of t2() at entry."
+    assert np.isclose(s_default, consts_dict["s"]), "Default s inconsistent."
+    assert np.isclose(s_default, 146 * 0.332), "Default s inconsistent."
+    t3_exit = np.array([
+        -2 * np.pi * R / Lt * np.sin(2 * np.pi * 146 * 0.332 / Lt),
+        2 * np.pi * R / Lt * np.cos(2 * np.pi * 146 * 0.332 / Lt),
+        h / Lt
+    ])
+    t3_exit_check = t3(s_default)
+    assert np.allclose(t3_exit, t3_exit_check), \
+        "Error in implementation of t3() at exit."
+    n_exit = np.array([
+        -np.cos(2 * np.pi * 146 * 0.332 / Lt),
+        -np.sin(2 * np.pi * 146 * 0.332 / Lt),
+        0
+    ])
+    b_exit = np.array([
+        h / Lt * np.sin(2 * np.pi * 146 * 0.332 / Lt),
+        -h / Lt * np.cos(2 * np.pi * 146 * 0.332 / Lt),
+        2 * np.pi * R / Lt
+    ])
+    t1_exit = np.cos(phi * 146 * 0.332) * n_exit + \
+        np.sin(phi * 146 * 0.332) * b_exit
+    t1_exit_check = t1(s_default)
+    assert np.allclose(t1_exit, t1_exit_check), \
+        "Error in implementation of t1() at exit."
+    t2_exit = np.cos(phi * 146 * 0.332) * b_exit - \
+        np.sin(phi * 146 * 0.332) * n_exit
+    t2_exit_check = t2(s_default)
+    assert np.allclose(t2_exit, t2_exit_check), \
+        "Error in implementation of t2() at exit."
+    # Manally define the entry positions given by theory
+    r_enter = np.array([
+        R, 0, -(146 * 0.332 / Lt * h / 2)
+    ])
+    r_exit = np.array([
+        R * np.cos(2 * np.pi * 146 * 0.332 / Lt),
+        R * np.sin(2 * np.pi * 146 * 0.332 / Lt),
+        h / Lt * (146 * 0.332) - (146 * 0.332 / Lt * h / 2)
+    ])
+    assert np.isclose(np.linalg.norm(r_enter), np.linalg.norm(r_exit)), \
+        "Error in implementation of r_enter and r_exit."
+    r_enter_check = get_r(0)
+    r_exit_check = get_r(s_default)
+    assert np.allclose(r_enter, r_enter_check), \
+        "Error in implementation of r()."
+    assert np.allclose(r_exit, r_exit_check), \
+        "Error in implementation of r()."
+
+
 if __name__ == "__main__":
     test_binormal()
     test_T2_exit()
@@ -370,4 +448,5 @@ if __name__ == "__main__":
     test_rotations_with_dot_products()
     test_transformation_of_r()
     test_default_rotation_matrix()
+    test_check_nucleosome_wrapping()
     print("All tests passed.")

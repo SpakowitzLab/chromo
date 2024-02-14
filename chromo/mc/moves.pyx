@@ -191,11 +191,14 @@ cdef class MCAdapter:
             for i in range(n_inds):
                 for j in range(3):
                     poly.r[inds[i], j] = poly.r_trial[inds[i], j]
+                    poly.t3_trial[inds[i], j] = poly.t3[inds[i], j]
+                    poly.t2_trial[inds[i], j] = poly.t2[inds[i], j]
         elif self.name == "tangent_rotation":
             for i in range(n_inds):
                 for j in range(3):
                     poly.t3[inds[i], j] = poly.t3_trial[inds[i], j]
                     poly.t2[inds[i], j] = poly.t2_trial[inds[i], j]
+                    poly.r_trial[inds[i], j] = poly.r[inds[i], j]
         else:
             for i in range(n_inds):
                 for j in range(3):
@@ -217,7 +220,8 @@ cdef class MCAdapter:
             )
 
     cdef void reject(
-        self, PolymerBase poly, double dE, bint log_move, bint log_update
+        self, PolymerBase poly, double dE, long[:] inds, long n_inds,
+        bint log_move, bint log_update
     ) except *:
         """Reject a proposed Monte Carlo move.
 
@@ -229,6 +233,10 @@ cdef class MCAdapter:
             Polymer affected by the MC move
         dE : float
             Change in energy associated with the move
+        inds : long[:]
+            Indices of the beads that were affected by the move
+        n_inds : long
+            Number of beads that were affected by the move
         log_move : bint
             Indicator for whether (1) or not (0) to log the move to a list
             later outputted to a CSV file
@@ -236,6 +244,19 @@ cdef class MCAdapter:
             Indicator for whether (1) or not (2) to record the updated
             acceptance rate after the MC move
         """
+        # Reset trial states
+        if self.name == "change_binding_state":
+            for i in range(n_inds):
+                for j in range(poly.num_binders):
+                    poly.states_trial[inds[i], j] = poly.states[inds[i], j]
+        else:
+            for i in range(n_inds):
+                for j in range(poly.num_binders):
+                    poly.r_trial[inds[i], j] = poly.r[inds[i], j]
+                    poly.t3_trial[inds[i], j] = poly.t3[inds[i], j]
+                    poly.t2_trial[inds[i], j] = poly.t2[inds[i], j]
+
+        # Update acceptance tracker
         self.acceptance_tracker.update_acceptance_rate(
             accept=0.0, log_update=log_update
         )
