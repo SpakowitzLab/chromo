@@ -197,3 +197,6 @@ tests/plots/*
 
 # Test outputs
 tests/test_outputs/*
+
+# iCloud references
+*.icloud
