@@ -167,3 +167,6 @@ cpdef double sin_func(double x)
 cpdef double helix_parametric_x(double t)
 cpdef double helix_parametric_y(double t)
 cpdef double helix_parametric_z(double t)
+cpdef double compute_twist_angle_omega(
+        double[:] t2_0, double[:] t3_0, double[:] t2_1, double[:] t3_1
+    )

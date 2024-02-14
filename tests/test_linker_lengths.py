@@ -40,13 +40,6 @@ def test_dE_with_twist():
     lt = 100.
     bp_wrap = 147.
 
-    # Instantiate the null reader protein
-    # This is pre-defined in the `chromo.binders` module
-    null_binder = chromo.binders.get_by_name('null_reader')
-
-    # Create the binder collection
-    binders = chromo.binders.make_binder_collection([null_binder])
-
     # Initialize the polymer
     p = poly.DetailedChromatin.straight_line_in_x(
         "Chr",
@@ -124,6 +117,57 @@ def test_dE_with_twist():
             "energy."
 
 
+def test_omega_calculation():
+    """For a simple case, verify that the calculated omega matches expectations.
+
+    In this test, we will initialize a two-bead polymer with zero twist. We
+    will compute the twist angle omega to verify that it is indeed zero. We
+    will then twist the second bead by pi and verify that the computed
+    omega is in fact pi.
+    """
+    # Specify linker lengths
+    linker_lengths = np.array([16.5])
+
+    # Initialize a two-bead polymer
+    lp = 50.
+    lt = 100.
+    p = poly.SSTWLC.straight_line_in_x(
+        "Chr",
+        linker_lengths,
+        lp=lp,
+        lt=lt,
+        binder_names=np.array(["null_reader"])
+    )
+
+    # Compute the twist angle omega
+    omega = poly.compute_twist_angle_omega(
+        p.t2[0, :], p.t3[0, :], p.t2[1, :], p.t3[1, :]
+    )
+    assert np.isclose(omega, 0), \
+        "The twist angle omega should be zero for a straight polymer."
+
+    # Rotate the second bead by pi radians
+    p.t2[1, 1] = -p.t2[1, 1]
+    # Compute the new twist angle omega
+    omega = poly.compute_twist_angle_omega(
+        p.t2[0, :], p.t3[0, :], p.t2[1, :], p.t3[1, :]
+    )
+    assert np.isclose(omega, np.pi), \
+        "The twist angle omega should be pi for a polymer with one bead " \
+        "twisted by pi radians."
+
+    # Check if omega correctly calculates pi/2 twist
+    p.t2[1, 1] = 0
+    p.t2[1, 2] = 1
+    omega = poly.compute_twist_angle_omega(
+        p.t2[0, :], p.t3[0, :], p.t2[1, :], p.t3[1, :]
+    )
+    assert np.isclose(omega, np.pi/2), \
+        "The twist angle omega should be pi/2 for a polymer with one bead " \
+        "twisted by pi/2 radians."
+
+
 if __name__ == "__main__":
     test_dE_with_twist()
+    test_omega_calculation()
     print("All tests passed!")

@@ -2131,38 +2131,15 @@ cdef class SSTWLC(SSWLC):
         """
         cdef long i
         cdef double omega, omega_test, dr_par, dr_par_test
-        cdef double[:] t1_0, t1_1, test_t1_1
-
-        t1_0 = np.array([
-            t2_0[1] * t3_0[2] - t2_0[2] * t3_0[1],
-            t2_0[2] * t3_0[0] - t2_0[0] * t3_0[2],
-            t2_0[0] * t3_0[1] - t2_0[1] * t3_0[0]
-        ])
-        t1_1 = np.array([
-            t2_1[1] * t3_1[2] - t2_1[2] * t3_1[1],
-            t2_1[2] * t3_1[0] - t2_1[0] * t3_1[2],
-            t2_1[0] * t3_1[1] - t2_1[1] * t3_1[0]
-        ])
-        test_t1_1 = np.array([
-            test_t2_1[1] * test_t3_1[2] - test_t2_1[2] * test_t3_1[1],
-            test_t2_1[2] * test_t3_1[0] - test_t2_1[0] * test_t3_1[2],
-            test_t2_1[0] * test_t3_1[1] - test_t2_1[1] * test_t3_1[0]
-        ])
-        omega = np.arctan2(
-            (np.dot(t2_0, t1_1) - np.dot(t1_0, t2_1)),
-            (np.dot(t1_0, t1_1) + np.dot(t2_0, t2_1))
+        omega = compute_twist_angle_omega(t2_0, t3_0, t2_1, t3_1)
+        omega_test = compute_twist_angle_omega(
+            t2_0, t3_0, test_t2_1, test_t3_1
         )
-        omega_test = np.arctan2(
-            (np.dot(t2_0, test_t1_1) - np.dot(t1_0, test_t2_1)),
-            (np.dot(t1_0, test_t1_1) + np.dot(t2_0, test_t2_1))
-        )
-
         for i in range(3):
             self.dr_test[i] = test_r_1[i] - r_0[i]
             self.dr[i] = r_1[i] - r_0[i]
         dr_par_test = vec_dot3(t3_0, self.dr_test)
         dr_par = vec_dot3(t3_0, self.dr)
-
         for i in range(3):
             self.dr_perp_test[i] = self.dr_test[i] - t3_0[i] * dr_par_test
             self.dr_perp[i] = self.dr[i] - t3_0[i] * dr_par
@@ -2227,30 +2204,9 @@ cdef class SSTWLC(SSWLC):
         """
         cdef long i
         cdef double omega, omega_test, dr_par, dr_par_test
-        cdef double[:] t1_0, t1_1, test_t1_0
-
-        t1_0 = np.array([
-            t2_0[1] * t3_0[2] - t2_0[2] * t3_0[1],
-            t2_0[2] * t3_0[0] - t2_0[0] * t3_0[2],
-            t2_0[0] * t3_0[1] - t2_0[1] * t3_0[0]
-        ])
-        test_t1_0 = np.array([
-            test_t2_0[1] * test_t3_0[2] - test_t2_0[2] * test_t3_0[1],
-            test_t2_0[2] * test_t3_0[0] - test_t2_0[0] * test_t3_0[2],
-            test_t2_0[0] * test_t3_0[1] - test_t2_0[1] * test_t3_0[0]
-        ])
-        t1_1 = np.array([
-            t2_1[1] * t3_1[2] - t2_1[2] * t3_1[1],
-            t2_1[2] * t3_1[0] - t2_1[0] * t3_1[2],
-            t2_1[0] * t3_1[1] - t2_1[1] * t3_1[0]
-        ])
-        omega = np.arctan2(
-            (np.dot(t2_0, t1_1) - np.dot(t1_0, t2_1)),
-            (np.dot(t1_0, t1_1) + np.dot(t2_0, t2_1))
-        )
-        omega_test = np.arctan2(
-            (np.dot(test_t2_0, t1_1) - np.dot(test_t1_0, t2_1)),
-            (np.dot(test_t1_0, t1_1) + np.dot(test_t2_0, t2_1))
+        omega = compute_twist_angle_omega(t2_0, t3_0, t2_1, t3_1)
+        omega_test = compute_twist_angle_omega(
+            test_t2_0, test_t3_0, t2_1, t3_1
         )
         for i in range(3):
             self.dr_test[i] = r_1[i]  - test_r_0[i]
@@ -2962,3 +2918,40 @@ cpdef double helix_parametric_z(double t):
     """
     cdef double z = 20 * t
     return z
+
+
+cpdef double compute_twist_angle_omega(
+    double[:] t2_0, double[:] t3_0, double[:] t2_1, double[:] t3_1
+):
+    """Compute twist angle between two sets of orientation vectors.
+    
+    Parameters
+    ----------
+    t2_0, t3_0 : double[:] of shape (3,)
+        T2 and T3 orientation vectors of the first bead
+    t2_1, t3_1 : double[:] of shape (3,)
+        T2 and T3 orientation vectors of the second bead
+    
+    Returns
+    -------
+    double
+        Twist angle (in radians)
+    """
+    cdef double[:] t1_0, t1_1
+    cdef double omega
+
+    t1_0 = np.array([
+        t2_0[1] * t3_0[2] - t2_0[2] * t3_0[1],
+        t2_0[2] * t3_0[0] - t2_0[0] * t3_0[2],
+        t2_0[0] * t3_0[1] - t2_0[1] * t3_0[0]
+    ])
+    t1_1 = np.array([
+        t2_1[1] * t3_1[2] - t2_1[2] * t3_1[1],
+        t2_1[2] * t3_1[0] - t2_1[0] * t3_1[2],
+        t2_1[0] * t3_1[1] - t2_1[1] * t3_1[0]
+    ])
+    omega = np.arctan2(
+        (np.dot(t2_0, t1_1) - np.dot(t1_0, t2_1)),
+        (np.dot(t1_0, t1_1) + np.dot(t2_0, t2_1))
+    )
+    return omega
