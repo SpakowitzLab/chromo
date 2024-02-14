@@ -18,6 +18,7 @@ print("Directory containing the notebook:")
 print(cwd)
 
 import numpy as np
+import matplotlib.pyplot as plt
 import chromo.mc as mc
 import chromo.polymers as poly
 import chromo.binders
@@ -98,6 +99,20 @@ def test_linker_lengths():
     print(f"Average Linker Length: {avg_linker_lengths_pre}")
     print(f"Extended Linker Length: {linker_length}")
 
+    # Plot the initial linker length distribution
+    plt.figure(figsize=(6,3), dpi=300)
+    plt.hist(linker_lengths, bins=20, color='blue', alpha=0.7)
+    plt.axvline(linker_length, color='red', linestyle='--', label='Extended')
+    plt.axvline(
+        avg_linker_lengths_pre, color='black', linestyle='-', label='Average'
+    )
+    plt.xlabel('Linker Length (nm)')
+    plt.ylabel('Frequency')
+    plt.legend()
+    plt.title('Initial Linker Length Distribution')
+    plt.tight_layout()
+    plt.savefig('tests/plots/initial_linker_length_distribution.png', dpi=300)
+
     n_bins_x = 63
     n_bins_y = n_bins_x
     n_bins_z = n_bins_x
@@ -169,6 +184,20 @@ def test_linker_lengths():
     print(f"All Linker Lengths: {linker_lengths}")
     print(f"Average Linker Length: {avg_linker_lengths_post}")
     print(f"Extended Linker Length: {linker_length}")
+
+    # Plot the final linker length distribution
+    plt.figure(figsize=(6,3), dpi=300)
+    plt.hist(linker_lengths, bins=20, color='blue', alpha=0.7)
+    plt.axvline(linker_length, color='red', linestyle='--', label='Extended')
+    plt.axvline(
+        avg_linker_lengths_post, color='black', linestyle='-', label='Average'
+    )
+    plt.xlabel('Linker Length (nm)')
+    plt.ylabel('Frequency')
+    plt.legend()
+    plt.title('Final Linker Length Distribution')
+    plt.tight_layout()
+    plt.savefig('tests/plots/final_linker_length_distribution.png', dpi=300)
 
     # Check that the linker lengths are close to the setpoint
     assert np.isclose(
