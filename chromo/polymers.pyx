@@ -2070,8 +2070,7 @@ cdef class SSTWLC(SSWLC):
             self.bead_length[bond_ind] * NATURAL_TWIST_BARE / LENGTH_BP
         )
         # Assume polymer is well-behaved and twists < 2pi from relaxed state
-        delta_omega -= 2 * np.pi * (delta_omega // (2 * np.pi))
-        delta_omega -= np.pi
+        delta_omega -= 2 * np.pi * ((delta_omega + np.pi) // (2 * np.pi))
         assert -np.pi <= delta_omega < np.pi, \
             "Twist angle out of bounds."
         assert self.eps_twist[bond_ind] > 0, "Twist modulus must be positive."

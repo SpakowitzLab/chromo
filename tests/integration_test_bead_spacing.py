@@ -38,7 +38,7 @@ def test_linker_lengths():
     # Define chromatin to match theory
     linker_length_bp = 36
     length_bp = 0.332
-    linker_length = (linker_length_bp+1) * length_bp
+    linker_length = linker_length_bp * length_bp
     n_beads = 400
     linker_lengths = np.array([linker_length] * (n_beads-1))
     lp = 50.
@@ -100,6 +100,7 @@ def test_linker_lengths():
     print(f"Extended Linker Length: {linker_length}")
 
     # Plot the initial linker length distribution
+    # TODO: Plot -log Probabilities
     plt.figure(figsize=(6,3), dpi=300)
     plt.hist(linker_lengths, bins=20, color='blue', alpha=0.7)
     plt.axvline(linker_length, color='red', linestyle='--', label='Extended')
