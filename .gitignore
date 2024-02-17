@@ -196,7 +196,7 @@ jobs*/
 tests/plots/*
 
 # Test outputs
-tests/test_outputs/*
+tests/test_output/*
 
 # iCloud references
 *.icloud
