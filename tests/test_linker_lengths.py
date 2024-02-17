@@ -13,12 +13,7 @@ print("Directory containing the notebook:")
 print(cwd)
 
 import numpy as np
-import chromo.mc as mc
 import chromo.polymers as poly
-import chromo.binders
-from chromo.fields import UniformDensityField
-import chromo.mc.mc_controller as ctrl
-from chromo.util.reproducibility import get_unique_subfolder_name
 from wlcstat.chromo import gen_chromo_conf
 
 os.chdir(parent_dir)

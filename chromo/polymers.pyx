@@ -2756,19 +2756,19 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         ----------
         see `DetailedChromatin.__init__()` for details
         """
-        super(DetailedChromatinWithSterics).__init__(
+        super(DetailedChromatinWithSterics, self).__init__(
             name, r, bp_wrap=bp_wrap, bead_length=bead_length,
             lp=lp, lt=lt, t3=t3, t2=t2, states=states,
             binder_names=binder_names, chemical_mods=chemical_mods,
             chemical_mod_names=chemical_mod_names, log_path=log_path,
             max_binders=max_binders
         )
-        self.excluded_volume = self.beads[0].rad * 2.0
+        self.excluded_distance = self.beads[0].rad * 2.0
         self.distances = np.zeros((self.num_beads, self.num_beads))
         self.distances_trial = np.zeros((self.num_beads, self.num_beads))
         self.get_distances()
 
-    cdef void get_distances(self):
+    cpdef void get_distances(self):
         """Get the distances between all pairs of nucleosomes.
 
         Returns
@@ -2791,6 +2791,23 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
                 )
                 self.distances[j, i] = self.distances[i, j]
                 self.distances_trial[j, i] = self.distances_trial[i, j]
+
+    cpdef double check_steric_clashes(self, double[:, ::1] distances):
+        """Check for steric clashes between nucleosomes.
+
+        Returns
+        -------
+        bool
+            True if there are steric clashes, False otherwise.
+        """
+        cdef long i, j, n_clashes, num_beads
+        n_clashes = 0
+        num_beads = len(distances)
+        for i in range(num_beads):
+            for j in range(i + 1, num_beads):
+                if distances[i, j] < self.excluded_distance:
+                    n_clashes += 1
+        return n_clashes
 
     cdef double continuous_dE_poly(
             self,
@@ -2839,16 +2856,11 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
             )
         # Check for overlapping nucleosomes
         self.get_distances()
-        # Count the number of bead pairs that are too close
-        cdef long i, j
-        for i in range(self.num_beads):
-            for j in range(i + 1, self.num_beads):
-                # Trial configuration
-                if self.distances_trial[i, j] < self.excluded_volume:
-                    delta_energy_poly += E_HUGE
-                # Current configuration
-                if self.distances[i, j] < self.excluded_volume:
-                    delta_energy_poly -= E_HUGE
+        # Count the number of bead pairs that are overlapping
+        n_clashes = self.check_steric_clashes(self.distances)
+        n_clashes_trial = self.check_steric_clashes(self.distances_trial)
+        # Add large energies for each clash
+        delta_energy_poly += (E_HUGE * (n_clashes_trial - n_clashes))
         return delta_energy_poly
 
 

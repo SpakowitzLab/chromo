@@ -159,9 +159,10 @@ cdef class DetailedChromatin(SSTWLC):
     )
 
 cdef class DetailedChromatinWithSterics(DetailedChromatin):
-    cdef public double excluded_volume
+    cdef public double excluded_distance
     cdef public double[:, ::1] distances, distances_trial
-    cdef void get_distances(self)
+    cpdef void get_distances(self)
+    cpdef double check_steric_clashes(self, double[:, ::1] distances)
 
 cpdef double sin_func(double x)
 cpdef double helix_parametric_x(double t)
