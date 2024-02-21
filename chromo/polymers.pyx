@@ -2925,7 +2925,7 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         for i in range(self.num_binders):
             for j in range(self.num_beads):
                 for k in range(j + 1, self.num_beads):
-                    cutoff_distance = self.binders[i].cutoff_distance
+                    cutoff_distance = self.binders[i].interaction_radius
                     if self.distances[j, k] <= cutoff_distance:
                         n_pairs = self.states[j, i] * self.states[k, i]
                         n_pairs_trial = \
@@ -2950,7 +2950,7 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
             for j in range(i + 1, self.num_binders):
                 for k in range(self.num_beads):
                     for l in range(k + 1, self.num_beads):
-                        cutoff_distance = self.binders[i].cutoff_distance
+                        cutoff_distance = self.binders[i].interaction_radius
                         if self.distances[k, l] <= cutoff_distance:
                             n_pairs = self.states[k, i] * self.states[l, j]
                             n_pairs_trial = \
