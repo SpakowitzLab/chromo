@@ -88,6 +88,7 @@ cdef class FieldBase:
         self.polymers = polymers
         self.n_polymers = len(polymers)
         self.binders = binders
+        self.confine_type = ""
 
     def __str__(self):
         """Print representation of empty field.

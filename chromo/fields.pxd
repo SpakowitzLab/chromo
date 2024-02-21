@@ -10,6 +10,7 @@ cdef class FieldBase:
     cdef public list polymers
     cdef public long n_polymers
     cdef public binders
+    cdef public str confine_type
 
 cdef class NullField(FieldBase):
     cdef double compute_dE(
@@ -35,7 +36,6 @@ cdef class UniformDensityField(FieldBase):
     cdef public long[:, ::1] index_xyz_with_trial
     cdef public long num_binders
     cdef public long[:] doubly_bound, doubly_bound_trial
-    cdef public str confine_type
     cdef public double confine_length
     cdef public double[:, ::1] density, density_trial
     cdef public dict access_vols
