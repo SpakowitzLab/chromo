@@ -69,7 +69,7 @@ p = poly.DetailedChromatinWithSterics.straight_line_in_x(
 
 # Update positions and orientations using chain growth algorithm
 _, _, _, rn, un, orientations = gen_chromo_conf(
-    linker_lengths_bp, return_orientations=True
+    linker_lengths_bp.astype(int), return_orientations=True
 )
 t3_temp = orientations["t3_incoming"]
 t2_temp = orientations["t2_incoming"]
