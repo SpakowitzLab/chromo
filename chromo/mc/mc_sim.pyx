@@ -24,12 +24,12 @@ from chromo.binders import ReaderProtein
 from chromo.mc.moves import MCAdapter
 from chromo.mc.moves cimport MCAdapter
 from chromo.mc.mc_controller import Controller
-from chromo.fields cimport UniformDensityField as Udf
+from chromo.fields cimport FieldBase as FB
 
 
 cpdef void mc_sim(
     list polymers, readerproteins, long num_mc_steps,
-    list mc_move_controllers, Udf field, double mu_adjust_factor,
+    list mc_move_controllers, FB field, double mu_adjust_factor,
     long random_seed
 ):
     """Perform Monte Carlo simulation.
@@ -63,7 +63,7 @@ cpdef void mc_sim(
         Number of Monte Carlo steps to take between save points
     mc_move_controllers : List[Controller]
         List of controllers for active MC moves in simulation
-    field: UniformDensityField
+    field: FieldBase (or subclass)
         Field affecting polymer in Monte Carlo simulation
     mu_adjust_factor : double
         Adjustment factor applied to the chemical potential in response to
@@ -101,7 +101,7 @@ cpdef void mc_sim(
 
 cpdef void mc_step(
     MCAdapter adaptible_move, PolymerBase poly, readerproteins,
-    Udf field, bint active_field
+    FB field, bint active_field
 ):
     """Compute energy change and determine move acceptance.
 
@@ -123,7 +123,7 @@ cpdef void mc_step(
         Polymer affected by move at particular Monte Carlo step
     readerproteins: List[ReaderProteins]
         Reader proteins affecting polymer configuration
-    field: UniformDensityField
+    field: FieldBase (or subclass)
         Field affecting polymer in Monte Carlo step
     active_field: bool
         Indicator of whether or not the field is active for the polymer
