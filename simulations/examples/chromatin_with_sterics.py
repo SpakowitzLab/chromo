@@ -64,6 +64,7 @@ states = np.zeros(chemical_mods.shape, dtype=int)
 p = poly.DetailedChromatinWithSterics.straight_line_in_x(
     "Chr",
     linker_lengths,
+    binders=[binder],
     bp_wrap=bp_wrap,
     lp=lp,
     lt=lt,

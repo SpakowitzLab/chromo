@@ -2783,7 +2783,7 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
 
         # Load binders
         self.binders = binders
-        if self.binders is None:
+        if self.binders is not None:
             self.num_binders = len(self.binders)
         else:
             self.num_binders = 0
