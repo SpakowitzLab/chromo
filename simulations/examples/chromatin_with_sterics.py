@@ -34,10 +34,8 @@ linker_length_file = os.path.join(
 linker_lengths_bp = np.loadtxt(linker_length_file)
 length_bp = 0.332
 bp_wrap = 147.
-linker_lengths = linker_lengths_bp * length_bp
 lp = 150.6024096385542 / length_bp
 lt = 301.2048192771084 / length_bp
-n_beads = len(linker_lengths) + 1
 
 # Load chemical modifications
 chem_mod_file = os.path.join(
@@ -46,6 +44,13 @@ chem_mod_file = os.path.join(
 chemical_mod_path = np.array([chem_mod_file])
 chemical_mods = Chromatin.load_seqs(chemical_mod_path)
 modification_name = "H3K9me3"
+
+# Correct the linker lengths
+# The theory includes an extra linker to account for the first nucleosome.
+# The simulation does not include this extra linker.
+linker_lengths_bp = linker_lengths_bp[:-1]
+linker_lengths = linker_lengths_bp * length_bp
+n_beads = len(linker_lengths) + 1
 
 # Instantiate the HP1 reader protein
 binder = chromo.binders.get_by_name('HP1')
