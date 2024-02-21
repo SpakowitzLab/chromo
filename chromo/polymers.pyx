@@ -2732,6 +2732,14 @@ cdef class DetailedChromatin2(DetailedChromatin):
 
 cdef class DetailedChromatinWithSterics(DetailedChromatin):
     """Chromatin fiber with detailed nucleosomes and steric interactions.
+
+    Notes
+    -----
+    Because we are computing pairwise distances explicitly, we can evaluate
+    binder protein interactions specifically. For this reason, we do not need
+    to use a field. The field is never active. We can specify a null field as
+    a place-holder. Beware that the field will not contribute to the energy
+    associated with an instance of this class.
     """
     def __init__(
         self,
@@ -2742,6 +2750,7 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         double[:] bead_length,
         double lp,
         double lt,
+        binders = None,
         double[:, ::1] t3 = empty_2d,
         double[:, ::1] t2 = empty_2d,
         long[:, ::1] states = mty_2d_int,
@@ -2755,6 +2764,10 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         Parameters
         ----------
         see `DetailedChromatin.__init__()` for details
+
+        binders : sequence of Binder objects, optional
+            Representation of the interacting binders on the chromatin fiber.
+            If None, no binders are present. Default is None.
         """
         super(DetailedChromatinWithSterics, self).__init__(
             name, r, bp_wrap=bp_wrap, bead_length=bead_length,
@@ -2767,6 +2780,22 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         self.distances = np.zeros((self.num_beads, self.num_beads))
         self.distances_trial = np.zeros((self.num_beads, self.num_beads))
         self.get_distances()
+
+        # Load binders
+        self.binders = binders
+        if self.binders is None:
+            self.num_binders = len(self.binders)
+        else:
+            self.num_binders = 0
+
+    cpdef bint is_field_active(self):
+        """The field is never active for this class.
+        
+        Notes
+        -----
+        All interactions are handled using explicit pairwise interactions.
+        """
+        return 0
 
     cpdef void get_distances(self):
         """Get the distances between all pairs of nucleosomes.
@@ -2861,7 +2890,76 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         n_clashes_trial = self.check_steric_clashes(self.distances_trial)
         # Add large energies for each clash
         delta_energy_poly += (E_HUGE * (n_clashes_trial - n_clashes))
+        # Compute change in reader protein interactions
+        if self.num_binders > 0:
+            delta_energy_poly += self.evaluate_binder_interactions()
         return delta_energy_poly
+
+    cdef double evaluate_binder_interactions(self):
+        """Evaluate change in energy associated with binding states.
+
+        Notes
+        -----
+        Pairwise distances should be updated before running this method.
+
+        Returns
+        -------
+        double
+            Change in energy associated with binding states and reader protein
+            interactions.
+        """
+        cdef long i, j, k, l
+        cdef double delta_energy_binding = 0.0
+        cdef double n_pairs, n_pairs_trial, cutoff_distance
+
+        # Self interactions, same nucleosome
+        for i in range(self.num_binders):
+            for j in range(self.num_beads):
+                n_pairs = self.states[j, i] * (self.states[j, i] - 1) / 2
+                n_pairs_trial = \
+                    self.states_trial[j, i] * (self.states_trial[j, i] - 1) / 2
+                delta_energy_binding += self.binders[i].interaction_energy * (
+                    n_pairs_trial - n_pairs
+                )
+        # Self interaction, different nucleosomes
+        for i in range(self.num_binders):
+            for j in range(self.num_beads):
+                for k in range(j + 1, self.num_beads):
+                    cutoff_distance = self.binders[i].cutoff_distance
+                    if self.distances[j, k] <= cutoff_distance:
+                        n_pairs = self.states[j, i] * self.states[k, i]
+                        n_pairs_trial = \
+                            self.states_trial[j, i] * self.states_trial[k, i]
+                        delta_energy_binding += \
+                            self.binders[i].interaction_energy * (
+                                n_pairs_trial - n_pairs
+                            )
+        # Cross-interaction, same nucleosome
+        for i in range(self.num_binders):
+            for j in range(i + 1, self.num_binders):
+                for k in range(self.num_beads):
+                    n_pairs = self.states[k, i] * self.states[k, j]
+                    n_pairs_trial = \
+                        self.states_trial[k, i] * self.states_trial[k, j]
+                    delta_energy_binding += \
+                        self.binders[i].cross_talk_interaction_energy[self.binders[j].name] * (
+                            n_pairs_trial - n_pairs
+                        )
+        # Cross-interaction, different nucleosomes
+        for i in range(self.num_binders):
+            for j in range(i + 1, self.num_binders):
+                for k in range(self.num_beads):
+                    for l in range(k + 1, self.num_beads):
+                        cutoff_distance = self.binders[i].cutoff_distance
+                        if self.distances[k, l] <= cutoff_distance:
+                            n_pairs = self.states[k, i] * self.states[l, j]
+                            n_pairs_trial = \
+                                self.states_trial[k, i] * self.states_trial[l, j]
+                            delta_energy_binding += \
+                                self.binders[i].cross_talk_interaction_energy[self.binders[j].name] * (
+                                    n_pairs_trial - n_pairs
+                                )
+        return delta_energy_binding
 
 
 cpdef double sin_func(double x):

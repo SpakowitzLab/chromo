@@ -18,7 +18,7 @@ import chromo.mc as mc
 import chromo.polymers as poly
 from chromo.polymers import Chromatin
 import chromo.binders
-from chromo.fields import UniformDensityField
+from chromo.fields import NullField
 import chromo.util.mu_schedules as ms
 from wlcstat.chromo import gen_chromo_conf
 
@@ -85,31 +85,10 @@ p.t3_trial = t3_temp.copy()
 p.t2 = t2_temp.copy()
 p.t2_trial = t2_temp.copy()
 
-# Bead density is defined by MacPherson et al. 2018
-bead_density = 393216 / (4 / 3 * np.pi * 900 ** 3)
-field_length = (n_beads / bead_density / (4 / 3 * np.pi)) ** (1 / 3)
-
-# Specify Field
-n_bins_x = int(np.round((63 * field_length) / 900))
-n_bins_y = n_bins_x
-n_bins_z = n_bins_x
-x_width = field_length
-y_width = x_width
-z_width = x_width
-
-udf = UniformDensityField(
-    polymers=[p],
-    binders=binders,
-    x_width=x_width,
-    nx=n_bins_x,
-    y_width=y_width,
-    ny=n_bins_y,
-    z_width=z_width,
-    nz=n_bins_z
-)
+field = NullField()
 amp_bead_bounds, amp_move_bounds = mc.get_amplitude_bounds([p])
 num_snapshots = 200
-mc_steps_per_snapshot = 6000
+mc_steps_per_snapshot = 200
 
 # Create a list of mu schedules, which are defined in another file
 schedules = [func[0] for func in getmembers(ms, isfunction)]
@@ -128,7 +107,7 @@ run_command = f"python {' '.join(sys.argv)}"
 p_sim = mc.polymer_in_field(
     [p],
     binders,
-    udf,
+    field,
     mc_steps_per_snapshot,
     num_snapshots,
     amp_bead_bounds,

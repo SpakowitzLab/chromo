@@ -11,6 +11,12 @@ cdef class FieldBase:
     cdef public long n_polymers
     cdef public binders
 
+cdef class NullField(FieldBase):
+    cdef double compute_dE(
+        self, poly.PolymerBase poly, long[:] inds, long n_inds,
+        long packet_size, bint state_change
+    )
+
 cdef class UniformDensityField(FieldBase):
     cdef public _field_descriptors
     cdef public double x_width, y_width, z_width

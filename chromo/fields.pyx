@@ -208,6 +208,22 @@ class Reconstructor:
         return self.finalize(polymers, binders)
 
 
+cdef class NullField(FieldBase):
+    """A field with no energy contributions.
+    """
+
+    def __init__(self):
+        super(NullField, self).__init__(
+            polymers = [], binders = pd.DataFrame()
+        )
+
+    cdef double compute_dE(
+        self, poly.PolymerBase poly, long[:] inds, long n_inds,
+        long packet_size, bint state_change
+    ):
+        return 0
+
+
 cdef class UniformDensityField(FieldBase):
     """Rectilinear discretization of space as a rectangular box.
 
