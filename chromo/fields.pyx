@@ -217,6 +217,18 @@ cdef class NullField(FieldBase):
             polymers = [], binders = pd.DataFrame()
         )
 
+    def to_file(self, path):
+        """Save Field description.
+        """
+        with open(path, 'w'):
+            pass
+
+    @classmethod
+    def from_file(cls, path):
+        """Load Field description.
+        """
+        return cls()
+
     cdef double compute_dE(
         self, poly.PolymerBase poly, long[:] inds, long n_inds,
         long packet_size, bint state_change
