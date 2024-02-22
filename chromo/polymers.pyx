@@ -2926,14 +2926,15 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
             for j in range(self.num_beads):
                 for k in range(j + 1, self.num_beads):
                     cutoff_distance = self.binders[i].interaction_radius
-                    if self.distances[j, k] <= cutoff_distance:
-                        n_pairs = self.states[j, i] * self.states[k, i]
+                    if self.distances_trial[j, k] <= cutoff_distance:
                         n_pairs_trial = \
                             self.states_trial[j, i] * self.states_trial[k, i]
                         delta_energy_binding += \
-                            self.binders[i].interaction_energy * (
-                                n_pairs_trial - n_pairs
-                            )
+                            self.binders[i].interaction_energy * n_pairs_trial
+                    if self.distances[j, k] <= cutoff_distance:
+                        n_pairs = self.states[j, i] * self.states[k, i]
+                        delta_energy_binding -= \
+                            self.binders[i].interaction_energy * n_pairs
         # Cross-interaction, same nucleosome
         for i in range(self.num_binders):
             for j in range(i + 1, self.num_binders):
@@ -2951,14 +2952,15 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
                 for k in range(self.num_beads):
                     for l in range(k + 1, self.num_beads):
                         cutoff_distance = self.binders[i].interaction_radius
-                        if self.distances[k, l] <= cutoff_distance:
-                            n_pairs = self.states[k, i] * self.states[l, j]
+                        if self.distances_trial[k, l] <= cutoff_distance:
                             n_pairs_trial = \
                                 self.states_trial[k, i] * self.states_trial[l, j]
                             delta_energy_binding += \
-                                self.binders[i].cross_talk_interaction_energy[self.binders[j].name] * (
-                                    n_pairs_trial - n_pairs
-                                )
+                                self.binders[i].cross_talk_interaction_energy[self.binders[j].name] * n_pairs_trial
+                        if self.distances[k, l] <= cutoff_distance:
+                            n_pairs = self.states[k, i] * self.states[l, j]
+                            delta_energy_binding -= \
+                                self.binders[i].cross_talk_interaction_energy[self.binders[j].name] * n_pairs
         return delta_energy_binding
 
 

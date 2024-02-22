@@ -17,7 +17,15 @@ print("Directory containing the notebook:")
 print(cwd)
 
 import numpy as np
+from inspect import getmembers, isfunction
+
 import chromo.polymers as poly
+import chromo.mc as mc
+from chromo.polymers import Chromatin
+import chromo.binders
+from chromo.fields import NullField
+import chromo.util.mu_schedules as ms
+from wlcstat.chromo import gen_chromo_conf
 
 os.chdir(parent_dir)
 print("Root Directory of Package: ")
@@ -121,7 +129,111 @@ def test_distance_runtime():
         f"to less than 0.01 s."
 
 
+def evaluate_runtime_with_sterics():
+    """Evaluate the runtime required to run a simulation with steric clashes
+    """
+    n_beads = 200
+    linker_lengths_bp = np.ones(n_beads-1, dtype=int) * 15
+    length_bp = 0.332
+    linker_lengths = linker_lengths_bp * length_bp
+    bp_wrap = 147.
+    lp = 150.6024096385542 / length_bp
+    lt = 301.2048192771084 / length_bp
+
+    # Load chemical modifications
+    chemical_mods = np.zeros((n_beads, 1), dtype=int)
+    chemical_mods[:20, 0] = 2
+    modification_name = "H3K9me3"
+
+    # Instantiate the HP1 reader protein
+    binder = chromo.binders.get_by_name('HP1')
+    binder.chemical_potential = -9.7
+
+    # Adjust the interaction distance to match that used in the nucleosome
+    # positioning model
+    interaction_radius = 8.0
+    interaction_volume = (4.0/3.0) * np.pi * interaction_radius ** 3
+    binder.interaction_radius = interaction_radius
+    binder.interaction_volume = interaction_volume
+    binders = chromo.binders.make_binder_collection([binder])
+
+    # Binding states
+    states = np.zeros(chemical_mods.shape, dtype=int)
+
+    # Initialize the polymer
+    p = poly.DetailedChromatinWithSterics.straight_line_in_x(
+        "Chr",
+        linker_lengths,
+        binders=[binder],
+        bp_wrap=bp_wrap,
+        lp=lp,
+        lt=lt,
+        binder_names=np.array(["HP1"]),
+        chemical_mods=chemical_mods,
+        chemical_mod_names=np.array([modification_name])
+    )
+
+    # Update positions and orientations using chain growth algorithm
+    _, _, _, rn, un, orientations = gen_chromo_conf(
+        linker_lengths_bp.astype(int), return_orientations=True
+    )
+    t3_temp = orientations["t3_incoming"]
+    t2_temp = orientations["t2_incoming"]
+    p.r = rn.copy()
+    p.r_trial = rn.copy()
+    p.t3 = t3_temp.copy()
+    p.t3_trial = t3_temp.copy()
+    p.t2 = t2_temp.copy()
+    p.t2_trial = t2_temp.copy()
+
+    field = NullField()
+    amp_bead_bounds, amp_move_bounds = mc.get_amplitude_bounds([p])
+
+    # Create a list of mu schedules, which are defined in another file
+    schedules = [func[0] for func in getmembers(ms, isfunction)]
+    select_schedule = "linear_step_for_negative_cp"
+    mu_schedules = [
+        ms.Schedule(getattr(ms, func_name)) for func_name in schedules
+    ]
+    mu_schedules = [sch for sch in mu_schedules if sch.name == select_schedule]
+
+    random_seed = np.random.randint(1, 100000)
+    output_dir = "tests/test_output"
+
+    path_to_run_script = os.path.abspath(__file__)
+
+    # Determine average time to run an MC step
+    n_trials = 20
+    mc_steps_per_snapshot = n_trials
+    n_snapshots = 1
+
+    start = time.time()
+    _ = mc.polymer_in_field(
+        [p],
+        binders,
+        field,
+        mc_steps_per_snapshot,
+        n_snapshots,
+        amp_bead_bounds,
+        amp_move_bounds,
+        output_dir=output_dir,
+        mu_schedule=mu_schedules[0],
+        random_seed=random_seed,
+        path_to_run_script=path_to_run_script
+    )
+    runtime = time.time() - start
+    print(f"Average time per MC move: {runtime / n_trials} s")
+
+    # Raise an error if the runtime is too long. This is not a strict test,
+    # but it is useful to know if the code has become too inefficient.
+    assert np.mean(runtime / n_trials) < 6.5, \
+        f"The average time to run an MC step has become too large; " \
+        f"the average runtime is {runtime / n_trials} s. Please reduce this " \
+        f"time to less than 6.5 s."
+
+
 if __name__ == "__main__":
     test_nucleosome_sterics()
     test_distance_runtime()
+    evaluate_runtime_with_sterics()
     print("All tests passed.")

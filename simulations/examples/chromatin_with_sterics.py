@@ -55,6 +55,13 @@ n_beads = len(linker_lengths) + 1
 # Instantiate the HP1 reader protein
 binder = chromo.binders.get_by_name('HP1')
 binder.chemical_potential = float(sys.argv[1])
+
+# Adjust the interaction distance to match that used in the nucleosome
+# positioning model
+interaction_radius = 8.0
+interaction_volume = (4.0/3.0) * np.pi * interaction_radius ** 3
+binder.interaction_radius = interaction_radius
+binder.interaction_volume = interaction_volume
 binders = chromo.binders.make_binder_collection([binder])
 
 # Binding states
