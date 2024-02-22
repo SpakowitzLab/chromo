@@ -172,11 +172,6 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         long[:] inds,
         long n_inds
     )
-    cdef double continuous_dE_poly(
-        self,
-        long ind0,
-        long indf,
-    )
 
 cpdef double sin_func(double x)
 cpdef double helix_parametric_x(double t)

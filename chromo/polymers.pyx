@@ -2907,53 +2907,6 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
 
         return delta_energy_poly
 
-    cdef double continuous_dE_poly(
-        self,
-        long ind0,
-        long indf,
-    ):
-        """Compute change in polymer energy for a continuous bead region.
-
-        Notes
-        -----
-        See documentation for `SSWLC.continuous_dE_poly()` class for details 
-        and parameter/return descriptions.
-        """
-        cdef long ind0_m_1, indf_m_1
-        cdef double delta_energy_poly
-
-        ind0_m_1 = ind0 - 1
-        indf_m_1 = indf - 1
-
-        delta_energy_poly = 0
-        if ind0 != 0:
-            delta_energy_poly += self.bead_pair_dE_poly_forward_with_twist(
-                self.r[ind0_m_1, :],
-                self.r[ind0, :],
-                self.r_trial[ind0, :],
-                self.t3[ind0_m_1, :],
-                self.t3[ind0, :],
-                self.t3_trial[ind0, :],
-                self.t2[ind0_m_1, :],
-                self.t2[ind0, :],
-                self.t2_trial[ind0, :],
-                bond_ind = ind0_m_1
-            )
-        if indf != self.num_beads:
-            delta_energy_poly += self.bead_pair_dE_poly_reverse_with_twist(
-                self.r[indf_m_1, :],
-                self.r_trial[indf_m_1, :],
-                self.r[indf, :],
-                self.t3[indf_m_1, :],
-                self.t3_trial[indf_m_1, :],
-                self.t3[indf, :],
-                self.t2[indf_m_1, :],
-                self.t2_trial[indf_m_1, :],
-                self.t2[indf, :],
-                bond_ind = indf_m_1
-            )
-        return delta_energy_poly
-
     cdef double evaluate_binder_interactions(self):
         """Evaluate change in energy associated with binding states.
 
