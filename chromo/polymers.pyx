@@ -32,7 +32,7 @@ cdef np.ndarray empty_1d = np.empty((0, ))
 cdef np.ndarray empty_1d_str = np.empty((0, ), dtype=str)
 
 
-cdef double E_HUGE = 1E99
+cdef double E_HUGE = 1E4
 
 # Length per base pair of DNA
 cdef double LENGTH_BP = 0.332
