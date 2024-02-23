@@ -34,8 +34,8 @@ linker_length_file = os.path.join(
 linker_lengths_bp = np.loadtxt(linker_length_file)
 length_bp = 0.332
 bp_wrap = 147.
-lp = 150.6024096385542 / length_bp
-lt = 301.2048192771084 / length_bp
+lp = 50
+lt = 100
 
 # Load chemical modifications
 chem_mod_file = os.path.join(
