@@ -2895,7 +2895,8 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         n_clashes_trial = self.check_steric_clashes(self.distances_trial)
 
         # Add large energies for each clash
-        delta_energy_poly += (E_HUGE * (n_clashes_trial - n_clashes))
+        # TODO TEMP: Turn off steric interactions and check binding
+        # delta_energy_poly += (E_HUGE * (n_clashes_trial - n_clashes))
 
         # Compute change in reader protein interactions
         if self.num_binders > 0:
