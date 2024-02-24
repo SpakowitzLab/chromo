@@ -129,6 +129,48 @@ def test_distance_runtime():
         f"to less than 0.01 s."
 
 
+def test_distances():
+    """Check that the correct pairwise distances are being calculated.
+    """
+    # Define chromatin to match theory
+    linker_length_bp = 36
+    length_bp = 0.332
+    linker_length = linker_length_bp * length_bp
+    n_beads = 100
+    linker_lengths = np.array([linker_length] * (n_beads-1))
+    lp = 50.
+    lt = 100.
+    bp_wrap = 147.
+    # Initialize the polymer
+    p = poly.DetailedChromatinWithSterics.straight_line_in_x(
+        "Chr",
+        linker_lengths,
+        bp_wrap=bp_wrap,
+        lp=lp,
+        lt=lt,
+        binder_names=np.array(["null_reader"])
+    )
+    # Compute pairwise distances
+    p.get_distances()
+    # Check pairwise distances
+    distances = p.distances
+    distances_trial = p.distances_trial
+    for i in range(n_beads-1):
+        assert np.isclose(distances[i, i+1], linker_length, atol=1e-10), \
+            f"Distance between nucleosome {i} and {i+1} is incorrect"
+        assert np.isclose(distances_trial[i, i+1], linker_length, atol=1e-10), \
+            f"Distance between nucleosome {i} and {i+1} is incorrect"
+    # Check all pairwise distances
+    for i in range(n_beads-1):
+        for j in range(i+2, n_beads):
+            assert np.isclose(
+                distances[i, j], (j - i) * linker_length, atol=1e-10
+            ), f"Distance between nucleosome {i} and {j} is incorrect"
+            assert np.isclose(
+                distances_trial[i, j], (j - i) * linker_length, atol=1e-10
+            ), f"Distance between nucleosome {i} and {j} is incorrect"
+
+
 def evaluate_runtime_with_sterics():
     """Evaluate the runtime required to run a simulation with steric clashes
     """

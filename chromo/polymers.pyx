@@ -2869,13 +2869,10 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         cdef long ind0, indf, ind, i
 
         delta_energy_poly = 0
-
         if move_name == "change_binding_state":
-            if self.is_field_active() == 1:
-                ind0 = inds[0]
-                indf = inds[n_inds-1] + 1
-                delta_energy_poly += self.binding_dE(ind0, indf, n_inds)
-
+            ind0 = inds[0]
+            indf = inds[n_inds-1] + 1
+            delta_energy_poly += self.binding_dE(ind0, indf, n_inds)
         elif (
             move_name == "slide" or move_name == "end_pivot" or
             move_name == "crank_shaft"
@@ -2883,7 +2880,6 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
             ind0 = inds[0]
             indf = inds[n_inds-1] + 1
             delta_energy_poly += self.continuous_dE_poly(ind0, indf)
-
         elif move_name == "tangent_rotation":
             for i in range(n_inds):
                 ind = inds[i]
