@@ -166,12 +166,13 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
     cpdef void get_distances(self)
     cpdef double check_steric_clashes(self, double[:, ::1] distances)
     cpdef bint is_field_active(self)
-    cdef double compute_dE(
+    cpdef double compute_dE(
         self,
         str move_name,
         long[:] inds,
         long n_inds
     )
+    cpdef double compute_E(self)
 
 cpdef double sin_func(double x)
 cpdef double helix_parametric_x(double t)

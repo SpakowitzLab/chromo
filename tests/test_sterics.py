@@ -21,7 +21,7 @@ from inspect import getmembers, isfunction
 
 import chromo.polymers as poly
 import chromo.mc as mc
-from chromo.polymers import Chromatin
+from chromo.util.nucleo_geom import R_default
 import chromo.binders
 from chromo.fields import NullField
 import chromo.util.mu_schedules as ms
@@ -274,8 +274,87 @@ def evaluate_runtime_with_sterics():
         f"time to less than 6.5 s."
 
 
+def test_cutoff_distance():
+    """Test that the nucleosome radius is stored correctly.
+
+    Notes
+    -----
+    The nucleosome radius is used to assess steric clashes.
+    """
+    # Define chromatin to match theory
+    linker_length_bp = 36
+    length_bp = 0.332
+    linker_length = linker_length_bp * length_bp
+    n_beads = 100
+    linker_lengths = np.array([linker_length] * (n_beads-1))
+    lp = 50.
+    lt = 100.
+    bp_wrap = 147.
+    # Initialize the polymer
+    p = poly.DetailedChromatinWithSterics.straight_line_in_x(
+        "Chr",
+        linker_lengths,
+        bp_wrap=bp_wrap,
+        lp=lp,
+        lt=lt,
+        binder_names=np.array(["null_reader"])
+    )
+    # Load the nucleosome radius
+    nucleosome_radius = p.beads[0].rad
+    assert np.isclose(nucleosome_radius, R_default, atol=1e-10), \
+        f"The nucleosome radius is incorrect; it is {nucleosome_radius} " \
+        f"instead of {R_default}."
+
+
+def test_steric_clash_compute_dE():
+    """Test that the steric clash energy is computed correctly.
+    """
+    # Define chromatin to match theory
+    linker_length_bp = 36
+    length_bp = 0.332
+    linker_length = linker_length_bp * length_bp
+    n_beads = 100
+    linker_lengths = np.array([linker_length] * (n_beads-1))
+    lp = 50.
+    lt = 100.
+    bp_wrap = 147.
+    # Initialize the polymer
+    p = poly.DetailedChromatinWithSterics.straight_line_in_x(
+        "Chr",
+        linker_lengths,
+        bp_wrap=bp_wrap,
+        lp=lp,
+        lt=lt,
+        binder_names=np.array(["null_reader"])
+    )
+    # Move trial configuration to a position that causes a steric clash
+    p.r_trial[1] = p.r_trial[0].copy()
+    # Compute the change in energy associated with the move
+    dE = p.compute_dE("slide", np.array([1]), 1)
+    # The energy change should be enormous, because the move causes a steric
+    # clash
+    assert np.isclose(dE, 1E25), f"The energy change is too small; it is {dE}."
+
+    # Verify that the energy is stable even with every bead overlapping
+    p.r_trial = p.r.copy()
+    E_tot = p.compute_E()
+    assert E_tot < 1E25, f"The initial energy is too large; it is {E_tot}."
+    print(f"Energy of non-overlapping system: {E_tot}")
+    print(f"Configuration of non-overlapping system: {np.asarray(p.r)}")
+    for i in range(1, n_beads):
+        p.r_trial[i] = p.r_trial[i-1].copy()
+        p.r_trial[i][0] += 0.999 * (p.beads[i].rad * 2)
+    dE = p.compute_dE("slide", np.arange(n_beads), n_beads)
+    dE_expected = (n_beads-1) * 1E25
+    assert np.isclose(dE, dE_expected), f"The energy change is unstable; " \
+        f"it is represented as {dE} instead of the expected value of {dE_expected}."
+
+
 if __name__ == "__main__":
     test_nucleosome_sterics()
     test_distance_runtime()
     evaluate_runtime_with_sterics()
+    test_distances()
+    test_cutoff_distance()
+    test_steric_clash_compute_dE()
     print("All tests passed.")
