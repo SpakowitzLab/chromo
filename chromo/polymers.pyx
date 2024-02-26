@@ -2821,13 +2821,13 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
                 self.distances[j, i] = self.distances[i, j]
                 self.distances_trial[j, i] = self.distances_trial[i, j]
 
-    cpdef double check_steric_clashes(self, double[:, ::1] distances):
+    cpdef long check_steric_clashes(self, double[:, ::1] distances):
         """Check for steric clashes between nucleosomes.
 
         Returns
         -------
-        bool
-            True if there are steric clashes, False otherwise.
+        long
+            Number of Steric clashes.
         """
         cdef long i, j, n_clashes, num_beads
         n_clashes = 0
@@ -2868,6 +2868,15 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         cdef double delta_energy_poly
         cdef long ind0, indf, ind, i
 
+        # Check Sterics: Compute pairwise distances between nucleosomes
+        self.get_distances()
+        # Count the number of bead pairs that are overlapping
+        n_clashes = self.check_steric_clashes(self.distances)
+        n_clashes_trial = self.check_steric_clashes(self.distances_trial)
+        # Automatically reject moves that increase the number of clashes
+        if n_clashes_trial > n_clashes:
+            return E_HUGE
+
         delta_energy_poly = 0
         if move_name == "change_binding_state":
             ind0 = inds[0]
@@ -2886,17 +2895,6 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
                 ind0 = ind
                 indf = ind + 1
                 delta_energy_poly += self.continuous_dE_poly(ind0, indf)
-
-        # Compute pairwise distances between nucleosomes
-        self.get_distances()
-
-        # Count the number of bead pairs that are overlapping
-        n_clashes = self.check_steric_clashes(self.distances)
-        n_clashes_trial = self.check_steric_clashes(self.distances_trial)
-
-        # Add large energies for each clash
-        # TODO TEMP: Turn off steric interactions and check binding
-        # delta_energy_poly += (E_HUGE * (n_clashes_trial - n_clashes))
 
         # Compute change in reader protein interactions
         if self.num_binders > 0:

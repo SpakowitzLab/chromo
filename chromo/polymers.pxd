@@ -164,7 +164,7 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
     cdef public double[:, ::1] distances, distances_trial
     cdef double evaluate_binder_interactions(self)
     cpdef void get_distances(self)
-    cpdef double check_steric_clashes(self, double[:, ::1] distances)
+    cpdef long check_steric_clashes(self, double[:, ::1] distances)
     cpdef bint is_field_active(self)
     cpdef double compute_dE(
         self,
