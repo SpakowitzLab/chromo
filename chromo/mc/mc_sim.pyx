@@ -155,7 +155,7 @@ cpdef void mc_step(
                 poly, inds, n_inds, packet_size, state_change=0
             )
     try:
-        exp_dE = exp(-dE)
+        exp_dE = np.exp(-dE)
     except RuntimeWarning:
         if dE > 0:
             exp_dE = 0
