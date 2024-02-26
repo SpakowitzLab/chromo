@@ -2799,14 +2799,9 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
 
     cpdef void get_distances(self):
         """Get the distances between all pairs of nucleosomes.
-
-        Returns
-        -------
-        np.ndarray
-            2D array of distances between all pairs of nucleosomes.
         """
         cdef long i, j
-        for i in range(self.num_beads):
+        for i in range(self.num_beads - 1):
             for j in range(i + 1, self.num_beads):
                 self.distances[i, j] = np.sqrt(
                     (self.r[i, 0] - self.r[j, 0]) ** 2 + \
@@ -2832,7 +2827,7 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         cdef long i, j, n_clashes, num_beads
         n_clashes = 0
         num_beads = len(distances)
-        for i in range(num_beads):
+        for i in range(num_beads - 1):
             for j in range(i + 1, num_beads):
                 if distances[i, j] < self.excluded_distance:
                     n_clashes += 1
@@ -2934,7 +2929,7 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
                 )
         # Self interaction, different nucleosomes
         for i in range(self.num_binders):
-            for j in range(self.num_beads):
+            for j in range(self.num_beads - 1):
                 for k in range(j + 1, self.num_beads):
                     cutoff_distance = self.binders[i].interaction_radius
                     if self.distances_trial[j, k] <= cutoff_distance:
@@ -2966,7 +2961,7 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
             for j in range(self.num_binders):
                 if j == i:
                     continue
-                for k in range(self.num_beads):
+                for k in range(self.num_beads - 1):
                     for l in range(k + 1, self.num_beads):
                         cutoff_distance = self.binders[i].interaction_radius
                         if self.distances_trial[k, l] <= cutoff_distance:
@@ -3040,9 +3035,8 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         self.get_distances()
         # Count the number of bead pairs that are overlapping
         n_clashes = self.check_steric_clashes(self.distances)
-        n_clashes_trial = self.check_steric_clashes(self.distances_trial)
         # Add large energies for each clash
-        E = (E_HUGE * (n_clashes_trial - n_clashes))
+        E = n_clashes * E_HUGE
         E_sterics = E
 
         # Compute change in reader protein interactions

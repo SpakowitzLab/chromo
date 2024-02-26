@@ -318,6 +318,7 @@ def test_steric_clash_compute_dE():
     lp = 50.
     lt = 100.
     bp_wrap = 147.
+
     # Initialize the polymer
     p = poly.DetailedChromatinWithSterics.straight_line_in_x(
         "Chr",
@@ -327,27 +328,46 @@ def test_steric_clash_compute_dE():
         lt=lt,
         binder_names=np.array(["null_reader"])
     )
+
+    # Verify that the number of beads is measured correctly
+    n_beads_check = p.num_beads
+    assert n_beads_check == n_beads, \
+        f"The number of beads is incorrect; it is {n_beads_check} instead " \
+        f"of {n_beads}."
+    assert len(p.r) == n_beads, \
+        f"The number of bead positions is incorrect; it is {len(p.r)} " \
+        f"instead of {n_beads}."
+
+    # Verify that distances are zero on the main diagonal
+    for i in range(n_beads):
+        assert np.isclose(p.distances[i, i], 0), \
+            f"The distance between bead {i} and itself is not zero; it is " \
+            f"{p.distances[i, i]}."
+        assert np.isclose(p.distances_trial[i, i], 0), \
+            f"The trial distance between bead {i} and itself is not zero; " \
+            f"it is {p.distances_trial[i, i]}."
+
+    # The initial energy should not be so large
+    E_tot = p.compute_E()
+    assert E_tot < 1E25, f"The initial energy is too large; it is {E_tot}."
+
     # Move trial configuration to a position that causes a steric clash
     p.r_trial[1] = p.r_trial[0].copy()
     # Compute the change in energy associated with the move
     dE = p.compute_dE("slide", np.array([1]), 1)
-    # The energy change should be enormous, because the move causes a steric
-    # clash
-    assert np.isclose(dE, 1E25), f"The energy change is too small; it is {dE}."
+    # The energy change should be enormous, because of the steric clash
+    dE_expected = 1E25
+    assert np.isclose(dE, dE_expected), \
+        f"The energy change is too small; it is {dE}."
 
-    # Verify that the energy is stable even with every bead overlapping
-    p.r_trial = p.r.copy()
-    E_tot = p.compute_E()
-    assert E_tot < 1E25, f"The initial energy is too large; it is {E_tot}."
-    print(f"Energy of non-overlapping system: {E_tot}")
-    print(f"Configuration of non-overlapping system: {np.asarray(p.r)}")
+    # Create multiple steric clashes and verify that the energy is still stable
     for i in range(1, n_beads):
         p.r_trial[i] = p.r_trial[i-1].copy()
         p.r_trial[i][0] += 0.999 * (p.beads[i].rad * 2)
     dE = p.compute_dE("slide", np.arange(n_beads), n_beads)
-    dE_expected = (n_beads-1) * 1E25
     assert np.isclose(dE, dE_expected), f"The energy change is unstable; " \
-        f"it is represented as {dE} instead of the expected value of {dE_expected}."
+        f"it is represented as {dE} instead of the expected value of " \
+        f"{dE_expected}."
 
 
 if __name__ == "__main__":
