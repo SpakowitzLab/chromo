@@ -251,7 +251,7 @@ cdef class MCAdapter:
                     poly.states_trial[inds[i], j] = poly.states[inds[i], j]
         else:
             for i in range(n_inds):
-                for j in range(poly.num_binders):
+                for j in range(3):
                     poly.r_trial[inds[i], j] = poly.r[inds[i], j]
                     poly.t3_trial[inds[i], j] = poly.t3[inds[i], j]
                     poly.t2_trial[inds[i], j] = poly.t2[inds[i], j]
