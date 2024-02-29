@@ -2997,6 +2997,69 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
                                 ] * n_pairs
         return delta_energy_binding
 
+    cdef double get_E_bind(self):
+        """Evaluate energy associated with current binding states.
+
+        Notes
+        -----
+        Pairwise distances should be updated before running this method.
+        To avoid double counting cross-interactions, the cross-interaction
+        energy associated with two binders should only be listed in the
+        properties of one of the binders. The cross-interaction energy should
+        be listed as 0 for the pair in the properties of the other binder.
+
+        Returns
+        -------
+        double
+            Change in energy associated with binding states and reader protein
+            interactions.
+        """
+        cdef long i, j, k, l
+        cdef double delta_energy_binding = 0.0
+        cdef double n_pairs, n_pairs_trial, cutoff_distance
+
+        # Self interactions, same nucleosome
+        for i in range(self.num_binders):
+            for j in range(self.num_beads):
+                n_pairs = self.states[j, i] * (self.states[j, i] - 1) / 2
+                delta_energy_binding += \
+                    self.binders[i].interaction_energy * n_pairs
+        # Self interaction, different nucleosomes
+        for i in range(self.num_binders):
+            for j in range(self.num_beads - 1):
+                for k in range(j + 1, self.num_beads):
+                    cutoff_distance = self.binders[i].interaction_radius
+                    if self.distances[j, k] <= cutoff_distance:
+                        n_pairs = self.states[j, i] * self.states[k, i]
+                        delta_energy_binding += \
+                            self.binders[i].interaction_energy * n_pairs
+        # Cross-interaction, same nucleosome
+        for i in range(self.num_binders):
+            for j in range(self.num_binders):
+                if j == i:
+                    continue
+                for k in range(self.num_beads):
+                    n_pairs = self.states[k, i] * self.states[k, j]
+                    delta_energy_binding += \
+                        self.binders[i].cross_talk_interaction_energy[
+                            self.binders[j].name
+                        ] * n_pairs
+        # Cross-interaction, different nucleosomes
+        for i in range(self.num_binders):
+            for j in range(self.num_binders):
+                if j == i:
+                    continue
+                for k in range(self.num_beads - 1):
+                    for l in range(k + 1, self.num_beads):
+                        cutoff_distance = self.binders[i].interaction_radius
+                        if self.distances[k, l] <= cutoff_distance:
+                            n_pairs = self.states[k, i] * self.states[l, j]
+                            delta_energy_binding += \
+                                self.binders[i].cross_talk_interaction_energy[
+                                    self.binders[j].name
+                                ] * n_pairs
+        return delta_energy_binding
+
     cpdef double compute_E(self):
         """Compute the overall polymer energy at the current configuration.
         
@@ -3060,7 +3123,7 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         # Compute change in reader protein interactions
         E = 0
         if self.num_binders > 0:
-            E = self.evaluate_binder_interactions()
+            E = self.get_E_bind()
         E_interactions = E
 
         # compute the total energy
@@ -3134,7 +3197,7 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         # Compute change in reader protein interactions
         E = 0
         if self.num_binders > 0:
-            E = self.evaluate_binder_interactions()
+            E = self.get_E_bind()
         E_interactions = E
 
         # compute the total energy
