@@ -369,6 +369,11 @@ def test_steric_clash_compute_dE():
         f"it is represented as {dE} instead of the expected value of " \
         f"{dE_expected}."
 
+    # We did not introduce binders, so the total interaction energy should be 0
+    E_dict = p.compute_E_detailed()
+    assert np.isclose(E_dict["interaction"], 0), \
+        "The total interaction energy should be 0."
+
 
 if __name__ == "__main__":
     test_nucleosome_sterics()

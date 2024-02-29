@@ -173,6 +173,7 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         long n_inds
     )
     cpdef double compute_E(self)
+    cpdef dict compute_E_detailed(self)
 
 cpdef double sin_func(double x)
 cpdef double helix_parametric_x(double t)

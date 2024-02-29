@@ -275,7 +275,7 @@ cdef class PolymerBase(TransformedObject):
             ['r', 't3', 't2', 'states', 'chemical_mods', 'bead_length']
         )
         self._3d_arrays = np.array(['r', 't3', 't2'])
-        self._single_values = np.array(["name", "lp", "num_beads"])
+        self._single_values = np.array(["name", "lp", "lt", "bp_wrap"])
 
         # For move proposals
         self.r_trial = self.r.copy()
@@ -747,6 +747,10 @@ cdef class PolymerBase(TransformedObject):
             kwargs['name'] = name
         if "lp" in df:
             kwargs['lp'] = float(kwargs['lp'][0])
+        if "lt" in df:
+            kwargs['lt'] = float(kwargs['lt'][0])
+        if "bp_wrap" in df:
+            kwargs['bp_wrap'] = float(kwargs['bp_wrap'][0])
         if "bead_length" in df:
             kwargs['bead_length'] = \
                 np.asarray(kwargs['bead_length'][:-1]).flatten().astype(float)
@@ -3049,6 +3053,83 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         E = E_elastic + E_sterics + E_interactions
 
         return E
+
+    cpdef dict compute_E_detailed(self):
+        """Compute the overall polymer energy at the current configuration.
+        
+        Notes
+        -----
+        This method loops over each bond in the polymer and calculates the 
+        energy change of that bond. The method returns the energy as a
+        dictionary with the elastic, steric, and interaction components of
+        the total energy.
+
+        Returns
+        -------
+        Dict[str, float]
+            Dictionary of the elastic, steric, interaction, and total energy
+            of a configuration.
+        """
+        cdef double E, dr_par
+        cdef long i, j, i_m1
+        cdef double[:] dr, dr_perp, bend
+        cdef double[:] r_0, r_1, t3_0, t3_1, t2_0, t2_1
+
+        E = 0
+        for i in range(1, self.num_beads):
+            i_m1 = i - 1
+            r_0 = self.r[i_m1, :]
+            r_1 = self.r[i, :]
+            t3_0 = self.t3[i_m1, :]
+            t3_1 = self.t3[i, :]
+            t2_0 = self.t2[i_m1, :]
+            t2_1 = self.t2[i, :]
+            t1_0 = np.array([
+                t2_0[1] * t3_0[2] - t2_0[2] * t3_0[1],
+                t2_0[2] * t3_0[0] - t2_0[0] * t3_0[2],
+                t2_0[0] * t3_0[1] - t2_0[1] * t3_0[0]
+            ])
+            t1_1 = np.array([
+                t2_1[1] * t3_1[2] - t2_1[2] * t3_1[1],
+                t2_1[2] * t3_1[0] - t2_1[0] * t3_1[2],
+                t2_1[0] * t3_1[1] - t2_1[1] * t3_1[0]
+            ])
+            omega = np.arctan2(
+                (np.dot(t2_0, t1_1) - np.dot(t1_0, t2_1)),
+                (np.dot(t1_0, t1_1) + np.dot(t2_0, t2_1))
+            )
+            dr = vec_sub3(r_1, r_0)
+            dr_par = vec_dot3(t3_0, dr)
+            dr_perp = vec_sub3(dr, vec_scale3(t3_0, dr_par))
+            bend = t3_1.copy()
+            for j in range(3):
+                bend[j] += -t3_0[j] - self.eta[i_m1] * dr_perp[j]
+            E += self.E_pair_with_twist(bend, dr_par, dr_perp, omega, i_m1)
+        E_elastic = E
+
+        # Compute the energy change associated with sterics
+        E = 0
+        # Compute pairwise distances between nucleosomes
+        self.get_distances()
+        # Count the number of bead pairs that are overlapping
+        n_clashes = self.check_steric_clashes(self.distances)
+        # Add large energies for each clash
+        E = n_clashes * E_HUGE
+        E_sterics = E
+
+        # Compute change in reader protein interactions
+        E = 0
+        if self.num_binders > 0:
+            E = self.evaluate_binder_interactions()
+        E_interactions = E
+
+        # compute the total energy
+        E = E_elastic + E_sterics + E_interactions
+
+        return {
+            "elsatic": E_elastic, "steric": E_sterics,
+            "interaction": E_interactions, "total": E
+        }
 
 
 cpdef double sin_func(double x):
