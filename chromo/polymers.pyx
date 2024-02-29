@@ -3127,7 +3127,7 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         E = E_elastic + E_sterics + E_interactions
 
         return {
-            "elsatic": E_elastic, "steric": E_sterics,
+            "elastic": E_elastic, "steric": E_sterics,
             "interaction": E_interactions, "total": E
         }
 
