@@ -710,8 +710,14 @@ cdef class PolymerBase(TransformedObject):
         return cls.from_dataframe(df)
 
     @classmethod
-    def from_dataframe(cls, df, name=None):
+    def from_dataframe(cls, df, name=None, **kwargs):
         """Construct Polymer object from DataFrame; inverts `.to_dataframe`.
+
+        Notes
+        -----
+        TODO: For the DetailedChromatinWithSterics class, this method does not
+        TODO: load binders from file. Binders must be specified separately as
+        TODO: kwargs. Perhaps a binders file can be handled in the future.
 
         Parameters
         ----------
@@ -727,38 +733,46 @@ cdef class PolymerBase(TransformedObject):
         """
         # top-level multiindex values correspond to kwargs
         kwnames = np.unique(df.columns.get_level_values(0))
-        kwargs = {
+        kwargs_ = {
             name: np.ascontiguousarray(df[name].to_numpy()) for name in kwnames
         }
         # extract names of each epigenetic state from multi-index
         if 'states' in df:
             binder_names = df['states'].columns.to_numpy()
-            kwargs['binder_names'] = binder_names
+            kwargs_['binder_names'] = binder_names
         if 'chemical_mods' in df:
             chemical_mod_names = df['chemical_mods'].columns.to_numpy()
-            kwargs['chemical_mod_names'] = chemical_mod_names
+            kwargs_['chemical_mod_names'] = chemical_mod_names
         if 'max_binders' in df:
-            kwargs['max_binders'] = kwargs['max_binders'][0]
+            kwargs_['max_binders'] = kwargs_['max_binders'][0]
         if "name" in df and name is None:
-            kwargs['name'] = df['name'][0]
+            kwargs_['name'] = df['name'][0]
         elif name is None:
-            kwargs['name'] = "unnamed"
+            kwargs_['name'] = "unnamed"
         else:
-            kwargs['name'] = name
+            kwargs_['name'] = name
         if "lp" in df:
-            kwargs['lp'] = float(kwargs['lp'][0])
+            kwargs_['lp'] = float(kwargs_['lp'][0])
         if "lt" in df:
-            kwargs['lt'] = float(kwargs['lt'][0])
+            kwargs_['lt'] = float(kwargs_['lt'][0])
         if "bp_wrap" in df:
-            kwargs['bp_wrap'] = float(kwargs['bp_wrap'][0])
+            kwargs_['bp_wrap'] = float(kwargs_['bp_wrap'][0])
         if "bead_length" in df:
-            kwargs['bead_length'] = \
-                np.asarray(kwargs['bead_length'][:-1]).flatten().astype(float)
-        return cls(**kwargs)
+            kwargs_['bead_length'] = \
+                np.asarray(kwargs_['bead_length'][:-1]).flatten().astype(float)
+        for key, value in kwargs.items():
+            kwargs_[key] = value
+        return cls(**kwargs_)
 
     @classmethod
-    def from_file(cls, path, name=None):
+    def from_file(cls, path, name=None, **kwargs):
         """Construct Polymer object from string representation.
+
+        Notes
+        -----
+        TODO: For the DetailedChromatinWithSterics class, this method does not
+        TODO: load binders from file. Binders must be specified separately as
+        TODO: kwargs. Perhaps a binders file can be handled in the future.
 
         Parameters
         ----------
@@ -775,7 +789,7 @@ cdef class PolymerBase(TransformedObject):
         if name is None:
             name = path.split("/")[-1].split(".")[0]
         df = pd.read_csv(path, header=[0, 1], index_col=0)
-        return cls.from_dataframe(df, name)
+        return cls.from_dataframe(df, name, **kwargs)
 
     cpdef long get_num_binders(self):
         """Return number of states tracked per bead.
