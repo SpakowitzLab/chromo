@@ -15,5 +15,5 @@ cpdef void mc_sim(
 
 cpdef void mc_step(
     MCAdapter adaptible_move, PolymerBase poly, readerproteins,
-    FB field, bint active_field
+    FB field, bint active_field, bint update_distances
 )

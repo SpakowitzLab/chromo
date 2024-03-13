@@ -1,4 +1,4 @@
-# cython: profile=True
+# cython: profile=False
 
 """Utilities for proposing Monte Carlo moves.
 
@@ -155,7 +155,7 @@ cdef class MCAdapter:
 
     cdef void accept(
         self, PolymerBase poly, double dE, long[:] inds, long n_inds,
-        bint log_move, bint log_update
+        bint log_move, bint log_update, bint update_distances
     ):
         """Update polymer with new state and update proposal stats.
 
@@ -180,6 +180,10 @@ cdef class MCAdapter:
         log_update : bint
             Indicator for whether (1) or not (2) to record the updated
             acceptance rate after the MC move
+        update_distances : bint
+            Update pairwise distances between beads -- only relevant if the
+            polymer is an instance of DetailedChromatinWithSterics, which
+            tracks pairwise distances between beads.
         """
         cdef long i, j
 
@@ -187,24 +191,39 @@ cdef class MCAdapter:
             for i in range(n_inds):
                 for j in range(poly.num_binders):
                     poly.states[inds[i], j] = poly.states_trial[inds[i], j]
+
         elif self.name == "slide":
             for i in range(n_inds):
                 for j in range(3):
                     poly.r[inds[i], j] = poly.r_trial[inds[i], j]
                     poly.t3_trial[inds[i], j] = poly.t3[inds[i], j]
                     poly.t2_trial[inds[i], j] = poly.t2[inds[i], j]
+                if update_distances:
+                    for j in range(poly.num_beads):
+                        poly.distances[inds[i], j] = \
+                            poly.distances_trial[inds[i], j]
+                        poly.distances[j, inds[i]] = \
+                            poly.distances_trial[j, inds[i]]
+
         elif self.name == "tangent_rotation":
             for i in range(n_inds):
                 for j in range(3):
                     poly.t3[inds[i], j] = poly.t3_trial[inds[i], j]
                     poly.t2[inds[i], j] = poly.t2_trial[inds[i], j]
                     poly.r_trial[inds[i], j] = poly.r[inds[i], j]
+
         else:
             for i in range(n_inds):
                 for j in range(3):
                     poly.r[inds[i], j] = poly.r_trial[inds[i], j]
                     poly.t3[inds[i], j] = poly.t3_trial[inds[i], j]
                     poly.t2[inds[i], j] = poly.t2_trial[inds[i], j]
+                if update_distances:
+                    for j in range(poly.num_beads):
+                        poly.distances[inds[i], j] = \
+                            poly.distances_trial[inds[i], j]
+                        poly.distances[j, inds[i]] = \
+                            poly.distances_trial[j, inds[i]]
 
         self.num_success += 1
         self.acceptance_tracker.update_acceptance_rate(
@@ -221,7 +240,7 @@ cdef class MCAdapter:
 
     cdef void reject(
         self, PolymerBase poly, double dE, long[:] inds, long n_inds,
-        bint log_move, bint log_update
+        bint log_move, bint log_update, bint update_distances
     ) except *:
         """Reject a proposed Monte Carlo move.
 
@@ -243,6 +262,10 @@ cdef class MCAdapter:
         log_update : bint
             Indicator for whether (1) or not (2) to record the updated
             acceptance rate after the MC move
+        update_distances : bint
+            Update pairwise distances between beads -- only relevant if the
+            polymer is an instance of DetailedChromatinWithSterics, which
+            tracks pairwise distances between beads.
         """
         # Reset trial states
         if self.name == "change_binding_state":
@@ -255,6 +278,15 @@ cdef class MCAdapter:
                     poly.r_trial[inds[i], j] = poly.r[inds[i], j]
                     poly.t3_trial[inds[i], j] = poly.t3[inds[i], j]
                     poly.t2_trial[inds[i], j] = poly.t2[inds[i], j]
+                if update_distances and (
+                    self.name == "slide" or self.name == "end_pivot" or
+                    self.name == "crank_shaft"
+                ):
+                    for j in range(poly.num_beads):
+                        poly.distances_trial[inds[i], j] = \
+                            poly.distances[inds[i], j]
+                        poly.distances_trial[j, inds[i]] = \
+                            poly.distances[j, inds[i]]
 
         # Update acceptance tracker
         self.acceptance_tracker.update_acceptance_rate(

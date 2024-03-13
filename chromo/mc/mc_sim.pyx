@@ -1,4 +1,4 @@
-# cython: profile=True
+# cython: profile=False
 
 """Routines for performing Monte Carlo simulations.
 """
@@ -7,9 +7,9 @@ import pyximport
 pyximport.install()
 
 # Built-in Modules
-from typing import List, TypeVar, Optional
+from typing import List, Optional
 from libc.stdlib cimport rand, RAND_MAX, srand
-from libc.math cimport exp
+#from libc.math cimport exp
 #from time import process_time
 #import warnings
 #import sys
@@ -18,9 +18,8 @@ from libc.math cimport exp
 import numpy as np
 
 # Custom Modules
-from chromo.polymers import PolymerBase
-from chromo.polymers cimport PolymerBase
-from chromo.binders import ReaderProtein
+from chromo.polymers import PolymerBase, DetailedChromatinWithSterics
+from chromo.polymers cimport PolymerBase, DetailedChromatinWithSterics
 from chromo.mc.moves import MCAdapter
 from chromo.mc.moves cimport MCAdapter
 from chromo.mc.mc_controller import Controller
@@ -68,10 +67,10 @@ cpdef void mc_sim(
     mu_adjust_factor : double
         Adjustment factor applied to the chemical potential in response to
         simulated annealing
-    random_seed : Optional[int]
-        Randoms seed with which to initialize simulation 
+    random_seed : int
+        Randoms seed with which to initialize simulation
     """
-    cdef bint active_field
+    cdef bint active_field, update_pairwise_distances
     cdef long i, j, k, n_polymers
     cdef list active_fields
     cdef poly
@@ -90,18 +89,21 @@ cpdef void mc_sim(
                 for j in range(controller.move.num_per_cycle):
                     for i in range(len(polymers)):
                         poly = polymers[i]
+                        # Update distances depending on the class of the polymer
+                        update_pairwise_distances = \
+                            isinstance(poly, DetailedChromatinWithSterics)
                         poly.mu_adjust_factor = mu_adjust_factor
                         active_field = active_fields[i]
                         mc_step(
                             controller.move, poly, readerproteins, field,
-                            active_field
+                            active_field, update_pairwise_distances
                         )
             controller.update_amplitudes()
 
 
 cpdef void mc_step(
     MCAdapter adaptible_move, PolymerBase poly, readerproteins,
-    FB field, bint active_field
+    FB field, bint active_field, bint update_distances
 ):
     """Compute energy change and determine move acceptance.
 
@@ -127,6 +129,10 @@ cpdef void mc_step(
         Field affecting polymer in Monte Carlo step
     active_field: bool
         Indicator of whether or not the field is active for the polymer
+    update_distances : bint
+        Update pairwise distances between beads -- only relevant if the
+        polymer is an instance of DetailedChromatinWithSterics, which
+        tracks pairwise distances between beads
     """
     cdef double dE, exp_dE
     cdef int check_field = 0
@@ -164,12 +170,14 @@ cpdef void mc_step(
 
     if (<double>rand() / RAND_MAX) < exp_dE:
         adaptible_move.accept(
-            poly, dE, inds, n_inds, log_move=False, log_update=False
+            poly, dE, inds, n_inds, log_move=False, log_update=False,
+            update_distances=update_distances
         )
         if check_field == 1:
             field.update_affected_densities()
 
     else:
         adaptible_move.reject(
-            poly, dE, inds, n_inds, log_move=False, log_update=False
+            poly, dE, inds, n_inds, log_move=False, log_update=False,
+            update_distances=update_distances
         )

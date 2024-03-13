@@ -1,4 +1,4 @@
-# cython: profile=True
+# cython: profile=False
 
 """Polymers that will make up our simulation.
 """
@@ -2834,6 +2834,69 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
                 self.distances[j, i] = self.distances[i, j]
                 self.distances_trial[j, i] = self.distances_trial[i, j]
 
+    cpdef void get_delta_distances(self, long ind0, long indf):
+        """Get changes in distances, rather than every distance
+        
+        Notes
+        -----
+        This function operates a lot like `get_distances`, but only computes
+        the pairwise distances only between beads affected by a move and all
+        other beads in the system. This is useful for computing the change in
+        energy associated with a proposed move in a more efficient manner.
+        
+        This method only updates the `distances_trial` attribute of the class.
+        
+        Parameters
+        ----------
+        ind0, indf : long
+            Indices of the first and one-past-the-last beads affected by the
+            move
+        """
+        cdef long i, j
+        for i in range(ind0, indf):
+            for j in range(self.num_beads):
+
+                # Let's unnecessary computation
+                if i == j:
+                    continue
+
+                self.distances_trial[i, j] = np.sqrt(
+                    (self.r_trial[i, 0] - self.r_trial[j, 0]) ** 2 + \
+                    (self.r_trial[i, 1] - self.r_trial[j, 1]) ** 2 + \
+                    (self.r_trial[i, 2] - self.r_trial[j, 2]) ** 2
+                )
+                self.distances_trial[j, i] = self.distances_trial[i, j]
+
+    cpdef long check_delta_steric_clashes(self, long ind0, long indf):
+        """Get the change in steric clashes associated with a move.
+        
+        Notes
+        -----
+        This method computes the steric clashes, but does so only by checking
+        the beads that were affected by an MC move. There is not need to
+        re-check for steric clashes between unmoved beads.
+        
+        Returns
+        -------
+        long
+            Change in the number of steric clashes associated with the move.
+        """
+        cdef long i, j, n_clashes, num_beads
+        n_clashes = 0
+        num_beads = len(self.distances_trial)
+        for i in range(ind0, indf):
+            for j in range(num_beads):
+
+                # Don't double count!
+                if j == i:
+                    continue
+
+                if self.distances_trial[i, j] < self.excluded_distance:
+                    n_clashes += 1
+                if self.distances[i, j] < self.excluded_distance:
+                    n_clashes -= 1
+        return n_clashes
+
     cpdef long check_steric_clashes(self, double[:, ::1] distances):
         """Check for steric clashes between nucleosomes.
 
@@ -2876,19 +2939,23 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         Returns
         -------
         delta_energy_poly : double
-            Change in polymer elastic energy assocaited with the trial move
+            Change in polymer elastic energy associated with the trial move
         """
         cdef double delta_energy_poly
         cdef long ind0, indf, ind, i
 
         # Check Sterics: Compute pairwise distances between nucleosomes
-        self.get_distances()
-        # Count the number of bead pairs that are overlapping
-        n_clashes = self.check_steric_clashes(self.distances)
-        n_clashes_trial = self.check_steric_clashes(self.distances_trial)
-        # Automatically reject moves that increase the number of clashes
-        if n_clashes_trial > n_clashes:
-            return E_HUGE
+        # New steric clashes only occur for moves involving translations
+        if (
+            move_name == "slide" or move_name == "end_pivot" or
+            move_name == "crank_shaft"
+        ):
+            ind0 = inds[0]
+            indf = inds[n_inds-1] + 1
+            self.get_delta_distances(ind0, indf)
+            delta_clashes = self.check_delta_steric_clashes(ind0, indf)
+            if delta_clashes > 0:
+                return E_HUGE
 
         delta_energy_poly = 0
         if move_name == "change_binding_state":

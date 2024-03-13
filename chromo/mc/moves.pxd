@@ -27,11 +27,11 @@ cdef class MCAdapter:
     cdef long[:] propose(self, PolymerBase polymer)
     cdef void accept(
         self, PolymerBase poly, double dE, long[:] inds, long n_inds,
-        bint log_move, bint log_update
+        bint log_move, bint log_update, bint update_distances
     )
     cdef void reject(
         self, PolymerBase poly, double dE,  long[:] inds, long n_inds,
-        bint log_move, bint log_update
+        bint log_move, bint log_update, bint update_distances
     ) except *
 
 cdef class Bounds:

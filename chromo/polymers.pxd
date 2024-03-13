@@ -175,6 +175,9 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
     )
     cpdef double compute_E(self)
     cpdef dict compute_E_detailed(self)
+    cpdef void get_delta_distances(self, long ind0, long indf)
+    cpdef long check_delta_steric_clashes(self, long ind0, long indf)
+
 
 cpdef double sin_func(double x)
 cpdef double helix_parametric_x(double t)
