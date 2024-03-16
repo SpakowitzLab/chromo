@@ -160,7 +160,7 @@ cdef class DetailedChromatin(SSTWLC):
 
 cdef class DetailedChromatinWithSterics(DetailedChromatin):
     cdef public binders
-    cdef public double excluded_distance
+    cdef public double excluded_distance, V0
     cdef public double[:, ::1] distances, distances_trial
     cdef double evaluate_binder_interactions(self)
     cdef double get_E_bind(self)
@@ -176,7 +176,7 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
     cpdef double compute_E(self)
     cpdef dict compute_E_detailed(self)
     cpdef void get_delta_distances(self, long ind0, long indf)
-    cpdef long check_delta_steric_clashes(self, long ind0, long indf)
+    cpdef double eval_delta_steric_clashes(self, long ind0, long indf)
 
 
 cpdef double sin_func(double x)

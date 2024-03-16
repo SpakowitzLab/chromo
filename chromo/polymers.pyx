@@ -2794,6 +2794,7 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
             chemical_mod_names=chemical_mod_names, log_path=log_path,
             max_binders=max_binders
         )
+        self.V0 = 1.0
         self.excluded_distance = self.beads[0].rad * 2.0
         self.distances = np.zeros((self.num_beads, self.num_beads))
         self.distances_trial = np.zeros((self.num_beads, self.num_beads))
@@ -2867,7 +2868,7 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
                 )
                 self.distances_trial[j, i] = self.distances_trial[i, j]
 
-    cpdef long check_delta_steric_clashes(self, long ind0, long indf):
+    cpdef double eval_delta_steric_clashes(self, long ind0, long indf):
         """Get the change in steric clashes associated with a move.
         
         Notes
@@ -2878,11 +2879,13 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         
         Returns
         -------
-        long
+        double
             Change in the number of steric clashes associated with the move.
         """
         cdef long i, j, n_clashes, num_beads
+        cdef double overlap_frac
         n_clashes = 0
+        E_clash = 0
         num_beads = len(self.distances_trial)
         for i in range(ind0, indf):
             for j in range(num_beads):
@@ -2892,10 +2895,18 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
                     continue
 
                 if self.distances_trial[i, j] < self.excluded_distance:
-                    n_clashes += 1
+                    overlap_frac = (
+                        self.excluded_distance / self.distances_trial[i, j]
+                    )
+                    E_clash += self.V0 * (overlap_frac**12 -
+                        2 * overlap_frac**6 + 1)
                 if self.distances[i, j] < self.excluded_distance:
-                    n_clashes -= 1
-        return n_clashes
+                    overlap_frac = (
+                        self.excluded_distance / self.distances[i, j]
+                    )
+                    E_clash -= self.V0 * (overlap_frac**12 -
+                        2 * overlap_frac**6 + 1)
+        return E_clash
 
     cpdef long check_steric_clashes(self, double[:, ::1] distances):
         """Check for steric clashes between nucleosomes.
@@ -2941,8 +2952,10 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         delta_energy_poly : double
             Change in polymer elastic energy associated with the trial move
         """
-        cdef double delta_energy_poly
+        cdef double delta_energy_poly, dE_clashes
         cdef long ind0, indf, ind, i
+
+        delta_energy_poly = 0
 
         # Check Sterics: Compute pairwise distances between nucleosomes
         # New steric clashes only occur for moves involving translations
@@ -2953,11 +2966,9 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
             ind0 = inds[0]
             indf = inds[n_inds-1] + 1
             self.get_delta_distances(ind0, indf)
-            delta_clashes = self.check_delta_steric_clashes(ind0, indf)
-            if delta_clashes > 0:
-                return E_HUGE
+            dE_clashes = self.eval_delta_steric_clashes(ind0, indf)
+            delta_energy_poly += dE_clashes
 
-        delta_energy_poly = 0
         if move_name == "change_binding_state":
             ind0 = inds[0]
             indf = inds[n_inds-1] + 1
@@ -3181,10 +3192,8 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         E = 0
         # Compute pairwise distances between nucleosomes
         self.get_distances()
-        # Count the number of bead pairs that are overlapping
-        n_clashes = self.check_steric_clashes(self.distances)
-        # Add large energies for each clash
-        E = n_clashes * E_HUGE
+        # Evaluate the energy of steric clashes
+        E = self.eval_steric_clashes(self.distances)
         E_sterics = E
 
         # Compute change in reader protein interactions
@@ -3255,10 +3264,8 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         E = 0
         # Compute pairwise distances between nucleosomes
         self.get_distances()
-        # Count the number of bead pairs that are overlapping
-        n_clashes = self.check_steric_clashes(self.distances)
-        # Add large energies for each clash
-        E = n_clashes * E_HUGE
+        # Evaluate the energy of steric clashes
+        E = self.eval_steric_clashes(self.distances)
         E_sterics = E
 
         # Compute change in reader protein interactions
