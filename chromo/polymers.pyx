@@ -2908,6 +2908,29 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
                         2 * overlap_frac**6 + 1)
         return E_clash
 
+    cpdef double eval_E_steric_clashes(self):
+        """Compute the Energy associated with steric clashes.
+        
+        Returns
+        -------
+        double
+            Energy associated with steric clashes in the current configuration.
+        """
+        cdef long i, j, n_clashes, num_beads
+        cdef double overlap_frac
+        n_clashes = 0
+        E_clash = 0
+        num_beads = len(self.distances_trial)
+        for i in range(0, num_beads - 1):
+            for j in range(i+1, num_beads):
+                if self.distances[i, j] < self.excluded_distance:
+                    overlap_frac = (
+                        self.excluded_distance / self.distances[i, j]
+                    )
+                    E_clash += self.V0 * (overlap_frac ** 12 -
+                                          2 * overlap_frac ** 6 + 1)
+        return E_clash
+
     cpdef long check_steric_clashes(self, double[:, ::1] distances):
         """Check for steric clashes between nucleosomes.
 
@@ -3193,7 +3216,7 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         # Compute pairwise distances between nucleosomes
         self.get_distances()
         # Evaluate the energy of steric clashes
-        E = self.eval_steric_clashes(self.distances)
+        E = self.eval_E_steric_clashes()
         E_sterics = E
 
         # Compute change in reader protein interactions
@@ -3265,7 +3288,7 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         # Compute pairwise distances between nucleosomes
         self.get_distances()
         # Evaluate the energy of steric clashes
-        E = self.eval_steric_clashes(self.distances)
+        E = self.eval_E_steric_clashes()
         E_sterics = E
 
         # Compute change in reader protein interactions
