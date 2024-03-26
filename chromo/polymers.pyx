@@ -2857,7 +2857,7 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         for i in range(ind0, indf):
             for j in range(self.num_beads):
 
-                # Let's unnecessary computation
+                # Let's avoid unnecessary computation
                 if i == j:
                     continue
 
@@ -2891,7 +2891,7 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
             for j in range(num_beads):
 
                 # Don't double count!
-                if j == i:
+                if j >= i and (ind0 <= j < indf):
                     continue
 
                 if self.distances_trial[i, j] < self.excluded_distance:
@@ -2916,13 +2916,12 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         double
             Energy associated with steric clashes in the current configuration.
         """
-        cdef long i, j, n_clashes, num_beads
+        cdef long i, j, num_beads
         cdef double overlap_frac
-        n_clashes = 0
         E_clash = 0
-        num_beads = len(self.distances_trial)
+        num_beads = len(self.distances)
         for i in range(0, num_beads - 1):
-            for j in range(i+1, num_beads):
+            for j in range(i + 1, num_beads):
                 if self.distances[i, j] < self.excluded_distance:
                     overlap_frac = (
                         self.excluded_distance / self.distances[i, j]
@@ -2965,7 +2964,7 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         ----------
         move_name : str
             Name of the MC move for which the energy change is being calculated
-        inds : array_like (N, 3)
+        inds : array_like (N,)
             Indices of N beads affected by the MC move
         n_inds : long
             Number of beads affected by the MC move
@@ -3182,33 +3181,42 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         E = 0
         for i in range(1, self.num_beads):
             i_m1 = i - 1
-            r_0 = self.r[i_m1, :]
-            r_1 = self.r[i, :]
-            t3_0 = self.t3[i_m1, :]
-            t3_1 = self.t3[i, :]
-            t2_0 = self.t2[i_m1, :]
-            t2_1 = self.t2[i, :]
+
+            # Get the entry/exit positions and orientations!
+            ri_0, ro_0, t3i_0, t3o_0, t2i_0, t2o_0 = \
+                self.beads[i_m1].update_configuration(
+                    np.asarray(self.r[i_m1, :]),
+                    np.asarray(self.t3[i_m1, :]),
+                    np.asarray(self.t2[i_m1, :])
+                )
+            ri_1, ro_1, t3i_1, t3o_1, t2i_1, t2o_1 = \
+                self.beads[i].update_configuration(
+                    np.asarray(self.r[i, :]),
+                    np.asarray(self.t3[i, :]),
+                    np.asarray(self.t2[i, :])
+                )
             t1_0 = np.array([
-                t2_0[1] * t3_0[2] - t2_0[2] * t3_0[1],
-                t2_0[2] * t3_0[0] - t2_0[0] * t3_0[2],
-                t2_0[0] * t3_0[1] - t2_0[1] * t3_0[0]
+                t2o_0[1] * t3o_0[2] - t2o_0[2] * t3o_0[1],
+                t2o_0[2] * t3o_0[0] - t2o_0[0] * t3o_0[2],
+                t2o_0[0] * t3o_0[1] - t2o_0[1] * t3o_0[0]
             ])
             t1_1 = np.array([
-                t2_1[1] * t3_1[2] - t2_1[2] * t3_1[1],
-                t2_1[2] * t3_1[0] - t2_1[0] * t3_1[2],
-                t2_1[0] * t3_1[1] - t2_1[1] * t3_1[0]
+                t2i_1[1] * t3i_1[2] - t2i_1[2] * t3i_1[1],
+                t2i_1[2] * t3i_1[0] - t2i_1[0] * t3i_1[2],
+                t2i_1[0] * t3i_1[1] - t2i_1[1] * t3i_1[0]
             ])
             omega = np.arctan2(
-                (np.dot(t2_0, t1_1) - np.dot(t1_0, t2_1)),
-                (np.dot(t1_0, t1_1) + np.dot(t2_0, t2_1))
+                (np.dot(t2o_0, t1_1) - np.dot(t1_0, t2i_1)),
+                (np.dot(t1_0, t1_1) + np.dot(t2o_0, t2i_1))
             )
-            dr = vec_sub3(r_1, r_0)
-            dr_par = vec_dot3(t3_0, dr)
-            dr_perp = vec_sub3(dr, vec_scale3(t3_0, dr_par))
-            bend = t3_1.copy()
+            dr = vec_sub3(ri_1, ro_0)
+            dr_par = vec_dot3(t3o_0, dr)
+            dr_perp = vec_sub3(dr, vec_scale3(t3o_0, dr_par))
+            bend = t3i_1.copy()
             for j in range(3):
-                bend[j] += -t3_0[j] - self.eta[i_m1] * dr_perp[j]
+                bend[j] += -t3o_0[j] - self.eta[i_m1] * dr_perp[j]
             E += self.E_pair_with_twist(bend, dr_par, dr_perp, omega, i_m1)
+        E_elastic = E
         E_elastic = E
 
         # Compute the energy change associated with sterics
@@ -3254,32 +3262,40 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         E = 0
         for i in range(1, self.num_beads):
             i_m1 = i - 1
-            r_0 = self.r[i_m1, :]
-            r_1 = self.r[i, :]
-            t3_0 = self.t3[i_m1, :]
-            t3_1 = self.t3[i, :]
-            t2_0 = self.t2[i_m1, :]
-            t2_1 = self.t2[i, :]
+
+            # Get the entry/exit positions and orientations!
+            ri_0, ro_0, t3i_0, t3o_0, t2i_0, t2o_0 = \
+                self.beads[i_m1].update_configuration(
+                    np.asarray(self.r[i_m1, :]),
+                    np.asarray(self.t3[i_m1, :]),
+                    np.asarray(self.t2[i_m1, :])
+                )
+            ri_1, ro_1, t3i_1, t3o_1, t2i_1, t2o_1 = \
+                self.beads[i].update_configuration(
+                    np.asarray(self.r[i, :]),
+                    np.asarray(self.t3[i, :]),
+                    np.asarray(self.t2[i, :])
+                )
             t1_0 = np.array([
-                t2_0[1] * t3_0[2] - t2_0[2] * t3_0[1],
-                t2_0[2] * t3_0[0] - t2_0[0] * t3_0[2],
-                t2_0[0] * t3_0[1] - t2_0[1] * t3_0[0]
+                t2o_0[1] * t3o_0[2] - t2o_0[2] * t3o_0[1],
+                t2o_0[2] * t3o_0[0] - t2o_0[0] * t3o_0[2],
+                t2o_0[0] * t3o_0[1] - t2o_0[1] * t3o_0[0]
             ])
             t1_1 = np.array([
-                t2_1[1] * t3_1[2] - t2_1[2] * t3_1[1],
-                t2_1[2] * t3_1[0] - t2_1[0] * t3_1[2],
-                t2_1[0] * t3_1[1] - t2_1[1] * t3_1[0]
+                t2i_1[1] * t3i_1[2] - t2i_1[2] * t3i_1[1],
+                t2i_1[2] * t3i_1[0] - t2i_1[0] * t3i_1[2],
+                t2i_1[0] * t3i_1[1] - t2i_1[1] * t3i_1[0]
             ])
             omega = np.arctan2(
-                (np.dot(t2_0, t1_1) - np.dot(t1_0, t2_1)),
-                (np.dot(t1_0, t1_1) + np.dot(t2_0, t2_1))
+                (np.dot(t2o_0, t1_1) - np.dot(t1_0, t2i_1)),
+                (np.dot(t1_0, t1_1) + np.dot(t2o_0, t2i_1))
             )
-            dr = vec_sub3(r_1, r_0)
-            dr_par = vec_dot3(t3_0, dr)
-            dr_perp = vec_sub3(dr, vec_scale3(t3_0, dr_par))
-            bend = t3_1.copy()
+            dr = vec_sub3(ri_1, ro_0)
+            dr_par = vec_dot3(t3o_0, dr)
+            dr_perp = vec_sub3(dr, vec_scale3(t3o_0, dr_par))
+            bend = t3i_1.copy()
             for j in range(3):
-                bend[j] += -t3_0[j] - self.eta[i_m1] * dr_perp[j]
+                bend[j] += -t3o_0[j] - self.eta[i_m1] * dr_perp[j]
             E += self.E_pair_with_twist(bend, dr_par, dr_perp, omega, i_m1)
         E_elastic = E
 

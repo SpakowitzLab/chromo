@@ -153,7 +153,7 @@ cdef class MCAdapter:
             polymer=polymer, amp_move=self.amp_move, amp_bead=self.amp_bead
         )
 
-    cdef void accept(
+    cpdef void accept(
         self, PolymerBase poly, double dE, long[:] inds, long n_inds,
         bint log_move, bint log_update, bint update_distances
     ):
@@ -238,7 +238,7 @@ cdef class MCAdapter:
                 dE
             )
 
-    cdef void reject(
+    cpdef void reject(
         self, PolymerBase poly, double dE, long[:] inds, long n_inds,
         bint log_move, bint log_update, bint update_distances
     ) except *:

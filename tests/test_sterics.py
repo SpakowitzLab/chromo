@@ -20,6 +20,7 @@ import numpy as np
 from inspect import getmembers, isfunction
 
 import chromo.polymers as poly
+import chromo.mc.moves as mv
 import chromo.mc as mc
 from chromo.util.nucleo_geom import R_default
 import chromo.binders
@@ -352,19 +353,38 @@ def test_steric_clash_compute_dE():
     assert E_tot < 1E25, f"The initial energy is too large; it is {E_tot}."
 
     # Move trial configuration to a position that causes a steric clash
-    p.r_trial[1] = p.r_trial[0].copy()
+    p.r_trial[1] = p.r_trial[0].copy() + np.array([1.8 * R_default, 0, 0])
     # Compute the change in energy associated with the move
-    dE = p.compute_dE("slide", np.array([1]), 1)
+    p.get_delta_distances(1, 2)
+
+    print(f"Original Distance: {round(np.asarray(p.distances)[0, 1], 3)}")
+    print(f"New Distance: {round(np.asarray(p.distances_trial)[0, 1], 3)}")
+    print(f"Excluded Distance: {round(p.excluded_distance, 3)}")
+    assert np.isclose(p.distances_trial[0, 1], p.r_trial[1][0] - p.r[0][0]), \
+        f"The distance between nucleosomes 0 and 1 is incorrect; it is " \
+        f"{p.distances_trial[0, 1]} instead of {p.r_trial[1][0] - p.r[0][0]}."
+
+    overlap_ratio = 2 * R_default / (p.r_trial[1][0] - p.r[0][0])
+    print(f"Overlap Ratio: {round(overlap_ratio, 3)}")
+    dE = p.eval_delta_steric_clashes(1, 2)
     # The energy change should be enormous, because of the steric clash
-    dE_expected = 1E25
+    overlap_ratio = 2 * R_default / (p.r_trial[1][0] - p.r[0][0])
+    dE_expected = (overlap_ratio ** 12) - 2 * (overlap_ratio ** 6) + 1
     assert np.isclose(dE, dE_expected), \
-        f"The energy change is too small; it is {dE}."
+        f"Expected steric energy change of {dE_expected}; it is {dE}."
 
     # Create multiple steric clashes and verify that the energy is still stable
     for i in range(1, n_beads):
         p.r_trial[i] = p.r_trial[i-1].copy()
         p.r_trial[i][0] += 0.999 * (p.beads[i].rad * 2)
     dE = p.compute_dE("slide", np.arange(n_beads), n_beads)
+
+    p.get_distances()
+    overlap_ratio = 2 * R_default / (p.r_trial[1][0] - p.r[0][0])
+    steric_contribution = (overlap_ratio ** 12) - 2 * (overlap_ratio ** 6) + 1
+    dE_expected = 0
+    for i in range(1, p.num_beads):
+        dE_expected += steric_contribution
     assert np.isclose(dE, dE_expected), f"The energy change is unstable; " \
         f"it is represented as {dE} instead of the expected value of " \
         f"{dE_expected}."
@@ -373,6 +393,160 @@ def test_steric_clash_compute_dE():
     E_dict = p.compute_E_detailed()
     assert np.isclose(E_dict["interaction"], 0), \
         "The total interaction energy should be 0."
+
+
+def test_update_distances():
+    """Verify that the model correctly updates pairwise distances.
+    """
+    # Define chromatin to match theory
+    linker_length_bp = 36
+    length_bp = 0.332
+    linker_length = linker_length_bp * length_bp
+    n_beads = 100
+    linker_lengths = np.array([linker_length] * (n_beads - 1))
+    lp = 50.
+    lt = 100.
+    bp_wrap = 147.
+
+    # Initialize the polymer
+    p = poly.DetailedChromatinWithSterics.straight_line_in_x(
+        "Chr",
+        linker_lengths,
+        bp_wrap=bp_wrap,
+        lp=lp,
+        lt=lt,
+        binder_names=np.array(["null_reader"])
+    )
+    move = mv.slide
+    adaptive_move = mv.MCAdapter(
+        'test_output/acceptance_trackers',
+        move.__name__ + "_snap_",
+        move,
+        moves_in_average=20,
+        init_amp_bead=0,
+        init_amp_move=100
+    )
+
+    # Test Move Acceptance
+    for i in range(1, n_beads):
+        p.r_trial[i] = p.r_trial[i - 1].copy()
+        p.r_trial[i][0] += 0.999 * (p.beads[i].rad * 2)
+    p.get_distances()
+    dist = (p.r_trial[1][0] - p.r_trial[0][0])
+    assert isinstance(p, poly.DetailedChromatinWithSterics), \
+        "The polymer is not of the correct type."
+    adaptive_move.accept(
+        p, 0, np.arange(p.num_beads), p.num_beads, log_move=False,
+        log_update=False, update_distances=True
+    )
+    for i in range(1, n_beads):
+        assert np.isclose(p.r[i][0] - p.r[i-1][0], dist), \
+            "Error updating distances when accepting move."
+
+    # Test Move Rejection
+    p = poly.DetailedChromatinWithSterics.straight_line_in_x(
+        "Chr",
+        linker_lengths,
+        bp_wrap=bp_wrap,
+        lp=lp,
+        lt=lt,
+        binder_names=np.array(["null_reader"])
+    )
+    for i in range(1, n_beads):
+        p.r_trial[i] = p.r_trial[i - 1].copy()
+        p.r_trial[i][0] += 0.999 * (p.beads[i].rad * 2)
+    p.get_distances()
+    dist = (p.r[1][0] - p.r[0][0])
+    assert isinstance(p, poly.DetailedChromatinWithSterics), \
+        "The polymer is not of the correct type."
+    adaptive_move.reject(
+        p, 0, np.arange(p.num_beads), p.num_beads, log_move=False,
+        log_update=False, update_distances=True
+    )
+    for i in range(1, n_beads):
+        assert np.isclose(p.r_trial[i][0] - p.r_trial[i-1][0], dist), \
+            "Error updating distances when rejecting move."
+
+
+def test_compute_dE_sterics():
+    """Check the calculation of the energy change for a move.
+    """
+    # Define chromatin to match theory
+    linker_length_bp = 36
+    length_bp = 0.332
+    linker_length = linker_length_bp * length_bp
+    n_beads = 100
+    linker_lengths = np.array([linker_length] * (n_beads - 1))
+    lp = 50.
+    lt = 100.
+    bp_wrap = 147.
+
+    # Initialize the polymer
+    p = poly.DetailedChromatinWithSterics.straight_line_in_x(
+        "Chr",
+        linker_lengths,
+        bp_wrap=bp_wrap,
+        lp=lp,
+        lt=lt,
+        binder_names=np.array(["null_reader"])
+    )
+    move = mv.slide
+    adaptive_move = mv.MCAdapter(
+        'test_output/acceptance_trackers',
+        move.__name__ + "_snap_",
+        move,
+        moves_in_average=20,
+        init_amp_bead=0,
+        init_amp_move=100
+    )
+
+    # Evaluate energy of initial configuration
+    E_dict = p.compute_E_detailed()
+    E_elastic_original = E_dict["elastic"]
+    E_steric_original = E_dict["steric"]
+    print(f"Original Clash Energy: {E_steric_original}")
+    print(f"Original Elastic Energy: {E_elastic_original}")
+    assert np.isclose(E_steric_original, p.eval_E_steric_clashes()), \
+        "The initial steric energy is not being calculated correctly."
+
+    # Move nucleosomes to generate clashes
+    dE = 0
+    dE_clash = 0
+    for i in range(1, n_beads):
+        p.r_trial[i] = p.r_trial[i - 1].copy()
+        p.r_trial[i][0] += 0.999 * (p.beads[i].rad * 2)
+
+        p.get_delta_distances(i, i+1)
+        dE_clash += p.eval_delta_steric_clashes(i, i+1)
+
+        inds = np.array([i])
+        dE_ = p.compute_dE("slide", inds, 1)
+        dE += dE_
+        # "accept" the move and evaluate final steric energy
+        adaptive_move.accept(
+            p, 0, inds, 1, log_move=False,
+            log_update=False, update_distances=True
+        )
+
+    # Check calculation of steric energy
+    E_dict = p.compute_E_detailed()
+    E_steric_final_1 = p.eval_E_steric_clashes()
+    E_steric_final_2 = E_dict["steric"]
+    print("Final Energy Total:", E_dict["total"])
+    print("Final Steric Energy:", E_steric_final_1)
+    assert np.isclose(E_steric_final_1, E_steric_final_2), \
+        "The final steric energy is not being calculated consistently."
+    assert np.isclose(E_steric_final_1, E_steric_original + dE_clash), \
+        "Change in steric energy is not consistent."
+
+    # Check calculation of elastic energy
+    E_elastic_final_1 = E_dict["elastic"]
+    E_elastic_final_2 = E_dict["total"]  - E_steric_final_2
+    print("Final Elastic Energy:", E_elastic_final_1)
+    assert np.isclose(E_elastic_final_1, E_elastic_final_2), \
+        "The final elastic energy is not being calculated consistently."
+    assert np.isclose(E_elastic_original + (dE-dE_clash), E_elastic_final_1), \
+        "Change in elastic energy is inconsistent."
 
 
 if __name__ == "__main__":
