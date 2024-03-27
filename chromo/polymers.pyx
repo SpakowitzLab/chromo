@@ -2821,6 +2821,8 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         """
         cdef long i, j
         for i in range(self.num_beads - 1):
+            self.distances[i, i] = 0.0
+            self.distances_trial[i, i] = 0.0
             for j in range(i + 1, self.num_beads):
                 self.distances[i, j] = np.sqrt(
                     (self.r[i, 0] - self.r[j, 0]) ** 2 + \
@@ -2855,6 +2857,7 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         """
         cdef long i, j
         for i in range(ind0, indf):
+            self.distances_trial[i, i] = 0.0
             for j in range(self.num_beads):
 
                 # Let's avoid unnecessary computation
@@ -2882,11 +2885,10 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
         double
             Change in the number of steric clashes associated with the move.
         """
-        cdef long i, j, n_clashes, num_beads
-        cdef double overlap_frac
-        n_clashes = 0
+        cdef long i, j, num_beads
+        cdef double overlap_frac, E_clash
         E_clash = 0
-        num_beads = len(self.distances_trial)
+        num_beads = self.num_beads
         for i in range(ind0, indf):
             for j in range(num_beads):
 
@@ -2992,9 +2994,12 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
             delta_energy_poly += dE_clashes
 
         if move_name == "change_binding_state":
-            ind0 = inds[0]
-            indf = inds[n_inds-1] + 1
-            delta_energy_poly += self.binding_dE(ind0, indf, n_inds)
+            if self.num_binders > 0:
+                ind0 = inds[0]
+                indf = inds[n_inds-1] + 1
+                delta_energy_poly += self.binding_dE(ind0, indf, n_inds)
+                # Compute change in reader protein interactions
+                delta_energy_poly += self.evaluate_binder_interactions()
         elif (
             move_name == "slide" or move_name == "end_pivot" or
             move_name == "crank_shaft"
@@ -3009,13 +3014,9 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
                 indf = ind + 1
                 delta_energy_poly += self.continuous_dE_poly(ind0, indf)
 
-        # Compute change in reader protein interactions
-        if self.num_binders > 0:
-            delta_energy_poly += self.evaluate_binder_interactions()
-
         return delta_energy_poly
 
-    cdef double evaluate_binder_interactions(self):
+    cpdef double evaluate_binder_interactions(self):
         """Evaluate change in energy associated with binding states.
 
         Notes
@@ -3097,7 +3098,7 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
                                 ] * n_pairs
         return delta_energy_binding
 
-    cdef double get_E_bind(self):
+    cpdef double get_E_bind(self):
         """Evaluate energy associated with current binding states.
 
         Notes
@@ -3286,6 +3287,8 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
                 t2i_1[2] * t3i_1[0] - t2i_1[0] * t3i_1[2],
                 t2i_1[0] * t3i_1[1] - t2i_1[1] * t3i_1[0]
             ])
+
+            # Forward direction
             omega = np.arctan2(
                 (np.dot(t2o_0, t1_1) - np.dot(t1_0, t2i_1)),
                 (np.dot(t1_0, t1_1) + np.dot(t2o_0, t2i_1))
@@ -3297,6 +3300,20 @@ cdef class DetailedChromatinWithSterics(DetailedChromatin):
             for j in range(3):
                 bend[j] += -t3o_0[j] - self.eta[i_m1] * dr_perp[j]
             E += self.E_pair_with_twist(bend, dr_par, dr_perp, omega, i_m1)
+
+            # Reverse Direction
+            omega = np.arctan2(
+                (np.dot(t2i_1, t1_0) - np.dot(t1_1, t2o_0)),
+                (np.dot(t1_1, t1_0) + np.dot(t2i_1, t2o_0))
+            )
+            dr = vec_sub3(ro_0, ri_1)
+            dr_par = vec_dot3(t3i_1, dr)
+            dr_perp = vec_sub3(dr, vec_scale3(t3i_1, dr_par))
+            bend = t3o_0.copy()
+            for j in range(3):
+                bend[j] += -t3i_1[j] - self.eta[i_m1] * dr_perp[j]
+            E += self.E_pair_with_twist(bend, dr_par, dr_perp, omega, i_m1)
+
         E_elastic = E
 
         # Compute the energy change associated with sterics

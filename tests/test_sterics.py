@@ -428,7 +428,7 @@ def test_update_distances():
     )
 
     # Test Move Acceptance
-    for i in range(1, n_beads):
+    for i in range(1, n_beads-5):
         p.r_trial[i] = p.r_trial[i - 1].copy()
         p.r_trial[i][0] += 0.999 * (p.beads[i].rad * 2)
     p.get_distances()
@@ -439,9 +439,13 @@ def test_update_distances():
         p, 0, np.arange(p.num_beads), p.num_beads, log_move=False,
         log_update=False, update_distances=True
     )
-    for i in range(1, n_beads):
+    for i in range(1, n_beads-5):
         assert np.isclose(p.r[i][0] - p.r[i-1][0], dist), \
             "Error updating distances when accepting move."
+    for i in range(0, n_beads):
+        for j in range(0, n_beads):
+            assert np.isclose(p.distances[i, j], p.distances_trial[i, j]), \
+                "Current and trial distances are out of sync."
 
     # Test Move Rejection
     p = poly.DetailedChromatinWithSterics.straight_line_in_x(
@@ -452,7 +456,7 @@ def test_update_distances():
         lt=lt,
         binder_names=np.array(["null_reader"])
     )
-    for i in range(1, n_beads):
+    for i in range(1, n_beads-5):
         p.r_trial[i] = p.r_trial[i - 1].copy()
         p.r_trial[i][0] += 0.999 * (p.beads[i].rad * 2)
     p.get_distances()
@@ -463,9 +467,27 @@ def test_update_distances():
         p, 0, np.arange(p.num_beads), p.num_beads, log_move=False,
         log_update=False, update_distances=True
     )
-    for i in range(1, n_beads):
+    for i in range(1, n_beads-5):
         assert np.isclose(p.r_trial[i][0] - p.r_trial[i-1][0], dist), \
             "Error updating distances when rejecting move."
+    for i in range(0, n_beads):
+        for j in range(0, n_beads):
+            assert np.isclose(p.distances[i, j], p.distances_trial[i, j]), \
+                "Current and trial distances are out of sync."
+
+    # We did not touch the states. Verify that they are all zero
+    assert np.allclose(np.asarray(p.states), 0), \
+        "The states should all be zero."
+    assert np.allclose(np.asarray(p.states_trial), 0), \
+        "The trial states should all be zero."
+
+    # The binding energy and interaction energies should be zero
+    dE_bind = p.get_E_bind()
+    assert np.isclose(dE_bind, 0), \
+        "The binding energy should be zero."
+    dE_interact = p.evaluate_binder_interactions()
+    assert np.isclose(dE_interact, 0), \
+        "The interaction energy should be zero."
 
 
 def test_compute_dE_sterics():
