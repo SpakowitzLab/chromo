@@ -88,6 +88,7 @@ cdef class FieldBase:
         self.polymers = polymers
         self.n_polymers = len(polymers)
         self.binders = binders
+        self.confine_type = ""
 
     def __str__(self):
         """Print representation of empty field.
@@ -206,6 +207,34 @@ class Reconstructor:
         details and parameter/returns definitions.
         """
         return self.finalize(polymers, binders)
+
+
+cdef class NullField(FieldBase):
+    """A field with no energy contributions.
+    """
+
+    def __init__(self):
+        super(NullField, self).__init__(
+            polymers = [], binders = pd.DataFrame()
+        )
+
+    def to_file(self, path):
+        """Save Field description.
+        """
+        with open(path, 'w'):
+            pass
+
+    @classmethod
+    def from_file(cls, path):
+        """Load Field description.
+        """
+        return cls()
+
+    cdef double compute_dE(
+        self, poly.PolymerBase poly, long[:] inds, long n_inds,
+        long packet_size, bint state_change
+    ):
+        return 0
 
 
 cdef class UniformDensityField(FieldBase):
